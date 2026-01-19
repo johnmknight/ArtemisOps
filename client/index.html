@@ -1218,15 +1218,17 @@
 
     // ===== MAIN APPLICATION =====
     const CONFIG = {
+      // API endpoints - use relative paths when served by backend
+      API_BASE: window.location.origin,
+      WS_URL: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`,
       UPDATE_INTERVAL: 5 * 60 * 1000,
-      NASA_API_ENDPOINTS: {
-        upcoming: 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=artemis%202',
-        allLaunches: 'https://ll.thespacedevs.com/2.2.0/launch/?search=artemis%202&mode=detailed',
-      },
+      RECONNECT_INTERVAL: 5000,
       FALLBACK_DATA: {
-        launchDate: '2026-04-01T12:00:00Z',
-        launchSite: 'Kennedy Space Center, FL',
+        name: 'Artemis II',
+        launch_date: '2026-04-01T12:00:00Z',
+        site: 'Kennedy Space Center, FL',
         status: 'Artemis II is in final preparations. The SLS rocket and Orion spacecraft are undergoing final integrated systems testing.',
+        source: 'fallback',
         milestones: [
           { date: 'Dec 2025', title: 'Flight Readiness Review', description: 'Final comprehensive review of all mission systems', status: 'completed' },
           { date: 'Jan 2, 2026', title: 'Crew Quarantine Begins', description: 'Flight crew enters health stabilization program', status: 'completed' },
@@ -1237,6 +1239,88 @@
           { date: 'T-2:35:00', title: 'Crew Ingress', description: 'Four astronauts board Orion spacecraft', status: 'pending' },
           { date: 'T-00:00', title: 'LIFTOFF', description: 'RS-25 engines and SRBs ignite', status: 'pending' }
         ]
+      }
+    };
+
+    // ===== CONNECTION MANAGER =====
+    const ConnectionManager = {
+      ws: null,
+      isOnline: navigator.onLine,
+      connectionState: 'connecting', // 'live', 'cached', 'offline'
+      reconnectTimer: null,
+
+      init() {
+        // Listen for online/offline events
+        window.addEventListener('online', () => this.handleOnline());
+        window.addEventListener('offline', () => this.handleOffline());
+        
+        this.connectWebSocket();
+      },
+
+      connectWebSocket() {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+        
+        try {
+          this.ws = new WebSocket(CONFIG.WS_URL);
+          
+          this.ws.onopen = () => {
+            console.log('WebSocket connected');
+            this.setConnectionState('live');
+            if (this.reconnectTimer) {
+              clearInterval(this.reconnectTimer);
+              this.reconnectTimer = null;
+            }
+          };
+          
+          this.ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'mission_update') {
+              console.log('Received mission update via WebSocket');
+              applyMissionData(message.data);
+            }
+          };
+          
+          this.ws.onclose = () => {
+            console.log('WebSocket disconnected');
+            this.setConnectionState(this.isOnline ? 'cached' : 'offline');
+            this.scheduleReconnect();
+          };
+          
+          this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+          };
+        } catch (e) {
+          console.error('Failed to create WebSocket:', e);
+          this.setConnectionState('cached');
+        }
+      },
+
+      scheduleReconnect() {
+        if (this.reconnectTimer) return;
+        this.reconnectTimer = setInterval(() => {
+          if (this.isOnline && (!this.ws || this.ws.readyState === WebSocket.CLOSED)) {
+            console.log('Attempting to reconnect WebSocket...');
+            this.connectWebSocket();
+          }
+        }, CONFIG.RECONNECT_INTERVAL);
+      },
+
+      handleOnline() {
+        console.log('Network online');
+        this.isOnline = true;
+        this.connectWebSocket();
+        loadMissionData(); // Refresh data
+      },
+
+      handleOffline() {
+        console.log('Network offline');
+        this.isOnline = false;
+        this.setConnectionState('offline');
+      },
+
+      setConnectionState(state) {
+        this.connectionState = state;
+        updateConnectionIndicator(state);
       }
     };
 
@@ -1256,42 +1340,113 @@
       setTimeout(() => container.innerHTML = '', 10000);
     }
 
-    async function loadMissionData() {
-      try {
-        const response = await fetch(CONFIG.NASA_API_ENDPOINTS.upcoming);
-        if (!response.ok) throw new Error('API request failed');
-        
-        const data = await response.json();
-        const artemis2 = data.results?.find(l => 
-          l.name?.toLowerCase().includes('artemis') && 
-          (l.name?.includes('ii') || l.name?.includes('2'))
-        );
-        
-        if (!artemis2) throw new Error('Artemis II not found');
-        
-        appState.launchDate = new Date(artemis2.net);
-        appState.launchSite = artemis2.pad?.location?.name || CONFIG.FALLBACK_DATA.launchSite;
-        appState.missionStatus = artemis2.status?.description || CONFIG.FALLBACK_DATA.status;
-        appState.dataSource = 'Space Devs API';
-        appState.lastSuccessfulUpdate = new Date();
-        appState.milestones = CONFIG.FALLBACK_DATA.milestones;
-        
-        updateDataSourceLabels('live');
-      } catch (error) {
-        console.error('Failed to load live data:', error);
-        
-        appState.launchDate = new Date(CONFIG.FALLBACK_DATA.launchDate);
-        appState.launchSite = CONFIG.FALLBACK_DATA.launchSite;
-        appState.missionStatus = CONFIG.FALLBACK_DATA.status;
-        appState.milestones = CONFIG.FALLBACK_DATA.milestones;
-        appState.dataSource = 'fallback';
-        
-        showBanner('Using cached mission data. Will retry automatically.', 'warning');
-        updateDataSourceLabels('fallback');
+    // Cache management
+    const CacheManager = {
+      CACHE_KEY: 'artemisops_mission_cache',
+      
+      save(data) {
+        try {
+          const cacheData = {
+            data: data,
+            timestamp: new Date().toISOString()
+          };
+          localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
+        } catch (e) {
+          console.warn('Failed to cache data:', e);
+        }
+      },
+      
+      load() {
+        try {
+          const cached = localStorage.getItem(this.CACHE_KEY);
+          if (cached) {
+            const { data, timestamp } = JSON.parse(cached);
+            data.source = 'cached';
+            data.cached_at = timestamp;
+            return data;
+          }
+        } catch (e) {
+          console.warn('Failed to load cache:', e);
+        }
+        return null;
+      },
+      
+      getAge() {
+        try {
+          const cached = localStorage.getItem(this.CACHE_KEY);
+          if (cached) {
+            const { timestamp } = JSON.parse(cached);
+            return Date.now() - new Date(timestamp).getTime();
+          }
+        } catch (e) {}
+        return Infinity;
+      }
+    };
+
+    // Apply mission data to app state
+    function applyMissionData(data) {
+      const oldStatus = appState.missionStatus;
+      
+      appState.launchDate = data.launch_date ? new Date(data.launch_date) : null;
+      appState.launchSite = data.site || CONFIG.FALLBACK_DATA.site;
+      appState.missionStatus = data.status || CONFIG.FALLBACK_DATA.status;
+      appState.dataSource = data.source || 'unknown';
+      appState.lastSuccessfulUpdate = new Date();
+      appState.milestones = data.milestones || CONFIG.FALLBACK_DATA.milestones;
+      
+      // Cache live data
+      if (data.source === 'live') {
+        CacheManager.save(data);
+      }
+      
+      // Check for status changes
+      if (oldStatus && oldStatus !== appState.missionStatus) {
+        NotificationSystem.notifyStatusChange(oldStatus, appState.missionStatus);
       }
       
       checkMilestoneChanges();
       updateUI();
+    }
+
+    // Update connection indicator
+    function updateConnectionIndicator(state) {
+      const indicators = document.querySelectorAll('.live-indicator');
+      indicators.forEach(indicator => {
+        indicator.classList.remove('error', 'warning');
+        if (state === 'offline') {
+          indicator.classList.add('error');
+        } else if (state === 'cached') {
+          indicator.classList.add('warning');
+        }
+      });
+      updateDataSourceLabels(state);
+    }
+
+    async function loadMissionData() {
+      try {
+        const response = await fetch(`${CONFIG.API_BASE}/api/mission`);
+        if (!response.ok) throw new Error('API request failed');
+        
+        const data = await response.json();
+        applyMissionData(data);
+        ConnectionManager.setConnectionState(data.source === 'live' ? 'live' : 'cached');
+        
+      } catch (error) {
+        console.error('Failed to load from API:', error);
+        
+        // Try to use cached data
+        const cached = CacheManager.load();
+        if (cached) {
+          console.log('Using cached data');
+          applyMissionData(cached);
+          ConnectionManager.setConnectionState('cached');
+        } else {
+          // Use fallback
+          console.log('Using fallback data');
+          applyMissionData(CONFIG.FALLBACK_DATA);
+          ConnectionManager.setConnectionState('offline');
+        }
+      }
     }
 
     function checkMilestoneChanges() {
@@ -1310,10 +1465,23 @@
       appState.previousMilestones = [...appState.milestones];
     }
 
-    function updateDataSourceLabels(source) {
-      const message = source === 'live' 
-        ? `Data from: ${appState.dataSource}`
-        : 'Using cached mission data (offline mode)';
+    function updateDataSourceLabels(state) {
+      let message = '';
+      switch (state) {
+        case 'live':
+          message = '● Live';
+          break;
+        case 'cached':
+          const age = CacheManager.getAge();
+          const mins = Math.floor(age / 60000);
+          message = mins > 0 ? `○ Cached (${mins}m ago)` : '○ Cached';
+          break;
+        case 'offline':
+          message = '○ Offline';
+          break;
+        default:
+          message = '...';
+      }
       
       document.getElementById('launchDataSource').textContent = message;
       document.getElementById('timelineDataSource').textContent = message;
@@ -1464,13 +1632,26 @@
 
     async function init() {
       console.log('Initializing ArtemisOps...');
+      
+      // Initialize systems
       NotificationSystem.init();
+      ConnectionManager.init();
+      
+      // Load initial data
       await loadMissionData();
+      
+      // Start countdown timer
       setInterval(updateCountdown, 1000);
+      
+      // Periodic data refresh (backup for WebSocket)
       setInterval(async () => {
-        console.log('Checking for mission updates...');
-        await loadMissionData();
+        // Only poll if WebSocket is not connected
+        if (!ConnectionManager.ws || ConnectionManager.ws.readyState !== WebSocket.OPEN) {
+          console.log('Polling for mission updates...');
+          await loadMissionData();
+        }
       }, CONFIG.UPDATE_INTERVAL);
+      
       console.log('ArtemisOps initialized successfully');
     }
 
