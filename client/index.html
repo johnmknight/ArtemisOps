@@ -97,6 +97,102 @@
       letter-spacing: 3px;
     }
 
+    /* ===== MISSION SELECTOR STYLES ===== */
+    .mission-selector-container {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+
+    .mission-selector {
+      background: rgba(15, 25, 45, 0.95);
+      border: 2px solid #4a9eff;
+      color: #e0e6ed;
+      padding: 10px 35px 10px 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 4px;
+      min-width: 200px;
+      box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .mission-selector:hover {
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.5);
+    }
+
+    .mission-selector:focus {
+      outline: none;
+      border-color: #8ab4f8;
+    }
+
+    .mission-selector-container::after {
+      content: '▼';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4a9eff;
+      pointer-events: none;
+      font-size: 0.7em;
+    }
+
+    .mission-selector option {
+      background: #0a0e27;
+      color: #e0e6ed;
+      padding: 10px;
+    }
+
+    .mission-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 14, 39, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .mission-loading.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mission-loading-content {
+      text-align: center;
+    }
+
+    .mission-loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(74, 158, 255, 0.3);
+      border-top-color: #4a9eff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .mission-loading-text {
+      color: #4a9eff;
+      font-size: 1.2em;
+      letter-spacing: 2px;
+    }
+    /* ===== END MISSION SELECTOR STYLES ===== */
+
     .countdown-display {
       background: rgba(15, 25, 45, 0.9);
       border: 3px solid #4a9eff;
@@ -916,6 +1012,21 @@
 <body>
   <div class="scanlines"></div>
   
+  <!-- Mission Selector -->
+  <div class="mission-selector-container">
+    <select class="mission-selector" id="missionSelector" onchange="MissionManager.switchMission(this.value)">
+      <option value="">Loading missions...</option>
+    </select>
+  </div>
+
+  <!-- Mission Loading Overlay -->
+  <div class="mission-loading" id="missionLoading">
+    <div class="mission-loading-content">
+      <div class="mission-loading-spinner"></div>
+      <div class="mission-loading-text">LOADING MISSION DATA...</div>
+    </div>
+  </div>
+
   <!-- Notification Bell -->
   <div class="notification-bell" id="notificationBell" onclick="toggleNotificationPanel()">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1314,6 +1425,13 @@
           body: newStatus,
           icon: '📋'
         });
+      },
+
+      resetCountdownAlerts() {
+        // Reset all countdown alerts for new mission
+        for (const key of Object.keys(this.countdownAlerts)) {
+          this.countdownAlerts[key].fired = false;
+        }
       }
     };
 
@@ -1337,6 +1455,122 @@
         panel.classList.remove('open');
       }
     });
+
+    // ===== MISSION MANAGER =====
+    const MissionManager = {
+      missions: [],
+      currentMissionId: null,
+      
+      async init() {
+        // Load saved mission preference
+        this.currentMissionId = localStorage.getItem('artemisops_current_mission') || 'artemis-ii';
+        
+        // Fetch available missions
+        await this.loadMissions();
+        
+        // Load the current mission
+        await this.switchMission(this.currentMissionId, false);
+      },
+      
+      async loadMissions() {
+        try {
+          const response = await fetch(`${CONFIG.API_BASE}/api/missions`);
+          if (!response.ok) throw new Error('Failed to fetch missions');
+          
+          const data = await response.json();
+          this.missions = data.missions || [];
+          this.renderMissionSelector();
+        } catch (error) {
+          console.error('Failed to load missions:', error);
+          // Add default option if API fails
+          this.missions = [{ id: 'artemis-ii', name: 'Artemis II' }];
+          this.renderMissionSelector();
+        }
+      },
+      
+      renderMissionSelector() {
+        const selector = document.getElementById('missionSelector');
+        if (!selector) return;
+        
+        selector.innerHTML = this.missions.map(m => 
+          `<option value="${m.id}" ${m.id === this.currentMissionId ? 'selected' : ''}>${m.name}</option>`
+        ).join('');
+      },
+      
+      async switchMission(missionId, showLoading = true) {
+        if (!missionId) return;
+        
+        console.log(`Switching to mission: ${missionId}`);
+        this.currentMissionId = missionId;
+        localStorage.setItem('artemisops_current_mission', missionId);
+        
+        // Show loading overlay
+        if (showLoading) {
+          document.getElementById('missionLoading').classList.add('active');
+        }
+        
+        try {
+          // Fetch full mission data
+          const response = await fetch(`${CONFIG.API_BASE}/api/missions/${missionId}`);
+          if (!response.ok) throw new Error('Failed to fetch mission');
+          
+          const data = await response.json();
+          
+          // Update header
+          this.updateHeader(data);
+          
+          // Apply mission data
+          applyMissionData(data);
+          
+          // Render crew
+          if (data.crew && data.crew.length > 0) {
+            renderCrew(data.crew);
+          } else {
+            document.getElementById('crewGrid').innerHTML = '<div class="crew-loading">No crew assigned to this mission</div>';
+          }
+          
+          // Reset countdown alerts for new mission
+          NotificationSystem.resetCountdownAlerts();
+          
+          // Subscribe to this mission via WebSocket
+          if (ConnectionManager.ws && ConnectionManager.ws.readyState === WebSocket.OPEN) {
+            ConnectionManager.ws.send(`subscribe:${missionId}`);
+          }
+          
+        } catch (error) {
+          console.error('Failed to switch mission:', error);
+          showBanner(`Failed to load mission: ${error.message}`, 'error');
+        } finally {
+          // Hide loading overlay
+          document.getElementById('missionLoading').classList.remove('active');
+        }
+      },
+      
+      updateHeader(data) {
+        // Update title
+        const titleEl = document.querySelector('.mission-title');
+        if (titleEl) {
+          titleEl.textContent = data.name || 'MISSION';
+        }
+        
+        // Update subtitle based on mission
+        const subtitleEl = document.querySelector('.mission-subtitle');
+        if (subtitleEl) {
+          if (data.description) {
+            // Truncate if too long
+            const shortDesc = data.description.length > 60 
+              ? data.description.substring(0, 57) + '...'
+              : data.description;
+            subtitleEl.textContent = shortDesc;
+          } else {
+            subtitleEl.textContent = data.name || '';
+          }
+        }
+        
+        // Update page title
+        document.title = `ArtemisOps - ${data.name || 'Mission Control'}`;
+      }
+    };
 
     // ===== MAIN APPLICATION =====
     const CONFIG = {
@@ -1398,7 +1632,17 @@
             const message = JSON.parse(event.data);
             if (message.type === 'mission_update') {
               console.log('Received mission update via WebSocket');
-              applyMissionData(message.data);
+              // Only apply if it's for the current mission
+              if (message.data.id === MissionManager.currentMissionId) {
+                applyMissionData(message.data);
+                if (message.data.crew) {
+                  renderCrew(message.data.crew);
+                }
+              }
+            } else if (message.type === 'missions_list') {
+              console.log('Received missions list via WebSocket');
+              MissionManager.missions = message.data || [];
+              MissionManager.renderMissionSelector();
             }
           };
           
@@ -1759,9 +2003,8 @@
       NotificationSystem.init();
       ConnectionManager.init();
       
-      // Load initial data
-      await loadMissionData();
-      await loadCrewData();
+      // Initialize mission manager (loads missions and current mission)
+      await MissionManager.init();
       
       // Start countdown timer
       setInterval(updateCountdown, 1000);
@@ -1771,7 +2014,7 @@
         // Only poll if WebSocket is not connected
         if (!ConnectionManager.ws || ConnectionManager.ws.readyState !== WebSocket.OPEN) {
           console.log('Polling for mission updates...');
-          await loadMissionData();
+          await MissionManager.switchMission(MissionManager.currentMissionId, false);
         }
       }, CONFIG.UPDATE_INTERVAL);
       
