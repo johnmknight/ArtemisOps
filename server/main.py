@@ -24,13 +24,13 @@ app_state = {
     "connected_clients": set()
 }
 
-# Artemis II Crew Data
+# Artemis II Crew Data - Official NASA Portraits
 ARTEMIS_II_CREW = [
     {
         "name": "Reid Wiseman",
         "role": "Commander",
         "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072528.jpg",
+        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2013e090068.jpg",
         "bio": "NASA astronaut and U.S. Navy Captain. Previously flew on Expedition 41 aboard the ISS in 2014.",
         "nasa_bio": "https://www.nasa.gov/people/reid-wiseman/",
         "missions": ["Expedition 41", "Artemis II"]
@@ -39,7 +39,7 @@ ARTEMIS_II_CREW = [
         "name": "Victor Glover",
         "role": "Pilot",
         "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072468.jpg",
+        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038718.jpg",
         "bio": "NASA astronaut and U.S. Navy Captain. Pilot of SpaceX Crew-1 and ISS Expedition 64 crew member.",
         "nasa_bio": "https://www.nasa.gov/people/victor-j-glover/",
         "missions": ["SpaceX Crew-1", "Expedition 64", "Artemis II"]
@@ -48,7 +48,7 @@ ARTEMIS_II_CREW = [
         "name": "Christina Koch",
         "role": "Mission Specialist",
         "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072398.jpg",
+        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038864.jpg",
         "bio": "NASA astronaut and electrical engineer. Holds record for longest single spaceflight by a woman (328 days).",
         "nasa_bio": "https://www.nasa.gov/people/christina-h-koch/",
         "missions": ["Expedition 59/60/61", "Artemis II"]
@@ -57,7 +57,7 @@ ARTEMIS_II_CREW = [
         "name": "Jeremy Hansen",
         "role": "Mission Specialist",
         "agency": "CSA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072361.jpg",
+        "photo": "https://www.asc-csa.gc.ca/images/recherche/tiles/5eed17e3-4a8f-46f5-8317-f372c3b79ece.jpg",
         "bio": "Canadian Space Agency astronaut and former CF-18 fighter pilot. First Canadian to fly to the Moon.",
         "nasa_bio": "https://www.asc-csa.gc.ca/eng/astronauts/canadian/active/bio-jeremy-hansen.asp",
         "missions": ["Artemis II"]
