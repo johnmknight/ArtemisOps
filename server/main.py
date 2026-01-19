@@ -1,15 +1,20 @@
 """
 ArtemisOps Server - Mission Control Backend
+Multi-mission support with hourly data sync
 """
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
-import httpx
-import json
 from pathlib import Path
 from datetime import datetime, timezone
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+from database import (
+    init_db, get_all_missions, get_full_mission,
+    get_last_sync
+)
+from fetcher import sync_all_missions, ensure_default_missions
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -19,138 +24,56 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 # In-memory state
 app_state = {
-    "mission_data": None,
-    "last_update": None,
-    "connected_clients": set()
+    "connected_clients": set(),  # WebSocket connections
+    "last_sync": None
 }
-
-# Artemis II Crew Data - Official NASA Portraits
-ARTEMIS_II_CREW = [
-    {
-        "name": "Reid Wiseman",
-        "role": "Commander",
-        "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2013e090068.jpg",
-        "bio": "NASA astronaut and U.S. Navy Captain. Previously flew on Expedition 41 aboard the ISS in 2014.",
-        "nasa_bio": "https://www.nasa.gov/people/reid-wiseman/",
-        "missions": ["Expedition 41", "Artemis II"]
-    },
-    {
-        "name": "Victor Glover",
-        "role": "Pilot",
-        "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038718.jpg",
-        "bio": "NASA astronaut and U.S. Navy Captain. Pilot of SpaceX Crew-1 and ISS Expedition 64 crew member.",
-        "nasa_bio": "https://www.nasa.gov/people/victor-j-glover/",
-        "missions": ["SpaceX Crew-1", "Expedition 64", "Artemis II"]
-    },
-    {
-        "name": "Christina Koch",
-        "role": "Mission Specialist",
-        "agency": "NASA",
-        "photo": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038864.jpg",
-        "bio": "NASA astronaut and electrical engineer. Holds record for longest single spaceflight by a woman (328 days).",
-        "nasa_bio": "https://www.nasa.gov/people/christina-h-koch/",
-        "missions": ["Expedition 59/60/61", "Artemis II"]
-    },
-    {
-        "name": "Jeremy Hansen",
-        "role": "Mission Specialist",
-        "agency": "CSA",
-        "photo": "https://www.asc-csa.gc.ca/images/recherche/tiles/5eed17e3-4a8f-46f5-8317-f372c3b79ece.jpg",
-        "bio": "Canadian Space Agency astronaut and former CF-18 fighter pilot. First Canadian to fly to the Moon.",
-        "nasa_bio": "https://www.asc-csa.gc.ca/eng/astronauts/canadian/active/bio-jeremy-hansen.asp",
-        "missions": ["Artemis II"]
-    }
-]
 
 scheduler = AsyncIOScheduler()
 
 
-# === Data Fetching ===
-
-async def fetch_mission_data():
-    """Fetch latest mission data from Space Devs API"""
-    url = "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=artemis"
-    cache_file = CACHE_DIR / "mission_data.json"
-    
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            data = response.json()
-            
-            # Find Artemis II
-            artemis2 = None
-            for launch in data.get("results", []):
-                name = launch.get("name", "").lower()
-                if "artemis" in name and ("ii" in name or "2" in name):
-                    artemis2 = launch
-                    break
-            
-            if artemis2:
-                mission_data = {
-                    "name": artemis2.get("name"),
-                    "launch_date": artemis2.get("net"),
-                    "status": artemis2.get("status", {}).get("description"),
-                    "site": artemis2.get("pad", {}).get("location", {}).get("name"),
-                    "fetched_at": datetime.now(timezone.utc).isoformat(),
-                    "source": "live"
-                }
-            else:
-                mission_data = get_fallback_data()
-                mission_data["source"] = "fallback"
-            
-            # Cache to file
-            cache_file.write_text(json.dumps(mission_data, indent=2))
-            
-            # Update state
-            app_state["mission_data"] = mission_data
-            app_state["last_update"] = datetime.now(timezone.utc)
-            
-            # Notify connected WebSocket clients
-            await broadcast_update(mission_data)
-            
-            print(f"[{datetime.now()}] Mission data updated: {mission_data.get('source')}")
-            return mission_data
-            
-    except Exception as e:
-        print(f"[{datetime.now()}] Fetch error: {e}")
-        
-        # Try to load from cache
-        if cache_file.exists():
-            cached = json.loads(cache_file.read_text())
-            cached["source"] = "cached"
-            app_state["mission_data"] = cached
-            return cached
-        
-        # Use fallback
-        fallback = get_fallback_data()
-        app_state["mission_data"] = fallback
-        return fallback
-
-
-def get_fallback_data():
-    """Fallback data when API unavailable"""
-    return {
-        "name": "Artemis II",
-        "launch_date": "2026-04-01T12:00:00Z",
-        "status": "Artemis II is in final preparations for humanity's return to lunar orbit.",
-        "site": "Kennedy Space Center, FL",
-        "source": "fallback"
-    }
-
+# === WebSocket Broadcast ===
 
 async def broadcast_update(data: dict):
     """Send update to all connected WebSocket clients"""
     disconnected = set()
+    message = {"type": "mission_update", "data": data}
+    
     for ws in app_state["connected_clients"]:
         try:
-            await ws.send_json({"type": "mission_update", "data": data})
+            await ws.send_json(message)
         except:
             disconnected.add(ws)
     
     app_state["connected_clients"] -= disconnected
+
+
+async def broadcast_missions_list():
+    """Broadcast updated missions list to all clients"""
+    missions = await get_all_missions()
+    message = {"type": "missions_list", "data": missions}
+    
+    disconnected = set()
+    for ws in app_state["connected_clients"]:
+        try:
+            await ws.send_json(message)
+        except:
+            disconnected.add(ws)
+    
+    app_state["connected_clients"] -= disconnected
+
+
+# === Scheduled Sync ===
+
+async def scheduled_sync():
+    """Hourly sync job"""
+    print(f"[{datetime.now()}] Running scheduled sync...")
+    result = await sync_all_missions()
+    app_state["last_sync"] = datetime.now(timezone.utc)
+    
+    # Broadcast update to all clients
+    await broadcast_missions_list()
+    
+    return result
 
 
 # === Lifespan ===
@@ -159,11 +82,24 @@ async def broadcast_update(data: dict):
 async def lifespan(app: FastAPI):
     # Startup
     print("ArtemisOps Server starting...")
-    await fetch_mission_data()
-    scheduler.add_job(fetch_mission_data, 'interval', minutes=5)
+    
+    # Initialize database
+    await init_db()
+    
+    # Ensure we have default data
+    await ensure_default_missions()
+    
+    # Initial sync
+    await sync_all_missions()
+    app_state["last_sync"] = datetime.now(timezone.utc)
+    
+    # Schedule hourly sync
+    scheduler.add_job(scheduled_sync, 'interval', hours=1, id='hourly_sync')
     scheduler.start()
-    print("Scheduler started - updating every 5 minutes")
+    print("Scheduler started - syncing every hour")
+    
     yield
+    
     # Shutdown
     scheduler.shutdown()
     print("ArtemisOps Server stopped")
@@ -174,46 +110,110 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ArtemisOps API",
     description="Mission Control Backend for NASA Artemis Missions",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan
 )
 
 
 # === API Routes ===
 
+@app.get("/api/missions")
+async def list_missions():
+    """Get all active missions"""
+    missions = await get_all_missions()
+    return {"missions": missions}
+
+
+@app.get("/api/missions/{mission_id}")
+async def get_mission_detail(mission_id: str):
+    """Get full mission data including crew and milestones"""
+    mission = await get_full_mission(mission_id)
+    if not mission:
+        raise HTTPException(status_code=404, detail="Mission not found")
+    
+    # Transform for client compatibility
+    return {
+        "id": mission["id"],
+        "name": mission["name"],
+        "launch_date": mission["launch_date"],
+        "status": mission["status_description"] or mission["status"],
+        "site": mission["site"],
+        "source": mission.get("api_source", "database"),
+        "image_url": mission.get("image_url"),
+        "rocket": mission.get("rocket"),
+        "spacecraft": mission.get("spacecraft"),
+        "description": mission.get("description"),
+        "crew": [
+            {
+                "name": c["name"],
+                "role": c["role"],
+                "agency": c["agency"],
+                "photo": c["photo_url"],
+                "bio": c["bio"],
+                "nasa_bio": c["bio_url"]
+            }
+            for c in mission.get("crew", [])
+        ],
+        "milestones": [
+            {
+                "date": m["date_label"],
+                "title": m["title"],
+                "description": m["description"],
+                "status": m["status"]
+            }
+            for m in mission.get("milestones", [])
+        ]
+    }
+
+
+# Legacy endpoint for backward compatibility
 @app.get("/api/mission")
-async def get_mission():
-    """Get current mission data"""
-    if app_state["mission_data"]:
-        return app_state["mission_data"]
-    return await fetch_mission_data()
+async def get_default_mission():
+    """Get default mission (Artemis II) - legacy endpoint"""
+    return await get_mission_detail("artemis-ii")
+
+
+@app.get("/api/crew")
+async def get_default_crew():
+    """Get crew for default mission - legacy endpoint"""
+    mission = await get_full_mission("artemis-ii")
+    if not mission:
+        raise HTTPException(status_code=404, detail="Mission not found")
+    
+    return {
+        "mission": mission["name"],
+        "crew": [
+            {
+                "name": c["name"],
+                "role": c["role"],
+                "agency": c["agency"],
+                "photo": c["photo_url"],
+                "bio": c["bio"],
+                "nasa_bio": c["bio_url"]
+            }
+            for c in mission.get("crew", [])
+        ]
+    }
 
 
 @app.get("/api/status")
 async def get_status():
     """Server status endpoint"""
+    last_sync = await get_last_sync()
     return {
         "status": "ok",
-        "last_update": app_state["last_update"].isoformat() if app_state["last_update"] else None,
+        "last_sync": last_sync["synced_at"] if last_sync else None,
         "connected_clients": len(app_state["connected_clients"]),
-        "data_source": app_state["mission_data"].get("source") if app_state["mission_data"] else None
+        "version": "0.2.0"
     }
 
 
-@app.post("/api/refresh")
-async def refresh_data():
-    """Force refresh mission data"""
-    data = await fetch_mission_data()
-    return {"status": "refreshed", "data": data}
-
-
-@app.get("/api/crew")
-async def get_crew():
-    """Get crew information for current mission"""
-    return {
-        "mission": "Artemis II",
-        "crew": ARTEMIS_II_CREW
-    }
+@app.post("/api/sync")
+async def trigger_sync():
+    """Manually trigger data sync"""
+    result = await sync_all_missions()
+    await broadcast_missions_list()
+    return result
 
 
 # === WebSocket ===
@@ -225,19 +225,37 @@ async def websocket_endpoint(websocket: WebSocket):
     print(f"Client connected. Total: {len(app_state['connected_clients'])}")
     
     try:
-        # Send current data on connect
-        if app_state["mission_data"]:
+        # Send missions list on connect
+        missions = await get_all_missions()
+        await websocket.send_json({
+            "type": "missions_list",
+            "data": missions
+        })
+        
+        # Send default mission data
+        mission = await get_full_mission("artemis-ii")
+        if mission:
             await websocket.send_json({
                 "type": "mission_update",
-                "data": app_state["mission_data"]
+                "data": await get_mission_detail("artemis-ii")
             })
         
         # Keep connection alive, listen for messages
         while True:
             data = await websocket.receive_text()
-            # Handle client messages if needed
+            
             if data == "ping":
                 await websocket.send_json({"type": "pong"})
+            
+            elif data.startswith("subscribe:"):
+                # Client subscribing to a specific mission
+                mission_id = data.split(":")[1]
+                mission_data = await get_full_mission(mission_id)
+                if mission_data:
+                    await websocket.send_json({
+                        "type": "mission_update",
+                        "data": await get_mission_detail(mission_id)
+                    })
     
     except WebSocketDisconnect:
         pass
@@ -248,7 +266,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # === Static Files (Client) ===
 
-# Serve client files
 if CLIENT_DIR.exists():
     app.mount("/static", StaticFiles(directory=CLIENT_DIR), name="static")
     
