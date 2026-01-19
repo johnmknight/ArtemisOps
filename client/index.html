@@ -1815,7 +1815,7 @@
             <div class="crew-role">${member.role}</div>
             <span class="crew-agency">${member.agency}</span>
             <div class="crew-bio">${member.bio}</div>
-            ${member.twitter ? `<a href="https://twitter.com/${member.twitter.replace('@', '')}" target="_blank" rel="noopener" class="crew-twitter">${member.twitter}</a>` : ''}
+            ${member.nasa_bio ? `<a href="${member.nasa_bio}" target="_blank" rel="noopener" class="crew-twitter">View Full Bio →</a>` : ''}
           </div>
         </div>
       `).join('');

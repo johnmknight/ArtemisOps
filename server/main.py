@@ -32,7 +32,7 @@ ARTEMIS_II_CREW = [
         "agency": "NASA",
         "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072528.jpg",
         "bio": "NASA astronaut and U.S. Navy Captain. Previously flew on Expedition 41 aboard the ISS in 2014.",
-        "twitter": "@Astro_Reid",
+        "nasa_bio": "https://www.nasa.gov/people/reid-wiseman/",
         "missions": ["Expedition 41", "Artemis II"]
     },
     {
@@ -41,7 +41,7 @@ ARTEMIS_II_CREW = [
         "agency": "NASA",
         "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072468.jpg",
         "bio": "NASA astronaut and U.S. Navy Captain. Pilot of SpaceX Crew-1 and ISS Expedition 64 crew member.",
-        "twitter": "@AstroVicGlover",
+        "nasa_bio": "https://www.nasa.gov/people/victor-j-glover/",
         "missions": ["SpaceX Crew-1", "Expedition 64", "Artemis II"]
     },
     {
@@ -50,7 +50,7 @@ ARTEMIS_II_CREW = [
         "agency": "NASA",
         "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072398.jpg",
         "bio": "NASA astronaut and electrical engineer. Holds record for longest single spaceflight by a woman (328 days).",
-        "twitter": "@Astro_Christina",
+        "nasa_bio": "https://www.nasa.gov/people/christina-h-koch/",
         "missions": ["Expedition 59/60/61", "Artemis II"]
     },
     {
@@ -59,7 +59,7 @@ ARTEMIS_II_CREW = [
         "agency": "CSA",
         "photo": "https://www.nasa.gov/wp-content/uploads/2023/04/jsc2022e072361.jpg",
         "bio": "Canadian Space Agency astronaut and former CF-18 fighter pilot. First Canadian to fly to the Moon.",
-        "twitter": "@Astro_Jeremy",
+        "nasa_bio": "https://www.asc-csa.gc.ca/eng/astronauts/canadian/active/bio-jeremy-hansen.asp",
         "missions": ["Artemis II"]
     }
 ]
