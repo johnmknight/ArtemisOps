@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Mission Control</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1128 100%);
+      color: #e0e6ed;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border: 2px solid #4a9eff;
+      background: rgba(10, 20, 40, 0.7);
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .logo-container {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      min-width: 100px;
+    }
+
+    .logo {
+      height: 80px;
+      width: 80px;
+      object-fit: contain;
+      display: block;
+    }
+    
+    @media (max-width: 768px) {
+      .logo {
+        height: 60px;
+        width: 60px;
+      }
+    }
+
+    .header-text {
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .mission-title {
+      font-size: 2.5em;
+      letter-spacing: 8px;
+      color: #4a9eff;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.8);
+    }
+
+    .mission-subtitle {
+      font-size: 1em;
+      color: #8ab4f8;
+      letter-spacing: 3px;
+    }
+
+    .countdown-display {
+      background: rgba(15, 25, 45, 0.9);
+      border: 3px solid #4a9eff;
+      padding: 50px;
+      margin-bottom: 40px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(74, 158, 255, 0.4), inset 0 0 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .countdown-display::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      pointer-events: none;
+    }
+
+    .countdown-timer {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .time-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .time-value {
+      font-size: 4em;
+      font-weight: bold;
+      color: #4a9eff;
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.8);
+      font-family: 'Courier New', monospace;
+      min-width: 120px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      border: 2px solid rgba(74, 158, 255, 0.5);
+    }
+
+    .time-label {
+      font-size: 0.9em;
+      color: #8ab4f8;
+      margin-top: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .launch-info {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #b8c5d6;
+    }
+
+    /* ===== NOTIFICATION SYSTEM STYLES ===== */
+    .notification-bell {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1001;
+      background: rgba(15, 25, 45, 0.95);
+      border: 2px solid #4a9eff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+    }
+
+    .notification-bell:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.5);
+    }
+
+    .notification-bell svg {
+      width: 24px;
+      height: 24px;
+      fill: #4a9eff;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ff4444;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      box-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
+    }
+
+    .notification-badge.hidden {
+      display: none;
+    }
+
+    .notification-panel {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 380px;
+      max-height: 500px;
+      background: rgba(15, 25, 45, 0.98);
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      z-index: 1001;
+      overflow: hidden;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 40px rgba(74, 158, 255, 0.4);
+    }
+
+    .notification-panel.open {
+      transform: translateX(0);
+    }
+
+    .notification-header {
+      background: rgba(74, 158, 255, 0.2);
+      padding: 15px 20px;
+      border-bottom: 1px solid #4a9eff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notification-header h3 {
+      color: #4a9eff;
+      font-size: 1em;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .notification-settings-btn {
+      background: none;
+      border: 1px solid #4a9eff;
+      color: #4a9eff;
+      padding: 5px 10px;
+      font-size: 0.75em;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .notification-settings-btn:hover {
+      background: rgba(74, 158, 255, 0.2);
+    }
+
+    .notification-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .notification-item:hover {
+      background: rgba(74, 158, 255, 0.1);
+    }
+
+    .notification-item.unread {
+      border-left: 3px solid #ffa500;
+      background: rgba(255, 165, 0, 0.05);
+    }
+
+    .notification-item.milestone {
+      border-left-color: #4a9eff;
+    }
+
+    .notification-item.alert {
+      border-left-color: #ff4444;
+    }
+
+    .notification-item.success {
+      border-left-color: #44ff44;
+    }
+
+    .notification-time {
+      font-size: 0.7em;
+      color: #6a7f99;
+      margin-bottom: 5px;
+    }
+
+    .notification-title {
+      font-size: 0.9em;
+      color: #e0e6ed;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .notification-body {
+      font-size: 0.8em;
+      color: #8ab4f8;
+      line-height: 1.4;
+    }
+
+    .notification-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: #6a7f99;
+    }
+
+    /* Notification Settings Modal */
+    .notification-settings-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1002;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notification-settings-modal.open {
+      display: flex;
+    }
+
+    .settings-content {
+      background: rgba(15, 25, 45, 0.98);
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .settings-content h3 {
+      color: #4a9eff;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+    }
+
+    .setting-label {
+      color: #e0e6ed;
+      font-size: 0.9em;
+    }
+
+    .setting-description {
+      color: #6a7f99;
+      font-size: 0.75em;
+      margin-top: 5px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #333;
+      border-radius: 26px;
+      transition: 0.3s;
+    }
+
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: #4a9eff;
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(24px);
+    }
+
+    .settings-close-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: #4a9eff;
+      border: none;
+      color: white;
+      font-family: inherit;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 4px;
+      letter-spacing: 2px;
+    }
+
+    .settings-close-btn:hover {
+      background: #3a8eef;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1003;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(15, 25, 45, 0.98);
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      padding: 15px 20px;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.4);
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 4.7s forwards;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .toast.milestone {
+      border-color: #4a9eff;
+    }
+
+    .toast.alert {
+      border-color: #ff4444;
+    }
+
+    .toast.success {
+      border-color: #44ff44;
+    }
+
+    .toast.countdown {
+      border-color: #ffa500;
+    }
+
+    .toast-icon {
+      font-size: 1.5em;
+      line-height: 1;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #e0e6ed;
+      margin-bottom: 5px;
+    }
+
+    .toast-body {
+      font-size: 0.8em;
+      color: #8ab4f8;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: #6a7f99;
+      cursor: pointer;
+      font-size: 1.2em;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .toast-close:hover {
+      color: #e0e6ed;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* ===== END NOTIFICATION STYLES ===== */
+
+    .timeline-section {
+      background: rgba(15, 25, 45, 0.8);
+      border: 2px solid #4a9eff;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.2);
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      color: #4a9eff;
+      margin-bottom: 25px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border-bottom: 2px solid #4a9eff;
+      padding-bottom: 10px;
+    }
+
+    .timeline-container {
+      position: relative;
+      overflow-x: auto;
+      padding: 40px 20px 60px;
+      margin-top: 20px;
+    }
+
+    .timeline-track {
+      position: relative;
+      height: 4px;
+      background: linear-gradient(to right, 
+        #4a9eff 0%, 
+        #4a9eff var(--progress, 30%), 
+        #555 var(--progress, 30%), 
+        #555 100%
+      );
+      margin: 60px 0;
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+    }
+
+    .timeline-milestones {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      min-width: 100%;
+    }
+
+    .milestone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      flex: 1;
+      min-width: 120px;
+      transition: all 0.3s ease;
+    }
+
+    .milestone-marker {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #555;
+      border: 3px solid #555;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .milestone.completed .milestone-marker {
+      background: #4a9eff;
+      border-color: #4a9eff;
+      box-shadow: 0 0 20px rgba(74, 158, 255, 0.8);
+    }
+
+    .milestone.active .milestone-marker {
+      background: #ffa500;
+      border-color: #ffa500;
+      box-shadow: 0 0 30px rgba(255, 165, 0, 1);
+      animation: pulse-marker 2s infinite;
+    }
+
+    @keyframes pulse-marker {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(255, 165, 0, 1);
+      }
+      50% { 
+        transform: scale(1.3);
+        box-shadow: 0 0 40px rgba(255, 165, 0, 1);
+      }
+    }
+
+    .milestone-status {
+      position: absolute;
+      top: -40px;
+      font-size: 1.8em;
+      text-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
+    }
+
+    .milestone.completed .milestone-status {
+      color: #4a9eff;
+    }
+
+    .milestone.active .milestone-status {
+      color: #ffa500;
+    }
+
+    .milestone.pending .milestone-status {
+      color: #666;
+    }
+
+    .milestone-content {
+      margin-top: 30px;
+      text-align: center;
+      max-width: 180px;
+    }
+
+    .milestone-date {
+      color: #8ab4f8;
+      font-size: 0.75em;
+      margin-bottom: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .milestone-title {
+      color: #e0e6ed;
+      font-size: 0.85em;
+      font-weight: bold;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .milestone-description {
+      color: #8ab4f8;
+      font-size: 0.7em;
+      line-height: 1.3;
+      opacity: 0.8;
+    }
+
+    .milestone:hover .milestone-description {
+      opacity: 1;
+    }
+
+    .milestone:hover .milestone-marker {
+      transform: scale(1.3);
+    }
+
+    .status-panel {
+      background: rgba(15, 25, 45, 0.8);
+      border: 2px solid #4a9eff;
+      padding: 30px;
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.2);
+    }
+
+    .status-text {
+      color: #e0e6ed;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 4px solid #4a9eff;
+    }
+
+    .next-milestone {
+      padding: 20px;
+      background: rgba(255, 165, 0, 0.1);
+      border: 2px solid #ffa500;
+      margin-top: 20px;
+    }
+
+    .next-milestone-title {
+      color: #ffa500;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .next-milestone-text {
+      color: #e0e6ed;
+      line-height: 1.6;
+    }
+
+    .last-update {
+      text-align: center;
+      color: #8ab4f8;
+      font-size: 0.8em;
+      margin-top: 30px;
+      opacity: 0.7;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .live-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #4a9eff;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
+    }
+
+    .live-indicator.error {
+      background: #ff4444;
+      box-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
+    }
+
+    .live-indicator.warning {
+      background: #ffa500;
+      box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+    }
+
+    .error-banner {
+      background: rgba(255, 68, 68, 0.2);
+      border: 2px solid #ff4444;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #ff9999;
+      border-radius: 4px;
+    }
+
+    .warning-banner {
+      background: rgba(255, 165, 0, 0.2);
+      border: 2px solid #ffa500;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #ffcc99;
+      border-radius: 4px;
+    }
+
+    .loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .data-source {
+      font-size: 0.8em;
+      color: #6a7f99;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+      }
+      
+      .time-value {
+        font-size: 2.5em;
+        min-width: 80px;
+        padding: 15px;
+      }
+
+      .notification-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  
+  <!-- Notification Bell -->
+  <div class="notification-bell" id="notificationBell" onclick="toggleNotificationPanel()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+    </svg>
+    <span class="notification-badge hidden" id="notificationBadge">0</span>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notification-panel" id="notificationPanel">
+    <div class="notification-header">
+      <h3>Notifications</h3>
+      <button class="notification-settings-btn" onclick="openNotificationSettings()">⚙ Settings</button>
+    </div>
+    <div class="notification-list" id="notificationList">
+      <div class="notification-empty">No notifications yet</div>
+    </div>
+  </div>
+
+  <!-- Notification Settings Modal -->
+  <div class="notification-settings-modal" id="notificationSettingsModal">
+    <div class="settings-content">
+      <h3>NOTIFICATION SETTINGS</h3>
+      
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Milestone Alerts</div>
+          <div class="setting-description">Notify when milestones are completed</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingMilestones" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Countdown Alerts</div>
+          <div class="setting-description">T-24h, T-1h, T-10min warnings</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingCountdown" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Status Changes</div>
+          <div class="setting-description">Mission status updates and holds</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingStatus" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Sound Effects</div>
+          <div class="setting-description">Play audio for notifications</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingSound">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Browser Notifications</div>
+          <div class="setting-description">Show system notifications</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingBrowser">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <button class="settings-close-btn" onclick="closeNotificationSettings()">SAVE & CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="container">
+    <div id="errorContainer"></div>
+
+    <div class="header">
+      <div class="logo-container">
+        <img 
+          src="https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png" 
+          alt="NASA Meatball Logo" 
+          class="logo"
+          onerror="this.style.display='none';">
+      </div>
+      <div class="header-text">
+        <div class="mission-title">ARTEMIS II</div>
+        <div class="mission-subtitle">First Crewed Lunar Flyby Since Apollo 17</div>
+      </div>
+      <div class="logo-container">
+        <img 
+          src="https://images-assets.nasa.gov/image/jsc2025e034457/jsc2025e034457~orig.jpg" 
+          alt="Artemis II Mission Patch" 
+          class="logo"
+          onerror="this.src='https://www.nasa.gov/wp-content/uploads/2025/04/jsc2025e034746orig.jpg'; this.onerror=function(){this.style.display='none'};">
+      </div>
+    </div>
+
+    <div class="countdown-display">
+      <div class="countdown-timer" id="countdown">
+        <div class="time-unit">
+          <div class="time-value" id="days">---</div>
+          <div class="time-label">Days</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="hours">--</div>
+          <div class="time-label">Hours</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="minutes">--</div>
+          <div class="time-label">Minutes</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="seconds">--</div>
+          <div class="time-label">Seconds</div>
+        </div>
+      </div>
+      <div class="launch-info" id="launchInfo">
+        Loading launch data...
+      </div>
+      <div class="data-source" id="launchDataSource"></div>
+    </div>
+
+    <div class="timeline-section">
+      <div class="section-title">
+        <span class="live-indicator" id="timelineIndicator"></span>Pre-Launch & Launch Sequence
+      </div>
+      <div id="timeline">
+        <div style="text-align: center; padding: 40px; color: #8ab4f8;">
+          Loading timeline data...
+        </div>
+      </div>
+      <div class="data-source" id="timelineDataSource"></div>
+    </div>
+
+    <div class="status-panel">
+      <div class="section-title">
+        <span class="live-indicator" id="statusIndicator"></span>Mission Status
+      </div>
+      <div class="status-text" id="statusText">
+        Loading mission status...
+      </div>
+      <div class="data-source" id="statusDataSource"></div>
+
+      <div class="next-milestone">
+        <div class="next-milestone-title">NEXT MILESTONE</div>
+        <div class="next-milestone-text" id="nextMilestone">
+          Loading upcoming milestone information...
+        </div>
+      </div>
+    </div>
+
+    <div class="last-update">
+      Last Updated: <span id="lastUpdate">Never</span>
+    </div>
+  </div>
+
+  <script>
+    // ===== NOTIFICATION SYSTEM =====
+    const NotificationSystem = {
+      notifications: [],
+      settings: {
+        milestones: true,
+        countdown: true,
+        status: true,
+        sound: false,
+        browser: false
+      },
+      countdownAlerts: {
+        '86400': { fired: false, label: '24 hours' },
+        '3600': { fired: false, label: '1 hour' },
+        '600': { fired: false, label: '10 minutes' },
+        '60': { fired: false, label: '1 minute' },
+        '10': { fired: false, label: '10 seconds' }
+      },
+
+      init() {
+        const savedSettings = localStorage.getItem('artemisops_notification_settings');
+        if (savedSettings) {
+          this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+          this.applySettingsToUI();
+        }
+
+        const savedNotifications = localStorage.getItem('artemisops_notifications');
+        if (savedNotifications) {
+          this.notifications = JSON.parse(savedNotifications);
+          this.renderNotifications();
+        }
+
+        if (this.settings.browser && 'Notification' in window) {
+          Notification.requestPermission();
+        }
+
+        if (!localStorage.getItem('artemisops_welcomed')) {
+          this.add({
+            type: 'milestone',
+            title: 'Welcome to ArtemisOps',
+            body: 'You\'ll receive notifications for mission milestones, countdown alerts, and status changes.',
+            icon: '🚀'
+          });
+          localStorage.setItem('artemisops_welcomed', 'true');
+        }
+      },
+
+      add(notification) {
+        const newNotification = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          read: false,
+          type: notification.type || 'info',
+          title: notification.title,
+          body: notification.body,
+          icon: notification.icon || '📢'
+        };
+
+        this.notifications.unshift(newNotification);
+        if (this.notifications.length > 50) {
+          this.notifications = this.notifications.slice(0, 50);
+        }
+
+        this.save();
+        this.renderNotifications();
+        this.showToast(newNotification);
+
+        if (this.settings.browser && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(newNotification.title, {
+            body: newNotification.body,
+            icon: 'https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png'
+          });
+        }
+
+        if (this.settings.sound) {
+          this.playSound(notification.type);
+        }
+      },
+
+      showToast(notification) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${notification.type}`;
+        toast.innerHTML = `
+          <span class="toast-icon">${notification.icon}</span>
+          <div class="toast-content">
+            <div class="toast-title">${notification.title}</div>
+            <div class="toast-body">${notification.body}</div>
+          </div>
+          <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
+      },
+
+      playSound(type) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.value = type === 'alert' ? 440 : type === 'countdown' ? 880 : 660;
+          oscillator.type = 'sine';
+          gainNode.gain.value = 0.1;
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + 0.15);
+        } catch (e) { console.log('Audio not supported'); }
+      },
+
+      renderNotifications() {
+        const list = document.getElementById('notificationList');
+        const badge = document.getElementById('notificationBadge');
+        const unreadCount = this.notifications.filter(n => !n.read).length;
+
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+
+        if (this.notifications.length === 0) {
+          list.innerHTML = '<div class="notification-empty">No notifications yet</div>';
+          return;
+        }
+
+        list.innerHTML = this.notifications.map(n => `
+          <div class="notification-item ${n.read ? '' : 'unread'} ${n.type}" 
+               onclick="NotificationSystem.markAsRead(${n.id})">
+            <div class="notification-time">${this.formatTime(n.timestamp)}</div>
+            <div class="notification-title">${n.icon} ${n.title}</div>
+            <div class="notification-body">${n.body}</div>
+          </div>
+        `).join('');
+      },
+
+      formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      },
+
+      markAsRead(id) {
+        const notification = this.notifications.find(n => n.id === id);
+        if (notification) {
+          notification.read = true;
+          this.save();
+          this.renderNotifications();
+        }
+      },
+
+      markAllAsRead() {
+        this.notifications.forEach(n => n.read = true);
+        this.save();
+        this.renderNotifications();
+      },
+
+      save() {
+        localStorage.setItem('artemisops_notifications', JSON.stringify(this.notifications));
+      },
+
+      saveSettings() {
+        this.settings = {
+          milestones: document.getElementById('settingMilestones').checked,
+          countdown: document.getElementById('settingCountdown').checked,
+          status: document.getElementById('settingStatus').checked,
+          sound: document.getElementById('settingSound').checked,
+          browser: document.getElementById('settingBrowser').checked
+        };
+        localStorage.setItem('artemisops_notification_settings', JSON.stringify(this.settings));
+        if (this.settings.browser && 'Notification' in window) {
+          Notification.requestPermission();
+        }
+      },
+
+      applySettingsToUI() {
+        document.getElementById('settingMilestones').checked = this.settings.milestones;
+        document.getElementById('settingCountdown').checked = this.settings.countdown;
+        document.getElementById('settingStatus').checked = this.settings.status;
+        document.getElementById('settingSound').checked = this.settings.sound;
+        document.getElementById('settingBrowser').checked = this.settings.browser;
+      },
+
+      checkCountdownAlerts(secondsRemaining) {
+        if (!this.settings.countdown) return;
+        for (const [seconds, alert] of Object.entries(this.countdownAlerts)) {
+          if (!alert.fired && secondsRemaining <= parseInt(seconds) && secondsRemaining > 0) {
+            alert.fired = true;
+            this.add({
+              type: 'countdown',
+              title: `T-${alert.label}`,
+              body: `Artemis II launch in ${alert.label}!`,
+              icon: '⏱️'
+            });
+          }
+        }
+      },
+
+      notifyMilestoneComplete(milestone) {
+        if (!this.settings.milestones) return;
+        this.add({
+          type: 'milestone',
+          title: 'Milestone Completed',
+          body: `${milestone.title}: ${milestone.description}`,
+          icon: '✅'
+        });
+      },
+
+      notifyStatusChange(oldStatus, newStatus) {
+        if (!this.settings.status) return;
+        this.add({
+          type: 'status',
+          title: 'Mission Status Update',
+          body: newStatus,
+          icon: '📋'
+        });
+      }
+    };
+
+    function toggleNotificationPanel() {
+      document.getElementById('notificationPanel').classList.toggle('open');
+    }
+
+    function openNotificationSettings() {
+      document.getElementById('notificationSettingsModal').classList.add('open');
+    }
+
+    function closeNotificationSettings() {
+      NotificationSystem.saveSettings();
+      document.getElementById('notificationSettingsModal').classList.remove('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('notificationPanel');
+      const bell = document.getElementById('notificationBell');
+      if (!panel.contains(e.target) && !bell.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+
+    // ===== MAIN APPLICATION =====
+    const CONFIG = {
+      UPDATE_INTERVAL: 5 * 60 * 1000,
+      NASA_API_ENDPOINTS: {
+        upcoming: 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=artemis%202',
+        allLaunches: 'https://ll.thespacedevs.com/2.2.0/launch/?search=artemis%202&mode=detailed',
+      },
+      FALLBACK_DATA: {
+        launchDate: '2026-04-01T12:00:00Z',
+        launchSite: 'Kennedy Space Center, FL',
+        status: 'Artemis II is in final preparations. The SLS rocket and Orion spacecraft are undergoing final integrated systems testing.',
+        milestones: [
+          { date: 'Dec 2025', title: 'Flight Readiness Review', description: 'Final comprehensive review of all mission systems', status: 'completed' },
+          { date: 'Jan 2, 2026', title: 'Crew Quarantine Begins', description: 'Flight crew enters health stabilization program', status: 'completed' },
+          { date: 'Jan 17, 2026', title: 'Final Vehicle Checks', description: 'Completing final integrated systems testing', status: 'active' },
+          { date: 'Jan 24, 2026', title: 'Rollout to Pad 39B', description: 'SLS transported from VAB to launch complex', status: 'pending' },
+          { date: 'Jan 27, 2026', title: 'Wet Dress Rehearsal', description: 'Full countdown simulation with propellant loading', status: 'pending' },
+          { date: 'T-6:40:00', title: 'Cryo Loading', description: 'Begin loading liquid hydrogen and oxygen', status: 'pending' },
+          { date: 'T-2:35:00', title: 'Crew Ingress', description: 'Four astronauts board Orion spacecraft', status: 'pending' },
+          { date: 'T-00:00', title: 'LIFTOFF', description: 'RS-25 engines and SRBs ignite', status: 'pending' }
+        ]
+      }
+    };
+
+    const appState = {
+      launchDate: null,
+      launchSite: '',
+      missionStatus: '',
+      milestones: [],
+      dataSource: '',
+      lastSuccessfulUpdate: null,
+      previousMilestones: []
+    };
+
+    function showBanner(message, type = 'error') {
+      const container = document.getElementById('errorContainer');
+      container.innerHTML = `<div class="${type}-banner">${message}</div>`;
+      setTimeout(() => container.innerHTML = '', 10000);
+    }
+
+    async function loadMissionData() {
+      try {
+        const response = await fetch(CONFIG.NASA_API_ENDPOINTS.upcoming);
+        if (!response.ok) throw new Error('API request failed');
+        
+        const data = await response.json();
+        const artemis2 = data.results?.find(l => 
+          l.name?.toLowerCase().includes('artemis') && 
+          (l.name?.includes('ii') || l.name?.includes('2'))
+        );
+        
+        if (!artemis2) throw new Error('Artemis II not found');
+        
+        appState.launchDate = new Date(artemis2.net);
+        appState.launchSite = artemis2.pad?.location?.name || CONFIG.FALLBACK_DATA.launchSite;
+        appState.missionStatus = artemis2.status?.description || CONFIG.FALLBACK_DATA.status;
+        appState.dataSource = 'Space Devs API';
+        appState.lastSuccessfulUpdate = new Date();
+        appState.milestones = CONFIG.FALLBACK_DATA.milestones;
+        
+        updateDataSourceLabels('live');
+      } catch (error) {
+        console.error('Failed to load live data:', error);
+        
+        appState.launchDate = new Date(CONFIG.FALLBACK_DATA.launchDate);
+        appState.launchSite = CONFIG.FALLBACK_DATA.launchSite;
+        appState.missionStatus = CONFIG.FALLBACK_DATA.status;
+        appState.milestones = CONFIG.FALLBACK_DATA.milestones;
+        appState.dataSource = 'fallback';
+        
+        showBanner('Using cached mission data. Will retry automatically.', 'warning');
+        updateDataSourceLabels('fallback');
+      }
+      
+      checkMilestoneChanges();
+      updateUI();
+    }
+
+    function checkMilestoneChanges() {
+      if (appState.previousMilestones.length === 0) {
+        appState.previousMilestones = [...appState.milestones];
+        return;
+      }
+
+      appState.milestones.forEach((milestone, index) => {
+        const prev = appState.previousMilestones[index];
+        if (prev && prev.status !== 'completed' && milestone.status === 'completed') {
+          NotificationSystem.notifyMilestoneComplete(milestone);
+        }
+      });
+
+      appState.previousMilestones = [...appState.milestones];
+    }
+
+    function updateDataSourceLabels(source) {
+      const message = source === 'live' 
+        ? `Data from: ${appState.dataSource}`
+        : 'Using cached mission data (offline mode)';
+      
+      document.getElementById('launchDataSource').textContent = message;
+      document.getElementById('timelineDataSource').textContent = message;
+      document.getElementById('statusDataSource').textContent = message;
+    }
+
+    function updateCountdown() {
+      if (!appState.launchDate) {
+        document.getElementById('days').textContent = '---';
+        document.getElementById('hours').textContent = '--';
+        document.getElementById('minutes').textContent = '--';
+        document.getElementById('seconds').textContent = '--';
+        return;
+      }
+
+      const now = new Date();
+      const diff = appState.launchDate - now;
+      const secondsRemaining = Math.floor(diff / 1000);
+      NotificationSystem.checkCountdownAlerts(secondsRemaining);
+
+      if (diff <= 0) {
+        document.getElementById('days').textContent = '000';
+        document.getElementById('hours').textContent = '00';
+        document.getElementById('minutes').textContent = '00';
+        document.getElementById('seconds').textContent = '00';
+        document.getElementById('launchInfo').textContent = 'LAUNCH IN PROGRESS';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('days').textContent = String(days).padStart(3, '0');
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+      
+      const launchDateStr = appState.launchDate.toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric'
+      });
+      document.getElementById('launchInfo').textContent = 
+        `Target Launch: ${launchDateStr} | ${appState.launchSite}`;
+    }
+
+    function filterVisibleMilestones(milestones) {
+      const now = new Date();
+      const sixHoursAgo = new Date(now.getTime() - (6 * 60 * 60 * 1000));
+      
+      return milestones.filter(milestone => {
+        if (milestone.status === 'active' || milestone.status === 'pending') return true;
+        if (milestone.status === 'completed') {
+          if (milestone.completedAt) {
+            return new Date(milestone.completedAt) > sixHoursAgo;
+          }
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function renderTimeline() {
+      const timelineEl = document.getElementById('timeline');
+      
+      if (!appState.milestones || appState.milestones.length === 0) {
+        timelineEl.innerHTML = '<div style="text-align: center; padding: 40px; color: #ff9999;">Timeline data unavailable</div>';
+        return;
+      }
+      
+      const visibleMilestones = filterVisibleMilestones(appState.milestones);
+      
+      if (visibleMilestones.length === 0) {
+        timelineEl.innerHTML = '<div style="text-align: center; padding: 40px; color: #8ab4f8;">All pre-launch milestones completed.</div>';
+        return;
+      }
+      
+      const completedCount = appState.milestones.filter(m => m.status === 'completed').length;
+      const activeCount = appState.milestones.filter(m => m.status === 'active').length;
+      const progressPercent = ((completedCount + (activeCount * 0.5)) / appState.milestones.length) * 100;
+      
+      timelineEl.innerHTML = `
+        <div class="timeline-container">
+          <div class="timeline-track" style="--progress: ${progressPercent}%">
+            <div class="timeline-milestones" id="milestonesContainer"></div>
+          </div>
+        </div>
+      `;
+      
+      const milestonesContainer = document.getElementById('milestonesContainer');
+
+      visibleMilestones.forEach((milestone) => {
+        const milestoneEl = document.createElement('div');
+        milestoneEl.className = `milestone ${milestone.status}`;
+        
+        let statusIcon = '○';
+        if (milestone.status === 'completed') statusIcon = '✓';
+        if (milestone.status === 'active') statusIcon = '◉';
+
+        milestoneEl.innerHTML = `
+          <div class="milestone-status">${statusIcon}</div>
+          <div class="milestone-marker"></div>
+          <div class="milestone-content">
+            <div class="milestone-date">${milestone.date}</div>
+            <div class="milestone-title">${milestone.title}</div>
+            <div class="milestone-description">${milestone.description}</div>
+          </div>
+        `;
+        
+        milestonesContainer.appendChild(milestoneEl);
+      });
+    }
+
+    function updateNextMilestone() {
+      const nextMilestone = appState.milestones.find(m => m.status === 'active' || m.status === 'pending');
+      
+      if (nextMilestone) {
+        document.getElementById('nextMilestone').textContent = 
+          `${nextMilestone.title}: ${nextMilestone.description}`;
+      } else {
+        document.getElementById('nextMilestone').textContent = 'No upcoming milestones';
+      }
+    }
+
+    function updateMissionStatus() {
+      const statusEl = document.getElementById('statusText');
+      if (appState.missionStatus) {
+        statusEl.textContent = appState.missionStatus;
+      } else {
+        statusEl.innerHTML = '<em style="color: #ff9999;">Mission status unavailable</em>';
+      }
+    }
+
+    function updateLastUpdateTime() {
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = now.toLocaleString('en-US', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+
+    function updateUI() {
+      updateCountdown();
+      renderTimeline();
+      updateNextMilestone();
+      updateMissionStatus();
+      updateLastUpdateTime();
+    }
+
+    async function init() {
+      console.log('Initializing ArtemisOps...');
+      NotificationSystem.init();
+      await loadMissionData();
+      setInterval(updateCountdown, 1000);
+      setInterval(async () => {
+        console.log('Checking for mission updates...');
+        await loadMissionData();
+      }, CONFIG.UPDATE_INTERVAL);
+      console.log('ArtemisOps initialized successfully');
+    }
+
+    init();
+  </script>
+</body>
+</html>
