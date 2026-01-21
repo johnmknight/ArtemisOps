@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Tracker Component</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent-cyan: #00bcd4;
+      --accent-green: #7ed321;
+      --accent-yellow: #ffd60a;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+    
+    .tracker-container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .map-section {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+    
+    #iss-map {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+    }
+    
+    .data-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 12px;
+      z-index: 1000;
+      min-width: 180px;
+    }
+    
+    .data-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .data-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .data-item label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    .data-item span {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+    
+    .map-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 1000;
+    }
+    
+    .ctrl-btn {
+      background: rgba(10, 22, 40, 0.9);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.7em;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    
+    .ctrl-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    
+    .ctrl-btn.active {
+      background: rgba(0, 188, 212, 0.2);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    
+    .side-panel {
+      width: 280px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .panel-section {
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-header {
+      padding: 10px 14px;
+      background: rgba(0, 188, 212, 0.1);
+    }
+    
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+    }
+    
+    .section-content {
+      padding: 12px 14px;
+    }
+    
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .telemetry-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .telemetry-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .telemetry-label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+    
+    .crew-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .crew-member {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(126, 211, 33, 0.1);
+      border: 1px solid var(--accent-green);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
+    
+    .crew-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+    }
+    
+    .crew-agency {
+      margin-left: auto;
+      color: var(--text-secondary);
+      font-size: 0.6rem;
+    }
+    
+    .position-display {
+      text-align: center;
+    }
+    
+    .position-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    
+    .position-location {
+      font-size: 1.1rem;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+    }
+    
+    .position-country {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Leaflet customizations */
+    .leaflet-container {
+      background: var(--bg-primary) !important;
+    }
+    
+    .leaflet-control-attribution {
+      background: rgba(13, 26, 45, 0.8) !important;
+      color: var(--text-secondary) !important;
+      font-size: 10px !important;
+    }
+    
+    .leaflet-control-attribution a {
+      color: var(--accent-cyan) !important;
+    }
+    
+    .leaflet-control-zoom a {
+      background: var(--bg-panel) !important;
+      color: var(--accent-cyan) !important;
+      border-color: var(--border-color) !important;
+    }
+    
+    .iss-marker {
+      background: transparent !important;
+      border: none !important;
+    }
+    
+    .iss-icon {
+      filter: drop-shadow(0 0 10px var(--accent-cyan));
+      animation: iss-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes iss-pulse {
+      0%, 100% { filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+      50% { filter: drop-shadow(0 0 20px var(--accent-yellow)); }
+    }
+    
+    .leaflet-popup-content-wrapper {
+      background: var(--bg-panel) !important;
+      border: 1px solid var(--accent-cyan) !important;
+      border-radius: 4px !important;
+      color: var(--text-primary) !important;
+    }
+    
+    .leaflet-popup-tip {
+      background: var(--bg-panel) !important;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .tracker-container {
+        flex-direction: column;
+      }
+      
+      .side-panel {
+        width: 100%;
+        max-height: 200px;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+      }
+      
+      .data-overlay {
+        bottom: 10px;
+        left: 10px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="tracker-container">
+    <div class="map-section">
+      <div id="iss-map"></div>
+      
+      <div class="data-overlay">
+        <div class="data-row">
+          <div class="data-item">
+            <label>LATITUDE</label>
+            <span id="dataLat">--°</span>
+          </div>
+          <div class="data-item">
+            <label>LONGITUDE</label>
+            <span id="dataLng">--°</span>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-item">
+            <label>ALTITUDE</label>
+            <span id="dataAlt">-- km</span>
+          </div>
+          <div class="data-item">
+            <label>VELOCITY</label>
+            <span id="dataVel">-- km/h</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="map-controls">
+        <button class="ctrl-btn active" id="btnFootprint" onclick="ISSTracker.toggleFootprint()">Footprint</button>
+        <button class="ctrl-btn active" id="btnTrack" onclick="ISSTracker.toggleTrack()">Track</button>
+        <button class="ctrl-btn" onclick="ISSTracker.centerOnISS()">Center</button>
+      </div>
+    </div>
+    
+    <div class="side-panel">
+      <div class="panel-section">
+        <div class="section-header">
+          <span class="section-title">Station Status</span>
+        </div>
+        <div class="section-content">
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <div class="telemetry-value" style="color:#7ed321">NOMINAL</div>
+              <div class="telemetry-label">Systems</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-value" id="telAlt">-- km</div>
+              <div class="telemetry-label">Altitude</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-value" id="telVis">--</div>
+              <div class="telemetry-label">Visibility</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-value">92 min</div>
+              <div class="telemetry-label">Orbit Period</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel-section">
+        <div class="section-header">
+          <span class="section-title">Crew (<span id="crewCount">-</span>)</span>
+        </div>
+        <div class="section-content">
+          <div class="crew-list" id="crewList">
+            <div style="color: var(--text-secondary); font-size: 0.7rem;">Loading crew...</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel-section">
+        <div class="section-header">
+          <span class="section-title">Position</span>
+        </div>
+        <div class="section-content">
+          <div class="position-display">
+            <div class="position-label">Currently over</div>
+            <div class="position-location" id="overLocation">--</div>
+            <div class="position-country" id="overCountry">Calculating...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  
+  <script>
+    const ISSTracker = {
+      map: null,
+      issMarker: null,
+      footprintCircle: null,
+      groundTrack: null,
+      positionHistory: [],
+      showFootprint: true,
+      showTrack: true,
+      updateTimer: null,
+      
+      async init() {
+        // Initialize map
+        this.map = L.map('iss-map', {
+          center: [20, 0],
+          zoom: 2,
+          minZoom: 1,
+          maxZoom: 8,
+          worldCopyJump: true
+        });
+        
+        // Dark tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(this.map);
+        
+        // ISS marker icon
+        const issIcon = L.divIcon({
+          className: 'iss-marker',
+          html: `
+            <div class="iss-icon">
+              <svg viewBox="0 0 60 36" width="60" height="36">
+                <rect x="6" y="0" width="10" height="36" fill="#ffd60a" opacity="0.9" rx="1"/>
+                <rect x="44" y="0" width="10" height="36" fill="#ffd60a" opacity="0.9" rx="1"/>
+                <rect x="0" y="14" width="60" height="8" fill="#00bcd4" rx="1"/>
+                <rect x="20" y="10" width="20" height="16" fill="#00bcd4" rx="2"/>
+                <circle cx="30" cy="18" r="4" fill="#0d1a2d" opacity="0.5"/>
+              </svg>
+            </div>
+          `,
+          iconSize: [60, 36],
+          iconAnchor: [30, 18]
+        });
+        
+        this.issMarker = L.marker([0, 0], { icon: issIcon }).addTo(this.map);
+        
+        // Footprint circle
+        this.footprintCircle = L.circle([0, 0], {
+          radius: 2200000,
+          color: '#00bcd4',
+          fillColor: '#00bcd4',
+          fillOpacity: 0.08,
+          weight: 1.5,
+          dashArray: '8, 4'
+        }).addTo(this.map);
+        
+        // Ground track
+        this.groundTrack = L.polyline([], {
+          color: '#ffd60a',
+          weight: 2,
+          opacity: 0.5,
+          dashArray: '10, 6'
+        }).addTo(this.map);
+        
+        // Initial update
+        await this.updatePosition();
+        this.loadCrew();
+        
+        // Start auto-update
+        this.updateTimer = setInterval(() => this.updatePosition(), 5000);
+        
+        // Notify parent
+        window.parent.postMessage({ type: 'issTrackerReady' }, '*');
+      },
+      
+      async updatePosition() {
+        try {
+          const response = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+          const data = await response.json();
+          
+          const lat = data.latitude;
+          const lng = data.longitude;
+          
+          // Update marker
+          this.issMarker.setLatLng([lat, lng]);
+          
+          // Update footprint
+          if (this.footprintCircle) {
+            this.footprintCircle.setLatLng([lat, lng]);
+            this.footprintCircle.setRadius(data.footprint * 1000 / 2);
+          }
+          
+          // Update ground track
+          this.positionHistory.push([lat, lng]);
+          if (this.positionHistory.length > 200) this.positionHistory.shift();
+          if (this.groundTrack) this.groundTrack.setLatLngs(this.positionHistory);
+          
+          // Update UI
+          document.getElementById('dataLat').textContent = lat.toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
+          document.getElementById('dataLng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
+          document.getElementById('dataAlt').textContent = Math.round(data.altitude) + ' km';
+          document.getElementById('dataVel').textContent = Math.round(data.velocity) + ' km/h';
+          document.getElementById('telAlt').textContent = Math.round(data.altitude) + ' km';
+          document.getElementById('telVis').textContent = data.visibility.charAt(0).toUpperCase() + data.visibility.slice(1);
+          
+          // Update location name
+          this.updateLocationName(lat, lng);
+          
+          // Update popup
+          this.issMarker.bindPopup(`
+            <strong style="color: #00bcd4;">🛰️ International Space Station</strong><br>
+            <hr style="border-color: #1a3a5c; margin: 5px 0;">
+            <span style="color: #8b949e;">Lat:</span> ${lat.toFixed(4)}°<br>
+            <span style="color: #8b949e;">Lng:</span> ${lng.toFixed(4)}°<br>
+            <span style="color: #8b949e;">Alt:</span> ${data.altitude.toFixed(1)} km<br>
+            <span style="color: #8b949e;">Speed:</span> ${Math.round(data.velocity)} km/h
+          `);
+          
+        } catch (error) {
+          console.error('Failed to fetch ISS position:', error);
+        }
+      },
+      
+      async updateLocationName(lat, lng) {
+        try {
+          const response = await fetch(`https://api.wheretheiss.at/v1/coordinates/${lat},${lng}`);
+          const data = await response.json();
+          
+          if (data.timezone_id) {
+            const parts = data.timezone_id.split('/');
+            const location = parts[parts.length - 1].replace(/_/g, ' ');
+            document.getElementById('overLocation').textContent = location;
+            document.getElementById('overCountry').textContent = data.country_code || 'Ocean';
+          } else {
+            document.getElementById('overLocation').textContent = 'Ocean';
+            document.getElementById('overCountry').textContent = 'International Waters';
+          }
+        } catch {
+          document.getElementById('overLocation').textContent = lat.toFixed(1) + '°, ' + lng.toFixed(1) + '°';
+          document.getElementById('overCountry').textContent = '';
+        }
+      },
+      
+      async loadCrew() {
+        try {
+          const response = await fetch('http://api.open-notify.org/astros.json');
+          const data = await response.json();
+          
+          const issCrew = data.people.filter(p => p.craft === 'ISS');
+          document.getElementById('crewCount').textContent = issCrew.length;
+          
+          const crewHtml = issCrew.map(person => {
+            let agency = 'NASA';
+            const name = person.name.toLowerCase();
+            if (name.includes('kononenko') || name.includes('chub')) agency = 'RSA';
+            if (name.includes('mogensen')) agency = 'ESA';
+            if (name.includes('furukawa') || name.includes('wakata')) agency = 'JAXA';
+            
+            return `
+              <div class="crew-member">
+                <span class="crew-dot"></span>
+                ${person.name}
+                <span class="crew-agency">${agency}</span>
+              </div>
+            `;
+          }).join('');
+          
+          document.getElementById('crewList').innerHTML = crewHtml || '<div style="color: #8b949e;">No crew data</div>';
+          
+        } catch (error) {
+          console.error('Failed to load crew:', error);
+          document.getElementById('crewList').innerHTML = '<div style="color: #8b949e;">Crew data unavailable</div>';
+        }
+      },
+      
+      toggleFootprint() {
+        this.showFootprint = !this.showFootprint;
+        const btn = document.getElementById('btnFootprint');
+        btn.classList.toggle('active', this.showFootprint);
+        
+        if (this.showFootprint) {
+          this.footprintCircle.addTo(this.map);
+        } else {
+          this.footprintCircle.remove();
+        }
+      },
+      
+      toggleTrack() {
+        this.showTrack = !this.showTrack;
+        const btn = document.getElementById('btnTrack');
+        btn.classList.toggle('active', this.showTrack);
+        
+        if (this.showTrack) {
+          this.groundTrack.addTo(this.map);
+        } else {
+          this.groundTrack.remove();
+        }
+      },
+      
+      centerOnISS() {
+        const pos = this.issMarker.getLatLng();
+        this.map.setView(pos, 3, { animate: true });
+      }
+    };
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      ISSTracker.init();
+    });
+  </script>
+</body>
+</html>

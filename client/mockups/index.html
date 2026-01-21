@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Mission Control Mockups</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #00bcd4, #8bc34a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+    .section-title {
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: #00bcd4;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1a3a5c;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: rgba(13, 26, 45, 0.9);
+      border: 1px solid #1a3a5c;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: #00bcd4;
+      box-shadow: 0 0 30px rgba(0, 188, 212, 0.2);
+      transform: translateY(-4px);
+    }
+    .card-header {
+      padding: 16px;
+      border-bottom: 1px solid #1a3a5c;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .card-mission {
+      font-size: 0.75rem;
+      color: #8b949e;
+    }
+    .card-body {
+      padding: 16px;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: #8b949e;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .card-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .feature-tag {
+      background: rgba(0, 188, 212, 0.15);
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: #00bcd4;
+    }
+    .card-link {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      background: linear-gradient(90deg, #00bcd4, #0097a7);
+      color: #000;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    .card-link:hover {
+      background: linear-gradient(90deg, #26c6da, #00bcd4);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-left: auto;
+    }
+    .status-new { background: #7ed321; color: #000; }
+    .status-updated { background: #f5a623; color: #000; }
+    .status-live { background: #ff3b30; color: #fff; }
+    .status-v1 { background: #1a3a5c; color: #8b949e; }
+  </style>
+</head>
+<body>
+  <h1>ARTEMISOPS</h1>
+  <p class="subtitle">Mission Control Display Mockups</p>
+
+  <h2 class="section-title">MODE 1 — PRE-LAUNCH / COUNTDOWN</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0, 255, 204, 0.2);">🚀</div>
+        <div>
+          <div class="card-title">Pre-Launch Countdown</div>
+          <div class="card-mission">All Missions</div>
+        </div>
+        <span class="status-badge status-v1">v1</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Large countdown timer with weather status, timeline milestones, and news ticker.</p>
+        <div class="card-features">
+          <span class="feature-tag">Countdown Timer</span>
+          <span class="feature-tag">Weather GO/NO-GO</span>
+          <span class="feature-tag">Timeline</span>
+        </div>
+        <a href="mode1-prelaunch.html" class="card-link">VIEW MOCKUP →</a>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">MODE 2 — POST-LAUNCH / ASCENT</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0, 212, 255, 0.2);">⬆️</div>
+        <div>
+          <div class="card-title">Ascent Phase</div>
+          <div class="card-mission">All Missions</div>
+        </div>
+        <span class="status-badge status-v1">v1</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">T-Plus elapsed time, live video feed, ascent sequence timeline, and telemetry.</p>
+        <div class="card-features">
+          <span class="feature-tag">T-Plus Timer</span>
+          <span class="feature-tag">Live Video</span>
+          <span class="feature-tag">Telemetry</span>
+        </div>
+        <a href="mode2-ascent.html" class="card-link">VIEW MOCKUP →</a>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">MODE 3 — MISSION TRACKING</h2>
+  <div class="grid">
+    
+    <!-- ISS Live Tracker - Featured -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255, 59, 48, 0.2);">🛰️</div>
+        <div>
+          <div class="card-title">ISS Live Tracker</div>
+          <div class="card-mission">Real-Time Tracking</div>
+        </div>
+        <span class="status-badge status-live">● LIVE</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Real-time ISS tracking with Leaflet.js map, live position data, crew roster, and station telemetry. Updates every 5 seconds.</p>
+        <div class="card-features">
+          <span class="feature-tag">Live Position</span>
+          <span class="feature-tag">Ground Track</span>
+          <span class="feature-tag">Footprint</span>
+          <span class="feature-tag">Crew Roster</span>
+          <span class="feature-tag">Telemetry</span>
+        </div>
+        <a href="mode3-iss-live.html" class="card-link">VIEW LIVE TRACKER →</a>
+      </div>
+    </div>
+    
+    <!-- Artemis II - NASA Style -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0, 188, 212, 0.2);">🌙</div>
+        <div>
+          <div class="card-title">Artemis II - Free Return</div>
+          <div class="card-mission">Lunar Flyby Mission</div>
+        </div>
+        <span class="status-badge status-new">READY</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">NASA-style orbital diagram with numbered waypoints (7-15), trajectory lines, and spacecraft icon. Based on official Artemis II mission profile.</p>
+        <div class="card-features">
+          <span class="feature-tag">15 Waypoints</span>
+          <span class="feature-tag">Free Return</span>
+          <span class="feature-tag">Lunar Flyby</span>
+          <span class="feature-tag">10-Day Mission</span>
+        </div>
+        <a href="mode3-artemis2-nasa-style.html" class="card-link">VIEW MOCKUP →</a>
+      </div>
+    </div>
+    
+    <!-- Artemis III - NRHO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255, 152, 0, 0.2);">🌕</div>
+        <div>
+          <div class="card-title">Artemis III - NRHO + Landing</div>
+          <div class="card-mission">Lunar Surface Mission</div>
+        </div>
+        <span class="status-badge status-new">READY</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Complex orbital diagram showing NRHO (Near-Rectilinear Halo Orbit), HLS lander descent/ascent, and surface operations. 21 mission phases.</p>
+        <div class="card-features">
+          <span class="feature-tag">21 Waypoints</span>
+          <span class="feature-tag">NRHO</span>
+          <span class="feature-tag">Surface Ops</span>
+          <span class="feature-tag">HLS Lander</span>
+        </div>
+        <a href="mode3-artemis3-nrho.html" class="card-link">VIEW MOCKUP →</a>
+      </div>
+    </div>
+    
+    <!-- ISS / Earth Orbit (Legacy) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(26, 58, 92, 0.5);">🛰️</div>
+        <div>
+          <div class="card-title">ISS / Earth Orbit</div>
+          <div class="card-mission">Legacy Embedded Tracker</div>
+        </div>
+        <span class="status-badge status-v1">LEGACY</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Original ISS tracker mockup with embedded ESA tracker. Superseded by the Live Tracker above.</p>
+        <div class="card-features">
+          <span class="feature-tag">Embedded</span>
+          <span class="feature-tag">ESA Tracker</span>
+        </div>
+        <a href="mode3-iss-earth-orbit.html" class="card-link" style="background: #1a3a5c; color: #8b949e;">VIEW LEGACY →</a>
+      </div>
+    </div>
+    
+    <!-- Original versions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(26, 58, 92, 0.5);">📁</div>
+        <div>
+          <div class="card-title">Earlier Versions</div>
+          <div class="card-mission">Archive</div>
+        </div>
+        <span class="status-badge status-v1">ARCHIVE</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Previous iterations of Mode 3 mockups for reference.</p>
+        <div class="card-features">
+          <span class="feature-tag">v1 - Original</span>
+          <span class="feature-tag">v2 - Technical</span>
+          <span class="feature-tag">v3 - NASA Profile</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <a href="mode3-tracking.html" class="card-link" style="background: #1a3a5c; color: #8b949e;">v1 Original →</a>
+          <a href="mode3-tracking-v2.html" class="card-link" style="background: #1a3a5c; color: #8b949e;">v2 Technical →</a>
+          <a href="mode3-tracking-v3.html" class="card-link" style="background: #1a3a5c; color: #8b949e;">v3 NASA Profile →</a>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <h2 class="section-title">ASSETS — ICONS & COMPONENTS</h2>
+  <div class="grid">
+    
+    <!-- Icon Library -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(74, 158, 255, 0.2);">🎨</div>
+        <div>
+          <div class="card-title">Icon Library</div>
+          <div class="card-mission">Spacecraft & UI Icons</div>
+        </div>
+        <span class="status-badge status-new">COMPLETE</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Complete icon library with spacecraft (ISS, Orion, Starship HLS, Crew Dragon, SLS) and UI icons (40+ icons).</p>
+        <div class="card-features">
+          <span class="feature-tag">Spacecraft SVGs</span>
+          <span class="feature-tag">UI Icons</span>
+          <span class="feature-tag">Multiple Sizes</span>
+          <span class="feature-tag">Customizable Colors</span>
+        </div>
+        <a href="icon-library.html" class="card-link">VIEW ICONS →</a>
+      </div>
+    </div>
+    
+    <!-- ISS Icon Demo -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0, 188, 212, 0.2);">🛰️</div>
+        <div>
+          <div class="card-title">ISS Icon</div>
+          <div class="card-mission">Detailed SVG</div>
+        </div>
+        <span class="status-badge status-v1">DEMO</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Detailed ISS icon with solar panels, truss, and module cluster.</p>
+        <div class="card-features">
+          <span class="feature-tag">SVG</span>
+          <span class="feature-tag">Scalable</span>
+        </div>
+        <a href="iss-icon.html" class="card-link">VIEW ICON →</a>
+      </div>
+    </div>
+    
+    <!-- Starship HLS Icon Demo -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255, 152, 0, 0.2);">🚀</div>
+        <div>
+          <div class="card-title">Starship HLS Icon</div>
+          <div class="card-mission">Human Landing System</div>
+        </div>
+        <span class="status-badge status-v1">DEMO</span>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">SpaceX Starship HLS icon with landing legs, crew windows, and engine detail.</p>
+        <div class="card-features">
+          <span class="feature-tag">SVG</span>
+          <span class="feature-tag">Scalable</span>
+        </div>
+        <a href="starship-hls-icon.html" class="card-link">VIEW ICON →</a>
+      </div>
+    </div>
+    
+  </div>
+
+  <div style="margin-top: 60px; text-align: center; color: #8b949e; font-size: 0.8rem;">
+    <p>ArtemisOps Mission Control Mockups</p>
+    <p style="margin-top: 8px;">Based on official NASA Artemis mission profiles</p>
+    <p style="margin-top: 8px; color: #4a9eff;">JavaScript modules: <code>js/iss-tracker.js</code> · <code>js/spacecraft-icons.js</code> · <code>js/ui-icons.js</code></p>
+  </div>
+</body>
+</html>

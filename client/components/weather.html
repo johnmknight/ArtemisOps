@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Component</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent-blue: #4a9eff;
+      --accent-orange: #ffa500;
+      --accent-green: #4aff9e;
+      --accent-red: #ff4444;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: transparent;
+      color: var(--text-primary);
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .weather-container {
+      background: rgba(15, 25, 45, 0.9);
+      border: 2px solid var(--accent-orange);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .panel-title {
+      font-size: 0.9em;
+      color: var(--accent-orange);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 165, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 165, 0, 0.05);
+    }
+    
+    .title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .live-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-orange);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .toggle-btn {
+      background: rgba(255, 165, 0, 0.2);
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 0.7em;
+      cursor: pointer;
+      border-radius: 3px;
+      letter-spacing: 1px;
+    }
+    
+    .toggle-btn:hover {
+      background: rgba(255, 165, 0, 0.3);
+    }
+    
+    .panel-content {
+      flex: 1;
+      padding: 16px;
+      overflow: auto;
+    }
+    
+    .weather-status {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    
+    .weather-icon {
+      font-size: 2.5em;
+      line-height: 1;
+    }
+    
+    .weather-main {
+      flex: 1;
+    }
+    
+    .weather-condition {
+      font-size: 1.1em;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .weather-temp {
+      font-size: 0.9em;
+      color: var(--text-secondary);
+    }
+    
+    .viability-badge {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 0.9em;
+    }
+    
+    .viability-badge.go {
+      background: rgba(74, 255, 158, 0.2);
+      border: 2px solid var(--accent-green);
+      color: var(--accent-green);
+    }
+    
+    .viability-badge.marginal {
+      background: rgba(255, 165, 0, 0.2);
+      border: 2px solid var(--accent-orange);
+      color: var(--accent-orange);
+    }
+    
+    .viability-badge.no-go {
+      background: rgba(255, 68, 68, 0.2);
+      border: 2px solid var(--accent-red);
+      color: var(--accent-red);
+    }
+    
+    .weather-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    
+    .detail-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 4px;
+      text-align: center;
+      border: 1px solid rgba(255, 165, 0, 0.2);
+    }
+    
+    .detail-value {
+      font-size: 1.2em;
+      color: var(--text-primary);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    
+    .detail-label {
+      font-size: 0.65em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+    }
+    
+    .no-weather {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+    }
+    
+    .no-weather-icon {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-container">
+    <div class="panel-title">
+      <div class="title-left">
+        <span class="live-indicator"></span>
+        <span id="weatherTitle">🌤️ Launch Weather</span>
+      </div>
+      <button class="toggle-btn" id="toggleBtn">AUTO</button>
+    </div>
+    <div class="panel-content" id="weatherContent">
+      <div class="loading-state">
+        <div>☁️</div>
+        <div>Checking weather conditions...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WeatherComponent = {
+      init() {
+        window.addEventListener('message', (event) => {
+          if (event.data.type === 'setWeatherData') {
+            this.render(event.data.weather);
+          } else if (event.data.type === 'setWeatherUnavailable') {
+            this.renderUnavailable(event.data.reason);
+          }
+        });
+        
+        window.parent.postMessage({ type: 'weatherReady' }, '*');
+      },
+      
+      render(data) {
+        const content = document.getElementById('weatherContent');
+        const title = document.getElementById('weatherTitle');
+        
+        if (!data || !data.analysis) {
+          this.renderUnavailable('Weather data not available');
+          return;
+        }
+        
+        const analysis = data.analysis;
+        const conditions = analysis.conditions || {};
+        
+        title.textContent = data.eventType === 'recovery' 
+          ? '🎯 Recovery Weather' 
+          : '🚀 Launch Weather';
+        
+        const viabilityClass = analysis.status === 'go' ? 'go' 
+          : analysis.status === 'marginal' ? 'marginal' 
+          : 'no-go';
+        
+        const viabilityLabel = analysis.status === 'go' ? 'GO' 
+          : analysis.status === 'marginal' ? 'MARGINAL' 
+          : 'NO-GO';
+        
+        content.innerHTML = `
+          <div class="weather-status">
+            <div class="weather-icon">${conditions.icon || '❓'}</div>
+            <div class="weather-main">
+              <div class="weather-condition">${conditions.description || 'Unknown'}</div>
+              <div class="weather-temp">
+                ${conditions.temperature_high_f ? `High: ${Math.round(conditions.temperature_high_f)}°F` : ''}
+                ${conditions.temperature_low_f ? ` / Low: ${Math.round(conditions.temperature_low_f)}°F` : ''}
+              </div>
+            </div>
+            <div class="viability-badge ${viabilityClass}">${viabilityLabel}</div>
+          </div>
+          
+          <div class="weather-details">
+            <div class="detail-item">
+              <div class="detail-value">${conditions.wind_speed_mph ? Math.round(conditions.wind_speed_mph) + ' mph' : '--'}</div>
+              <div class="detail-label">Wind</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-value">${conditions.wind_gust_mph ? Math.round(conditions.wind_gust_mph) + ' mph' : '--'}</div>
+              <div class="detail-label">Gusts</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-value">${conditions.precipitation_mm !== undefined ? conditions.precipitation_mm.toFixed(1) + 'mm' : '--'}</div>
+              <div class="detail-label">Precip</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-value">${conditions.cloud_cover !== undefined ? conditions.cloud_cover + '%' : '--'}</div>
+              <div class="detail-label">Clouds</div>
+            </div>
+          </div>
+        `;
+      },
+      
+      renderUnavailable(reason) {
+        const content = document.getElementById('weatherContent');
+        content.innerHTML = `
+          <div class="no-weather">
+            <div class="no-weather-icon">📡</div>
+            <div>${reason || 'Weather data not available'}</div>
+          </div>
+        `;
+      }
+    };
+    
+    WeatherComponent.init();
+  </script>
+</body>
+</html>

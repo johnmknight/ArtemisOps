@@ -4,11 +4,82 @@ SQLite database for missions, crew, milestones with async support
 """
 import aiosqlite
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 import json
 
 DB_PATH = Path(__file__).parent / "artemisops.db"
+
+# Mission statuses that indicate a completed/returned mission
+COMPLETED_STATUSES = [
+    "success",      # Launch was successful and mission completed
+    "failure",      # Mission failed
+    "partial failure",
+]
+
+# Statuses that indicate mission is still active/upcoming
+ACTIVE_STATUSES = [
+    "go",           # Go for launch
+    "tbd",          # To be determined
+    "tbc",          # To be confirmed  
+    "hold",         # On hold
+    "in flight",    # Currently in space
+]
+
+
+def is_mission_active(mission: dict) -> bool:
+    """
+    Determine if a mission should be shown in the active list.
+    
+    A mission is active if:
+    1. Launch date is in the future (hasn't launched yet), OR
+    2. Status indicates it's still in progress (not success/failure)
+    
+    For crewed missions, we also consider if they might still be in space
+    (within ~6 months of launch for typical ISS missions).
+    """
+    status = (mission.get("status") or "").lower()
+    launch_date_str = mission.get("launch_date")
+    
+    # If status clearly indicates completion, it's not active
+    if status in COMPLETED_STATUSES:
+        # However, for very recent completions (within 7 days), still show them
+        # so users can see mission results
+        if launch_date_str:
+            try:
+                launch_date = datetime.fromisoformat(launch_date_str.replace("Z", "+00:00"))
+                now = datetime.now(timezone.utc)
+                days_since_launch = (now - launch_date).days
+                
+                # Show completed missions for up to 7 days after launch
+                if days_since_launch <= 7:
+                    return True
+            except:
+                pass
+        return False
+    
+    # If launch date is in the future, definitely active
+    if launch_date_str:
+        try:
+            launch_date = datetime.fromisoformat(launch_date_str.replace("Z", "+00:00"))
+            now = datetime.now(timezone.utc)
+            
+            if launch_date > now:
+                return True
+            
+            # For past launches without a "success" status, check if they might still be in space
+            # Most crewed missions are under 6 months, ISS expeditions up to 6 months
+            days_since_launch = (now - launch_date).days
+            
+            if days_since_launch <= 200:  # ~6.5 months max mission duration
+                # If status isn't explicitly "success", assume still active
+                return True
+                
+        except:
+            pass
+    
+    # Default: if status is in active list, show it
+    return status in ACTIVE_STATUSES or status == ""
 
 
 async def init_db():
@@ -21,6 +92,7 @@ async def init_db():
                 name TEXT NOT NULL,
                 slug TEXT UNIQUE NOT NULL,
                 launch_date TEXT,
+                landing_date TEXT,
                 status TEXT,
                 status_description TEXT,
                 site TEXT,
@@ -31,11 +103,25 @@ async def init_db():
                 image_url TEXT,
                 api_id TEXT,
                 api_source TEXT,
+                agencies TEXT,
                 is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        
+        # Add columns if they don't exist (migrations)
+        migrations = [
+            "ALTER TABLE missions ADD COLUMN agencies TEXT",
+            "ALTER TABLE missions ADD COLUMN landing_date TEXT",
+            "ALTER TABLE missions ADD COLUMN patch_url TEXT",
+            "ALTER TABLE missions ADD COLUMN agency_logo_url TEXT",
+        ]
+        for migration in migrations:
+            try:
+                await db.execute(migration)
+            except:
+                pass  # Column already exists
         
         # Crew table
         await db.execute("""
@@ -92,18 +178,58 @@ async def init_db():
 
 # === Mission Operations ===
 
-async def get_all_missions(active_only: bool = True) -> list[dict]:
-    """Get all missions"""
+async def get_all_missions(active_only: bool = True, include_completed_recent: bool = True) -> list[dict]:
+    """
+    Get all missions, optionally filtering to only active ones.
+    
+    Args:
+        active_only: If True, filter to missions that haven't completed yet
+        include_completed_recent: If True, include recently completed missions (within 7 days)
+    
+    A mission is considered "active" if:
+    - It hasn't launched yet, OR
+    - It has launched but crew hasn't returned (still in space), OR
+    - It completed within the last 7 days (so users can see results)
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
-        query = "SELECT * FROM missions"
-        if active_only:
-            query += " WHERE is_active = 1"
-        query += " ORDER BY launch_date ASC"
+        
+        # Get all missions first, then filter in Python
+        # (More complex date logic is easier in Python than SQL)
+        query = "SELECT * FROM missions WHERE is_active = 1 ORDER BY launch_date ASC"
         
         async with db.execute(query) as cursor:
             rows = await cursor.fetchall()
-            return [dict(row) for row in rows]
+            all_missions = [dict(row) for row in rows]
+        
+        if not active_only:
+            return all_missions
+        
+        # Filter to only active missions
+        active_missions = [m for m in all_missions if is_mission_active(m)]
+        
+        # Sort: upcoming missions first (by launch date), then in-progress
+        def sort_key(m):
+            launch_date_str = m.get("launch_date")
+            if launch_date_str:
+                try:
+                    launch_date = datetime.fromisoformat(launch_date_str.replace("Z", "+00:00"))
+                    now = datetime.now(timezone.utc)
+                    
+                    # Upcoming missions: sort by launch date ascending
+                    if launch_date > now:
+                        return (0, launch_date)
+                    # Past/in-progress: sort by launch date descending (most recent first)
+                    else:
+                        return (1, datetime.max.replace(tzinfo=timezone.utc) - launch_date)
+                except:
+                    pass
+            # No date: put at end
+            return (2, datetime.max.replace(tzinfo=timezone.utc))
+        
+        active_missions.sort(key=sort_key)
+        
+        return active_missions
 
 
 async def get_mission(mission_id: str) -> Optional[dict]:
@@ -132,38 +258,62 @@ async def upsert_mission(mission: dict) -> str:
         if exists:
             await db.execute("""
                 UPDATE missions SET
-                    name = ?, slug = ?, launch_date = ?, status = ?,
+                    name = ?, slug = ?, launch_date = ?, landing_date = ?, status = ?,
                     status_description = ?, site = ?, rocket = ?, spacecraft = ?,
-                    mission_type = ?, description = ?, image_url = ?,
-                    api_id = ?, api_source = ?, is_active = ?, updated_at = ?
+                    mission_type = ?, description = ?, image_url = ?, patch_url = ?,
+                    agency_logo_url = ?, api_id = ?, api_source = ?, agencies = ?, 
+                    is_active = ?, updated_at = ?
                 WHERE id = ?
             """, (
                 mission.get('name'), mission.get('slug'), mission.get('launch_date'),
-                mission.get('status'), mission.get('status_description'),
+                mission.get('landing_date'), mission.get('status'), 
+                mission.get('status_description'),
                 mission.get('site'), mission.get('rocket'), mission.get('spacecraft'),
                 mission.get('mission_type'), mission.get('description'),
-                mission.get('image_url'), mission.get('api_id'), mission.get('api_source'),
+                mission.get('image_url'), mission.get('patch_url'),
+                mission.get('agency_logo_url'), mission.get('api_id'), 
+                mission.get('api_source'), mission.get('agencies'), 
                 mission.get('is_active', 1), now, mission['id']
             ))
         else:
             await db.execute("""
                 INSERT INTO missions (
-                    id, name, slug, launch_date, status, status_description,
+                    id, name, slug, launch_date, landing_date, status, status_description,
                     site, rocket, spacecraft, mission_type, description,
-                    image_url, api_id, api_source, is_active, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    image_url, patch_url, agency_logo_url, api_id, api_source, agencies, 
+                    is_active, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 mission['id'], mission.get('name'), mission.get('slug'),
-                mission.get('launch_date'), mission.get('status'),
-                mission.get('status_description'), mission.get('site'),
-                mission.get('rocket'), mission.get('spacecraft'),
+                mission.get('launch_date'), mission.get('landing_date'),
+                mission.get('status'), mission.get('status_description'), 
+                mission.get('site'), mission.get('rocket'), mission.get('spacecraft'),
                 mission.get('mission_type'), mission.get('description'),
-                mission.get('image_url'), mission.get('api_id'),
-                mission.get('api_source'), mission.get('is_active', 1), now, now
+                mission.get('image_url'), mission.get('patch_url'),
+                mission.get('agency_logo_url'), mission.get('api_id'),
+                mission.get('api_source'), mission.get('agencies'),
+                mission.get('is_active', 1), now, now
             ))
         
         await db.commit()
         return mission['id']
+
+
+async def mark_mission_completed(mission_id: str, landing_date: str = None):
+    """Mark a mission as completed (returned from space)"""
+    async with aiosqlite.connect(DB_PATH) as db:
+        now = datetime.now(timezone.utc).isoformat()
+        landing = landing_date or now
+        
+        await db.execute("""
+            UPDATE missions SET
+                status = 'Success',
+                landing_date = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (landing, now, mission_id))
+        
+        await db.commit()
 
 
 # === Crew Operations ===

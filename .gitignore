@@ -29,6 +29,12 @@ venv/
 # Cache
 server/cache/
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+server/artemisops.db
+
 # Logs
 *.log
 npm-debug.log*

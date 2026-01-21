@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Icon Gallery v6 (With Reference Images)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a1628;
+      color: #fff;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      color: #00bcd4;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 40px;
+    }
+    
+    .spacecraft-section {
+      max-width: 1200px;
+      margin: 0 auto 50px;
+      background: #0d1a2d;
+      border: 1px solid #1a3a5c;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .section-header {
+      background: #1a3a5c;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      color: #00bcd4;
+      letter-spacing: 2px;
+    }
+    .section-source {
+      font-size: 0.7rem;
+      color: #8b949e;
+    }
+    
+    .section-content {
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    
+    .reference-panel {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 20px;
+      border: 2px solid #ffd60a;
+    }
+    .created-panel {
+      background: #050a12;
+      border-radius: 8px;
+      padding: 20px;
+      border: 2px solid #00bcd4;
+    }
+    
+    .panel-label {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .reference-panel .panel-label {
+      color: #b8860b;
+    }
+    .created-panel .panel-label {
+      color: #00bcd4;
+    }
+    
+    .icon-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+    
+    .reference-panel .icon-display img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 4px;
+    }
+    
+    .specs {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      line-height: 1.8;
+    }
+    .reference-panel .specs {
+      color: #555;
+    }
+    .created-panel .specs {
+      color: #8b949e;
+    }
+    .specs strong {
+      color: inherit;
+    }
+    .reference-panel .specs strong {
+      color: #333;
+    }
+    .created-panel .specs strong {
+      color: #00bcd4;
+    }
+    
+    .size-variants {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: flex-end;
+      margin-top: 20px;
+    }
+    .size-variant {
+      text-align: center;
+    }
+    .size-label {
+      font-size: 0.65rem;
+      color: #8b949e;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ARTEMISOPS ICON GALLERY v6</h1>
+  <p class="subtitle">Spacecraft Icons Based on Reference Images</p>
+
+  <!-- ORION SPACECRAFT (Full with ESM) -->
+  <div class="spacecraft-section">
+    <div class="section-header">
+      <h2 class="section-title">🚀 NASA ORION SPACECRAFT (with European Service Module)</h2>
+      <span class="section-source">Reference: NASA/ESA Artemis Program</span>
+    </div>
+    <div class="section-content">
+      <div class="reference-panel">
+        <div class="panel-label">📍 REFERENCE IMAGE</div>
+        <div class="icon-display">
+          <img src="orion-reference.png" alt="Orion Spacecraft Reference" onerror="this.outerHTML='<div style=\'color:#666;font-size:0.8rem;text-align:center;padding:40px;\'>Reference: orion-reference.png<br><br>Crew Module + ESM<br>4 X-shaped solar arrays</div>'">
+        </div>
+        <div class="specs">
+          <strong>Configuration:</strong> Crew Module + European Service Module<br>
+          <strong>Solar Arrays:</strong> 4 wings in X-configuration<br>
+          <strong>Crew Module:</strong> 5.02m dia × 3.3m, gumdrop shape<br>
+          <strong>ESM:</strong> Cylindrical, propulsion & life support
+        </div>
+      </div>
+      
+      <div class="created-panel">
+        <div class="panel-label">✨ ARTEMISOPS ICONS</div>
+        <div class="icon-display">
+          <!-- Orion with ESM - matching reference image orientation -->
+          <svg viewBox="0 0 120 100" width="280">
+            <g stroke="#00bcd4" fill="none" stroke-width="2" stroke-linecap="round">
+              <!-- Crew Module (cone/gumdrop at front-right) -->
+              <path d="M75,50 Q85,42 88,50 Q85,58 75,50" stroke-width="1.5"/>
+              <path d="M55,38 Q52,35 55,32 L75,38 Q82,42 82,50 Q82,58 75,62 L55,68 Q52,65 55,62 Z" stroke-width="2"/>
+              
+              <!-- Windows on crew module -->
+              <circle cx="68" cy="45" r="3" stroke-width="1.5"/>
+              <circle cx="68" cy="45" r="1.5" fill="#00bcd4" opacity="0.3"/>
+              
+              <!-- Service Module (cylindrical, behind CM) -->
+              <rect x="25" y="40" width="30" height="20" rx="2" stroke-width="2"/>
+              
+              <!-- Service module detail lines -->
+              <line x1="35" y1="40" x2="35" y2="60" stroke-width="0.8" opacity="0.5"/>
+              <line x1="45" y1="40" x2="45" y2="60" stroke-width="0.8" opacity="0.5"/>
+              
+              <!-- Solar Array Wings (X-configuration) -->
+              <!-- Upper-left wing -->
+              <line x1="30" y1="40" x2="10" y2="15" stroke-width="2"/>
+              <rect x="5" y="8" width="12" height="18" rx="1" stroke-width="1.5" transform="rotate(-55, 11, 17)"/>
+              
+              <!-- Lower-left wing -->
+              <line x1="30" y1="60" x2="10" y2="85" stroke-width="2"/>
+              <rect x="5" y="74" width="12" height="18" rx="1" stroke-width="1.5" transform="rotate(55, 11, 83)"/>
+              
+              <!-- Upper-right wing -->
+              <line x1="50" y1="40" x2="70" y2="15" stroke-width="2"/>
+              <rect x="63" y="8" width="12" height="18" rx="1" stroke-width="1.5" transform="rotate(55, 69, 17)"/>
+              
+              <!-- Lower-right wing -->
+              <line x1="50" y1="60" x2="70" y2="85" stroke-width="2"/>
+              <rect x="63" y="74" width="12" height="18" rx="1" stroke-width="1.5" transform="rotate(-55, 69, 83)"/>
+              
+              <!-- Engine nozzle at back -->
+              <ellipse cx="25" cy="50" rx="3" ry="6" stroke-width="1.5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="specs">
+          <strong>Features:</strong> CM + ESM, 4 X-config solar arrays, engine<br>
+          <strong>Style:</strong> 2px stroke, cyan (#00bcd4), line art<br>
+          <strong>Use:</strong> Transit phases, lunar orbit operations
+        </div>
+        
+        <!-- Size variants -->
+        <div class="size-variants">
+          <div class="size-variant">
+            <svg viewBox="0 0 120 100" width="64">
+              <g stroke="#00bcd4" fill="none" stroke-width="2.5" stroke-linecap="round">
+                <path d="M55,38 Q52,35 55,32 L75,38 Q82,42 82,50 Q82,58 75,62 L55,68 Q52,65 55,62 Z"/>
+                <rect x="25" y="40" width="30" height="20" rx="2"/>
+                <line x1="30" y1="40" x2="10" y2="15" stroke-width="2.5"/>
+                <line x1="30" y1="60" x2="10" y2="85" stroke-width="2.5"/>
+                <line x1="50" y1="40" x2="70" y2="15" stroke-width="2.5"/>
+                <line x1="50" y1="60" x2="70" y2="85" stroke-width="2.5"/>
+              </g>
+            </svg>
+            <div class="size-label">64px</div>
+          </div>
+          <div class="size-variant">
+            <svg viewBox="0 0 120 100" width="48">
+              <g stroke="#00bcd4" fill="none" stroke-width="3" stroke-linecap="round">
+                <path d="M55,38 Q52,35 55,32 L75,38 Q82,42 82,50 Q82,58 75,62 L55,68 Q52,65 55,62 Z"/>
+                <rect x="25" y="40" width="30" height="20" rx="2"/>
+                <line x1="30" y1="40" x2="10" y2="15"/>
+                <line x1="30" y1="60" x2="10" y2="85"/>
+                <line x1="50" y1="40" x2="70" y2="15"/>
+                <line x1="50" y1="60" x2="70" y2="85"/>
+              </g>
+            </svg>
+            <div class="size-label">48px</div>
+          </div>
+          <div class="size-variant">
+            <svg viewBox="0 0 120 100" width="32">
+              <g stroke="#00bcd4" fill="none" stroke-width="4" stroke-linecap="round">
+                <path d="M55,38 Q52,35 55,32 L75,38 Q82,42 82,50 Q82,58 75,62 L55,68 Q52,65 55,62 Z"/>
+                <rect x="25" y="40" width="30" height="20" rx="2"/>
+                <line x1="30" y1="40" x2="10" y2="15"/>
+                <line x1="30" y1="60" x2="10" y2="85"/>
+                <line x1="50" y1="40" x2="70" y2="15"/>
+                <line x1="50" y1="60" x2="70" y2="85"/>
+              </g>
+            </svg>
+            <div class="size-label">32px</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ISS -->
+  <div class="spacecraft-section">
+    <div class="section-header">
+      <h2 class="section-title">🛰️ INTERNATIONAL SPACE STATION</h2>
+      <span class="section-source">Reference: NASA/ESA/JAXA/Roscosmos</span>
+    </div>
+    <div class="section-content">
+      <div class="reference-panel">
+        <div class="panel-label">📍 REFERENCE IMAGE</div>
+        <div class="icon-display">
+          <img src="iss-reference.png" alt="ISS Reference" onerror="this.outerHTML='<div style=\'color:#666;font-size:0.8rem;text-align:center;padding:40px;\'>Reference: iss-reference.png<br><br>8 solar arrays (4 pairs)<br>Horizontal truss structure<br>Central module cluster</div>'">
+        </div>
+        <div class="specs">
+          <strong>Dimensions:</strong> 109m × 73m span<br>
+          <strong>Solar Arrays:</strong> 8 arrays in 4 pairs (P6, P4, S4, S6)<br>
+          <strong>Structure:</strong> Integrated Truss Structure (ITS)<br>
+          <strong>Modules:</strong> 16 pressurized modules
+        </div>
+      </div>
+      
+      <div class="created-panel">
+        <div class="panel-label">✨ ARTEMISOPS ICON</div>
+        <div class="icon-display">
+          <svg viewBox="0 0 140 80" width="320">
+            <g stroke="#00bcd4" fill="none" stroke-width="1.5" stroke-linecap="round">
+              <!-- Main Truss -->
+              <line x1="10" y1="40" x2="130" y2="40" stroke-width="2.5"/>
+              
+              <!-- P6 Solar Arrays (far port) -->
+              <g transform="translate(18, 40)">
+                <rect x="-8" y="-28" width="14" height="25" stroke-width="1.2"/>
+                <line x1="-1" y1="-28" x2="-1" y2="-3" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-8" y1="-15" x2="6" y2="-15" stroke-width="0.5" opacity="0.6"/>
+                <rect x="-8" y="3" width="14" height="25" stroke-width="1.2"/>
+                <line x1="-1" y1="3" x2="-1" y2="28" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-8" y1="16" x2="6" y2="16" stroke-width="0.5" opacity="0.6"/>
+              </g>
+              
+              <!-- P4 Solar Arrays -->
+              <g transform="translate(38, 40)">
+                <rect x="-8" y="-28" width="14" height="25" stroke-width="1.2"/>
+                <line x1="-1" y1="-28" x2="-1" y2="-3" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-8" y1="-15" x2="6" y2="-15" stroke-width="0.5" opacity="0.6"/>
+                <rect x="-8" y="3" width="14" height="25" stroke-width="1.2"/>
+                <line x1="-1" y1="3" x2="-1" y2="28" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-8" y1="16" x2="6" y2="16" stroke-width="0.5" opacity="0.6"/>
+              </g>
+              
+              <!-- S4 Solar Arrays -->
+              <g transform="translate(102, 40)">
+                <rect x="-6" y="-28" width="14" height="25" stroke-width="1.2"/>
+                <line x1="1" y1="-28" x2="1" y2="-3" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-6" y1="-15" x2="8" y2="-15" stroke-width="0.5" opacity="0.6"/>
+                <rect x="-6" y="3" width="14" height="25" stroke-width="1.2"/>
+                <line x1="1" y1="3" x2="1" y2="28" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-6" y1="16" x2="8" y2="16" stroke-width="0.5" opacity="0.6"/>
+              </g>
+              
+              <!-- S6 Solar Arrays (far starboard) -->
+              <g transform="translate(122, 40)">
+                <rect x="-6" y="-28" width="14" height="25" stroke-width="1.2"/>
+                <line x1="1" y1="-28" x2="1" y2="-3" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-6" y1="-15" x2="8" y2="-15" stroke-width="0.5" opacity="0.6"/>
+                <rect x="-6" y="3" width="14" height="25" stroke-width="1.2"/>
+                <line x1="1" y1="3" x2="1" y2="28" stroke-width="0.5" opacity="0.6"/>
+                <line x1="-6" y1="16" x2="8" y2="16" stroke-width="0.5" opacity="0.6"/>
+              </g>
+              
+              <!-- Central Module Cluster -->
+              <rect x="58" y="32" width="24" height="16" rx="2" stroke-width="1.5"/>
+              <circle cx="70" cy="40" r="3" fill="#00bcd4" opacity="0.3"/>
+              
+              <!-- Perpendicular modules -->
+              <rect x="66" y="22" width="8" height="10" rx="1" stroke-width="1" opacity="0.8"/>
+              <rect x="66" y="48" width="8" height="10" rx="1" stroke-width="1" opacity="0.8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="specs">
+          <strong>Features:</strong> 8 arrays, truss, module cluster<br>
+          <strong>Style:</strong> Line art with grid detail on panels<br>
+          <strong>Use:</strong> LEO tracking, ISS live mode
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HLS STARSHIP -->
+  <div class="spacecraft-section">
+    <div class="section-header">
+      <h2 class="section-title">🌙 SPACEX STARSHIP HLS (Human Landing System)</h2>
+      <span class="section-source">Reference: NASA/SpaceX Artemis Program</span>
+    </div>
+    <div class="section-content">
+      <div class="reference-panel">
+        <div class="panel-label">📍 REFERENCE IMAGE</div>
+        <div class="icon-display">
+          <img src="hls-reference.png" alt="HLS Starship Reference" onerror="this.outerHTML='<div style=\'color:#666;font-size:0.8rem;text-align:center;padding:40px;\'>Reference: hls-reference.png<br><br>~55m tall cylinder<br>4 landing legs<br>5 deployable solar arrays<br>Crew elevator system</div>'">
+        </div>
+        <div class="specs">
+          <strong>Dimensions:</strong> ~55m tall × 9m diameter<br>
+          <strong>Features:</strong> 5 solar arrays, crew elevator, 6 Raptor engines<br>
+          <strong>Landing:</strong> 4 legs, propulsive landing on Moon<br>
+          <strong>Mission:</strong> Artemis III/IV lunar surface access
+        </div>
+      </div>
+      
+      <div class="created-panel">
+        <div class="panel-label">✨ ARTEMISOPS ICON</div>
+        <div class="icon-display">
+          <svg viewBox="0 0 80 120" width="180">
+            <g stroke="#00bcd4" fill="none" stroke-width="1.5" stroke-linecap="round">
+              <!-- Main body - tall cylinder with nose cone -->
+              <path d="M28,95 L28,25 Q28,8 40,8 Q52,8 52,25 L52,95" stroke-width="2"/>
+              
+              <!-- Base/engine section -->
+              <line x1="28" y1="95" x2="52" y2="95" stroke-width="2"/>
+              <ellipse cx="40" cy="97" rx="12" ry="3" stroke-width="1" opacity="0.7"/>
+              
+              <!-- Landing legs (4, deployed) -->
+              <line x1="28" y1="88" x2="14" y2="110" stroke-width="2.5"/>
+              <line x1="52" y1="88" x2="66" y2="110" stroke-width="2.5"/>
+              <line x1="14" y1="110" x2="10" y2="110" stroke-width="2"/>
+              <line x1="66" y1="110" x2="70" y2="110" stroke-width="2"/>
+              
+              <!-- Crew access windows / airlock area -->
+              <rect x="33" y="20" width="14" height="18" rx="2" stroke-width="1.5"/>
+              <circle cx="40" cy="28" r="4" stroke-width="1"/>
+              <circle cx="40" cy="28" r="2" fill="#00bcd4" opacity="0.3"/>
+              
+              <!-- Solar array deployments -->
+              <line x1="28" y1="50" x2="12" y2="45" stroke-width="1.5"/>
+              <line x1="28" y1="55" x2="10" y2="58" stroke-width="1.5"/>
+              <line x1="52" y1="50" x2="68" y2="45" stroke-width="1.5"/>
+              <line x1="52" y1="55" x2="70" y2="58" stroke-width="1.5"/>
+              
+              <!-- Panel segment lines -->
+              <line x1="28" y1="45" x2="52" y2="45" stroke-width="0.8" opacity="0.4"/>
+              <line x1="28" y1="65" x2="52" y2="65" stroke-width="0.8" opacity="0.4"/>
+            </g>
+          </svg>
+        </div>
+        <div class="specs">
+          <strong>Features:</strong> Tall cylinder, landing legs, solar arrays<br>
+          <strong>Style:</strong> Distinctive Starship silhouette<br>
+          <strong>Use:</strong> Lunar landing phase, surface operations
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREW DRAGON -->
+  <div class="spacecraft-section">
+    <div class="section-header">
+      <h2 class="section-title">🐉 SPACEX CREW DRAGON</h2>
+      <span class="section-source">Reference: SpaceX / NASA Commercial Crew</span>
+    </div>
+    <div class="section-content">
+      <div class="reference-panel">
+        <div class="panel-label">📍 REFERENCE IMAGE</div>
+        <div class="icon-display">
+          <img src="dragon-reference.png" alt="Crew Dragon Reference" onerror="this.outerHTML='<div style=\'color:#666;font-size:0.8rem;text-align:center;padding:40px;\'>Reference: dragon-reference.png<br><br>Gumdrop capsule + trunk<br>Solar panel fins<br>IDSS docking port</div>'">
+        </div>
+        <div class="specs">
+          <strong>Capsule:</strong> 4m diameter, reusable, 7 passengers max<br>
+          <strong>Trunk:</strong> 4.2m × 2.9m, expendable, solar fins<br>
+          <strong>Features:</strong> 8 SuperDraco abort engines, IDSS docking<br>
+          <strong>Recovery:</strong> Parachute splashdown
+        </div>
+      </div>
+      
+      <div class="created-panel">
+        <div class="panel-label">✨ ARTEMISOPS ICON</div>
+        <div class="icon-display">
+          <svg viewBox="0 0 80 100" width="180">
+            <g stroke="#00bcd4" fill="none" stroke-width="1.5" stroke-linecap="round">
+              <!-- Capsule - gumdrop shape -->
+              <path d="M26,15 Q20,20 20,38 Q20,52 30,58 L50,58 Q60,52 60,38 Q60,20 54,15 Q48,8 40,8 Q32,8 26,15 Z" stroke-width="2"/>
+              
+              <!-- Docking port -->
+              <ellipse cx="40" cy="10" rx="8" ry="4" stroke-width="1" opacity="0.7"/>
+              
+              <!-- Windows -->
+              <circle cx="32" cy="30" r="5" stroke-width="1.5"/>
+              <circle cx="32" cy="30" r="2.5" fill="#00bcd4" opacity="0.3"/>
+              <circle cx="48" cy="30" r="5" stroke-width="1.5"/>
+              <circle cx="48" cy="30" r="2.5" fill="#00bcd4" opacity="0.3"/>
+              
+              <!-- Trunk -->
+              <rect x="28" y="58" width="24" height="28" stroke-width="1.5"/>
+              
+              <!-- Solar fins -->
+              <line x1="28" y1="68" x2="14" y2="74" stroke-width="2"/>
+              <line x1="52" y1="68" x2="66" y2="74" stroke-width="2"/>
+              
+              <!-- Trunk detail -->
+              <line x1="28" y1="72" x2="52" y2="72" stroke-width="0.5" opacity="0.4"/>
+              <line x1="28" y1="78" x2="52" y2="78" stroke-width="0.5" opacity="0.4"/>
+            </g>
+          </svg>
+        </div>
+        <div class="specs">
+          <strong>Features:</strong> Gumdrop capsule + trunk, solar fins<br>
+          <strong>Style:</strong> Clean SpaceX aesthetic<br>
+          <strong>Use:</strong> ISS crew rotation tracking
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

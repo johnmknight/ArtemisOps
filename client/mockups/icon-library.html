@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps Icon Library</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1128 100%);
+      color: #e0e6ed;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+      color: #4a9eff;
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+    }
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 40px;
+      font-size: 0.9em;
+      letter-spacing: 2px;
+    }
+    
+    .section {
+      max-width: 1400px;
+      margin: 0 auto 50px;
+      background: rgba(15, 25, 45, 0.9);
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      padding: 30px;
+    }
+    .section h2 {
+      color: #4a9eff;
+      font-size: 1rem;
+      letter-spacing: 3px;
+      margin-bottom: 25px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(74, 158, 255, 0.3);
+      text-transform: uppercase;
+    }
+    
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 20px;
+    }
+    
+    .icon-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      padding: 20px 15px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .icon-card:hover {
+      border-color: #4a9eff;
+      box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .icon-preview {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .icon-preview svg {
+      filter: drop-shadow(0 0 3px rgba(74, 158, 255, 0.5));
+    }
+    
+    .icon-name {
+      font-size: 0.7em;
+      color: #8ab4f8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .size-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      justify-content: center;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(74, 158, 255, 0.2);
+    }
+    .size-row span {
+      font-size: 0.55em;
+      color: #6a7f99;
+    }
+    
+    /* Spacecraft icons section */
+    .spacecraft-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 25px;
+    }
+    .spacecraft-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      padding: 25px 20px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .spacecraft-card:hover {
+      border-color: #00bcd4;
+      box-shadow: 0 0 25px rgba(0, 188, 212, 0.3);
+    }
+    .spacecraft-preview {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    .spacecraft-preview svg {
+      filter: drop-shadow(0 0 5px rgba(0, 188, 212, 0.5));
+    }
+    .spacecraft-name {
+      font-size: 0.85em;
+      color: #00bcd4;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .spacecraft-desc {
+      font-size: 0.7em;
+      color: #8b949e;
+      line-height: 1.4;
+    }
+    
+    /* Color variants */
+    .color-demo {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+    .color-variant {
+      text-align: center;
+    }
+    .color-variant span {
+      display: block;
+      font-size: 0.65em;
+      color: #6a7f99;
+      margin-top: 8px;
+    }
+    
+    /* Category headers */
+    .category {
+      margin-bottom: 30px;
+    }
+    .category h3 {
+      color: #6a7f99;
+      font-size: 0.75em;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+    
+    /* Use cases demo */
+    .use-case {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    .use-case h3 {
+      color: #4a9eff;
+      font-size: 0.85em;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+    .demo-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .demo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 25, 45, 0.8);
+      padding: 12px 20px;
+      border-radius: 6px;
+      border: 1px solid rgba(74, 158, 255, 0.3);
+    }
+    .demo-item span {
+      font-size: 0.85em;
+      color: #e0e6ed;
+    }
+    .demo-item.warning {
+      border-color: rgba(255, 165, 0, 0.3);
+    }
+    .demo-item.success {
+      border-color: rgba(74, 255, 158, 0.3);
+    }
+    .demo-item.error {
+      border-color: rgba(255, 68, 68, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>ARTEMISOPS ICON LIBRARY</h1>
+  <p class="subtitle">Technical Aerospace Icon Set • Serious Mission Control Style</p>
+  
+  <!-- UI Icons Section -->
+  <div class="section">
+    <h2>Navigation Icons</h2>
+    <div class="icon-grid" id="navIconGrid"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Status &amp; Milestone Icons</h2>
+    <div class="icon-grid" id="statusIconGrid"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Action &amp; UI Icons</h2>
+    <div class="icon-grid" id="actionIconGrid"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Mission &amp; Space Icons</h2>
+    <div class="icon-grid" id="spaceIconGrid"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Usage Examples</h2>
+    <div class="use-case">
+      <h3>Navigation Tabs</h3>
+      <div class="demo-row" id="tabDemo"></div>
+    </div>
+    <div class="use-case">
+      <h3>Status Indicators</h3>
+      <div class="demo-row" id="statusDemo"></div>
+    </div>
+    <div class="use-case">
+      <h3>Notifications</h3>
+      <div class="demo-row" id="notifDemo"></div>
+    </div>
+  </div>
+  
+  <!-- Spacecraft Icons Section -->
+  <div class="section" style="border-color: #00bcd4;">
+    <h2 style="color: #00bcd4; border-bottom-color: rgba(0, 188, 212, 0.3);">Spacecraft Icons</h2>
+    <div class="spacecraft-grid" id="spacecraftGrid"></div>
+  </div>
+  
+  <script src="../js/ui-icons.js"></script>
+  <script src="../js/spacecraft-icons.js"></script>
+  <script>
+    // Categorize icons
+    const navIcons = ['mission', 'crew', 'info', 'timeline', 'status', 'settings'];
+    const statusIcons = ['milestoneComplete', 'milestoneActive', 'milestonePending', 'success', 'alert', 'warning', 'check', 'checkCircle', 'statusGo', 'statusNoGo'];
+    const actionIcons = ['notification', 'close', 'refresh', 'link', 'arrowRight', 'sound', 'mute'];
+    const spaceIcons = ['countdown', 'weather', 'live', 'news', 'event', 'video', 'location', 'vehicle', 'orbit', 'moon', 'earth', 'antenna', 'clipboard', 'telemetry', 'comms', 'target', 'fuel'];
+    
+    function renderIconGrid(containerId, iconNames, defaultColor = '#4a9eff') {
+      const grid = document.getElementById(containerId);
+      iconNames.forEach(name => {
+        if (!UIIcons.icons[name]) return;
+        const card = document.createElement('div');
+        card.className = 'icon-card';
+        card.innerHTML = `
+          <div class="icon-preview">
+            ${UIIcons.get(name, 40, defaultColor)}
+          </div>
+          <div class="icon-name">${name}</div>
+          <div class="size-row">
+            ${UIIcons.get(name, 16, defaultColor)}
+            <span>16</span>
+            ${UIIcons.get(name, 24, defaultColor)}
+            <span>24</span>
+            ${UIIcons.get(name, 32, defaultColor)}
+            <span>32</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+    
+    renderIconGrid('navIconGrid', navIcons);
+    renderIconGrid('statusIconGrid', statusIcons);
+    renderIconGrid('actionIconGrid', actionIcons);
+    renderIconGrid('spaceIconGrid', spaceIcons);
+    
+    // Tab demo
+    const tabDemo = document.getElementById('tabDemo');
+    ['mission', 'crew', 'info'].forEach(name => {
+      const item = document.createElement('div');
+      item.className = 'demo-item';
+      item.innerHTML = `${UIIcons.get(name, 18, '#4a9eff')}<span>${name.toUpperCase()}</span>`;
+      tabDemo.appendChild(item);
+    });
+    
+    // Status demo
+    const statusDemo = document.getElementById('statusDemo');
+    const statuses = [
+      { icon: 'milestoneComplete', label: 'Complete', color: '#4a9eff', cls: '' },
+      { icon: 'milestoneActive', label: 'In Progress', color: '#ffa500', cls: 'warning' },
+      { icon: 'milestonePending', label: 'Pending', color: '#666', cls: '' }
+    ];
+    statuses.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'demo-item ' + s.cls;
+      item.innerHTML = `${UIIcons.get(s.icon, 20, s.color)}<span>${s.label}</span>`;
+      statusDemo.appendChild(item);
+    });
+    
+    // Notification demo
+    const notifDemo = document.getElementById('notifDemo');
+    const notifs = [
+      { icon: 'checkCircle', label: 'Milestone Complete', color: '#4a9eff', cls: '' },
+      { icon: 'countdown', label: 'T-24 Hours', color: '#ffa500', cls: 'warning' },
+      { icon: 'alert', label: 'Weather Alert', color: '#ff4444', cls: 'error' },
+      { icon: 'success', label: 'GO for Launch', color: '#4aff9e', cls: 'success' }
+    ];
+    notifs.forEach(n => {
+      const item = document.createElement('div');
+      item.className = 'demo-item ' + n.cls;
+      item.innerHTML = `${UIIcons.get(n.icon, 20, n.color)}<span>${n.label}</span>`;
+      notifDemo.appendChild(item);
+    });
+    
+    // Render Spacecraft Icons
+    const spacecraftGrid = document.getElementById('spacecraftGrid');
+    const spacecraftTypes = SpacecraftIcons.getAvailableTypes();
+    const spacecraftDescriptions = {
+      'iss': 'International Space Station - 8 solar arrays, horizontal truss',
+      'orion': 'Orion Crew Module - Gumdrop capsule with heat shield',
+      'orion-esm': 'Orion + ESM - Complete spacecraft with solar arrays',
+      'starship-hls': 'Starship HLS - Lunar lander with landing legs',
+      'crew-dragon': 'Crew Dragon - Capsule with trunk solar fins',
+      'lunar-lander': 'Lunar Lander - Apollo-style with descent stage',
+      'sls': 'Space Launch System - Full rocket stack'
+    };
+    
+    spacecraftTypes.forEach(type => {
+      const card = document.createElement('div');
+      card.className = 'spacecraft-card';
+      card.innerHTML = `
+        <div class="spacecraft-preview">
+          ${SpacecraftIcons.getIcon(type, 80, '#00bcd4')}
+        </div>
+        <div class="spacecraft-name">${type.replace(/-/g, ' ')}</div>
+        <div class="spacecraft-desc">${spacecraftDescriptions[type] || ''}</div>
+      `;
+      spacecraftGrid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

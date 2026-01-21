@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Icon</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a1628;
+      color: #fff;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      color: #00bcd4;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 40px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 40px;
+    }
+    
+    .reference-panel {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 24px;
+      border: 3px solid #ffd60a;
+    }
+    .reference-panel h3 {
+      color: #b8860b;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .ref-image {
+      background: #000;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .ref-image svg {
+      max-width: 100%;
+    }
+    .ref-notes {
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    .icons-panel {
+      background: #0d1a2d;
+      border-radius: 12px;
+      padding: 24px;
+      border: 2px solid #00bcd4;
+    }
+    .icons-panel h3 {
+      color: #00bcd4;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .icon-row {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    
+    .icon-variant {
+      text-align: center;
+    }
+    .icon-variant svg {
+      display: block;
+      margin: 0 auto;
+    }
+    .icon-size {
+      font-size: 0.7rem;
+      color: #8b949e;
+      margin-top: 12px;
+    }
+    
+    .light-row {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .light-row h4 {
+      color: #333;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .notes {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #1a3a5c;
+      font-size: 0.75rem;
+      color: #8b949e;
+      line-height: 1.8;
+    }
+    .notes strong {
+      color: #00bcd4;
+    }
+  </style>
+</head>
+<body>
+  <h1>ISS ICON</h1>
+  <p class="subtitle">International Space Station</p>
+  
+  <div class="container">
+    <div class="reference-panel">
+      <h3>📍 REFERENCE ANALYSIS</h3>
+      <div class="ref-image">
+        <!-- Simplified representation of the photo -->
+        <svg viewBox="0 0 200 120" width="300">
+          <defs>
+            <linearGradient id="earthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#1a3a5c"/>
+              <stop offset="100%" style="stop-color:#4a90c2"/>
+            </linearGradient>
+          </defs>
+          <!-- Earth background -->
+          <rect x="0" y="70" width="200" height="50" fill="url(#earthGrad)"/>
+          <ellipse cx="100" cy="120" rx="150" ry="60" fill="#6ab7e8" opacity="0.3"/>
+          
+          <!-- ISS Structure -->
+          <g stroke="#d4a855" fill="none" stroke-width="1.5">
+            <!-- Main truss -->
+            <line x1="20" y1="50" x2="180" y2="50" stroke-width="2"/>
+            
+            <!-- P6 arrays (far left) -->
+            <rect x="18" y="15" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            <rect x="18" y="55" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            
+            <!-- P4 arrays -->
+            <rect x="45" y="15" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            <rect x="45" y="55" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            
+            <!-- S4 arrays -->
+            <rect x="141" y="15" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            <rect x="141" y="55" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            
+            <!-- S6 arrays (far right) -->
+            <rect x="168" y="15" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            <rect x="168" y="55" width="14" height="30" fill="#d4a855" fill-opacity="0.3"/>
+            
+            <!-- Central modules -->
+            <rect x="85" y="42" width="30" height="16" fill="#888" stroke="#666"/>
+            <rect x="94" y="32" width="12" height="10" fill="#666" stroke="#555"/>
+            <rect x="94" y="58" width="12" height="10" fill="#666" stroke="#555"/>
+          </g>
+        </svg>
+      </div>
+      <div class="ref-notes">
+        <strong>Key Features:</strong><br>
+        • 8 solar arrays in 4 pairs (P6, P4, S4, S6)<br>
+        • Golden/bronze colored panels<br>
+        • Horizontal Integrated Truss Structure<br>
+        • Central pressurized module cluster<br>
+        • Perpendicular modules (Columbus, Kibo, etc.)
+      </div>
+    </div>
+    
+    <div class="icons-panel">
+      <h3>✨ ARTEMISOPS ICONS (DARK UI)</h3>
+      
+      <div class="icon-row">
+        <!-- 160px version - maximum detail -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 180 100" width="220">
+            <g stroke="#00bcd4" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Main Truss (ITS) -->
+              <line x1="8" y1="50" x2="172" y2="50" stroke-width="3"/>
+              
+              <!-- P6 Solar Arrays (far port) - with panel detail -->
+              <g transform="translate(16, 50)">
+                <rect x="-8" y="-38" width="16" height="34" stroke-width="1.5"/>
+                <!-- Panel grid lines -->
+                <line x1="-8" y1="-28" x2="8" y2="-28" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="-18" x2="8" y2="-18" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="-38" x2="0" y2="-4" stroke-width="0.6" opacity="0.5"/>
+                
+                <rect x="-8" y="4" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="14" x2="8" y2="14" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="24" x2="8" y2="24" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="4" x2="0" y2="38" stroke-width="0.6" opacity="0.5"/>
+              </g>
+              
+              <!-- P4 Solar Arrays -->
+              <g transform="translate(44, 50)">
+                <rect x="-8" y="-38" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="-28" x2="8" y2="-28" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="-18" x2="8" y2="-18" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="-38" x2="0" y2="-4" stroke-width="0.6" opacity="0.5"/>
+                
+                <rect x="-8" y="4" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="14" x2="8" y2="14" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="24" x2="8" y2="24" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="4" x2="0" y2="38" stroke-width="0.6" opacity="0.5"/>
+              </g>
+              
+              <!-- S4 Solar Arrays -->
+              <g transform="translate(136, 50)">
+                <rect x="-8" y="-38" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="-28" x2="8" y2="-28" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="-18" x2="8" y2="-18" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="-38" x2="0" y2="-4" stroke-width="0.6" opacity="0.5"/>
+                
+                <rect x="-8" y="4" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="14" x2="8" y2="14" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="24" x2="8" y2="24" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="4" x2="0" y2="38" stroke-width="0.6" opacity="0.5"/>
+              </g>
+              
+              <!-- S6 Solar Arrays (far starboard) -->
+              <g transform="translate(164, 50)">
+                <rect x="-8" y="-38" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="-28" x2="8" y2="-28" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="-18" x2="8" y2="-18" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="-38" x2="0" y2="-4" stroke-width="0.6" opacity="0.5"/>
+                
+                <rect x="-8" y="4" width="16" height="34" stroke-width="1.5"/>
+                <line x1="-8" y1="14" x2="8" y2="14" stroke-width="0.6" opacity="0.5"/>
+                <line x1="-8" y1="24" x2="8" y2="24" stroke-width="0.6" opacity="0.5"/>
+                <line x1="0" y1="4" x2="0" y2="38" stroke-width="0.6" opacity="0.5"/>
+              </g>
+              
+              <!-- Central Module Cluster -->
+              <rect x="75" y="40" width="30" height="20" rx="2" stroke-width="2"/>
+              <circle cx="90" cy="50" r="4" fill="#00bcd4" opacity="0.3" stroke-width="1"/>
+              
+              <!-- Perpendicular modules (zenith/nadir) -->
+              <rect x="84" y="26" width="12" height="14" rx="1" stroke-width="1.5"/>
+              <rect x="84" y="60" width="12" height="14" rx="1" stroke-width="1.5"/>
+              
+              <!-- Docking port on top -->
+              <line x1="90" y1="22" x2="90" y2="26" stroke-width="2"/>
+              <line x1="86" y1="22" x2="94" y2="22" stroke-width="2"/>
+              
+              <!-- Radiator panels (P1/S1 truss segments) -->
+              <rect x="60" y="45" width="10" height="10" stroke-width="1" opacity="0.6"/>
+              <rect x="110" y="45" width="10" height="10" stroke-width="1" opacity="0.6"/>
+            </g>
+          </svg>
+          <div class="icon-size">160px</div>
+        </div>
+        
+        <!-- 96px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 180 100" width="140">
+            <g stroke="#00bcd4" fill="none" stroke-width="2.5" stroke-linecap="round">
+              <line x1="8" y1="50" x2="172" y2="50" stroke-width="3.5"/>
+              
+              <rect x="8" y="12" width="16" height="34"/>
+              <rect x="8" y="54" width="16" height="34"/>
+              <rect x="36" y="12" width="16" height="34"/>
+              <rect x="36" y="54" width="16" height="34"/>
+              <rect x="128" y="12" width="16" height="34"/>
+              <rect x="128" y="54" width="16" height="34"/>
+              <rect x="156" y="12" width="16" height="34"/>
+              <rect x="156" y="54" width="16" height="34"/>
+              
+              <rect x="75" y="40" width="30" height="20" rx="2"/>
+              <rect x="84" y="28" width="12" height="12" rx="1"/>
+              <rect x="84" y="60" width="12" height="12" rx="1"/>
+            </g>
+          </svg>
+          <div class="icon-size">96px</div>
+        </div>
+        
+        <!-- 64px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 180 100" width="96">
+            <g stroke="#00bcd4" fill="none" stroke-width="3.5" stroke-linecap="round">
+              <line x1="10" y1="50" x2="170" y2="50" stroke-width="4"/>
+              
+              <rect x="10" y="14" width="14" height="32"/>
+              <rect x="10" y="54" width="14" height="32"/>
+              <rect x="36" y="14" width="14" height="32"/>
+              <rect x="36" y="54" width="14" height="32"/>
+              <rect x="130" y="14" width="14" height="32"/>
+              <rect x="130" y="54" width="14" height="32"/>
+              <rect x="156" y="14" width="14" height="32"/>
+              <rect x="156" y="54" width="14" height="32"/>
+              
+              <rect x="78" y="42" width="24" height="16"/>
+            </g>
+          </svg>
+          <div class="icon-size">64px</div>
+        </div>
+        
+        <!-- 48px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 180 100" width="72">
+            <g stroke="#00bcd4" fill="none" stroke-width="5" stroke-linecap="round">
+              <line x1="12" y1="50" x2="168" y2="50"/>
+              
+              <rect x="12" y="16" width="12" height="30"/>
+              <rect x="12" y="54" width="12" height="30"/>
+              <rect x="36" y="16" width="12" height="30"/>
+              <rect x="36" y="54" width="12" height="30"/>
+              <rect x="132" y="16" width="12" height="30"/>
+              <rect x="132" y="54" width="12" height="30"/>
+              <rect x="156" y="16" width="12" height="30"/>
+              <rect x="156" y="54" width="12" height="30"/>
+              
+              <rect x="80" y="44" width="20" height="12"/>
+            </g>
+          </svg>
+          <div class="icon-size">48px</div>
+        </div>
+        
+        <!-- 32px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 180 100" width="48">
+            <g stroke="#00bcd4" fill="none" stroke-width="7" stroke-linecap="round">
+              <line x1="14" y1="50" x2="166" y2="50"/>
+              
+              <rect x="14" y="18" width="10" height="28"/>
+              <rect x="14" y="54" width="10" height="28"/>
+              <rect x="38" y="18" width="10" height="28"/>
+              <rect x="38" y="54" width="10" height="28"/>
+              <rect x="132" y="18" width="10" height="28"/>
+              <rect x="132" y="54" width="10" height="28"/>
+              <rect x="156" y="18" width="10" height="28"/>
+              <rect x="156" y="54" width="10" height="28"/>
+            </g>
+          </svg>
+          <div class="icon-size">32px</div>
+        </div>
+      </div>
+      
+      <!-- Light background versions -->
+      <div class="light-row">
+        <h4>LIGHT UI VARIANT</h4>
+        <div class="icon-row">
+          <div class="icon-variant">
+            <svg viewBox="0 0 180 100" width="140">
+              <g stroke="#1a1a1a" fill="none" stroke-width="2.5" stroke-linecap="round">
+                <line x1="8" y1="50" x2="172" y2="50" stroke-width="3.5"/>
+                <rect x="8" y="12" width="16" height="34"/>
+                <rect x="8" y="54" width="16" height="34"/>
+                <rect x="36" y="12" width="16" height="34"/>
+                <rect x="36" y="54" width="16" height="34"/>
+                <rect x="128" y="12" width="16" height="34"/>
+                <rect x="128" y="54" width="16" height="34"/>
+                <rect x="156" y="12" width="16" height="34"/>
+                <rect x="156" y="54" width="16" height="34"/>
+                <rect x="75" y="40" width="30" height="20" rx="2"/>
+                <rect x="84" y="28" width="12" height="12" rx="1"/>
+                <rect x="84" y="60" width="12" height="12" rx="1"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">96px</div>
+          </div>
+          
+          <div class="icon-variant">
+            <svg viewBox="0 0 180 100" width="72">
+              <g stroke="#1a1a1a" fill="none" stroke-width="5" stroke-linecap="round">
+                <line x1="12" y1="50" x2="168" y2="50"/>
+                <rect x="12" y="16" width="12" height="30"/>
+                <rect x="12" y="54" width="12" height="30"/>
+                <rect x="36" y="16" width="12" height="30"/>
+                <rect x="36" y="54" width="12" height="30"/>
+                <rect x="132" y="16" width="12" height="30"/>
+                <rect x="132" y="54" width="12" height="30"/>
+                <rect x="156" y="16" width="12" height="30"/>
+                <rect x="156" y="54" width="12" height="30"/>
+                <rect x="80" y="44" width="20" height="12"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">48px</div>
+          </div>
+          
+          <div class="icon-variant">
+            <svg viewBox="0 0 180 100" width="48">
+              <g stroke="#1a1a1a" fill="none" stroke-width="7" stroke-linecap="round">
+                <line x1="14" y1="50" x2="166" y2="50"/>
+                <rect x="14" y="18" width="10" height="28"/>
+                <rect x="14" y="54" width="10" height="28"/>
+                <rect x="38" y="18" width="10" height="28"/>
+                <rect x="38" y="54" width="10" height="28"/>
+                <rect x="132" y="18" width="10" height="28"/>
+                <rect x="132" y="54" width="10" height="28"/>
+                <rect x="156" y="18" width="10" height="28"/>
+                <rect x="156" y="54" width="10" height="28"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">32px</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="notes">
+        <strong>Key Features Captured:</strong><br>
+        • 8 solar arrays in 4 pairs matching photo layout<br>
+        • Horizontal Integrated Truss Structure (ITS)<br>
+        • Central pressurized module cluster<br>
+        • Zenith/nadir perpendicular modules<br>
+        • Panel grid detail at larger sizes<br>
+        • Docking port indication<br>
+        • Radiator panels on P1/S1 segments<br><br>
+        <strong>Aspect Ratio:</strong> Wide horizontal format matching ISS silhouette (~109m × 73m)
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Clock Component</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent-blue: #4a9eff;
+      --accent-cyan: #00bcd4;
+      --accent-green: #4aff9e;
+      --accent-orange: #ffa500;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: transparent;
+      color: var(--text-primary);
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .countdown-container {
+      background: rgba(15, 25, 45, 0.9);
+      border: 2px solid var(--accent-blue);
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .countdown-container.elapsed-mode {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 30px rgba(74, 255, 158, 0.3);
+    }
+    
+    .countdown-mode-indicator {
+      font-size: 1.1em;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+      padding: 8px 16px;
+      display: inline-block;
+      border-radius: 4px;
+    }
+    
+    .countdown-mode-indicator.countdown {
+      color: var(--accent-blue);
+      background: rgba(74, 158, 255, 0.15);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+    }
+    
+    .countdown-mode-indicator.elapsed {
+      color: var(--accent-green);
+      background: rgba(74, 255, 158, 0.15);
+      border: 1px solid rgba(74, 255, 158, 0.3);
+      animation: pulse-green 2s infinite;
+    }
+    
+    .countdown-mode-indicator.standby {
+      color: var(--accent-orange);
+      background: rgba(255, 165, 0, 0.15);
+      border: 1px solid rgba(255, 165, 0, 0.3);
+    }
+    
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 10px rgba(74, 255, 158, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(74, 255, 158, 0.8); }
+    }
+    
+    .countdown-timer {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .time-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .time-value {
+      font-size: 2.8em;
+      font-weight: bold;
+      color: var(--accent-blue);
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.8);
+      min-width: 90px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(74, 158, 255, 0.5);
+    }
+    
+    .elapsed-mode .time-value {
+      color: var(--accent-green);
+      text-shadow: 0 0 20px rgba(74, 255, 158, 0.8);
+      border-color: rgba(74, 255, 158, 0.5);
+    }
+    
+    .time-label {
+      font-size: 0.8em;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    
+    .launch-info {
+      margin-top: 15px;
+      font-size: 0.95em;
+      color: #b8c5d6;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .countdown-container { padding: 15px; }
+      .time-value { font-size: 1.8em; min-width: 60px; padding: 8px; }
+      .countdown-timer { gap: 10px; }
+      .countdown-mode-indicator { font-size: 0.9em; letter-spacing: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="countdown-container" id="countdownContainer">
+    <div class="countdown-mode-indicator standby" id="modeIndicator">STANDBY</div>
+    <div class="countdown-timer">
+      <div class="time-unit">
+        <div class="time-value" id="days">---</div>
+        <div class="time-label">Days</div>
+      </div>
+      <div class="time-unit">
+        <div class="time-value" id="hours">--</div>
+        <div class="time-label">Hours</div>
+      </div>
+      <div class="time-unit">
+        <div class="time-value" id="minutes">--</div>
+        <div class="time-label">Minutes</div>
+      </div>
+      <div class="time-unit">
+        <div class="time-value" id="seconds">--</div>
+        <div class="time-label">Seconds</div>
+      </div>
+    </div>
+    <div class="launch-info" id="launchInfo">Loading launch data...</div>
+  </div>
+
+  <script>
+    // Component state
+    const CountdownClock = {
+      launchDate: null,
+      launchSite: '',
+      intervalId: null,
+      
+      init() {
+        // Listen for messages from parent
+        window.addEventListener('message', (event) => {
+          if (event.data.type === 'setLaunchData') {
+            this.setLaunchData(event.data.launchDate, event.data.launchSite);
+          }
+        });
+        
+        // Start the clock
+        this.intervalId = setInterval(() => this.update(), 1000);
+        
+        // Notify parent we're ready
+        window.parent.postMessage({ type: 'clockReady' }, '*');
+      },
+      
+      setLaunchData(launchDateStr, site) {
+        this.launchDate = launchDateStr ? new Date(launchDateStr) : null;
+        this.launchSite = site || '';
+        this.update();
+      },
+      
+      update() {
+        const container = document.getElementById('countdownContainer');
+        const indicator = document.getElementById('modeIndicator');
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const infoEl = document.getElementById('launchInfo');
+        
+        if (!this.launchDate) {
+          daysEl.textContent = '---';
+          hoursEl.textContent = '--';
+          minutesEl.textContent = '--';
+          secondsEl.textContent = '--';
+          indicator.textContent = 'STANDBY';
+          indicator.className = 'countdown-mode-indicator standby';
+          container.classList.remove('elapsed-mode');
+          infoEl.textContent = 'Awaiting launch data...';
+          return;
+        }
+        
+        const now = new Date();
+        const diff = this.launchDate - now;
+        const isPostLaunch = diff <= 0;
+        
+        const absDiff = Math.abs(diff);
+        const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+        
+        daysEl.textContent = String(days).padStart(3, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+        
+        if (isPostLaunch) {
+          container.classList.add('elapsed-mode');
+          indicator.textContent = 'T-PLUS · MISSION ELAPSED TIME';
+          indicator.className = 'countdown-mode-indicator elapsed';
+          
+          const launchDateStr = this.launchDate.toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          });
+          infoEl.textContent = `Launched: ${launchDateStr} | ${this.launchSite}`;
+        } else {
+          container.classList.remove('elapsed-mode');
+          indicator.textContent = 'T-MINUS · COUNTDOWN TO LAUNCH';
+          indicator.className = 'countdown-mode-indicator countdown';
+          
+          const launchDateStr = this.launchDate.toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          });
+          infoEl.textContent = `Target Launch: ${launchDateStr} | ${this.launchSite}`;
+        }
+        
+        // Notify parent of countdown update (for alerts)
+        window.parent.postMessage({
+          type: 'countdownUpdate',
+          secondsRemaining: Math.floor(diff / 1000),
+          isPostLaunch: isPostLaunch
+        }, '*');
+      }
+    };
+    
+    // Initialize
+    CountdownClock.init();
+  </script>
+</body>
+</html>

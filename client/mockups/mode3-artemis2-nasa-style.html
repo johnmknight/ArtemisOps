@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Control - Mode 3: Artemis II (NASA Style)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --text-accent: #00d4ff;
+      --success-color: #7ed321;
+      --warning-color: #f5a623;
+      --danger-color: #ff3b30;
+      --trajectory-outbound: #00bcd4;
+      --trajectory-return: #8bc34a;
+      --waypoint-active: #ffd60a;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .mission-control {
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      height: 100vh;
+    }
+
+    /* Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 24px;
+      background: linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nasa-logo, .artemis-logo {
+      height: 40px;
+    }
+
+    .mission-info h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+    }
+
+    .mission-subtitle {
+      font-size: 0.75rem;
+      color: var(--trajectory-outbound);
+      letter-spacing: 1px;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .met-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 188, 212, 0.15);
+      border: 1px solid var(--trajectory-outbound);
+      padding: 6px 16px;
+      border-radius: 4px;
+    }
+
+    .met-label {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .met-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--trajectory-outbound);
+    }
+
+    .phase-badge {
+      background: rgba(255, 214, 10, 0.2);
+      border: 1px solid var(--waypoint-active);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--waypoint-active);
+      letter-spacing: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .current-time {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Main Content */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 0;
+      padding: 12px 16px;
+      min-height: 0;
+    }
+
+    /* Orbital Map */
+    .orbital-map-container {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-right: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .orbital-map-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Side Panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+    }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-section:last-child {
+      border-bottom: none;
+      flex: 1;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(0, 188, 212, 0.1);
+    }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.6rem;
+      color: var(--danger-color);
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--danger-color);
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .section-content {
+      padding: 10px 12px;
+    }
+
+    .video-embed {
+      background: #000;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .video-placeholder {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .telemetry-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .telemetry-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .telemetry-label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .crew-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .crew-member {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(126, 211, 33, 0.1);
+      border: 1px solid var(--success-color);
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+    }
+
+    .crew-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--success-color);
+      border-radius: 50%;
+    }
+
+    /* Timeline */
+    .timeline-bar {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+      padding: 12px 16px;
+    }
+
+    .timeline-phases {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .timeline-phases::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--border-color);
+    }
+
+    .phase {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .phase-marker {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg-panel);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      font-weight: bold;
+    }
+
+    .phase.completed .phase-marker {
+      background: var(--success-color);
+      border-color: var(--success-color);
+      color: #000;
+    }
+
+    .phase.active .phase-marker {
+      background: var(--waypoint-active);
+      border-color: var(--waypoint-active);
+      color: #000;
+      box-shadow: 0 0 10px var(--waypoint-active);
+    }
+
+    .phase-info {
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .phase-name {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .phase.completed .phase-name { color: var(--success-color); }
+    .phase.active .phase-name { color: var(--waypoint-active); }
+    .phase.upcoming .phase-name { color: var(--text-secondary); }
+
+    .phase-time {
+      font-family: 'Courier New', monospace;
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+    }
+
+    /* News Ticker */
+    .news-ticker {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      overflow: hidden;
+    }
+
+    .ticker-content {
+      display: flex;
+      animation: scroll 45s linear infinite;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ticker-label {
+      background: var(--trajectory-outbound);
+      color: #000;
+      padding: 2px 8px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .ticker-item {
+      white-space: nowrap;
+      margin-right: 40px;
+      font-size: 0.75rem;
+    }
+
+    .ticker-time {
+      color: var(--text-secondary);
+      margin-right: 8px;
+    }
+
+    /* SVG Styles */
+    .waypoint-circle {
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .waypoint-number {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .trajectory-label {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      fill: #8b949e;
+      letter-spacing: 1px;
+    }
+
+    .earth-label, .moon-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    @keyframes spacecraft-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px #ffd60a); }
+      50% { filter: drop-shadow(0 0 16px #ffd60a); }
+    }
+
+    .active-spacecraft {
+      animation: spacecraft-glow 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="mission-control">
+    
+    <!-- Header -->
+    <header class="header-bar">
+      <div class="header-left">
+        <div class="logo-group">
+          <svg class="nasa-logo" viewBox="0 0 100 100" width="40" height="40">
+            <circle cx="50" cy="50" r="48" fill="#0b3d91"/>
+            <text x="50" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">NASA</text>
+          </svg>
+        </div>
+        <div class="mission-info">
+          <h1>ARTEMIS II</h1>
+          <div class="mission-subtitle">First Crewed Test Flight to the Moon Since Apollo</div>
+        </div>
+      </div>
+      
+      <div class="header-center">
+        <div class="met-display">
+          <span class="met-label">MET</span>
+          <span class="met-value" id="met">02:18:45:32</span>
+        </div>
+        <div class="phase-badge">OUTBOUND TRANSIT</div>
+      </div>
+      
+      <div class="header-right">
+        <div class="current-time" id="utc">15:45:32 UTC</div>
+        <svg width="40" height="40" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="#1a3a5c" stroke="#00bcd4" stroke-width="2"/>
+          <text x="50" y="45" text-anchor="middle" fill="white" font-size="10">ARTEMIS</text>
+          <text x="50" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="bold">II</text>
+        </svg>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Orbital Map SVG -->
+      <div class="orbital-map-container">
+        <svg class="orbital-map-svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <!-- Gradients -->
+            <radialGradient id="earthGradient" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#4a90d9"/>
+              <stop offset="50%" stop-color="#2d5a8a"/>
+              <stop offset="100%" stop-color="#1a3a5c"/>
+            </radialGradient>
+            
+            <radialGradient id="moonGradient" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#d4d4d4"/>
+              <stop offset="50%" stop-color="#a0a0a0"/>
+              <stop offset="100%" stop-color="#707070"/>
+            </radialGradient>
+            
+            <!-- Glow filters -->
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            
+            <!-- Orion spacecraft symbol -->
+            <symbol id="orion" viewBox="0 0 40 20">
+              <polygon points="5,10 15,5 15,15" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="15" y="6" width="18" height="8" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/>
+              <line x1="22" y1="6" x2="22" y2="2" stroke="currentColor" stroke-width="1"/>
+              <line x1="22" y1="14" x2="22" y2="18" stroke="currentColor" stroke-width="1"/>
+              <rect x="19" y="0" width="6" height="3" fill="none" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="19" y="17" width="6" height="3" fill="none" stroke="currentColor" stroke-width="0.75"/>
+            </symbol>
+          </defs>
+          
+          <!-- Background stars -->
+          <g opacity="0.4">
+            <circle cx="50" cy="50" r="1" fill="#fff"/>
+            <circle cx="150" cy="80" r="0.5" fill="#fff"/>
+            <circle cx="250" cy="30" r="1" fill="#fff"/>
+            <circle cx="400" cy="60" r="0.5" fill="#fff"/>
+            <circle cx="550" cy="40" r="1" fill="#fff"/>
+            <circle cx="700" cy="70" r="0.5" fill="#fff"/>
+            <circle cx="800" cy="50" r="1" fill="#fff"/>
+            <circle cx="100" cy="420" r="0.5" fill="#fff"/>
+            <circle cx="300" cy="450" r="1" fill="#fff"/>
+            <circle cx="500" cy="470" r="0.5" fill="#fff"/>
+            <circle cx="750" cy="440" r="1" fill="#fff"/>
+            <circle cx="850" cy="460" r="0.5" fill="#fff"/>
+          </g>
+          
+          <!-- Earth -->
+          <g transform="translate(140, 250)">
+            <circle r="85" fill="url(#earthGradient)"/>
+            <ellipse rx="85" ry="30" fill="none" stroke="rgba(100,180,255,0.3)" stroke-width="1"/>
+            <circle r="85" fill="none" stroke="rgba(100,180,255,0.4)" stroke-width="2"/>
+            <text y="110" text-anchor="middle" class="earth-label" fill="#4a90d9">EARTH</text>
+          </g>
+          
+          <!-- Moon -->
+          <g transform="translate(760, 250)">
+            <circle r="35" fill="url(#moonGradient)"/>
+            <circle cx="-8" cy="-8" r="6" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
+            <circle cx="10" cy="5" r="8" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
+            <circle cx="-5" cy="12" r="4" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
+            <text y="55" text-anchor="middle" class="moon-label" fill="#a0a0a0">MOON</text>
+          </g>
+          
+          <!-- High Earth Orbit (stages 1-6) -->
+          <ellipse cx="140" cy="250" rx="130" ry="80" fill="none" stroke="#00bcd4" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
+          <text x="140" y="145" text-anchor="middle" class="trajectory-label" fill="#00bcd4" opacity="0.6">HIGH EARTH ORBIT</text>
+          
+          <!-- Outbound trajectory (stages 7-10) -->
+          <path d="M 260 190 Q 380 80 500 70 Q 620 60 700 130 Q 740 170 750 215" 
+                fill="none" stroke="#00bcd4" stroke-width="2.5"/>
+          
+          <!-- Lunar flyby (stage 11) -->
+          <path d="M 750 215 Q 810 250 795 310 Q 780 360 720 340" 
+                fill="none" stroke="#ffd60a" stroke-width="3" filter="url(#glow)"/>
+          
+          <!-- Return trajectory (stages 12-15) -->
+          <path d="M 720 340 Q 580 420 420 440 Q 280 455 225 335" 
+                fill="none" stroke="#8bc34a" stroke-width="2" stroke-dasharray="8,4"/>
+          
+          <!-- Waypoint markers -->
+          <!-- 7: TLI -->
+          <g transform="translate(260, 190)">
+            <circle r="10" class="waypoint-circle" stroke="#7ed321" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#7ed321">7</text>
+          </g>
+          <text x="260" y="170" text-anchor="middle" class="trajectory-label">TLI BURN</text>
+          
+          <!-- 8: Outbound -->
+          <g transform="translate(420, 75)">
+            <circle r="8" class="waypoint-circle" stroke="#00bcd4" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#00bcd4">8</text>
+          </g>
+          
+          <!-- 9: Current position (active) -->
+          <g transform="translate(580, 85)" class="active-spacecraft">
+            <circle r="10" class="waypoint-circle" stroke="#ffd60a" fill="#0a1628" stroke-width="3"/>
+            <text class="waypoint-number" fill="#ffd60a">9</text>
+          </g>
+          
+          <!-- Spacecraft at position 9 -->
+          <g transform="translate(610, 95) rotate(-15)">
+            <use href="#orion" width="35" height="18" x="-17" y="-9" style="color: #ffd60a" filter="url(#glow)"/>
+          </g>
+          
+          <!-- 10: Approach -->
+          <g transform="translate(720, 160)">
+            <circle r="8" class="waypoint-circle" stroke="#00bcd4" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#00bcd4">10</text>
+          </g>
+          
+          <!-- 11: Lunar flyby -->
+          <g transform="translate(800, 290)">
+            <circle r="10" class="waypoint-circle" stroke="#ffd60a" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#ffd60a">11</text>
+          </g>
+          <text x="840" y="280" text-anchor="start" class="trajectory-label">LUNAR FLYBY</text>
+          <text x="840" y="295" text-anchor="start" class="trajectory-label">~7,400 km</text>
+          
+          <!-- 12: Trans-Earth -->
+          <g transform="translate(720, 340)">
+            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#8bc34a">12</text>
+          </g>
+          
+          <!-- 13: Return coast -->
+          <g transform="translate(500, 430)">
+            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#8bc34a">13</text>
+          </g>
+          <text x="500" y="455" text-anchor="middle" class="trajectory-label" fill="#8bc34a">RETURN COAST</text>
+          
+          <!-- 14: Approach -->
+          <g transform="translate(320, 420)">
+            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
+            <text class="waypoint-number" fill="#8bc34a">14</text>
+          </g>
+          
+          <!-- 15: Splashdown -->
+          <g transform="translate(225, 335)">
+            <circle r="12" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628" stroke-width="2"/>
+            <text class="waypoint-number" fill="#8bc34a">15</text>
+          </g>
+          <text x="225" y="365" text-anchor="middle" class="trajectory-label" fill="#8bc34a">SPLASHDOWN</text>
+          
+          <!-- Distance indicator -->
+          <g opacity="0.6">
+            <line x1="225" y1="250" x2="580" y2="85" stroke="#3a5a7a" stroke-width="1" stroke-dasharray="3,3"/>
+            <text x="400" y="155" text-anchor="middle" fill="#8b949e" font-family="Courier New" font-size="11">185,000 km</text>
+          </g>
+          
+          <!-- Legend -->
+          <g transform="translate(30, 420)">
+            <rect width="150" height="65" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
+            <text x="10" y="18" fill="#8b949e" font-size="9" letter-spacing="1">TRAJECTORY</text>
+            <line x1="10" y1="32" x2="35" y2="32" stroke="#00bcd4" stroke-width="2"/>
+            <text x="42" y="36" fill="#8b949e" font-size="9">Outbound</text>
+            <line x1="85" y1="32" x2="110" y2="32" stroke="#ffd60a" stroke-width="2"/>
+            <text x="117" y="36" fill="#8b949e" font-size="9">Active</text>
+            <line x1="10" y1="50" x2="35" y2="50" stroke="#8bc34a" stroke-width="2" stroke-dasharray="4,2"/>
+            <text x="42" y="54" fill="#8b949e" font-size="9">Return</text>
+          </g>
+          
+          <!-- Mission info box -->
+          <g transform="translate(30, 30)">
+            <rect width="170" height="50" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
+            <text x="10" y="20" fill="#00bcd4" font-size="10" letter-spacing="1">CURRENT PHASE</text>
+            <text x="10" y="38" fill="#fff" font-size="13" font-weight="bold">OUTBOUND TRANSIT</text>
+          </g>
+          
+          <!-- Distance overlays -->
+          <g transform="translate(700, 30)">
+            <rect width="170" height="50" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
+            <text x="10" y="20" fill="#8b949e" font-size="9" letter-spacing="1">DISTANCE TO MOON</text>
+            <text x="10" y="38" fill="#fff" font-family="Courier New" font-size="16" font-weight="bold">198,500 km</text>
+          </g>
+          
+        </svg>
+      </div>
+      
+      <!-- Side Panel -->
+      <div class="side-panel">
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="section-title">NASA TV</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE</span>
+            </div>
+          </div>
+          <div class="section-content">
+            <div class="video-embed">
+              <span class="video-placeholder">NASA TV LIVE FEED</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="section-title">Spacecraft Status</span>
+          </div>
+          <div class="section-content">
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <div class="telemetry-value" style="color: #7ed321;">NOMINAL</div>
+                <div class="telemetry-label">Systems</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value">97%</div>
+                <div class="telemetry-label">Power</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value">21.2°C</div>
+                <div class="telemetry-label">Cabin Temp</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value">14.7 psi</div>
+                <div class="telemetry-label">Pressure</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value">3,850</div>
+                <div class="telemetry-label">Velocity km/h</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value">185K</div>
+                <div class="telemetry-label">Alt. km</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="section-title">Crew Status</span>
+          </div>
+          <div class="section-content">
+            <div class="crew-grid">
+              <div class="crew-member"><span class="crew-dot"></span>Wiseman</div>
+              <div class="crew-member"><span class="crew-dot"></span>Glover</div>
+              <div class="crew-member"><span class="crew-dot"></span>Koch</div>
+              <div class="crew-member"><span class="crew-dot"></span>Hansen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Timeline -->
+    <div class="timeline-bar">
+      <div class="timeline-phases">
+        <div class="phase completed">
+          <div class="phase-marker">1</div>
+          <div class="phase-info">
+            <div class="phase-name">Launch</div>
+            <div class="phase-time">T+0:00</div>
+          </div>
+        </div>
+        <div class="phase completed">
+          <div class="phase-marker">7</div>
+          <div class="phase-info">
+            <div class="phase-name">TLI Burn</div>
+            <div class="phase-time">T+2:00</div>
+          </div>
+        </div>
+        <div class="phase active">
+          <div class="phase-marker">9</div>
+          <div class="phase-info">
+            <div class="phase-name">Outbound</div>
+            <div class="phase-time">Day 3</div>
+          </div>
+        </div>
+        <div class="phase upcoming">
+          <div class="phase-marker">11</div>
+          <div class="phase-info">
+            <div class="phase-name">Lunar Flyby</div>
+            <div class="phase-time">Day 4</div>
+          </div>
+        </div>
+        <div class="phase upcoming">
+          <div class="phase-marker">12</div>
+          <div class="phase-info">
+            <div class="phase-name">Return</div>
+            <div class="phase-time">Day 5-8</div>
+          </div>
+        </div>
+        <div class="phase upcoming">
+          <div class="phase-marker">14</div>
+          <div class="phase-info">
+            <div class="phase-name">Entry</div>
+            <div class="phase-time">Day 10</div>
+          </div>
+        </div>
+        <div class="phase upcoming">
+          <div class="phase-marker">15</div>
+          <div class="phase-info">
+            <div class="phase-name">Splashdown</div>
+            <div class="phase-time">Day 10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- News Ticker -->
+    <div class="news-ticker">
+      <div class="ticker-content">
+        <div class="ticker-label">UPDATE</div>
+        <div class="ticker-item">
+          <span class="ticker-time">15:30 UTC</span>
+          Crew completes mid-course correction burn · Trajectory nominal for lunar flyby
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">12:00 UTC</span>
+          Live broadcast: Crew speaks with students from International Space Station
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">08:45 UTC</span>
+          All spacecraft systems nominal · Solar arrays exceeding power expectations
+        </div>
+        <div class="ticker-label">UPDATE</div>
+        <div class="ticker-item">
+          <span class="ticker-time">15:30 UTC</span>
+          Crew completes mid-course correction burn · Trajectory nominal for lunar flyby
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">12:00 UTC</span>
+          Live broadcast: Crew speaks with students from International Space Station
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">08:45 UTC</span>
+          All spacecraft systems nominal · Solar arrays exceeding power expectations
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('utc').textContent = now.toUTCString().split(' ')[4] + ' UTC';
+    }
+    setInterval(updateTime, 1000);
+    
+    let met = { d: 2, h: 18, m: 45, s: 32 };
+    function updateMET() {
+      met.s++;
+      if (met.s >= 60) { met.s = 0; met.m++; }
+      if (met.m >= 60) { met.m = 0; met.h++; }
+      if (met.h >= 24) { met.h = 0; met.d++; }
+      document.getElementById('met').textContent = 
+        `${String(met.d).padStart(2,'0')}:${String(met.h).padStart(2,'0')}:${String(met.m).padStart(2,'0')}:${String(met.s).padStart(2,'0')}`;
+    }
+    setInterval(updateMET, 1000);
+  </script>
+</body>
+</html>

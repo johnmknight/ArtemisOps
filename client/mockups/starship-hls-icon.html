@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Starship HLS Icon</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a1628;
+      color: #fff;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      color: #00bcd4;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 40px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 40px;
+    }
+    
+    .reference-panel {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 24px;
+      border: 3px solid #ffd60a;
+    }
+    .reference-panel h3 {
+      color: #b8860b;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .reference-panel img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
+    .ref-placeholder {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ref-placeholder svg {
+      max-height: 320px;
+    }
+    
+    .icons-panel {
+      background: #0d1a2d;
+      border-radius: 12px;
+      padding: 24px;
+      border: 2px solid #00bcd4;
+    }
+    .icons-panel h3 {
+      color: #00bcd4;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .icon-row {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    
+    .icon-variant {
+      text-align: center;
+    }
+    .icon-variant svg {
+      display: block;
+      margin: 0 auto;
+    }
+    .icon-size {
+      font-size: 0.7rem;
+      color: #8b949e;
+      margin-top: 12px;
+    }
+    
+    .light-row {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .light-row h4 {
+      color: #333;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .notes {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #1a3a5c;
+      font-size: 0.75rem;
+      color: #8b949e;
+      line-height: 1.8;
+    }
+    .notes strong {
+      color: #00bcd4;
+    }
+  </style>
+</head>
+<body>
+  <h1>STARSHIP HLS ICON</h1>
+  <p class="subtitle">SpaceX Human Landing System for Artemis</p>
+  
+  <div class="container">
+    <div class="reference-panel">
+      <h3>📍 REFERENCE IMAGE</h3>
+      <div class="ref-placeholder">
+        <!-- Recreating the reference as SVG for comparison -->
+        <svg viewBox="0 0 80 200" width="120">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#999"/>
+              <stop offset="30%" style="stop-color:#ddd"/>
+              <stop offset="70%" style="stop-color:#ddd"/>
+              <stop offset="100%" style="stop-color:#aaa"/>
+            </linearGradient>
+          </defs>
+          <g>
+            <!-- Main body -->
+            <path d="M28,185 L28,45 Q28,12 40,12 Q52,12 52,45 L52,185" 
+                  fill="url(#bodyGrad)" stroke="#666" stroke-width="1"/>
+            
+            <!-- Nose tip -->
+            <ellipse cx="40" cy="14" rx="12" ry="4" fill="#bbb" stroke="#888" stroke-width="0.5"/>
+            
+            <!-- Black band near top -->
+            <rect x="28" y="55" width="24" height="12" fill="#333"/>
+            
+            <!-- Window area -->
+            <rect x="34" y="35" width="12" height="8" rx="2" fill="#222" stroke="#555" stroke-width="0.5"/>
+            
+            <!-- Body lines -->
+            <line x1="28" y1="90" x2="52" y2="90" stroke="#aaa" stroke-width="0.5"/>
+            <line x1="28" y1="130" x2="52" y2="130" stroke="#aaa" stroke-width="0.5"/>
+            
+            <!-- Landing legs -->
+            <line x1="28" y1="170" x2="12" y2="198" stroke="#555" stroke-width="3"/>
+            <line x1="52" y1="170" x2="68" y2="198" stroke="#555" stroke-width="3"/>
+            <!-- Footpads -->
+            <ellipse cx="12" cy="198" rx="4" ry="2" fill="#444"/>
+            <ellipse cx="68" cy="198" rx="4" ry="2" fill="#444"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="icons-panel">
+      <h3>✨ ARTEMISOPS ICONS (DARK UI)</h3>
+      
+      <div class="icon-row">
+        <!-- 128px version - full detail -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 60 160" width="96">
+            <g stroke="#00bcd4" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Main body - tall cylinder with nose cone -->
+              <path d="M18,145 L18,35 Q18,10 30,10 Q42,10 42,35 L42,145" stroke-width="2"/>
+              
+              <!-- Base of body -->
+              <line x1="18" y1="145" x2="42" y2="145" stroke-width="2"/>
+              
+              <!-- Nose tip detail -->
+              <ellipse cx="30" cy="12" rx="10" ry="3" stroke-width="1.5" opacity="0.7"/>
+              
+              <!-- Black band (dark section) -->
+              <line x1="18" y1="42" x2="42" y2="42" stroke-width="1" opacity="0.5"/>
+              <line x1="18" y1="52" x2="42" y2="52" stroke-width="1" opacity="0.5"/>
+              
+              <!-- Window/crew area -->
+              <rect x="24" y="28" width="12" height="10" rx="2" stroke-width="1.5"/>
+              <circle cx="30" cy="33" r="3" stroke-width="1"/>
+              <circle cx="30" cy="33" r="1.5" fill="#00bcd4" opacity="0.3"/>
+              
+              <!-- Body panel lines -->
+              <line x1="18" y1="75" x2="42" y2="75" stroke-width="0.8" opacity="0.4"/>
+              <line x1="18" y1="105" x2="42" y2="105" stroke-width="0.8" opacity="0.4"/>
+              <line x1="18" y1="130" x2="42" y2="130" stroke-width="0.8" opacity="0.4"/>
+              
+              <!-- Landing legs (4 legs, 2 visible from this angle) -->
+              <line x1="18" y1="138" x2="4" y2="158" stroke-width="2.5"/>
+              <line x1="42" y1="138" x2="56" y2="158" stroke-width="2.5"/>
+              
+              <!-- Footpads -->
+              <ellipse cx="4" cy="158" rx="4" ry="2" stroke-width="1.5"/>
+              <ellipse cx="56" cy="158" rx="4" ry="2" stroke-width="1.5"/>
+              
+              <!-- Engine area hint -->
+              <path d="M22,145 L22,150 Q22,152 30,152 Q38,152 38,150 L38,145" stroke-width="1" opacity="0.6"/>
+            </g>
+          </svg>
+          <div class="icon-size">128px</div>
+        </div>
+        
+        <!-- 96px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 60 160" width="72">
+            <g stroke="#00bcd4" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18,145 L18,35 Q18,10 30,10 Q42,10 42,35 L42,145"/>
+              <line x1="18" y1="145" x2="42" y2="145"/>
+              <rect x="24" y="28" width="12" height="10" rx="2"/>
+              <line x1="18" y1="75" x2="42" y2="75" stroke-width="1" opacity="0.4"/>
+              <line x1="18" y1="110" x2="42" y2="110" stroke-width="1" opacity="0.4"/>
+              <line x1="18" y1="138" x2="4" y2="158" stroke-width="3"/>
+              <line x1="42" y1="138" x2="56" y2="158" stroke-width="3"/>
+              <ellipse cx="4" cy="158" rx="4" ry="2"/>
+              <ellipse cx="56" cy="158" rx="4" ry="2"/>
+            </g>
+          </svg>
+          <div class="icon-size">96px</div>
+        </div>
+        
+        <!-- 64px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 60 160" width="48">
+            <g stroke="#00bcd4" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18,145 L18,35 Q18,12 30,12 Q42,12 42,35 L42,145"/>
+              <line x1="18" y1="145" x2="42" y2="145"/>
+              <rect x="24" y="30" width="12" height="10" rx="2"/>
+              <line x1="18" y1="138" x2="6" y2="156" stroke-width="4"/>
+              <line x1="42" y1="138" x2="54" y2="156" stroke-width="4"/>
+            </g>
+          </svg>
+          <div class="icon-size">64px</div>
+        </div>
+        
+        <!-- 48px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 60 160" width="36">
+            <g stroke="#00bcd4" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20,142 L20,38 Q20,14 30,14 Q40,14 40,38 L40,142"/>
+              <line x1="20" y1="136" x2="8" y2="154"/>
+              <line x1="40" y1="136" x2="52" y2="154"/>
+            </g>
+          </svg>
+          <div class="icon-size">48px</div>
+        </div>
+        
+        <!-- 32px version -->
+        <div class="icon-variant">
+          <svg viewBox="0 0 60 160" width="24">
+            <g stroke="#00bcd4" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20,140 L20,40 Q20,16 30,16 Q40,16 40,40 L40,140"/>
+              <line x1="20" y1="132" x2="10" y2="152"/>
+              <line x1="40" y1="132" x2="50" y2="152"/>
+            </g>
+          </svg>
+          <div class="icon-size">32px</div>
+        </div>
+      </div>
+      
+      <!-- Light background versions -->
+      <div class="light-row">
+        <h4>LIGHT UI VARIANT</h4>
+        <div class="icon-row">
+          <div class="icon-variant">
+            <svg viewBox="0 0 60 160" width="96">
+              <g stroke="#1a1a1a" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18,145 L18,35 Q18,10 30,10 Q42,10 42,35 L42,145" stroke-width="2"/>
+                <line x1="18" y1="145" x2="42" y2="145" stroke-width="2"/>
+                <ellipse cx="30" cy="12" rx="10" ry="3" stroke-width="1.5" opacity="0.7"/>
+                <line x1="18" y1="42" x2="42" y2="42" stroke-width="1" opacity="0.5"/>
+                <line x1="18" y1="52" x2="42" y2="52" stroke-width="1" opacity="0.5"/>
+                <rect x="24" y="28" width="12" height="10" rx="2" stroke-width="1.5"/>
+                <circle cx="30" cy="33" r="3" stroke-width="1"/>
+                <line x1="18" y1="75" x2="42" y2="75" stroke-width="0.8" opacity="0.4"/>
+                <line x1="18" y1="105" x2="42" y2="105" stroke-width="0.8" opacity="0.4"/>
+                <line x1="18" y1="130" x2="42" y2="130" stroke-width="0.8" opacity="0.4"/>
+                <line x1="18" y1="138" x2="4" y2="158" stroke-width="2.5"/>
+                <line x1="42" y1="138" x2="56" y2="158" stroke-width="2.5"/>
+                <ellipse cx="4" cy="158" rx="4" ry="2" stroke-width="1.5"/>
+                <ellipse cx="56" cy="158" rx="4" ry="2" stroke-width="1.5"/>
+                <path d="M22,145 L22,150 Q22,152 30,152 Q38,152 38,150 L38,145" stroke-width="1" opacity="0.6"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">128px</div>
+          </div>
+          
+          <div class="icon-variant">
+            <svg viewBox="0 0 60 160" width="48">
+              <g stroke="#1a1a1a" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18,145 L18,35 Q18,12 30,12 Q42,12 42,35 L42,145"/>
+                <line x1="18" y1="145" x2="42" y2="145"/>
+                <rect x="24" y="30" width="12" height="10" rx="2"/>
+                <line x1="18" y1="138" x2="6" y2="156" stroke-width="4"/>
+                <line x1="42" y1="138" x2="54" y2="156" stroke-width="4"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">64px</div>
+          </div>
+          
+          <div class="icon-variant">
+            <svg viewBox="0 0 60 160" width="24">
+              <g stroke="#1a1a1a" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20,140 L20,40 Q20,16 30,16 Q40,16 40,40 L40,140"/>
+                <line x1="20" y1="132" x2="10" y2="152"/>
+                <line x1="40" y1="132" x2="50" y2="152"/>
+              </g>
+            </svg>
+            <div class="icon-size" style="color:#666;">32px</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="notes">
+        <strong>Key Features Captured:</strong><br>
+        • Tall cylindrical body with rounded nose cone<br>
+        • Window/crew section near top<br>
+        • Dark band detail below nose<br>
+        • Landing legs with oval footpads<br>
+        • Body panel lines for detail at larger sizes<br>
+        • Engine bell hint at base<br><br>
+        <strong>Proportions:</strong> Based on ~55m height, 9m diameter ratio from reference
+      </div>
+    </div>
+  </div>
+</body>
+</html>
