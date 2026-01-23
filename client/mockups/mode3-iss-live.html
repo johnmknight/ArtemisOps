@@ -103,7 +103,7 @@
     .map-btn:hover { background: rgba(0, 188, 212, 0.3); }
     .map-btn.active { background: var(--iss-color); color: #000; }
     
-    #iss-map { flex: 1; min-height: 300px; }
+    #iss-map { flex: 1; min-height: 300px; background: #0a1628; }
     
     /* Data Overlay */
     .data-overlay {
@@ -340,6 +340,38 @@
       50% { filter: drop-shadow(0 0 20px #ffd60a); }
     }
     
+    /* Live update flash animation */
+    .live-update {
+      animation: flash-update 0.5s ease-out;
+    }
+    @keyframes flash-update {
+      0% { color: #7ed321; text-shadow: 0 0 10px #7ed321; }
+      100% { color: inherit; text-shadow: none; }
+    }
+    
+    /* Connection status dots */
+    .connecting-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #ffd60a;
+      border-radius: 50%;
+      margin-right: 4px;
+      animation: blink 1s infinite;
+    }
+    .offline-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #ff3b30;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
     .leaflet-popup-content-wrapper {
       background: #0d1a2d !important;
       border: 1px solid #00bcd4 !important;
@@ -430,7 +462,10 @@
         </div>
         
         <div class="panel-section">
-          <div class="section-header"><span class="section-title">Station Status</span></div>
+          <div class="section-header">
+            <span class="section-title">Station Status</span>
+            <div class="live-badge" id="nasaLiveBadge" style="font-size:0.55rem;padding:2px 6px;"><span class="connecting-dot"></span>CONNECTING</div>
+          </div>
           <div class="section-content">
             <div class="telemetry-grid">
               <div class="telemetry-item">
@@ -438,24 +473,24 @@
                 <div class="telemetry-label">Systems</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">98%</div>
-                <div class="telemetry-label">Power</div>
+                <div class="telemetry-value" id="telPressure">-- psia</div>
+                <div class="telemetry-label">Cabin Pressure</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value" id="telTemp">-- °C</div>
+                <div class="telemetry-label">Cabin Temp</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-value" id="telO2">-- mmHg</div>
+                <div class="telemetry-label">O₂ Level</div>
               </div>
               <div class="telemetry-item">
                 <div class="telemetry-value" id="telAlt">-- km</div>
                 <div class="telemetry-label">Altitude</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">92 min</div>
-                <div class="telemetry-label">Orbit Period</div>
-              </div>
-              <div class="telemetry-item">
                 <div class="telemetry-value" id="telVis">--</div>
                 <div class="telemetry-label">Visibility</div>
-              </div>
-              <div class="telemetry-item">
-                <div class="telemetry-value">16</div>
-                <div class="telemetry-label">Orbits/Day</div>
               </div>
             </div>
           </div>
@@ -514,6 +549,9 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
+  <!-- Lightstreamer Client for NASA ISS Telemetry -->
+  <script src="https://unpkg.com/lightstreamer-client-web/lightstreamer.min.js" data-lightstreamer-ns="Ls"></script>
+  
   <script>
     // Global variables
     let map, issMarker, footprintCircle, groundTrack;
@@ -522,21 +560,171 @@
     let showTrack = true;
     let orbitCount = 142850; // Approximate orbit count since 1998
     
+    // Lightstreamer client for NASA telemetry
+    let lsClient = null;
+    let nasaTelemetry = {
+      cabinPressure: null,
+      cabinTemp: null,
+      o2Level: null,
+      co2Level: null,
+      crewSleeping: null,
+      solarArrayAngle: null,
+      attitude: { roll: null, pitch: null, yaw: null }
+    };
+    
+    // NASA Lightstreamer Telemetry Codes (from ISS public feed)
+    const TELEMETRY_ITEMS = [
+      'NODE3000005',  // US Lab Cabin Pressure (psia)
+      'NODE3000004',  // US Lab Cabin Temperature (°F)
+      'AIRLOCK000049', // Airlock Cabin Pressure
+      'P1000004',     // Port solar array position
+      'S1000004',     // Starboard solar array position
+      'USLAB000058',  // O2 partial pressure
+      'USLAB000059',  // CO2 partial pressure
+      'USLAB000053',  // US Lab Temperature
+      'Z1000008',     // Roll attitude
+      'Z1000009',     // Pitch attitude  
+      'Z1000010'      // Yaw attitude
+    ];
+    
+    // Initialize NASA Lightstreamer connection
+    function initNASATelemetry() {
+      try {
+        lsClient = new Ls.LightstreamerClient("https://push.lightstreamer.com", "ISSLIVE");
+        
+        lsClient.addListener({
+          onStatusChange: function(status) {
+            console.log("Lightstreamer status: " + status);
+            updateConnectionStatus(status);
+          }
+        });
+        
+        lsClient.connect();
+        
+        // Subscribe to telemetry items - don't set DataAdapter, use default
+        const subscription = new Ls.Subscription("MERGE", TELEMETRY_ITEMS, ["TimeStamp", "Value", "Status"]);
+        subscription.setRequestedSnapshot("yes");
+        
+        subscription.addListener({
+          onItemUpdate: function(update) {
+            handleTelemetryUpdate(update);
+          },
+          onSubscription: function() {
+            console.log("NASA telemetry subscription active");
+          },
+          onSubscriptionError: function(code, message) {
+            console.error("Telemetry subscription error:", code, message);
+          }
+        });
+        
+        lsClient.subscribe(subscription);
+        console.log("NASA Lightstreamer telemetry initialized");
+        
+      } catch (error) {
+        console.error("Failed to initialize NASA telemetry:", error);
+      }
+    }
+    
+    // Handle incoming telemetry updates
+    function handleTelemetryUpdate(update) {
+      const itemName = update.getItemName();
+      const value = update.getValue("Value");
+      const status = update.getValue("Status");
+      
+      if (value === null || status === "stale") return;
+      
+      const numValue = parseFloat(value);
+      
+      switch(itemName) {
+        case 'NODE3000005': // Cabin Pressure (psia)
+          nasaTelemetry.cabinPressure = numValue;
+          updateTelemetryDisplay('telPressure', numValue.toFixed(1), 'psia');
+          break;
+        case 'NODE3000004': // Cabin Temp (°F)
+        case 'USLAB000053':
+          nasaTelemetry.cabinTemp = numValue;
+          const tempC = ((numValue - 32) * 5/9).toFixed(1);
+          updateTelemetryDisplay('telTemp', tempC, '°C');
+          break;
+        case 'USLAB000058': // O2 Level
+          nasaTelemetry.o2Level = numValue;
+          updateTelemetryDisplay('telO2', numValue.toFixed(1), 'mmHg');
+          break;
+        case 'USLAB000059': // CO2 Level
+          nasaTelemetry.co2Level = numValue;
+          updateTelemetryDisplay('telCO2', numValue.toFixed(2), 'mmHg');
+          break;
+        case 'P1000004': // Port Solar Array
+        case 'S1000004': // Starboard Solar Array
+          nasaTelemetry.solarArrayAngle = numValue;
+          updateTelemetryDisplay('telSolar', Math.abs(numValue).toFixed(1), '°');
+          break;
+        case 'Z1000008': // Roll
+          nasaTelemetry.attitude.roll = numValue;
+          updateAttitudeDisplay();
+          break;
+        case 'Z1000009': // Pitch
+          nasaTelemetry.attitude.pitch = numValue;
+          updateAttitudeDisplay();
+          break;
+        case 'Z1000010': // Yaw
+          nasaTelemetry.attitude.yaw = numValue;
+          updateAttitudeDisplay();
+          break;
+      }
+    }
+    
+    function updateTelemetryDisplay(elementId, value, unit) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.textContent = value + ' ' + unit;
+        el.classList.add('live-update');
+        setTimeout(() => el.classList.remove('live-update'), 500);
+      }
+    }
+    
+    function updateAttitudeDisplay() {
+      const el = document.getElementById('telAttitude');
+      if (el && nasaTelemetry.attitude.roll !== null) {
+        el.textContent = `R:${nasaTelemetry.attitude.roll?.toFixed(1) || '--'}°`;
+      }
+    }
+    
+    function updateConnectionStatus(status) {
+      const badge = document.getElementById('nasaLiveBadge');
+      if (badge) {
+        if (status.indexOf('CONNECTED') >= 0) {
+          badge.innerHTML = '<span class="live-dot"></span>NASA LIVE';
+          badge.style.borderColor = '#7ed321';
+        } else if (status.indexOf('CONNECTING') >= 0) {
+          badge.innerHTML = '<span class="connecting-dot"></span>CONNECTING';
+          badge.style.borderColor = '#ffd60a';
+        } else {
+          badge.innerHTML = '<span class="offline-dot"></span>OFFLINE';
+          badge.style.borderColor = '#ff3b30';
+        }
+      }
+    }
+    
     // Initialize map
     function initMap() {
       map = L.map('iss-map', {
         center: [20, 0],
         zoom: 2,
-        minZoom: 1,
+        minZoom: 2,
         maxZoom: 8,
-        worldCopyJump: true
+        maxBounds: [[-85, -180], [85, 180]],
+        maxBoundsViscosity: 1.0,
+        worldCopyJump: false
       });
       
-      // Dark tile layer
+      // Dark tile layer - noWrap prevents repeating
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
         subdomains: 'abcd',
-        maxZoom: 19
+        maxZoom: 19,
+        noWrap: true,
+        bounds: [[-90, -180], [90, 180]]
       }).addTo(map);
       
       // ISS marker icon
@@ -746,6 +934,9 @@
       updateISSPosition();
       loadCrew();
       updateTime();
+      
+      // Initialize NASA Lightstreamer telemetry
+      initNASATelemetry();
       
       // Update position every 5 seconds
       setInterval(updateISSPosition, 5000);

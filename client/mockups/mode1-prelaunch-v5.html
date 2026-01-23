@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Pre-Launch Display v5</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-panel: #0a1220;
+      --bg-card: #111d2e;
+      --border-subtle: #1a3050;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --text-accent: #00d4ff;
+      --countdown-color: #00ffcc;
+      --success-color: #22c55e;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --live-color: #ef4444;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .mission-control {
+      display: grid;
+      grid-template-rows: 60px 1fr 90px;
+      grid-template-columns: 1fr 320px;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER - spans full width ===== */
+    .header-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+      background: linear-gradient(180deg, #0d1420 0%, #050810 100%);
+      border-bottom: 2px solid var(--border-subtle);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nasa-logo { height: 44px; width: 44px; }
+
+    .mission-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .mission-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 2px solid var(--live-color);
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--live-color);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--live-color);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--live-color); }
+      50% { opacity: 0.5; }
+    }
+
+    .staleness {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.05);
+      padding: 6px 12px;
+      border-radius: 5px;
+    }
+    .staleness .ok { color: var(--success-color); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .time-display { text-align: right; }
+    .time-utc {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .time-local {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .mission-patch {
+      height: 44px;
+      width: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--border-subtle);
+    }
+
+    /* ===== COUNTDOWN SECTION - FILLS AVAILABLE SPACE ===== */
+    .countdown-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(ellipse at 50% 50%, #0a1628 0%, #000000 70%);
+      position: relative;
+      padding: 20px;
+    }
+
+    /* Grid overlay */
+    .countdown-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(90deg, transparent 49.5%, rgba(0, 168, 255, 0.02) 50%, transparent 50.5%),
+        linear-gradient(0deg, transparent 49.5%, rgba(0, 168, 255, 0.02) 50%, transparent 50.5%);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+
+    .countdown-label {
+      font-size: clamp(1rem, 2vh, 1.6rem);
+      font-weight: 600;
+      letter-spacing: clamp(6px, 1.5vw, 14px);
+      text-transform: uppercase;
+      color: var(--text-accent);
+      margin-bottom: clamp(10px, 2vh, 30px);
+      text-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+    }
+
+    /* ===== MASSIVE COUNTDOWN - scales with BOTH width and height ===== */
+    .countdown-timer {
+      display: flex;
+      align-items: center;
+      gap: clamp(4px, 1vw, 12px);
+      margin-bottom: clamp(15px, 3vh, 35px);
+    }
+
+    .countdown-segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .countdown-value {
+      font-family: 'Courier New', monospace;
+      /* Scale based on BOTH viewport width and height - use the smaller */
+      font-size: clamp(4rem, min(18vw, 28vh), 16rem);
+      font-weight: 700;
+      color: var(--countdown-color);
+      text-shadow: 
+        0 0 60px rgba(0, 255, 204, 0.5),
+        0 0 120px rgba(0, 255, 204, 0.25);
+      line-height: 1;
+      min-width: 2.1ch;
+      text-align: center;
+      background: rgba(0, 20, 40, 0.5);
+      padding: clamp(8px, 2vh, 24px) clamp(10px, 2vw, 30px);
+      border: 2px solid rgba(0, 255, 204, 0.25);
+      border-radius: 12px;
+    }
+
+    .countdown-unit {
+      font-size: clamp(0.7rem, 1.5vh, 1.2rem);
+      color: var(--text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: clamp(4px, 1vh, 12px);
+      font-weight: 500;
+    }
+
+    .countdown-separator {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(3rem, min(12vw, 18vh), 10rem);
+      color: var(--countdown-color);
+      opacity: 0.4;
+      margin-bottom: clamp(15px, 4vh, 40px);
+    }
+
+    /* Launch info row */
+    .launch-info {
+      display: flex;
+      align-items: center;
+      gap: clamp(20px, 4vw, 50px);
+      padding: clamp(10px, 1.5vh, 20px) clamp(20px, 3vw, 40px);
+      background: rgba(0, 20, 40, 0.6);
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: clamp(10px, 2vh, 24px);
+    }
+
+    .launch-date-label {
+      font-size: clamp(0.65rem, 1vh, 0.85rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .launch-date-value {
+      font-size: clamp(1rem, 2vh, 1.6rem);
+      font-weight: 700;
+    }
+
+    .launch-times {
+      display: flex;
+      gap: clamp(12px, 2vw, 24px);
+    }
+
+    .launch-time {
+      font-size: clamp(0.9rem, 1.5vh, 1.2rem);
+      color: var(--text-accent);
+      font-weight: 600;
+    }
+
+    .launch-site {
+      font-size: clamp(0.8rem, 1.2vh, 1rem);
+      color: var(--text-secondary);
+    }
+
+    /* Next milestone banner */
+    .next-milestone {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 2vw, 24px);
+      padding: clamp(10px, 1.5vh, 18px) clamp(16px, 2vw, 28px);
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.12) 0%, transparent 100%);
+      border-left: 4px solid var(--text-accent);
+      border-radius: 0 8px 8px 0;
+      max-width: 700px;
+    }
+
+    .next-milestone-icon { font-size: clamp(1rem, 2vh, 1.6rem); }
+
+    .next-milestone-label {
+      font-size: clamp(0.6rem, 1vh, 0.8rem);
+      color: var(--text-accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .next-milestone-title {
+      font-size: clamp(0.95rem, 1.8vh, 1.3rem);
+      font-weight: 600;
+    }
+
+    .next-milestone-time {
+      font-size: clamp(0.75rem, 1.2vh, 0.95rem);
+      color: var(--text-secondary);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ===== STATUS RAIL ===== */
+    .status-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      background: var(--bg-panel);
+      border-left: 2px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .status-card {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 12px 14px;
+      flex-shrink: 0;
+    }
+
+    .status-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .status-card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .status-badge.go {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success-color);
+      color: var(--success-color);
+    }
+
+    .status-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 5px;
+      font-size: 0.8rem;
+    }
+
+    .status-indicator {
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .status-indicator.go { color: var(--success-color); }
+
+    /* Weather compact */
+    .weather-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .weather-icon { font-size: 1.8rem; }
+    .weather-condition { font-size: 0.95rem; font-weight: 600; }
+    .weather-temp { font-size: 0.8rem; color: var(--text-secondary); }
+
+    .weather-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+    }
+
+    .weather-stat {
+      background: rgba(0,0,0,0.3);
+      padding: 6px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .weather-stat-value { font-size: 0.9rem; font-weight: 700; }
+    .weather-stat-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Crew compact */
+    .crew-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .crew-member { text-align: center; flex: 1; }
+
+    .crew-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d1f35 100%);
+      border: 2px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      margin: 0 auto 4px;
+    }
+
+    .crew-name { font-size: 0.65rem; font-weight: 600; }
+    .crew-role { font-size: 0.6rem; color: var(--text-accent); letter-spacing: 1px; }
+
+    /* Vehicle */
+    .vehicle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .vehicle-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .vehicle-status { font-weight: 600; font-size: 0.75rem; }
+    .vehicle-status.ready { color: var(--success-color); }
+    .vehicle-status.check { color: var(--warning-color); }
+
+    /* ===== TIMELINE STRIP ===== */
+    .timeline-strip {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg-panel);
+      border-top: 2px solid var(--border-subtle);
+    }
+
+    .phase {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 14px;
+      border-right: 1px solid var(--border-subtle);
+    }
+    .phase:last-child { border-right: none; }
+
+    .phase.active {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+    }
+    .phase.completed {
+      background: linear-gradient(90deg, rgba(34, 197, 94, 0.08) 0%, transparent 100%);
+    }
+
+    .phase-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .phase-icon.completed {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid var(--success-color);
+      color: var(--success-color);
+    }
+
+    .phase-icon.active {
+      background: rgba(0, 212, 255, 0.2);
+      border: 2px solid var(--text-accent);
+      color: var(--text-accent);
+      animation: pulse-phase 2s infinite;
+    }
+
+    .phase-icon.upcoming {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    @keyframes pulse-phase {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(0, 212, 255, 0); }
+    }
+
+    .phase-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .phase-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .phase-time {
+      font-size: 0.85rem;
+      color: var(--text-accent);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="mission-control">
+    
+    <!-- HEADER -->
+    <header class="header-bar">
+      <div class="header-left">
+        <img src="https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png" alt="NASA" class="nasa-logo">
+        <div>
+          <div class="mission-title">Artemis II</div>
+          <div class="mission-subtitle">First Crewed Lunar Flyby</div>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+        <div class="staleness"><span class="ok">✓</span> Updated <span id="staleness">12</span>s ago</div>
+      </div>
+      <div class="header-right">
+        <div class="time-display">
+          <div class="time-utc" id="timeUTC">14:32:45 UTC</div>
+          <div class="time-local" id="timeLocal">09:32:45 ET</div>
+        </div>
+        <img src="https://www.nasa.gov/wp-content/uploads/2025/04/jsc2025e034746orig.jpg" alt="Patch" class="mission-patch">
+      </div>
+    </header>
+    
+    <!-- COUNTDOWN SECTION -->
+    <section class="countdown-section">
+      <div class="countdown-label">T-Minus · Countdown to Launch</div>
+      
+      <div class="countdown-timer">
+        <div class="countdown-segment">
+          <div class="countdown-value" id="days">015</div>
+          <div class="countdown-unit">Days</div>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-segment">
+          <div class="countdown-value" id="hours">21</div>
+          <div class="countdown-unit">Hours</div>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-segment">
+          <div class="countdown-value" id="minutes">27</div>
+          <div class="countdown-unit">Min</div>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-segment">
+          <div class="countdown-value" id="seconds">33</div>
+          <div class="countdown-unit">Sec</div>
+        </div>
+      </div>
+      
+      <div class="launch-info">
+        <div class="launch-date">
+          <div class="launch-date-label">Target Launch</div>
+          <div class="launch-date-value">February 6, 2026</div>
+        </div>
+        <div class="launch-times">
+          <span class="launch-time">12:00 UTC</span>
+          <span class="launch-time">07:00 ET</span>
+        </div>
+        <div class="launch-site">Kennedy Space Center · LC-39B</div>
+      </div>
+      
+      <div class="next-milestone">
+        <span class="next-milestone-icon">⚡</span>
+        <div class="next-milestone-content">
+          <div class="next-milestone-label">Next Milestone</div>
+          <div class="next-milestone-title">Rollout to Launch Pad 39B</div>
+        </div>
+        <div class="next-milestone-time">Jan 24 · In 3 days</div>
+      </div>
+    </section>
+    
+    <!-- STATUS RAIL -->
+    <aside class="status-rail">
+      <div class="status-card">
+        <div class="status-card-header">
+          <span class="status-card-title">Launch Status</span>
+          <div class="status-badge go">✓ GO</div>
+        </div>
+        <div class="status-rows">
+          <div class="status-row"><span>Weather</span><span class="status-indicator go">✓ GO</span></div>
+          <div class="status-row"><span>Range</span><span class="status-indicator go">✓ GO</span></div>
+          <div class="status-row"><span>Vehicle</span><span class="status-indicator go">✓ GO</span></div>
+          <div class="status-row"><span>Crew</span><span class="status-indicator go">✓ GO</span></div>
+        </div>
+      </div>
+      
+      <div class="status-card">
+        <div class="status-card-header">
+          <span class="status-card-title">Weather KSC</span>
+          <div class="status-badge go">✓ GO</div>
+        </div>
+        <div class="weather-row">
+          <div class="weather-icon">☀️</div>
+          <div><div class="weather-condition">Clear</div><div class="weather-temp">78°F / 62°F</div></div>
+        </div>
+        <div class="weather-stats">
+          <div class="weather-stat"><div class="weather-stat-value">12</div><div class="weather-stat-label">Wind mph</div></div>
+          <div class="weather-stat"><div class="weather-stat-value">15%</div><div class="weather-stat-label">Cloud</div></div>
+        </div>
+      </div>
+      
+      <div class="status-card">
+        <div class="status-card-header">
+          <span class="status-card-title">Crew</span>
+          <div class="status-badge go">✓ GO</div>
+        </div>
+        <div class="crew-row">
+          <div class="crew-member"><div class="crew-avatar">👨‍🚀</div><div class="crew-name">Wiseman</div><div class="crew-role">CDR</div></div>
+          <div class="crew-member"><div class="crew-avatar">👨‍🚀</div><div class="crew-name">Glover</div><div class="crew-role">PLT</div></div>
+          <div class="crew-member"><div class="crew-avatar">👩‍🚀</div><div class="crew-name">Koch</div><div class="crew-role">MS1</div></div>
+          <div class="crew-member"><div class="crew-avatar">👨‍🚀</div><div class="crew-name">Hansen</div><div class="crew-role">MS2</div></div>
+        </div>
+      </div>
+      
+      <div class="status-card">
+        <div class="status-card-header">
+          <span class="status-card-title">Vehicle</span>
+          <div class="status-badge go">✓ GO</div>
+        </div>
+        <div class="vehicle-list">
+          <div class="vehicle-item"><span>SLS Core</span><span class="vehicle-status ready">✓ Ready</span></div>
+          <div class="vehicle-item"><span>Orion</span><span class="vehicle-status ready">✓ Ready</span></div>
+          <div class="vehicle-item"><span>ICPS</span><span class="vehicle-status check">⟳ Check</span></div>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- TIMELINE -->
+    <footer class="timeline-strip">
+      <div class="phase completed">
+        <div class="phase-icon completed">✓</div>
+        <div class="phase-content">
+          <div class="phase-label">Now</div>
+          <div class="phase-title">Vehicle Assembly</div>
+          <div class="phase-time">Completed Jan 20</div>
+        </div>
+      </div>
+      <div class="phase active">
+        <div class="phase-icon active">→</div>
+        <div class="phase-content">
+          <div class="phase-label">Next</div>
+          <div class="phase-title">Rollout to Pad</div>
+          <div class="phase-time">Jan 24 · 3 days</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-icon upcoming">🚀</div>
+        <div class="phase-content">
+          <div class="phase-label">Liftoff</div>
+          <div class="phase-title">Launch Window</div>
+          <div class="phase-time">Feb 6 · T-15d</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const utc = `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} UTC`;
+      const et = `${String((now.getUTCHours()-5+24)%24).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} ET`;
+      document.getElementById('timeUTC').textContent = utc;
+      document.getElementById('timeLocal').textContent = et;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    let stale = 0;
+    setInterval(() => { stale = (stale + 1) % 31; document.getElementById('staleness').textContent = stale; }, 1000);
+
+    const launch = new Date('2026-02-06T12:00:00Z');
+    function updateCountdown() {
+      const diff = launch - new Date();
+      if (diff <= 0) return;
+      document.getElementById('days').textContent = String(Math.floor(diff / 86400000)).padStart(3,'0');
+      document.getElementById('hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+      document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+      document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>

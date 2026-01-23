@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Tab - v9 Layout</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-panel: #080c14;
+      --bg-card: #0f1620;
+      --border-subtle: #1a3050;
+      --text-primary: #ffffff;
+      --text-secondary: #7a8a9a;
+      --text-accent: #00d4ff;
+      --countdown-color: #00ffcc;
+      --success-color: #22c55e;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .mission-layout {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      grid-template-columns: 200px 1fr;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ===== LEFT SIDEBAR - STATUS ===== */
+    .status-sidebar {
+      grid-row: 1 / 2;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .primary-status {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+      border: 2px solid var(--success-color);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .primary-status.hold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border-color: var(--warning-color);
+    }
+
+    .primary-status.no-go {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+      border-color: var(--danger-color);
+    }
+
+    .primary-status-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .primary-status-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--success-color);
+    }
+
+    .primary-status.hold .primary-status-value { color: var(--warning-color); }
+    .primary-status.no-go .primary-status-value { color: var(--danger-color); }
+
+    .status-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 6px;
+      border-left: 3px solid var(--success-color);
+    }
+
+    .status-item.warning { border-left-color: var(--warning-color); }
+    .status-item.danger { border-left-color: var(--danger-color); }
+
+    .status-item-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .status-item-value {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--success-color);
+    }
+
+    .status-item.warning .status-item-value { color: var(--warning-color); }
+    .status-item.danger .status-item-value { color: var(--danger-color); }
+
+    .status-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* ===== CENTER - COUNTDOWN ===== */
+    .countdown-center {
+      grid-row: 1 / 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 50%, #0a1825 0%, #000000 70%);
+      padding: 20px;
+    }
+
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(90deg, transparent 49.5%, rgba(0, 168, 255, 0.015) 50%, transparent 50.5%),
+        linear-gradient(0deg, transparent 49.5%, rgba(0, 168, 255, 0.015) 50%, transparent 50.5%);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    .countdown-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .countdown-label {
+      font-size: clamp(0.75rem, 1.2vh, 1rem);
+      font-weight: 600;
+      letter-spacing: clamp(4px, 0.8vw, 10px);
+      text-transform: uppercase;
+      color: var(--text-accent);
+      margin-bottom: clamp(8px, 1.5vh, 16px);
+      text-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+    }
+
+    .countdown-label.elapsed {
+      color: var(--success-color);
+      text-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+    }
+
+    /* Main countdown row with flanking logos */
+    .countdown-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: clamp(8px, 1.5vw, 40px);
+      margin-bottom: clamp(12px, 2vh, 24px);
+      width: 100%;
+      max-width: 100%;
+      padding: 0 10px;
+    }
+
+    /* Agency logo (left of countdown) */
+    .agency-logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding-top: clamp(6px, 1vh, 16px);
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    .agency-logo {
+      height: clamp(60px, min(12vw, 29vh), 264px);
+      width: auto;
+      min-width: 60px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,0.12));
+      background: transparent;
+    }
+
+    .agency-name {
+      font-size: clamp(0.6rem, 1vh, 0.85rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Mission patch (right of countdown) */
+    .mission-patch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding-top: clamp(6px, 1vh, 16px);
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    .mission-patch-large {
+      height: clamp(60px, min(12vw, 29vh), 264px);
+      width: auto;
+      min-width: 60px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
+      background: transparent;
+    }
+
+    .mission-name {
+      font-size: clamp(0.6rem, 1vh, 0.85rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Countdown digits */
+    .countdown-timer {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(2px, 0.4vw, 8px);
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    .countdown-segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .countdown-value {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(2.5rem, min(9vw, 34vh), 16.8rem);
+      font-weight: 700;
+      color: var(--countdown-color);
+      text-shadow: 0 0 50px rgba(0, 255, 204, 0.5), 0 0 100px rgba(0, 255, 204, 0.2);
+      line-height: 1;
+      min-width: 2.1ch;
+      text-align: center;
+      background: rgba(0, 20, 40, 0.5);
+      padding: clamp(6px, 1.2vh, 24px) clamp(4px, 0.6vw, 34px);
+      border: 2px solid rgba(0, 255, 204, 0.2);
+      border-radius: 8px;
+    }
+
+    .countdown-value.elapsed {
+      color: var(--success-color);
+      text-shadow: 0 0 50px rgba(34, 197, 94, 0.5), 0 0 100px rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .countdown-unit {
+      font-size: clamp(0.55rem, 0.9vh, 0.8rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: clamp(3px, 0.5vh, 6px);
+      font-weight: 600;
+    }
+
+    .countdown-separator {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(2rem, min(8vw, 24vh), 12rem);
+      color: var(--countdown-color);
+      opacity: 0.2;
+      align-self: flex-start;
+      margin-top: clamp(6px, 1.2vh, 24px);
+    }
+
+    .countdown-separator.elapsed {
+      color: var(--success-color);
+    }
+
+    /* Info row */
+    .launch-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vw, 32px);
+      padding: clamp(8px, 1.2vh, 14px) clamp(16px, 2vw, 32px);
+      background: rgba(0, 30, 60, 0.4);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: clamp(10px, 1.5vh, 18px);
+      flex-wrap: wrap;
+    }
+
+    .launch-info-item { text-align: center; }
+
+    .launch-info-label {
+      font-size: clamp(0.5rem, 0.7vh, 0.65rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .launch-info-value {
+      font-size: clamp(0.85rem, 1.5vh, 1.1rem);
+      font-weight: 700;
+    }
+
+    .launch-info-value.accent { color: var(--text-accent); }
+
+    /* Info boxes */
+    .info-boxes {
+      display: flex;
+      gap: clamp(8px, 1.2vw, 16px);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .info-box {
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 1vw, 12px);
+      padding: clamp(8px, 1.2vh, 12px) clamp(12px, 1.2vw, 18px);
+      background: rgba(0, 40, 80, 0.35);
+      border: 2px solid rgba(0, 212, 255, 0.25);
+      border-radius: 8px;
+      min-width: 220px;
+    }
+
+    .info-box-icon { font-size: clamp(1rem, 1.5vh, 1.3rem); }
+
+    .info-box-content { flex: 1; }
+
+    .info-box-label {
+      font-size: clamp(0.5rem, 0.7vh, 0.65rem);
+      color: var(--text-accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .info-box-title {
+      font-size: clamp(0.8rem, 1.2vh, 1rem);
+      font-weight: 700;
+    }
+
+    .info-box-meta {
+      font-size: clamp(0.65rem, 0.9vh, 0.8rem);
+      color: var(--text-secondary);
+    }
+
+    .weather-box {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .weather-box.marginal {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .weather-box.no-go {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .weather-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 10px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      margin-left: auto;
+    }
+
+    .weather-status-value {
+      font-size: clamp(1rem, 1.6vh, 1.3rem);
+      font-weight: 800;
+      color: var(--success-color);
+      letter-spacing: 2px;
+    }
+
+    .weather-status-value.marginal { color: var(--warning-color); }
+    .weather-status-value.no-go { color: var(--danger-color); }
+
+    .weather-stats {
+      display: flex;
+      gap: 8px;
+      font-size: clamp(0.55rem, 0.85vh, 0.75rem);
+      color: var(--text-secondary);
+    }
+
+    .weather-stat strong { color: var(--text-primary); }
+
+    /* ===== TIMELINE FOOTER ===== */
+    .timeline-strip {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-panel);
+      border-top: 2px solid var(--border-subtle);
+    }
+
+    .phase {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+      border-right: 1px solid var(--border-subtle);
+      min-height: 64px;
+    }
+    .phase:last-child { border-right: none; }
+
+    .phase.active {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+    }
+    .phase.completed {
+      background: linear-gradient(90deg, rgba(34, 197, 94, 0.08) 0%, transparent 100%);
+    }
+
+    .phase-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .phase-icon.completed {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid var(--success-color);
+      color: var(--success-color);
+    }
+
+    .phase-icon.active {
+      background: rgba(0, 212, 255, 0.2);
+      border: 2px solid var(--text-accent);
+      color: var(--text-accent);
+      animation: pulse-phase 2s infinite;
+    }
+
+    .phase-icon.upcoming {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    @keyframes pulse-phase {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
+    }
+
+    .phase-content { flex: 1; min-width: 0; }
+
+    .phase-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .phase-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .phase-time {
+      font-size: 0.75rem;
+      color: var(--text-accent);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .mission-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+      }
+      
+      .status-sidebar {
+        grid-row: 1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      
+      .primary-status {
+        margin-bottom: 0;
+        padding: 12px 20px;
+      }
+      
+      .status-breakdown {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .status-item {
+        padding: 8px 12px;
+      }
+      
+      .status-footer { display: none; }
+      
+      .countdown-center {
+        grid-row: 2;
+      }
+      
+      .timeline-strip {
+        grid-row: 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="mission-layout">
+    
+    <!-- LEFT SIDEBAR: STATUS -->
+    <aside class="status-sidebar">
+      <div class="primary-status" id="primaryStatus">
+        <div class="primary-status-label">Launch Status</div>
+        <div class="primary-status-value" id="primaryStatusValue">✓ GO</div>
+      </div>
+      <div class="status-breakdown">
+        <div class="status-item" id="weatherStatus">
+          <span class="status-item-label">Weather</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item" id="rangeStatus">
+          <span class="status-item-label">Range</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item" id="vehicleStatus">
+          <span class="status-item-label">Vehicle</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item" id="crewStatus">
+          <span class="status-item-label">Crew</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+      </div>
+      <div class="status-footer">All systems nominal</div>
+    </aside>
+    
+    <!-- CENTER: COUNTDOWN WITH FLANKING LOGOS -->
+    <section class="countdown-center">
+      <div class="grid-overlay"></div>
+      
+      <div class="countdown-content">
+        <div class="countdown-label" id="countdownLabel">T-Minus · Countdown to Launch</div>
+        
+        <!-- Countdown row: Agency Logo | Timer | Mission Patch -->
+        <div class="countdown-row">
+          
+          <!-- Agency Logo (left) -->
+          <div class="agency-logo-container">
+            <img id="agencyLogo" src="/assets/logos/nasa-logo.svg" alt="NASA" class="agency-logo">
+            <span class="agency-name" id="agencyName">NASA</span>
+          </div>
+          
+          <!-- Countdown Timer -->
+          <div class="countdown-timer">
+            <div class="countdown-segment">
+              <div class="countdown-value" id="days">---</div>
+              <div class="countdown-unit">Days</div>
+            </div>
+            <div class="countdown-separator" id="sep1">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="hours">--</div>
+              <div class="countdown-unit">Hours</div>
+            </div>
+            <div class="countdown-separator" id="sep2">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="minutes">--</div>
+              <div class="countdown-unit">Min</div>
+            </div>
+            <div class="countdown-separator" id="sep3">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="seconds">--</div>
+              <div class="countdown-unit">Sec</div>
+            </div>
+          </div>
+          
+          <!-- Mission Patch (right) -->
+          <div class="mission-patch-container">
+            <img id="missionPatch" src="/assets/patches/artemis-ii-patch.png" alt="Mission Patch" class="mission-patch-large" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Artemis_2_mission_patch.png/220px-Artemis_2_mission_patch.png'">
+            <span class="mission-name" id="missionName">Artemis II</span>
+          </div>
+          
+        </div>
+        
+        <!-- Launch info -->
+        <div class="launch-info-row">
+          <div class="launch-info-item">
+            <div class="launch-info-label">Target Date</div>
+            <div class="launch-info-value" id="launchDate">Loading...</div>
+          </div>
+          <div class="launch-info-item">
+            <div class="launch-info-label">Time</div>
+            <div class="launch-info-value accent" id="launchTime">--:-- UTC</div>
+          </div>
+          <div class="launch-info-item">
+            <div class="launch-info-label">Location</div>
+            <div class="launch-info-value" id="launchSite">Loading...</div>
+          </div>
+        </div>
+        
+        <!-- Info boxes -->
+        <div class="info-boxes">
+          <div class="info-box">
+            <span class="info-box-icon">⚡</span>
+            <div class="info-box-content">
+              <div class="info-box-label">Next Milestone</div>
+              <div class="info-box-title" id="nextMilestoneTitle">Loading...</div>
+              <div class="info-box-meta" id="nextMilestoneMeta">--</div>
+            </div>
+          </div>
+          
+          <div class="info-box weather-box" id="weatherBox">
+            <span class="info-box-icon" id="weatherIcon">☀️</span>
+            <div class="info-box-content">
+              <div class="info-box-label">Weather at KSC</div>
+              <div class="info-box-title" id="weatherCondition">Loading...</div>
+              <div class="weather-stats">
+                <span class="weather-stat">Wind: <strong id="weatherWind">--</strong></span>
+                <span class="weather-stat">Cloud: <strong id="weatherCloud">--</strong></span>
+              </div>
+            </div>
+            <div class="weather-status">
+              <div class="weather-status-value" id="weatherStatusValue">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- TIMELINE FOOTER -->
+    <footer class="timeline-strip">
+      <div class="phase completed" id="phase1">
+        <div class="phase-icon completed">✓</div>
+        <div class="phase-content">
+          <div class="phase-label">Completed</div>
+          <div class="phase-title" id="phase1Title">Loading...</div>
+          <div class="phase-time" id="phase1Time">--</div>
+        </div>
+      </div>
+      <div class="phase active" id="phase2">
+        <div class="phase-icon active">→</div>
+        <div class="phase-content">
+          <div class="phase-label">Next</div>
+          <div class="phase-title" id="phase2Title">Loading...</div>
+          <div class="phase-time" id="phase2Time">--</div>
+        </div>
+      </div>
+      <div class="phase" id="phase3">
+        <div class="phase-icon upcoming">🚀</div>
+        <div class="phase-content">
+          <div class="phase-label">Liftoff</div>
+          <div class="phase-title" id="phase3Title">Launch Window</div>
+          <div class="phase-time" id="phase3Time">--</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Mission Tab Controller - V9 Integrated Layout
+    const MissionTab = {
+      missionData: null,
+      weatherData: null,
+      countdownInterval: null,
+      
+      init() {
+        // Listen for messages from parent app
+        window.addEventListener('message', (event) => this.handleMessage(event));
+        
+        // Start countdown ticker
+        this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
+        
+        // Notify parent that this tab is ready
+        window.parent.postMessage({ type: 'tabReady', tab: 'mission' }, '*');
+      },
+      
+      handleMessage(event) {
+        const { type, data } = event.data;
+        
+        switch (type) {
+          case 'missionData':
+            this.missionData = data;
+            this.updateMissionDisplay();
+            break;
+            
+          case 'weatherData':
+            this.weatherData = data;
+            this.updateWeatherDisplay();
+            break;
+        }
+      },
+      
+      updateMissionDisplay() {
+        if (!this.missionData) return;
+        
+        const m = this.missionData;
+        
+        // Update mission name and patch
+        document.getElementById('missionName').textContent = m.name || 'Mission';
+        
+        // Use local patches with fallback
+        const patchPaths = {
+          'artemis-ii': '/assets/patches/artemis-ii-patch.png',
+          'artemis-iii': '/assets/patches/artemis-iii-patch.png',
+        };
+        
+        const missionKey = (m.id || '').toLowerCase();
+        const patchUrl = patchPaths[missionKey] || patchPaths['artemis-ii'];
+        document.getElementById('missionPatch').src = patchUrl;
+        
+        // Update agency logo - use local logos with transparent backgrounds
+        const localLogos = {
+          'NASA': '/assets/logos/nasa-logo.svg',
+          'ESA': '/assets/logos/esa-logo.svg',
+          'CSA': '/assets/logos/csa-logo.svg',
+          'JAXA': '/assets/logos/jaxa-logo.svg',
+        };
+        const agencies = m.agencies || 'NASA';
+        const primaryAgency = agencies.split(',')[0].trim().toUpperCase();
+        const logoUrl = localLogos[primaryAgency] || localLogos['NASA'];
+        document.getElementById('agencyLogo').src = logoUrl;
+        
+        // Update agency name display
+        document.getElementById('agencyName').textContent = agencies.split(',')[0].trim();
+        
+        // Update launch info
+        if (m.launch_date) {
+          const launchDate = new Date(m.launch_date);
+          document.getElementById('launchDate').textContent = launchDate.toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          });
+          
+          const hours = String(launchDate.getUTCHours()).padStart(2, '0');
+          const mins = String(launchDate.getUTCMinutes()).padStart(2, '0');
+          document.getElementById('launchTime').textContent = `${hours}:${mins} UTC`;
+        }
+        
+        document.getElementById('launchSite').textContent = m.site || 'TBD';
+        
+        // Update milestones
+        this.updateMilestones(m.milestones || []);
+        
+        // Initial countdown update
+        this.updateCountdown();
+      },
+      
+      updateMilestones(milestones) {
+        // Find completed, active, and upcoming milestones
+        const completed = milestones.filter(m => m.status === 'completed');
+        const active = milestones.find(m => m.status === 'active');
+        const pending = milestones.filter(m => m.status === 'pending');
+        
+        // Last completed
+        if (completed.length > 0) {
+          const last = completed[completed.length - 1];
+          document.getElementById('phase1Title').textContent = last.title;
+          document.getElementById('phase1Time').textContent = last.date || 'Completed';
+        }
+        
+        // Active/Next milestone
+        const next = active || (pending.length > 0 ? pending[0] : null);
+        if (next) {
+          document.getElementById('phase2Title').textContent = next.title;
+          document.getElementById('phase2Time').textContent = next.date || '';
+          
+          // Also update the info box
+          document.getElementById('nextMilestoneTitle').textContent = next.title;
+          document.getElementById('nextMilestoneMeta').textContent = next.date ? `${next.date}` : next.description || '';
+        }
+        
+        // Launch milestone
+        const launch = milestones.find(m => m.title && m.title.toLowerCase().includes('liftoff'));
+        if (launch) {
+          document.getElementById('phase3Title').textContent = launch.title;
+          document.getElementById('phase3Time').textContent = launch.date || 'T-0:00';
+        } else if (this.missionData?.launch_date) {
+          const launchDate = new Date(this.missionData.launch_date);
+          const now = new Date();
+          const daysUntil = Math.ceil((launchDate - now) / (1000 * 60 * 60 * 24));
+          document.getElementById('phase3Time').textContent = daysUntil > 0 ? `T-${daysUntil}d` : 'T-0';
+        }
+      },
+      
+      updateWeatherDisplay() {
+        const w = this.weatherData;
+        const box = document.getElementById('weatherBox');
+        const statusValue = document.getElementById('weatherStatusValue');
+        
+        if (!w || !w.should_fetch || !w.launch) {
+          document.getElementById('weatherCondition').textContent = 'Not available';
+          document.getElementById('weatherWind').textContent = '--';
+          document.getElementById('weatherCloud').textContent = '--';
+          statusValue.textContent = '--';
+          return;
+        }
+        
+        const analysis = w.launch.analysis;
+        const conditions = analysis?.conditions;
+        
+        if (conditions) {
+          // Update weather icon
+          document.getElementById('weatherIcon').textContent = conditions.icon || '☀️';
+          
+          // Update condition text
+          document.getElementById('weatherCondition').textContent = 
+            `${conditions.description || 'Clear'} · ${conditions.temperature_high_f || '--'}°F`;
+          
+          // Update stats
+          document.getElementById('weatherWind').textContent = 
+            conditions.wind_speed_mph ? `${Math.round(conditions.wind_speed_mph)} mph` : '--';
+          document.getElementById('weatherCloud').textContent = '--'; // Not in current API
+        }
+        
+        // Update GO/NO-GO status
+        const status = analysis?.status || 'unknown';
+        statusValue.textContent = status.toUpperCase();
+        
+        // Update styling based on status
+        box.classList.remove('marginal', 'no-go');
+        statusValue.classList.remove('marginal', 'no-go');
+        
+        if (status === 'marginal') {
+          box.classList.add('marginal');
+          statusValue.classList.add('marginal');
+        } else if (status === 'no-go') {
+          box.classList.add('no-go');
+          statusValue.classList.add('no-go');
+        }
+        
+        // Update sidebar weather status
+        this.updateStatusItem('weatherStatus', status);
+      },
+      
+      updateStatusItem(elementId, status) {
+        const item = document.getElementById(elementId);
+        const value = item.querySelector('.status-item-value');
+        
+        item.classList.remove('warning', 'danger');
+        
+        if (status === 'go') {
+          value.textContent = '✓ GO';
+        } else if (status === 'marginal') {
+          value.textContent = '⚠ HOLD';
+          item.classList.add('warning');
+        } else if (status === 'no-go') {
+          value.textContent = '✗ NO-GO';
+          item.classList.add('danger');
+        } else {
+          value.textContent = '-- TBD';
+        }
+      },
+      
+      updateCountdown() {
+        if (!this.missionData?.launch_date) {
+          document.getElementById('days').textContent = '---';
+          document.getElementById('hours').textContent = '--';
+          document.getElementById('minutes').textContent = '--';
+          document.getElementById('seconds').textContent = '--';
+          return;
+        }
+        
+        const launchDate = new Date(this.missionData.launch_date);
+        const now = new Date();
+        const diff = launchDate - now;
+        const isPostLaunch = diff <= 0;
+        
+        const absDiff = Math.abs(diff);
+        const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+        
+        document.getElementById('days').textContent = String(days).padStart(3, '0');
+        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        
+        // Update label and colors based on mode
+        const label = document.getElementById('countdownLabel');
+        const values = document.querySelectorAll('.countdown-value');
+        const seps = document.querySelectorAll('.countdown-separator');
+        
+        if (isPostLaunch) {
+          label.textContent = 'T-Plus · Mission Elapsed Time';
+          label.classList.add('elapsed');
+          values.forEach(v => v.classList.add('elapsed'));
+          seps.forEach(s => s.classList.add('elapsed'));
+        } else {
+          label.textContent = 'T-Minus · Countdown to Launch';
+          label.classList.remove('elapsed');
+          values.forEach(v => v.classList.remove('elapsed'));
+          seps.forEach(s => s.classList.remove('elapsed'));
+        }
+        
+        // Notify parent of countdown update
+        window.parent.postMessage({
+          type: 'countdownUpdate',
+          secondsRemaining: Math.floor(diff / 1000),
+          isPostLaunch: isPostLaunch
+        }, '*');
+      }
+    };
+    
+    // Initialize
+    MissionTab.init();
+  </script>
+</body>
+</html>

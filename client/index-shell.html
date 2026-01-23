@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Mission Control</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a0e27;
+      --bg-secondary: #1a1f3a;
+      --bg-panel: #0d1128;
+      --border-blue: #4a9eff;
+      --text-primary: #e0e6ed;
+      --text-secondary: #8ab4f8;
+      --accent-blue: #4a9eff;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-panel) 100%);
+      color: var(--text-primary);
+    }
+    
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    /* ===== HEADER ===== */
+    .app-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(10, 20, 40, 0.9);
+      border-bottom: 2px solid var(--border-blue);
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .header-logo {
+      height: 50px;
+      width: 50px;
+      object-fit: contain;
+    }
+    
+    .header-title {
+      font-size: 1.8em;
+      letter-spacing: 6px;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      text-shadow: 0 0 15px rgba(74, 158, 255, 0.8);
+    }
+    
+    .header-subtitle {
+      font-size: 0.75em;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      max-width: 300px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .mission-selector {
+      background: rgba(74, 158, 255, 0.1);
+      border: 2px solid rgba(74, 158, 255, 0.4);
+      color: var(--text-primary);
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: 0.9em;
+      border-radius: 4px;
+      cursor: pointer;
+      min-width: 180px;
+    }
+    
+    .mission-selector:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+    }
+    
+    .notification-btn {
+      position: relative;
+      background: none;
+      border: 2px solid rgba(74, 158, 255, 0.3);
+      color: var(--text-secondary);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: all 0.3s;
+    }
+    
+    .notification-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ff4444;
+      color: white;
+      font-size: 0.6em;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification-badge:empty,
+    .notification-badge.hidden {
+      display: none;
+    }
+    
+    /* ===== TAB NAVIGATION ===== */
+    .tab-nav {
+      flex-shrink: 0;
+      display: flex;
+      background: rgba(10, 20, 40, 0.8);
+      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+      padding: 0 20px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #6a7f99;
+      padding: 15px 30px;
+      font-family: inherit;
+      font-size: 1em;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tab-btn:hover {
+      color: var(--text-secondary);
+    }
+    
+    .tab-btn.active {
+      color: var(--accent-blue);
+      text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
+    }
+    
+    .tab-icon {
+      font-size: 1.1em;
+    }
+    
+    /* ===== TAB CONTENT ===== */
+    .tab-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    
+    .tab-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+    
+    .tab-frame.active {
+      display: block;
+    }
+    
+    /* ===== LOADING OVERLAY ===== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 39, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+    
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(74, 158, 255, 0.2);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">INITIALIZING MISSION CONTROL...</div>
+  </div>
+
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <img src="https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png" 
+             alt="NASA" class="header-logo" id="agencyLogo">
+        <div>
+          <div class="header-title" id="missionTitle">ARTEMIS II</div>
+          <div class="header-subtitle" id="missionSubtitle">First crewed lunar mission since Apollo</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <select class="mission-selector" id="missionSelector">
+          <option value="artemis-ii">Artemis II</option>
+        </select>
+        <button class="notification-btn" id="notificationBtn" title="Notifications">
+          🔔
+          <span class="notification-badge hidden" id="notificationBadge"></span>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="mission" onclick="AppShell.switchTab('mission')">
+        <span class="tab-icon">🚀</span>
+        <span>Mission</span>
+      </button>
+      <button class="tab-btn" data-tab="tracking" onclick="AppShell.switchTab('tracking')">
+        <span class="tab-icon">🛰️</span>
+        <span>Tracking</span>
+      </button>
+      <button class="tab-btn" data-tab="crew" onclick="AppShell.switchTab('crew')">
+        <span class="tab-icon">👨‍🚀</span>
+        <span>Crew</span>
+      </button>
+      <button class="tab-btn" data-tab="info" onclick="AppShell.switchTab('info')">
+        <span class="tab-icon">ℹ️</span>
+        <span>Info</span>
+      </button>
+    </nav>
+    
+    <!-- Tab Content (iframes) -->
+    <main class="tab-content">
+      <iframe class="tab-frame active" id="frame-mission" src="/tabs/mission.html"></iframe>
+      <iframe class="tab-frame" id="frame-tracking" src="/tabs/tracking.html"></iframe>
+      <iframe class="tab-frame" id="frame-crew" src="/tabs/crew.html"></iframe>
+      <iframe class="tab-frame" id="frame-info" src="/tabs/info.html"></iframe>
+    </main>
+  </div>
+
+  <script>
+    // ===== APP SHELL =====
+    // Manages tab switching and data distribution to child iframes
+    
+    const AppShell = {
+      currentTab: 'mission',
+      currentMissionId: 'artemis-ii',
+      missions: [],
+      missionData: null,
+      weatherData: null,
+      
+      // Track which tabs are ready
+      tabsReady: {
+        mission: false,
+        tracking: false,
+        crew: false,
+        info: false
+      },
+      
+      // API config
+      API_BASE: window.location.origin,
+      WS_URL: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`,
+      ws: null,
+      
+      async init() {
+        console.log('ArtemisOps Shell initializing...');
+        
+        // Listen for messages from child iframes
+        window.addEventListener('message', (event) => this.handleChildMessage(event));
+        
+        // Connect WebSocket
+        this.connectWebSocket();
+        
+        // Load missions list
+        await this.loadMissions();
+        
+        // Load initial mission data
+        await this.loadMissionData(this.currentMissionId);
+        
+        // Load weather
+        await this.loadWeather(this.currentMissionId);
+        
+        // Hide loading overlay after a short delay
+        setTimeout(() => {
+          document.getElementById('loadingOverlay').classList.add('hidden');
+        }, 500);
+        
+        console.log('ArtemisOps Shell ready');
+      },
+      
+      // === WebSocket ===
+      connectWebSocket() {
+        try {
+          this.ws = new WebSocket(this.WS_URL);
+          
+          this.ws.onopen = () => {
+            console.log('WebSocket connected');
+          };
+          
+          this.ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            this.handleWebSocketMessage(message);
+          };
+          
+          this.ws.onclose = () => {
+            console.log('WebSocket disconnected, reconnecting...');
+            setTimeout(() => this.connectWebSocket(), 5000);
+          };
+        } catch (e) {
+          console.error('WebSocket error:', e);
+        }
+      },
+      
+      handleWebSocketMessage(message) {
+        if (message.type === 'mission_update' && message.data.id === this.currentMissionId) {
+          this.missionData = message.data;
+          this.distributeMissionData();
+        } else if (message.type === 'missions_list') {
+          this.missions = message.data || [];
+          this.updateMissionSelector();
+        }
+      },
+      
+      // === Data Loading ===
+      async loadMissions() {
+        try {
+          const response = await fetch(`${this.API_BASE}/api/missions`);
+          const data = await response.json();
+          this.missions = data.missions || [];
+          this.updateMissionSelector();
+        } catch (error) {
+          console.error('Failed to load missions:', error);
+        }
+      },
+      
+      async loadMissionData(missionId) {
+        try {
+          const response = await fetch(`${this.API_BASE}/api/missions/${missionId}`);
+          if (!response.ok) throw new Error('Mission not found');
+          
+          this.missionData = await response.json();
+          this.currentMissionId = missionId;
+          
+          this.updateHeader();
+          this.distributeMissionData();
+        } catch (error) {
+          console.error('Failed to load mission:', error);
+        }
+      },
+      
+      async loadWeather(missionId) {
+        try {
+          const response = await fetch(`${this.API_BASE}/api/missions/${missionId}/weather`);
+          if (!response.ok) throw new Error('Weather fetch failed');
+          
+          this.weatherData = await response.json();
+          this.distributeWeatherData();
+        } catch (error) {
+          console.error('Failed to load weather:', error);
+        }
+      },
+      
+      // === UI Updates ===
+      updateHeader() {
+        if (!this.missionData) return;
+        
+        document.getElementById('missionTitle').textContent = this.missionData.name || 'MISSION';
+        document.getElementById('missionSubtitle').textContent = 
+          this.missionData.description?.substring(0, 50) + '...' || '';
+        
+        if (this.missionData.agency_logo) {
+          document.getElementById('agencyLogo').src = this.missionData.agency_logo;
+        }
+      },
+      
+      updateMissionSelector() {
+        const selector = document.getElementById('missionSelector');
+        selector.innerHTML = this.missions.map(m => 
+          `<option value="${m.id}" ${m.id === this.currentMissionId ? 'selected' : ''}>${m.name}</option>`
+        ).join('');
+        
+        selector.onchange = (e) => {
+          this.switchMission(e.target.value);
+        };
+      },
+      
+      // === Tab Switching ===
+      switchTab(tabId) {
+        this.currentTab = tabId;
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        
+        // Update tab frames
+        document.querySelectorAll('.tab-frame').forEach(frame => {
+          frame.classList.toggle('active', frame.id === `frame-${tabId}`);
+        });
+      },
+      
+      // === Mission Switching ===
+      async switchMission(missionId) {
+        await this.loadMissionData(missionId);
+        await this.loadWeather(missionId);
+      },
+      
+      // === Child Iframe Communication ===
+      handleChildMessage(event) {
+        const { type, tab } = event.data;
+        
+        switch (type) {
+          case 'tabReady':
+            this.tabsReady[tab] = true;
+            this.sendDataToTab(tab);
+            break;
+            
+          case 'countdownUpdate':
+            // Could trigger notifications here
+            break;
+            
+          case 'trackingModeChanged':
+            // Could update header or log
+            break;
+        }
+      },
+      
+      distributeMissionData() {
+        Object.keys(this.tabsReady).forEach(tab => {
+          if (this.tabsReady[tab]) {
+            this.sendDataToTab(tab);
+          }
+        });
+      },
+      
+      distributeWeatherData() {
+        if (this.tabsReady.mission) {
+          const frame = document.getElementById('frame-mission');
+          frame.contentWindow.postMessage({
+            type: 'setWeatherData',
+            weather: this.weatherData,
+            visible: this.weatherData?.should_fetch
+          }, '*');
+        }
+      },
+      
+      sendDataToTab(tab) {
+        const frame = document.getElementById(`frame-${tab}`);
+        if (!frame) return;
+        
+        switch (tab) {
+          case 'mission':
+            if (this.missionData) {
+              frame.contentWindow.postMessage({
+                type: 'setMissionData',
+                mission: this.missionData
+              }, '*');
+            }
+            if (this.weatherData) {
+              frame.contentWindow.postMessage({
+                type: 'setWeatherData',
+                weather: this.weatherData,
+                visible: this.weatherData?.should_fetch
+              }, '*');
+            }
+            break;
+            
+          case 'crew':
+            if (this.missionData?.crew) {
+              frame.contentWindow.postMessage({
+                type: 'setCrewData',
+                crew: this.missionData.crew
+              }, '*');
+            }
+            break;
+            
+          case 'info':
+            if (this.missionData) {
+              frame.contentWindow.postMessage({
+                type: 'setMissionData',
+                mission: this.missionData
+              }, '*');
+            }
+            break;
+        }
+      }
+    };
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => AppShell.init());
+  </script>
+</body>
+</html>

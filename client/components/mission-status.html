@@ -129,14 +129,14 @@
       init() {
         window.addEventListener('message', (event) => {
           if (event.data.type === 'setStatusData') {
-            this.setStatus(event.data.status, event.data.nextMilestone);
+            this.setStatus(event.data.status, event.data.milestones);
           }
         });
         
         window.parent.postMessage({ type: 'statusReady' }, '*');
       },
       
-      setStatus(status, nextMilestone) {
+      setStatus(status, milestones) {
         const statusEl = document.getElementById('statusText');
         const milestoneEl = document.getElementById('nextMilestone');
         
@@ -145,6 +145,9 @@
         } else {
           statusEl.innerHTML = '<span class="loading">Mission status unavailable</span>';
         }
+        
+        // Find next milestone (active or first pending)
+        const nextMilestone = milestones?.find(m => m.status === 'active' || m.status === 'pending');
         
         if (nextMilestone) {
           milestoneEl.textContent = `${nextMilestone.title}: ${nextMilestone.description}`;

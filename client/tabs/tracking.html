@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracking Tab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent-blue: #4a9eff;
+      --accent-cyan: #00bcd4;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Courier New', monospace;
+      color: var(--text-primary);
+    }
+    
+    .tracking-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    /* Mode selector header */
+    .tracking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(10, 20, 40, 0.9);
+      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+      flex-shrink: 0;
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(74, 158, 255, 0.1);
+      border: 2px solid rgba(74, 158, 255, 0.3);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.85em;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mode-btn:hover {
+      background: rgba(74, 158, 255, 0.2);
+      color: var(--text-primary);
+    }
+    
+    .mode-btn.active {
+      background: rgba(74, 158, 255, 0.3);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 15px rgba(74, 158, 255, 0.4);
+    }
+    
+    .mode-icon {
+      font-size: 1.2em;
+    }
+    
+    .tracking-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85em;
+    }
+    
+    .live-indicator {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-blue);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* Content area */
+    .tracking-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tracking-view {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    
+    .tracking-view.active {
+      display: block;
+    }
+    
+    .tracking-view iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="tracking-layout">
+    <!-- Mode Selector Header -->
+    <div class="tracking-header">
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="iss" onclick="TrackingTab.switchMode('iss')">
+          <span class="mode-icon">🛰️</span>
+          <span>ISS Live</span>
+        </button>
+        <button class="mode-btn" data-mode="artemis-ii" onclick="TrackingTab.switchMode('artemis-ii')">
+          <span class="mode-icon">🌙</span>
+          <span>Artemis II</span>
+        </button>
+        <button class="mode-btn" data-mode="artemis-iii" onclick="TrackingTab.switchMode('artemis-iii')">
+          <span class="mode-icon">🚀</span>
+          <span>Artemis III</span>
+        </button>
+      </div>
+      <div class="tracking-status">
+        <span class="live-indicator"></span>
+        <span id="statusText">ISS Live Tracking</span>
+      </div>
+    </div>
+    
+    <!-- Tracking Views -->
+    <div class="tracking-content">
+      <!-- ISS Live View -->
+      <div class="tracking-view active" id="view-iss">
+        <iframe id="issFrame" src="/mockups/mode3-iss-live.html"></iframe>
+      </div>
+      
+      <!-- Artemis II View -->
+      <div class="tracking-view" id="view-artemis-ii">
+        <iframe id="artemisIIFrame" src="/mockups/mode3-artemis2-nasa-style.html"></iframe>
+      </div>
+      
+      <!-- Artemis III View -->
+      <div class="tracking-view" id="view-artemis-iii">
+        <iframe id="artemisIIIFrame" src="/mockups/mode3-artemis3-nrho.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TrackingTab = {
+      currentMode: 'iss',
+      
+      init() {
+        // Listen for messages from parent
+        window.addEventListener('message', (event) => {
+          if (event.data.type === 'setTrackingMode') {
+            this.switchMode(event.data.mode);
+          }
+        });
+        
+        // Notify parent that tab is ready
+        window.parent.postMessage({ type: 'tabReady', tab: 'tracking' }, '*');
+      },
+      
+      switchMode(mode) {
+        this.currentMode = mode;
+        
+        // Update buttons
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        
+        // Update views
+        document.querySelectorAll('.tracking-view').forEach(view => {
+          view.classList.toggle('active', view.id === `view-${mode}`);
+        });
+        
+        // Update status text
+        const statusText = document.getElementById('statusText');
+        switch (mode) {
+          case 'iss':
+            statusText.textContent = 'ISS Live Tracking';
+            break;
+          case 'artemis-ii':
+            statusText.textContent = 'Artemis II - Lunar Flyby';
+            break;
+          case 'artemis-iii':
+            statusText.textContent = 'Artemis III - Lunar Landing';
+            break;
+        }
+        
+        // Notify parent of mode change
+        window.parent.postMessage({
+          type: 'trackingModeChanged',
+          mode: mode
+        }, '*');
+      }
+    };
+    
+    TrackingTab.init();
+  </script>
+</body>
+</html>

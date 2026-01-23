@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crew Tab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent-blue: #4a9eff;
+      --accent-cyan: #00bcd4;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Courier New', monospace;
+      color: var(--text-primary);
+    }
+    
+    .crew-layout {
+      height: 100%;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .crew-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .crew-card {
+      background: rgba(15, 25, 45, 0.9);
+      border: 2px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    
+    .crew-card:hover {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 25px rgba(74, 158, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .crew-photo {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .crew-photo-placeholder {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      font-size: 4em;
+    }
+    
+    .crew-info {
+      padding: 16px;
+    }
+    
+    .crew-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .crew-role {
+      color: var(--accent-blue);
+      font-size: 0.9em;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .crew-agency {
+      display: inline-block;
+      background: rgba(74, 158, 255, 0.2);
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    
+    .crew-bio {
+      color: var(--text-secondary);
+      font-size: 0.85em;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    
+    .crew-link {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-size: 0.8em;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .crew-link:hover {
+      text-decoration: underline;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .loading-state .icon {
+      font-size: 3em;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="crew-layout">
+    <div class="crew-grid" id="crewGrid">
+      <div class="loading-state">
+        <div class="icon">👨‍🚀</div>
+        <div>Loading crew information...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CrewTab = {
+      crew: [],
+      
+      init() {
+        window.addEventListener('message', (event) => {
+          if (event.data.type === 'setCrewData') {
+            this.crew = event.data.crew || [];
+            this.render();
+          }
+        });
+        
+        window.parent.postMessage({ type: 'tabReady', tab: 'crew' }, '*');
+      },
+      
+      render() {
+        const grid = document.getElementById('crewGrid');
+        
+        if (!this.crew || this.crew.length === 0) {
+          grid.innerHTML = `
+            <div class="loading-state">
+              <div class="icon">👨‍🚀</div>
+              <div>No crew information available</div>
+            </div>
+          `;
+          return;
+        }
+        
+        grid.innerHTML = this.crew.map(member => `
+          <div class="crew-card">
+            ${member.photo ? 
+              `<img src="${member.photo}" alt="${member.name}" class="crew-photo" 
+                   onerror="this.outerHTML='<div class=crew-photo-placeholder>👨‍🚀</div>'">` :
+              `<div class="crew-photo-placeholder">👨‍🚀</div>`
+            }
+            <div class="crew-info">
+              <div class="crew-name">${member.name}</div>
+              <div class="crew-role">${member.role}</div>
+              <span class="crew-agency">${member.agency}</span>
+              <div class="crew-bio">${member.bio || ''}</div>
+              ${member.nasa_bio ? 
+                `<a href="${member.nasa_bio}" target="_blank" class="crew-link">View Full Bio →</a>` : 
+                ''
+              }
+            </div>
+          </div>
+        `).join('');
+      }
+    };
+    
+    CrewTab.init();
+  </script>
+</body>
+</html>

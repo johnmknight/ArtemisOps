@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Pre-Launch Display v8</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-panel: #080c14;
+      --bg-card: #0f1620;
+      --border-subtle: #1a3050;
+      --text-primary: #ffffff;
+      --text-secondary: #7a8a9a;
+      --text-accent: #00d4ff;
+      --countdown-color: #00ffcc;
+      --success-color: #22c55e;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --live-color: #ef4444;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* ===== LAYOUT ===== */
+    .mission-control {
+      display: grid;
+      grid-template-rows: 52px 1fr 76px;
+      grid-template-columns: 260px 1fr;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .header-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nasa-logo { height: 36px; width: 36px; }
+
+    .mission-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .mission-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 2px solid var(--live-color);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--live-color);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--live-color);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--live-color); }
+      50% { opacity: 0.5; }
+    }
+
+    .staleness {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    .staleness .ok { color: var(--success-color); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .time-display { text-align: right; }
+    .time-utc {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .time-local {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .mission-patch {
+      height: 38px;
+      width: 38px;
+      border-radius: 50%;
+      border: 2px solid var(--border-subtle);
+    }
+
+    /* ===== LEFT COLUMN - SIMPLIFIED STATUS ===== */
+    .status-column {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    /* Main GO/NO-GO Status */
+    .primary-status {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+      border: 2px solid var(--success-color);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .primary-status.hold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border-color: var(--warning-color);
+    }
+
+    .primary-status-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .primary-status-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: var(--success-color);
+    }
+
+    .primary-status.hold .primary-status-value {
+      color: var(--warning-color);
+    }
+
+    /* Status breakdown */
+    .status-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      border-left: 3px solid var(--success-color);
+    }
+
+    .status-item.hold {
+      border-left-color: var(--warning-color);
+    }
+
+    .status-item-label {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .status-item-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--success-color);
+    }
+
+    .status-item.hold .status-item-value {
+      color: var(--warning-color);
+    }
+
+    /* Last updated footer */
+    .status-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* ===== CENTER - COUNTDOWN ===== */
+    .countdown-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 50%, #0a1825 0%, #000000 70%);
+      padding: 20px;
+    }
+
+    /* Subtle grid */
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(90deg, transparent 49.5%, rgba(0, 168, 255, 0.015) 50%, transparent 50.5%),
+        linear-gradient(0deg, transparent 49.5%, rgba(0, 168, 255, 0.015) 50%, transparent 50.5%);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    .countdown-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .countdown-label {
+      font-size: clamp(0.85rem, 1.5vh, 1.2rem);
+      font-weight: 600;
+      letter-spacing: clamp(6px, 1.2vw, 14px);
+      text-transform: uppercase;
+      color: var(--text-accent);
+      margin-bottom: clamp(10px, 2vh, 20px);
+      text-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+    }
+
+    .countdown-timer {
+      display: flex;
+      align-items: center;
+      gap: clamp(4px, 0.8vw, 12px);
+      margin-bottom: clamp(16px, 3vh, 32px);
+    }
+
+    .countdown-segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .countdown-value {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(6rem, min(18vw, 38vh), 18rem);
+      font-weight: 700;
+      color: var(--countdown-color);
+      text-shadow: 0 0 80px rgba(0, 255, 204, 0.6), 0 0 150px rgba(0, 255, 204, 0.3);
+      line-height: 1;
+      min-width: 2.1ch;
+      text-align: center;
+      background: rgba(0, 20, 40, 0.5);
+      padding: clamp(10px, 2vh, 30px) clamp(12px, 1.5vw, 36px);
+      border: 2px solid rgba(0, 255, 204, 0.25);
+      border-radius: 12px;
+    }
+
+    .countdown-unit {
+      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      color: var(--text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: clamp(4px, 0.8vh, 10px);
+      font-weight: 600;
+    }
+
+    .countdown-separator {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(4rem, min(12vw, 24vh), 12rem);
+      color: var(--countdown-color);
+      opacity: 0.3;
+      margin-bottom: clamp(20px, 5vh, 50px);
+    }
+
+    /* Info row - Launch date, time, site */
+    .launch-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(20px, 4vw, 50px);
+      padding: clamp(12px, 2vh, 20px) clamp(24px, 3vw, 48px);
+      background: rgba(0, 30, 60, 0.5);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: clamp(14px, 2.5vh, 28px);
+      flex-wrap: wrap;
+    }
+
+    .launch-info-item {
+      text-align: center;
+    }
+
+    .launch-info-label {
+      font-size: clamp(0.6rem, 0.9vh, 0.75rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .launch-info-value {
+      font-size: clamp(1.1rem, 2vh, 1.5rem);
+      font-weight: 700;
+    }
+
+    .launch-info-value.accent {
+      color: var(--text-accent);
+    }
+
+    /* Info boxes row */
+    .info-boxes {
+      display: flex;
+      gap: clamp(10px, 2vw, 20px);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .info-box {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1.5vw, 16px);
+      padding: clamp(12px, 1.8vh, 18px) clamp(16px, 2vw, 24px);
+      background: rgba(0, 40, 80, 0.4);
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      border-radius: 10px;
+      min-width: 280px;
+    }
+
+    .info-box-icon { 
+      font-size: clamp(1.2rem, 2.2vh, 1.6rem); 
+    }
+
+    .info-box-content {
+      flex: 1;
+    }
+
+    .info-box-label {
+      font-size: clamp(0.6rem, 0.9vh, 0.75rem);
+      color: var(--text-accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .info-box-title {
+      font-size: clamp(1rem, 1.6vh, 1.2rem);
+      font-weight: 700;
+    }
+
+    .info-box-meta {
+      font-size: clamp(0.8rem, 1.2vh, 0.95rem);
+      color: var(--text-secondary);
+    }
+
+    /* Weather box - special styling with prominent GO */
+    .weather-box {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .weather-box.hold {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .weather-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 12px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      margin-left: auto;
+    }
+
+    .weather-status-value {
+      font-size: clamp(1.4rem, 2.5vh, 1.8rem);
+      font-weight: 800;
+      color: var(--success-color);
+      letter-spacing: 2px;
+    }
+
+    .weather-box.hold .weather-status-value {
+      color: var(--warning-color);
+    }
+
+    .weather-stats {
+      display: flex;
+      gap: 12px;
+      font-size: clamp(0.75rem, 1.1vh, 0.9rem);
+      color: var(--text-secondary);
+    }
+
+    .weather-stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .weather-stat strong {
+      color: var(--text-primary);
+    }
+
+    /* ===== TIMELINE STRIP ===== */
+    .timeline-strip {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg-panel);
+      border-top: 2px solid var(--border-subtle);
+    }
+
+    .phase {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      border-right: 1px solid var(--border-subtle);
+    }
+    .phase:last-child { border-right: none; }
+
+    .phase.active {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+    }
+    .phase.completed {
+      background: linear-gradient(90deg, rgba(34, 197, 94, 0.08) 0%, transparent 100%);
+    }
+
+    .phase-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .phase-icon.completed {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid var(--success-color);
+      color: var(--success-color);
+    }
+
+    .phase-icon.active {
+      background: rgba(0, 212, 255, 0.2);
+      border: 2px solid var(--text-accent);
+      color: var(--text-accent);
+      animation: pulse-phase 2s infinite;
+    }
+
+    .phase-icon.upcoming {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    @keyframes pulse-phase {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(0, 212, 255, 0); }
+    }
+
+    .phase-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .phase-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .phase-time {
+      font-size: 0.85rem;
+      color: var(--text-accent);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="mission-control">
+    
+    <!-- HEADER -->
+    <header class="header-bar">
+      <div class="header-left">
+        <img src="https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png" alt="NASA" class="nasa-logo">
+        <div>
+          <div class="mission-title">Artemis II</div>
+          <div class="mission-subtitle">First Crewed Lunar Flyby</div>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+        <div class="staleness"><span class="ok">✓</span> Updated <span id="staleness">8</span>s ago</div>
+      </div>
+      <div class="header-right">
+        <div class="time-display">
+          <div class="time-utc" id="timeUTC">02:40:00 UTC</div>
+          <div class="time-local" id="timeLocal">21:40:00 ET</div>
+        </div>
+        <img src="https://www.nasa.gov/wp-content/uploads/2025/04/jsc2025e034746orig.jpg" alt="Patch" class="mission-patch">
+      </div>
+    </header>
+    
+    <!-- LEFT: SIMPLIFIED STATUS -->
+    <aside class="status-column">
+      <!-- Big GO/NO-GO indicator -->
+      <div class="primary-status">
+        <div class="primary-status-label">Launch Status</div>
+        <div class="primary-status-value">✓ GO</div>
+      </div>
+      
+      <!-- Status breakdown -->
+      <div class="status-breakdown">
+        <div class="status-item">
+          <span class="status-item-label">Weather</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Range</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Vehicle</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Crew</span>
+          <span class="status-item-value">✓ GO</span>
+        </div>
+      </div>
+      
+      <div class="status-footer">
+        All systems nominal
+      </div>
+    </aside>
+    
+    <!-- CENTER: COUNTDOWN -->
+    <section class="countdown-center">
+      <div class="grid-overlay"></div>
+      
+      <div class="countdown-content">
+        <div class="countdown-label">T-Minus · Countdown to Launch</div>
+        
+        <div class="countdown-timer">
+          <div class="countdown-segment">
+            <div class="countdown-value" id="days">015</div>
+            <div class="countdown-unit">Days</div>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-segment">
+            <div class="countdown-value" id="hours">09</div>
+            <div class="countdown-unit">Hours</div>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-segment">
+            <div class="countdown-value" id="minutes">19</div>
+            <div class="countdown-unit">Min</div>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-segment">
+            <div class="countdown-value" id="seconds">54</div>
+            <div class="countdown-unit">Sec</div>
+          </div>
+        </div>
+        
+        <!-- Launch info row -->
+        <div class="launch-info-row">
+          <div class="launch-info-item">
+            <div class="launch-info-label">Target Date</div>
+            <div class="launch-info-value">February 6, 2026</div>
+          </div>
+          <div class="launch-info-item">
+            <div class="launch-info-label">Time</div>
+            <div class="launch-info-value accent">12:00 UTC / 07:00 ET</div>
+          </div>
+          <div class="launch-info-item">
+            <div class="launch-info-label">Location</div>
+            <div class="launch-info-value">Kennedy Space Center · LC-39B</div>
+          </div>
+        </div>
+        
+        <!-- Info boxes -->
+        <div class="info-boxes">
+          <div class="info-box">
+            <span class="info-box-icon">⚡</span>
+            <div class="info-box-content">
+              <div class="info-box-label">Next Milestone</div>
+              <div class="info-box-title">Rollout to Pad 39B</div>
+              <div class="info-box-meta">January 24 · In 3 days</div>
+            </div>
+          </div>
+          
+          <div class="info-box weather-box">
+            <span class="info-box-icon">☀️</span>
+            <div class="info-box-content">
+              <div class="info-box-label">Weather at KSC</div>
+              <div class="info-box-title">Clear · 78°F</div>
+              <div class="weather-stats">
+                <span class="weather-stat">Wind: <strong>12 mph</strong></span>
+                <span class="weather-stat">Cloud: <strong>15%</strong></span>
+              </div>
+            </div>
+            <div class="weather-status">
+              <div class="weather-status-value">GO</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- TIMELINE -->
+    <footer class="timeline-strip">
+      <div class="phase completed">
+        <div class="phase-icon completed">✓</div>
+        <div class="phase-content">
+          <div class="phase-label">Now</div>
+          <div class="phase-title">Vehicle Assembly</div>
+          <div class="phase-time">Completed Jan 20</div>
+        </div>
+      </div>
+      <div class="phase active">
+        <div class="phase-icon active">→</div>
+        <div class="phase-content">
+          <div class="phase-label">Next</div>
+          <div class="phase-title">Rollout to Pad</div>
+          <div class="phase-time">Jan 24 · 3 days</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-icon upcoming">🚀</div>
+        <div class="phase-content">
+          <div class="phase-label">Liftoff</div>
+          <div class="phase-title">Launch Window</div>
+          <div class="phase-time">Feb 6 · T-15d</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const utc = `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} UTC`;
+      const et = `${String((now.getUTCHours()-5+24)%24).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} ET`;
+      document.getElementById('timeUTC').textContent = utc;
+      document.getElementById('timeLocal').textContent = et;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    let stale = 0;
+    setInterval(() => { stale = (stale + 1) % 31; document.getElementById('staleness').textContent = stale; }, 1000);
+
+    const launch = new Date('2026-02-06T12:00:00Z');
+    function updateCountdown() {
+      const diff = launch - new Date();
+      if (diff <= 0) return;
+      document.getElementById('days').textContent = String(Math.floor(diff / 86400000)).padStart(3,'0');
+      document.getElementById('hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+      document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+      document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>

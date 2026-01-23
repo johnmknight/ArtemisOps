@@ -96,14 +96,14 @@ async def lifespan(app: FastAPI):
     # Ensure we have default data
     await ensure_default_missions()
     
-    # Initial sync
+    # Initial sync (fetch upcoming missions)
     await sync_all_missions()
     app_state["last_sync"] = datetime.now(timezone.utc)
     
-    # Schedule hourly sync
-    scheduler.add_job(scheduled_sync, 'interval', hours=1, id='hourly_sync')
+    # Schedule sync every 12 hours (upcoming missions don't change often)
+    scheduler.add_job(scheduled_sync, 'interval', hours=12, id='mission_sync')
     scheduler.start()
-    print("Scheduler started - syncing every hour")
+    print("Scheduler started - syncing every 12 hours")
     
     yield
     
@@ -489,11 +489,45 @@ async def websocket_endpoint(websocket: WebSocket):
 # === Static Files (Client) ===
 
 if CLIENT_DIR.exists():
+    # Mount static files at /static for explicit access
     app.mount("/static", StaticFiles(directory=CLIENT_DIR), name="static")
+    
+    # Serve JS files from root /js/ path (for relative imports in index.html)
+    if (CLIENT_DIR / "js").exists():
+        app.mount("/js", StaticFiles(directory=CLIENT_DIR / "js"), name="js")
+    
+    # Serve mockups from root /mockups/ path (for iframe embeds)
+    if (CLIENT_DIR / "mockups").exists():
+        app.mount("/mockups", StaticFiles(directory=CLIENT_DIR / "mockups"), name="mockups")
+    
+    # Serve assets from root /assets/ path
+    if (CLIENT_DIR / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=CLIENT_DIR / "assets"), name="assets")
+    
+    # Serve components from root /components/ path
+    if (CLIENT_DIR / "components").exists():
+        app.mount("/components", StaticFiles(directory=CLIENT_DIR / "components"), name="components")
+    
+    # Serve tabs from root /tabs/ path (for iframe-based tab architecture)
+    if (CLIENT_DIR / "tabs").exists():
+        app.mount("/tabs", StaticFiles(directory=CLIENT_DIR / "tabs"), name="tabs")
     
     @app.get("/")
     async def serve_client():
         return FileResponse(CLIENT_DIR / "index.html")
+    
+    @app.get("/shell")
+    async def serve_shell():
+        """New iframe-based shell architecture"""
+        return FileResponse(CLIENT_DIR / "index-shell.html")
+    
+    @app.get("/mission-control.html")
+    async def serve_mission_control():
+        return FileResponse(CLIENT_DIR / "mission-control.html")
+    
+    @app.get("/mission-control")
+    async def serve_mission_control_alt():
+        return FileResponse(CLIENT_DIR / "mission-control.html")
 
 
 # === Run directly ===
