@@ -8,6 +8,16 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
+  <!-- Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -159,25 +169,103 @@
       letter-spacing: 1px;
       color: var(--text-accent);
     }
-    .iss-diagram-wrapper {
+    
+    /* 3D Viewer Styles */
+    .iss-3d-wrapper {
       flex: 1;
       position: relative;
       background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 0;
     }
-    .iss-diagram-img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+    #iss3dCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
-    .telemetry-overlays {
+    
+    /* Telemetry Overlay on 3D Model */
+    .telemetry-overlay {
       position: absolute;
-      inset: 0;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
       pointer-events: none;
     }
+    .attitude-display {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .attitude-item {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 6px 12px;
+      text-align: center;
+      min-width: 70px;
+    }
+    .att-label {
+      display: block;
+      font-size: 0.5rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+    .att-value {
+      display: block;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-accent);
+    }
+    
+    /* Module Popup */
+    .module-popup {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 180px;
+      background: rgba(13, 26, 45, 0.95);
+      border: 1px solid var(--text-accent);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    }
+    .module-popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(0, 188, 212, 0.2);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .module-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .module-tag {
+      font-size: 0.5rem;
+      background: rgba(0, 212, 255, 0.2);
+      color: var(--text-accent);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .module-popup-content {
+      padding: 8px 10px;
+    }
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      font-size: 0.65rem;
+    }
+    .popup-label { color: var(--text-secondary); }
+    .popup-value { 
+      font-family: 'Courier New', monospace;
+      color: var(--text-primary);
+    }
+    .popup-value.nominal { color: var(--success-color); }
     .panel-section { border-bottom: 1px solid var(--border-color); }
     .panel-section:last-child { border-bottom: none; flex: 1; }
     .section-header {
@@ -626,11 +714,34 @@
           <span class="panel-title">🛰️ STATION SYSTEMS</span>
           <div class="live-badge" id="nasaLiveBadge"><span class="connecting-dot"></span>NASA LIVE</div>
         </div>
-        <div class="iss-diagram-wrapper">
-          <img src="/assets/iss-diagram.png" alt="ISS Diagram" class="iss-diagram-img" id="issDiagram">
-          <!-- Telemetry overlays will go here eventually -->
-          <div class="telemetry-overlays">
-            <!-- Placeholder for future module telemetry overlays -->
+        <div class="iss-3d-wrapper">
+          <canvas id="iss3dCanvas"></canvas>
+          <!-- Telemetry overlay on 3D model -->
+          <div class="telemetry-overlay" id="telemetryOverlay">
+            <div class="attitude-display">
+              <div class="attitude-item">
+                <span class="att-label">ROLL</span>
+                <span class="att-value" id="attRoll">--°</span>
+              </div>
+              <div class="attitude-item">
+                <span class="att-label">PITCH</span>
+                <span class="att-value" id="attPitch">--°</span>
+              </div>
+              <div class="attitude-item">
+                <span class="att-label">YAW</span>
+                <span class="att-value" id="attYaw">--°</span>
+              </div>
+            </div>
+          </div>
+          <!-- Module info popup -->
+          <div class="module-popup" id="modulePopup" style="display:none;">
+            <div class="module-popup-header">
+              <span class="module-name" id="popupModuleName">DESTINY LAB</span>
+              <span class="module-tag" id="popupModuleTag">USLAB</span>
+            </div>
+            <div class="module-popup-content" id="popupContent">
+              <!-- Dynamic telemetry content -->
+            </div>
           </div>
         </div>
       </div>
@@ -688,6 +799,11 @@
     let showFootprint = true;
     let showTrack = true;
     let orbitCount = 142850; // Approximate orbit count since 1998
+    
+    // Three.js variables for 3D ISS model
+    let scene, camera, renderer, issModel, controls;
+    let targetAttitude = { roll: 0, pitch: 0, yaw: 0 };
+    let currentAttitude = { roll: 0, pitch: 0, yaw: 0 };
     
     // Lightstreamer client for NASA telemetry
     let lsClient = null;
@@ -1056,9 +1172,143 @@
       document.getElementById('utc').textContent = new Date().toUTCString().split(' ')[4] + ' UTC';
     }
     
+    // Initialize Three.js 3D ISS Model
+    async function init3DISS() {
+      // Dynamically import Three.js modules
+      const THREE = await import('three');
+      const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+      const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
+      const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+      
+      // Store THREE globally for use in other functions
+      window.THREE = THREE;
+      
+      const container = document.querySelector('.iss-3d-wrapper');
+      const canvas = document.getElementById('iss3dCanvas');
+      
+      // Scene setup
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+      
+      // Camera
+      const aspect = container.clientWidth / container.clientHeight;
+      camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+      camera.position.set(50, 30, 50);
+      
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 1);
+      scene.add(ambientLight);
+      
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2);
+      sunLight.position.set(100, 50, 100);
+      scene.add(sunLight);
+      
+      const fillLight = new THREE.DirectionalLight(0x88ccff, 0.5);
+      fillLight.position.set(-50, -20, -50);
+      scene.add(fillLight);
+      
+      // Orbit controls for manual rotation
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enableZoom = true;
+      controls.minDistance = 20;
+      controls.maxDistance = 150;
+      controls.autoRotate = false;
+      
+      // Set up DRACO loader for compressed models
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
+      
+      // Load ISS model
+      const loader = new GLTFLoader();
+      loader.setDRACOLoader(dracoLoader);
+      
+      loader.load('/assets/iss-model.glb', 
+        function(gltf) {
+          issModel = gltf.scene;
+          
+          // Center and scale the model
+          const box = new THREE.Box3().setFromObject(issModel);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 30 / maxDim;
+          
+          issModel.scale.setScalar(scale);
+          issModel.position.sub(center.multiplyScalar(scale));
+          
+          scene.add(issModel);
+          console.log('ISS 3D model loaded successfully');
+        },
+        function(progress) {
+          console.log('Loading ISS model: ' + (progress.loaded / progress.total * 100).toFixed(0) + '%');
+        },
+        function(error) {
+          console.error('Error loading ISS model:', error);
+        }
+      );
+      
+      // Handle resize
+      window.addEventListener('resize', on3DResize);
+      
+      // Start render loop
+      animate3D();
+    }
+    
+    function on3DResize() {
+      const container = document.querySelector('.iss-3d-wrapper');
+      if (!container || !camera || !renderer) return;
+      
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+    
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      
+      // Smooth interpolation of attitude
+      if (issModel && window.THREE) {
+        currentAttitude.roll += (targetAttitude.roll - currentAttitude.roll) * 0.05;
+        currentAttitude.pitch += (targetAttitude.pitch - currentAttitude.pitch) * 0.05;
+        currentAttitude.yaw += (targetAttitude.yaw - currentAttitude.yaw) * 0.05;
+        
+        // Apply rotation (convert degrees to radians)
+        issModel.rotation.x = window.THREE.MathUtils.degToRad(currentAttitude.pitch);
+        issModel.rotation.y = window.THREE.MathUtils.degToRad(currentAttitude.yaw);
+        issModel.rotation.z = window.THREE.MathUtils.degToRad(currentAttitude.roll);
+      }
+      
+      if (controls) controls.update();
+      if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+    
+    // Update attitude display from telemetry
+    function updateAttitudeDisplay() {
+      if (nasaTelemetry.attitude.roll !== null) {
+        document.getElementById('attRoll').textContent = nasaTelemetry.attitude.roll.toFixed(1) + '°';
+        targetAttitude.roll = nasaTelemetry.attitude.roll;
+      }
+      if (nasaTelemetry.attitude.pitch !== null) {
+        document.getElementById('attPitch').textContent = nasaTelemetry.attitude.pitch.toFixed(1) + '°';
+        targetAttitude.pitch = nasaTelemetry.attitude.pitch;
+      }
+      if (nasaTelemetry.attitude.yaw !== null) {
+        document.getElementById('attYaw').textContent = nasaTelemetry.attitude.yaw.toFixed(1) + '°';
+        targetAttitude.yaw = nasaTelemetry.attitude.yaw;
+      }
+    }
+    
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
+      init3DISS(); // Initialize 3D ISS model
       updateISSPosition();
       loadCrew();
       updateTime();
