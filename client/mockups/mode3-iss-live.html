@@ -151,6 +151,40 @@
       border-radius: 4px;
       overflow: hidden;
     }
+    
+    /* Model Loading Indicator */
+    .model-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--text-accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+    .loading-progress {
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      color: var(--text-accent);
+    }
+    .model-loading.hidden { display: none; }
+    
     .iss-telemetry-panel {
       display: flex;
       flex-direction: column;
@@ -716,6 +750,12 @@
         </div>
         <div class="iss-3d-wrapper">
           <canvas id="iss3dCanvas"></canvas>
+          <!-- Loading indicator -->
+          <div class="model-loading" id="modelLoading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading ISS Model...</div>
+            <div class="loading-progress" id="loadingProgress">0%</div>
+          </div>
           <!-- Telemetry overlay on 3D model -->
           <div class="telemetry-overlay" id="telemetryOverlay">
             <div class="attitude-display">
@@ -1371,11 +1411,14 @@
       const dracoLoader = new DRACOLoader();
       dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
       
-      // Load ISS model
+      // Load ISS model (High-Detail IGOAL version - 91MB)
       const loader = new GLTFLoader();
       loader.setDRACOLoader(dracoLoader);
       
-      loader.load('/assets/iss-model.glb', 
+      const loadingEl = document.getElementById('modelLoading');
+      const progressEl = document.getElementById('loadingProgress');
+      
+      loader.load('/assets/iss-model-hd.glb', 
         function(gltf) {
           issModel = gltf.scene;
           
@@ -1390,13 +1433,38 @@
           issModel.position.sub(center.multiplyScalar(scale));
           
           scene.add(issModel);
-          console.log('ISS 3D model loaded successfully');
+          console.log('ISS HD model loaded successfully');
+          
+          // Hide loading indicator
+          if (loadingEl) loadingEl.classList.add('hidden');
         },
         function(progress) {
-          console.log('Loading ISS model: ' + (progress.loaded / progress.total * 100).toFixed(0) + '%');
+          const percent = (progress.loaded / progress.total * 100).toFixed(0);
+          console.log('Loading ISS HD model: ' + percent + '%');
+          if (progressEl) progressEl.textContent = percent + '%';
         },
         function(error) {
-          console.error('Error loading ISS model:', error);
+          console.error('Error loading ISS HD model:', error);
+          // Fallback to lightweight model
+          console.log('Falling back to lightweight model...');
+          if (progressEl) progressEl.textContent = 'Loading backup...';
+          
+          loader.load('/assets/iss-model.glb',
+            function(gltf) {
+              issModel = gltf.scene;
+              const box = new THREE.Box3().setFromObject(issModel);
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const scale = 30 / maxDim;
+              issModel.scale.setScalar(scale);
+              issModel.position.sub(center.multiplyScalar(scale));
+              scene.add(issModel);
+              if (loadingEl) loadingEl.classList.add('hidden');
+            },
+            null,
+            function(err) { console.error('Backup model also failed:', err); }
+          );
         }
       );
       
