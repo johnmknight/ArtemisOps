@@ -17,6 +17,7 @@ from database import (
 )
 from fetcher import sync_all_missions, ensure_default_missions
 from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until
+from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -393,6 +394,67 @@ async def get_site_weather(site_name: str, days: int = 5):
         "coordinates": {"lat": coords["lat"], "lon": coords["lon"]},
         "forecast": get_forecast_summary(forecast, days=days)
     }
+
+
+# === ISS Data Endpoints ===
+
+@app.get("/api/iss")
+async def get_iss_data():
+    """
+    Get all ISS data: position, crew, and NASA telemetry.
+    This is the main endpoint for the ISS tracker.
+    All external API calls are proxied through this server.
+    """
+    try:
+        return await get_iss_combined()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"ISS data unavailable: {str(e)}")
+
+
+@app.get("/api/iss/position")
+async def get_iss_position_data():
+    """
+    Get current ISS position (latitude, longitude, altitude, velocity).
+    Data from Where The ISS At API, with Open Notify as fallback.
+    """
+    try:
+        return await get_iss_position()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"ISS position unavailable: {str(e)}")
+
+
+@app.get("/api/iss/crew")
+async def get_iss_crew_data():
+    """
+    Get current ISS crew roster.
+    Data from Open Notify API.
+    """
+    try:
+        return await get_iss_crew()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"ISS crew data unavailable: {str(e)}")
+
+
+@app.get("/api/iss/telemetry")
+async def get_iss_telemetry_data():
+    """
+    Get NASA ISS telemetry (cabin pressure, temperature, O2, CO2, etc.).
+    Data from NASA Lightstreamer.
+    Note: Telemetry may be unavailable if Lightstreamer connection fails.
+    """
+    return get_nasa_telemetry()
+
+
+@app.get("/api/iss/location/{lat},{lng}")
+async def get_iss_location_name(lat: float, lng: float):
+    """
+    Get location name from coordinates (reverse geocoding).
+    Data from Where The ISS At API, cached.
+    """
+    try:
+        return await get_location_name(lat, lng)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Location lookup unavailable: {str(e)}")
 
 
 @app.get("/api/status")
