@@ -804,6 +804,9 @@
     let scene, camera, renderer, issModel, controls;
     let targetAttitude = { roll: 0, pitch: 0, yaw: 0 };
     let currentAttitude = { roll: 0, pitch: 0, yaw: 0 };
+    // Target quaternion for smooth interpolation
+    let targetQuaternion = null;
+    let currentQuaternion = null;
     
     // Lightstreamer client for NASA telemetry
     let lsClient = null;
@@ -974,14 +977,25 @@
       const magnitude = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
       if (magnitude < 0.9 || magnitude > 1.1) return; // Invalid quaternion
       
-      // Convert to Euler angles
+      // Convert to Euler angles for display
       const euler = quaternionToEuler(q);
       nasaTelemetry.attitude = euler;
       
       // Update display
       updateAttitudeDisplay();
       
-      // Update 3D model target attitude
+      // Update 3D model target quaternion (for smooth slerp interpolation)
+      if (window.THREE) {
+        // NASA quaternion format: w, x, y, z (scalar first)
+        // Three.js quaternion format: x, y, z, w (scalar last)
+        if (!targetQuaternion) {
+          targetQuaternion = new window.THREE.Quaternion();
+        }
+        targetQuaternion.set(q.x, q.y, q.z, q.w);
+        targetQuaternion.normalize();
+      }
+      
+      // Also update Euler for legacy display
       targetAttitude.roll = euler.roll;
       targetAttitude.pitch = euler.pitch;
       targetAttitude.yaw = euler.yaw;
@@ -1405,16 +1419,32 @@
     function animate3D() {
       requestAnimationFrame(animate3D);
       
-      // Smooth interpolation of attitude
-      if (issModel && window.THREE) {
-        currentAttitude.roll += (targetAttitude.roll - currentAttitude.roll) * 0.05;
-        currentAttitude.pitch += (targetAttitude.pitch - currentAttitude.pitch) * 0.05;
-        currentAttitude.yaw += (targetAttitude.yaw - currentAttitude.yaw) * 0.05;
+      // Apply quaternion rotation to ISS model
+      if (issModel && window.THREE && targetQuaternion) {
+        // Initialize current quaternion if needed
+        if (!currentQuaternion) {
+          currentQuaternion = targetQuaternion.clone();
+        }
         
-        // Apply rotation (convert degrees to radians)
-        issModel.rotation.x = window.THREE.MathUtils.degToRad(currentAttitude.pitch);
-        issModel.rotation.y = window.THREE.MathUtils.degToRad(currentAttitude.yaw);
-        issModel.rotation.z = window.THREE.MathUtils.degToRad(currentAttitude.roll);
+        // Smoothly interpolate toward target quaternion (slerp)
+        currentQuaternion.slerp(targetQuaternion, 0.05);
+        
+        // Apply rotation to model
+        // Note: NASA quaternion is in LVLH frame, we need to adjust for Three.js coordinate system
+        // LVLH: X=velocity, Y=starboard, Z=nadir (down toward Earth)
+        // Three.js: X=right, Y=up, Z=toward camera
+        // We need to rotate the coordinate system
+        
+        // Create adjusted quaternion for Three.js display
+        // Rotate 90° around X to align LVLH Z (nadir) with Three.js -Y (down)
+        const adjustedQuat = new window.THREE.Quaternion();
+        const lvlhToThreeJS = new window.THREE.Quaternion();
+        lvlhToThreeJS.setFromEuler(new window.THREE.Euler(-Math.PI/2, 0, 0, 'XYZ'));
+        
+        adjustedQuat.copy(currentQuaternion);
+        adjustedQuat.premultiply(lvlhToThreeJS);
+        
+        issModel.quaternion.copy(adjustedQuat);
       }
       
       if (controls) controls.update();
