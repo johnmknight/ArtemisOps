@@ -847,6 +847,16 @@
     // Target quaternion for smooth interpolation
     let targetQuaternion = null;
     let currentQuaternion = null;
+    // Solar array references and angles
+    let solarArrays = { port: [], starboard: [] };
+    let solarArrayAngles = { port: 0, starboard: 0 };
+    // Sun and lighting
+    let sunLight = null;
+    let sunIndicator = null;
+    let earthSphere = null;
+    // Raycaster for module clicks
+    let raycaster = null;
+    let mouse = { x: 0, y: 0 };
     
     // Lightstreamer client for NASA telemetry
     let lsClient = null;
@@ -974,7 +984,53 @@
           break;
         case 'USLAB000032': // Beta angle
           nasaTelemetry.betaAngle = numValue;
+          updateSunPosition();
           break;
+      }
+    }
+    
+    // Update solar array rotation from telemetry
+    function updateSolarArrays() {
+      if (!issModel || !window.THREE) return;
+      
+      // Smooth interpolation toward target angles
+      solarArrayAngles.port += (nasaTelemetry.solarArrayAngle - solarArrayAngles.port) * 0.1;
+      
+      // Apply rotation to solar array meshes (if found)
+      solarArrays.port.forEach(mesh => {
+        if (mesh) mesh.rotation.y = window.THREE.MathUtils.degToRad(solarArrayAngles.port);
+      });
+      solarArrays.starboard.forEach(mesh => {
+        if (mesh) mesh.rotation.y = window.THREE.MathUtils.degToRad(-solarArrayAngles.port); // Mirror
+      });
+    }
+    
+    // Update sun position based on beta angle and orbital position
+    function updateSunPosition() {
+      if (!sunLight || !sunIndicator || !window.THREE) return;
+      
+      const beta = nasaTelemetry.betaAngle || 0;
+      const time = Date.now() * 0.0001; // Slow rotation for sun position
+      
+      // Calculate sun direction based on beta angle
+      // Beta angle is the angle between the orbital plane and the sun vector
+      const betaRad = window.THREE.MathUtils.degToRad(beta);
+      const sunDistance = 200;
+      
+      // Sun position rotates around the orbital plane
+      const sunX = Math.cos(time) * Math.cos(betaRad) * sunDistance;
+      const sunY = Math.sin(betaRad) * sunDistance;
+      const sunZ = Math.sin(time) * Math.cos(betaRad) * sunDistance;
+      
+      sunLight.position.set(sunX, sunY, sunZ);
+      sunIndicator.position.set(sunX * 0.5, sunY * 0.5, sunZ * 0.5);
+      
+      // Update day/night on Earth sphere
+      if (earthSphere) {
+        // Determine if ISS is in sunlight or shadow
+        const dotProduct = sunX; // Simplified: positive = day side
+        const inSunlight = dotProduct > 0;
+        earthSphere.material.emissive.setHex(inSunlight ? 0x0a2a5c : 0x050510);
       }
     }
     
@@ -1345,14 +1401,32 @@
       renderer.setPixelRatio(window.devicePixelRatio);
       
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040, 1);
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
       scene.add(ambientLight);
       
-      const sunLight = new THREE.DirectionalLight(0xffffff, 2);
+      // Main sun light (will be positioned dynamically)
+      sunLight = new THREE.DirectionalLight(0xffffff, 2);
       sunLight.position.set(100, 50, 100);
       scene.add(sunLight);
       
-      const fillLight = new THREE.DirectionalLight(0x88ccff, 0.5);
+      // Sun indicator sphere
+      const sunGeo = new THREE.SphereGeometry(3, 16, 16);
+      const sunMat = new THREE.MeshBasicMaterial({ color: 0xffdd44 });
+      sunIndicator = new THREE.Mesh(sunGeo, sunMat);
+      sunIndicator.position.set(80, 40, 80);
+      scene.add(sunIndicator);
+      
+      // Sun glow
+      const sunGlowGeo = new THREE.SphereGeometry(5, 16, 16);
+      const sunGlowMat = new THREE.MeshBasicMaterial({ 
+        color: 0xffaa00, 
+        transparent: true, 
+        opacity: 0.3 
+      });
+      const sunGlow = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+      sunIndicator.add(sunGlow);
+      
+      const fillLight = new THREE.DirectionalLight(0x88ccff, 0.3);
       fillLight.position.set(-50, -20, -50);
       scene.add(fillLight);
       
@@ -1374,9 +1448,17 @@
         transparent: true,
         opacity: 0.6
       });
-      const earthSphere = new THREE.Mesh(earthGeometry, earthMaterial);
+      earthSphere = new THREE.Mesh(earthGeometry, earthMaterial);
       earthSphere.position.set(0, -100, 0); // Below ISS (LVLH: -Y is nadir in Three.js)
       scene.add(earthSphere);
+      
+      // Add day/night terminator line on Earth
+      const terminatorGeo = new THREE.TorusGeometry(80, 0.5, 8, 64);
+      const terminatorMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+      const terminator = new THREE.Mesh(terminatorGeo, terminatorMat);
+      terminator.position.copy(earthSphere.position);
+      terminator.rotation.x = Math.PI / 2;
+      scene.add(terminator);
       
       // Add Earth glow
       const glowGeometry = new THREE.SphereGeometry(82, 32, 32);
@@ -1435,8 +1517,18 @@
           scene.add(issModel);
           console.log('ISS HD model loaded successfully');
           
+          // Log all mesh names for debugging module identification
+          issModel.traverse((child) => {
+            if (child.isMesh) {
+              console.log('Mesh found:', child.name);
+            }
+          });
+          
           // Hide loading indicator
           if (loadingEl) loadingEl.classList.add('hidden');
+          
+          // Setup raycaster for module clicks
+          setupModuleInteraction();
         },
         function(progress) {
           const percent = (progress.loaded / progress.total * 100).toFixed(0);
@@ -1516,7 +1608,152 @@
       }
       
       if (controls) controls.update();
+      
+      // Update sun position animation
+      updateSunPosition();
+      
       if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+    
+    // ISS Module data for telemetry popups (based on actual mesh names in IGOAL model)
+    const moduleData = {
+      'uslab': { name: 'Destiny Laboratory', tag: 'USLAB', telemetry: ['O2', 'CO2', 'Temperature'] },
+      'node2': { name: 'Harmony (Node 2)', tag: 'NODE2', telemetry: ['Pressure', 'Temperature'] },
+      'node3': { name: 'Tranquility (Node 3)', tag: 'NODE3', telemetry: ['Pressure', 'Temperature'] },
+      'node1': { name: 'Unity (Node 1)', tag: 'NODE1', telemetry: ['Pressure', 'Temperature'] },
+      'columbus': { name: 'Columbus Laboratory', tag: 'COL', telemetry: ['Pressure', 'Temperature'] },
+      'jem': { name: 'Kibo Laboratory', tag: 'JEM', telemetry: ['Pressure', 'Temperature'] },
+      'kibo': { name: 'Kibo Laboratory', tag: 'JEM', telemetry: ['Pressure', 'Temperature'] },
+      'airlock': { name: 'Quest Airlock', tag: 'AIRLOCK', telemetry: ['Pressure', 'EVA Status'] },
+      'cupola': { name: 'Cupola', tag: 'CUPOLA', telemetry: ['Shutter Status'] },
+      'zvezda': { name: 'Zvezda Service Module', tag: 'SM', telemetry: ['Pressure', 'Life Support'] },
+      'zarya': { name: 'Zarya (FGB)', tag: 'FGB', telemetry: ['Pressure', 'Power'] },
+      'fgb': { name: 'Zarya (FGB)', tag: 'FGB', telemetry: ['Pressure', 'Power'] },
+      'pma': { name: 'Pressurized Mating Adapter', tag: 'PMA', telemetry: ['Docking Status'] },
+      'beam': { name: 'BEAM Module', tag: 'BEAM', telemetry: ['Pressure', 'Temperature'] },
+      'bishop': { name: 'Bishop Airlock', tag: 'BISHOP', telemetry: ['Pressure', 'Status'] },
+      'ams': { name: 'Alpha Magnetic Spectrometer', tag: 'AMS', telemetry: ['Particle Count', 'Status'] },
+      'saw': { name: 'Solar Array Wing', tag: 'SAW', telemetry: ['Array Angle', 'Power'] },
+      'solar': { name: 'Solar Array', tag: 'SAW', telemetry: ['Array Angle', 'Power'] },
+      'iross': { name: 'iROSA Solar Array', tag: 'iROSA', telemetry: ['Array Angle', 'Power'] },
+      'radiator': { name: 'Thermal Radiator', tag: 'RAD', telemetry: ['Temperature', 'Coolant'] },
+      'heatrej': { name: 'Heat Rejection System', tag: 'HRS', telemetry: ['Temperature'] },
+      'truss': { name: 'Integrated Truss', tag: 'ITS', telemetry: ['Status'] },
+      'canadarm': { name: 'Canadarm2 (SSRMS)', tag: 'SSRMS', telemetry: ['Joint Angles', 'Status'] },
+      'ssrms': { name: 'Canadarm2 (SSRMS)', tag: 'SSRMS', telemetry: ['Joint Angles', 'Status'] },
+      'dextre': { name: 'Dextre (SPDM)', tag: 'SPDM', telemetry: ['Status'] },
+      'spdm': { name: 'Dextre (SPDM)', tag: 'SPDM', telemetry: ['Status'] },
+      'dragon': { name: 'SpaceX Dragon', tag: 'DRAGON', telemetry: ['Docking Status', 'Pressure'] },
+      'cygnus': { name: 'Cygnus Cargo', tag: 'CYGNUS', telemetry: ['Docking Status'] },
+      'soyuz': { name: 'Soyuz Spacecraft', tag: 'SOYUZ', telemetry: ['Docking Status'] },
+      'progress': { name: 'Progress Cargo', tag: 'PROGRESS', telemetry: ['Docking Status'] },
+      'nauka': { name: 'Nauka (MLM)', tag: 'MLM', telemetry: ['Pressure', 'Status'] },
+      'mlm': { name: 'Nauka (MLM)', tag: 'MLM', telemetry: ['Pressure', 'Status'] },
+      'prichal': { name: 'Prichal Module', tag: 'PRICHAL', telemetry: ['Docking Status'] },
+      'elc': { name: 'Express Logistics Carrier', tag: 'ELC', telemetry: ['Payload Status'] },
+      'esp': { name: 'External Stowage Platform', tag: 'ESP', telemetry: ['Status'] }
+    };
+    
+    // Setup module click interaction
+    function setupModuleInteraction() {
+      if (!window.THREE) return;
+      
+      raycaster = new window.THREE.Raycaster();
+      const canvas = document.getElementById('iss3dCanvas');
+      
+      canvas.addEventListener('click', onModuleClick);
+      canvas.addEventListener('mousemove', onModuleHover);
+      canvas.style.cursor = 'pointer';
+    }
+    
+    function onModuleClick(event) {
+      if (!raycaster || !issModel || !camera) return;
+      
+      const canvas = event.target;
+      const rect = canvas.getBoundingClientRect();
+      
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(issModel, true);
+      
+      if (intersects.length > 0) {
+        const clickedMesh = intersects[0].object;
+        showModulePopup(clickedMesh, event.clientX, event.clientY);
+      } else {
+        hideModulePopup();
+      }
+    }
+    
+    function onModuleHover(event) {
+      if (!raycaster || !issModel || !camera) return;
+      
+      const canvas = event.target;
+      const rect = canvas.getBoundingClientRect();
+      
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(issModel, true);
+      
+      canvas.style.cursor = intersects.length > 0 ? 'pointer' : 'grab';
+    }
+    
+    function showModulePopup(mesh, x, y) {
+      const popup = document.getElementById('modulePopup');
+      const nameEl = document.getElementById('popupModuleName');
+      const tagEl = document.getElementById('popupModuleTag');
+      const contentEl = document.getElementById('popupContent');
+      
+      // Try to identify module from mesh name
+      const meshName = (mesh.name || '').toLowerCase();
+      let moduleInfo = null;
+      
+      for (const [key, data] of Object.entries(moduleData)) {
+        if (meshName.includes(key) || meshName.includes(data.tag.toLowerCase())) {
+          moduleInfo = data;
+          break;
+        }
+      }
+      
+      // Default to generic info if not identified
+      if (!moduleInfo) {
+        moduleInfo = { 
+          name: mesh.name || 'ISS Component', 
+          tag: 'ISS', 
+          telemetry: ['Status: Nominal'] 
+        };
+      }
+      
+      nameEl.textContent = moduleInfo.name;
+      tagEl.textContent = moduleInfo.tag;
+      
+      // Build telemetry content
+      let html = '';
+      if (moduleInfo.tag === 'NODE3' && nasaTelemetry.cabinPressure) {
+        html += `<div class="popup-row"><span class="popup-label">Pressure:</span><span class="popup-value nominal">${nasaTelemetry.cabinPressure.toFixed(2)} psia</span></div>`;
+      }
+      if (moduleInfo.tag === 'USLAB' && nasaTelemetry.o2Level) {
+        html += `<div class="popup-row"><span class="popup-label">O2 Level:</span><span class="popup-value nominal">${nasaTelemetry.o2Level.toFixed(1)} mmHg</span></div>`;
+      }
+      if (nasaTelemetry.cabinTemp) {
+        const tempC = ((nasaTelemetry.cabinTemp - 32) * 5/9).toFixed(1);
+        html += `<div class="popup-row"><span class="popup-label">Temp:</span><span class="popup-value nominal">${tempC}°C</span></div>`;
+      }
+      if (moduleInfo.tag === 'SAW' && nasaTelemetry.solarArrayAngle !== null) {
+        html += `<div class="popup-row"><span class="popup-label">Array Angle:</span><span class="popup-value">${Math.abs(nasaTelemetry.solarArrayAngle).toFixed(1)}°</span></div>`;
+      }
+      html += `<div class="popup-row"><span class="popup-label">Status:</span><span class="popup-value nominal">NOMINAL</span></div>`;
+      
+      contentEl.innerHTML = html;
+      popup.style.display = 'block';
+    }
+    
+    function hideModulePopup() {
+      const popup = document.getElementById('modulePopup');
+      popup.style.display = 'none';
     }
     
     // Update attitude display from telemetry
