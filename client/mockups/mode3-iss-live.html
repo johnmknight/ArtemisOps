@@ -814,7 +814,11 @@
       co2Level: null,
       crewSleeping: null,
       solarArrayAngle: null,
-      attitude: { roll: null, pitch: null, yaw: null }
+      // Quaternion for LVLH attitude (w, x, y, z)
+      quaternion: { w: 1, x: 0, y: 0, z: 0 },
+      betaAngle: null,
+      // Derived Euler angles from quaternion
+      attitude: { roll: 0, pitch: 0, yaw: 0 }
     };
     
     // NASA Lightstreamer Telemetry Codes (from ISS public feed)
@@ -827,9 +831,13 @@
       'USLAB000058',  // O2 partial pressure
       'USLAB000059',  // CO2 partial pressure
       'USLAB000053',  // US Lab Temperature
-      'Z1000008',     // Roll attitude
-      'Z1000009',     // Pitch attitude  
-      'Z1000010'      // Yaw attitude
+      // LVLH Attitude Quaternion (preferred - more accurate)
+      'USLAB000018',  // Quaternion Component 0 (w - scalar)
+      'USLAB000019',  // Quaternion Component 1 (x)
+      'USLAB000020',  // Quaternion Component 2 (y)
+      'USLAB000021',  // Quaternion Component 3 (z)
+      // Beta angle (sun angle to orbital plane)
+      'USLAB000032'   // Beta Angle
     ];
     
     // Initialize NASA Lightstreamer connection
@@ -904,19 +912,79 @@
           nasaTelemetry.solarArrayAngle = numValue;
           updateTelemetryDisplay('telSolar', Math.abs(numValue).toFixed(1), '°');
           break;
-        case 'Z1000008': // Roll
-          nasaTelemetry.attitude.roll = numValue;
-          updateAttitudeDisplay();
+        // Quaternion components (LVLH attitude)
+        case 'USLAB000018': // Quaternion w (scalar)
+          nasaTelemetry.quaternion.w = numValue;
+          updateAttitudeFromQuaternion();
           break;
-        case 'Z1000009': // Pitch
-          nasaTelemetry.attitude.pitch = numValue;
-          updateAttitudeDisplay();
+        case 'USLAB000019': // Quaternion x
+          nasaTelemetry.quaternion.x = numValue;
+          updateAttitudeFromQuaternion();
           break;
-        case 'Z1000010': // Yaw
-          nasaTelemetry.attitude.yaw = numValue;
-          updateAttitudeDisplay();
+        case 'USLAB000020': // Quaternion y
+          nasaTelemetry.quaternion.y = numValue;
+          updateAttitudeFromQuaternion();
+          break;
+        case 'USLAB000021': // Quaternion z
+          nasaTelemetry.quaternion.z = numValue;
+          updateAttitudeFromQuaternion();
+          break;
+        case 'USLAB000032': // Beta angle
+          nasaTelemetry.betaAngle = numValue;
           break;
       }
+    }
+    
+    // Convert quaternion to Euler angles (YPR order for ISS - ZYX sequence)
+    function quaternionToEuler(q) {
+      const w = q.w, x = q.x, y = q.y, z = q.z;
+      
+      // Roll (x-axis rotation)
+      const sinr_cosp = 2 * (w * x + y * z);
+      const cosr_cosp = 1 - 2 * (x * x + y * y);
+      const roll = Math.atan2(sinr_cosp, cosr_cosp);
+      
+      // Pitch (y-axis rotation)
+      const sinp = 2 * (w * y - z * x);
+      let pitch;
+      if (Math.abs(sinp) >= 1) {
+        pitch = Math.sign(sinp) * Math.PI / 2; // clamp to ±90°
+      } else {
+        pitch = Math.asin(sinp);
+      }
+      
+      // Yaw (z-axis rotation)
+      const siny_cosp = 2 * (w * z + x * y);
+      const cosy_cosp = 1 - 2 * (y * y + z * z);
+      const yaw = Math.atan2(siny_cosp, cosy_cosp);
+      
+      // Convert to degrees
+      return {
+        roll: roll * (180 / Math.PI),
+        pitch: pitch * (180 / Math.PI),
+        yaw: yaw * (180 / Math.PI)
+      };
+    }
+    
+    // Update attitude from quaternion telemetry
+    function updateAttitudeFromQuaternion() {
+      const q = nasaTelemetry.quaternion;
+      
+      // Check if quaternion is valid (normalized)
+      const magnitude = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+      if (magnitude < 0.9 || magnitude > 1.1) return; // Invalid quaternion
+      
+      // Convert to Euler angles
+      const euler = quaternionToEuler(q);
+      nasaTelemetry.attitude = euler;
+      
+      // Update display
+      updateAttitudeDisplay();
+      
+      // Update 3D model target attitude
+      targetAttitude.roll = euler.roll;
+      targetAttitude.pitch = euler.pitch;
+      targetAttitude.yaw = euler.yaw;
     }
     
     function updateTelemetryDisplay(elementId, value, unit) {
@@ -928,10 +996,32 @@
       }
     }
     
+    // Update attitude display from quaternion-derived Euler angles
     function updateAttitudeDisplay() {
-      const el = document.getElementById('telAttitude');
-      if (el && nasaTelemetry.attitude.roll !== null) {
-        el.textContent = `R:${nasaTelemetry.attitude.roll?.toFixed(1) || '--'}°`;
+      const att = nasaTelemetry.attitude;
+      
+      // Update Roll
+      const rollEl = document.getElementById('attRoll');
+      if (rollEl && att.roll !== null) {
+        rollEl.textContent = att.roll.toFixed(1) + '°';
+        rollEl.classList.add('live-update');
+        setTimeout(() => rollEl.classList.remove('live-update'), 500);
+      }
+      
+      // Update Pitch  
+      const pitchEl = document.getElementById('attPitch');
+      if (pitchEl && att.pitch !== null) {
+        pitchEl.textContent = att.pitch.toFixed(1) + '°';
+        pitchEl.classList.add('live-update');
+        setTimeout(() => pitchEl.classList.remove('live-update'), 500);
+      }
+      
+      // Update Yaw
+      const yawEl = document.getElementById('attYaw');
+      if (yawEl && att.yaw !== null) {
+        yawEl.textContent = att.yaw.toFixed(1) + '°';
+        yawEl.classList.add('live-update');
+        setTimeout(() => yawEl.classList.remove('live-update'), 500);
       }
     }
     
@@ -1220,6 +1310,48 @@
       controls.minDistance = 20;
       controls.maxDistance = 150;
       controls.autoRotate = false;
+      
+      // Add Earth reference sphere below (LVLH nadir direction = -Z)
+      const earthGeometry = new THREE.SphereGeometry(80, 32, 32);
+      const earthMaterial = new THREE.MeshPhongMaterial({
+        color: 0x1a5fb4,
+        emissive: 0x0a2a5c,
+        shininess: 10,
+        transparent: true,
+        opacity: 0.6
+      });
+      const earthSphere = new THREE.Mesh(earthGeometry, earthMaterial);
+      earthSphere.position.set(0, -100, 0); // Below ISS (LVLH: -Y is nadir in Three.js)
+      scene.add(earthSphere);
+      
+      // Add Earth glow
+      const glowGeometry = new THREE.SphereGeometry(82, 32, 32);
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00aaff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+      });
+      const earthGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+      earthGlow.position.copy(earthSphere.position);
+      scene.add(earthGlow);
+      
+      // Add LVLH reference axes (small, subtle)
+      // X = velocity direction (red), Y = orbit normal (green), Z = nadir (blue)
+      const axesHelper = new THREE.AxesHelper(15);
+      axesHelper.position.set(-35, -5, 0);
+      scene.add(axesHelper);
+      
+      // Add velocity vector indicator
+      const velocityArrow = new THREE.ArrowHelper(
+        new THREE.Vector3(1, 0, 0), // Direction (X = velocity)
+        new THREE.Vector3(-35, -5, 0),
+        12,
+        0xff4444,
+        2,
+        1.5
+      );
+      scene.add(velocityArrow);
       
       // Set up DRACO loader for compressed models
       const dracoLoader = new DRACOLoader();
