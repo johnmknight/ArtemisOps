@@ -207,42 +207,67 @@
             </div>
           </div>
           
-          <!-- Telemetry Grid Panel - 4x2 grid -->
+          <!-- Telemetry Grid Panel - Expanded 4x4 grid -->
           <div class="telemetry-grid-panel">
             <div class="telemetry-grid-header">
               <span>📊 STATION SYSTEMS TELEMETRY</span>
               <div class="live-badge" id="telemLiveBadge"><span class="live-dot"></span>LIVE</div>
             </div>
             <div class="telemetry-grid">
+              <!-- Row 1: Environmental -->
               <div class="telem-grid-item">
-                <div class="telem-grid-label">DESTINY LAB</div>
+                <div class="telem-grid-label">CABIN TEMP</div>
                 <div class="telem-grid-value" id="telTemp">--°C</div>
-                <div class="telem-grid-unit">temp</div>
+                <div class="telem-grid-unit">US Lab</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">HARMONY</div>
+                <div class="telem-grid-label">PRESSURE</div>
                 <div class="telem-grid-value" id="telPressure">-- psia</div>
-                <div class="telem-grid-unit">pressure</div>
+                <div class="telem-grid-unit">cabin</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">COLUMBUS</div>
+                <div class="telem-grid-label">OXYGEN</div>
                 <div class="telem-grid-value" id="telO2">-- mmHg</div>
-                <div class="telem-grid-unit">O₂ level</div>
+                <div class="telem-grid-unit">ppO₂</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">KIBO (JEM)</div>
+                <div class="telem-grid-label">CO₂</div>
                 <div class="telem-grid-value" id="telCO2">-- mmHg</div>
-                <div class="telem-grid-unit">CO₂ level</div>
+                <div class="telem-grid-unit">ppCO₂</div>
+              </div>
+              
+              <!-- Row 2: Life Support (Node 3/Tranquility) -->
+              <div class="telem-grid-item">
+                <div class="telem-grid-label">O₂ GEN</div>
+                <div class="telem-grid-value" id="telOGS">--</div>
+                <div class="telem-grid-unit">state</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">ZVEZDA</div>
-                <div class="telem-grid-value">--°C</div>
-                <div class="telem-grid-unit">temp</div>
+                <div class="telem-grid-label">URINE TANK</div>
+                <div class="telem-grid-value" id="telUrine">--%</div>
+                <div class="telem-grid-unit">capacity</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">ZARYA</div>
-                <div class="telem-grid-value">--°C</div>
-                <div class="telem-grid-unit">temp</div>
+                <div class="telem-grid-label">WATER PROC</div>
+                <div class="telem-grid-value" id="telWPA">--</div>
+                <div class="telem-grid-unit">state</div>
+              </div>
+              <div class="telem-grid-item">
+                <div class="telem-grid-label">CLEAN H₂O</div>
+                <div class="telem-grid-value" id="telWater">--%</div>
+                <div class="telem-grid-unit">tank</div>
+              </div>
+              
+              <!-- Row 3: Power & Attitude -->
+              <div class="telem-grid-item">
+                <div class="telem-grid-label">CMG</div>
+                <div class="telem-grid-value" id="telCMG">--%</div>
+                <div class="telem-grid-unit">momentum</div>
+              </div>
+              <div class="telem-grid-item">
+                <div class="telem-grid-label">BETA ANGLE</div>
+                <div class="telem-grid-value" id="telBeta">--°</div>
+                <div class="telem-grid-unit">solar</div>
               </div>
               <div class="telem-grid-item">
                 <div class="telem-grid-label">ATTITUDE</div>
@@ -250,9 +275,31 @@
                 <div class="telem-grid-unit" id="attitudeYaw">Y:--°</div>
               </div>
               <div class="telem-grid-item">
-                <div class="telem-grid-label">SOLAR ARRAYS</div>
-                <div class="telem-grid-value" id="telSolar">--°</div>
-                <div class="telem-grid-unit">Tracking Sun</div>
+                <div class="telem-grid-label">ISS MASS</div>
+                <div class="telem-grid-value" id="telMass">-- kg</div>
+                <div class="telem-grid-unit">total</div>
+              </div>
+              
+              <!-- Row 4: Solar Arrays -->
+              <div class="telem-grid-item solar-array">
+                <div class="telem-grid-label">PORT SARJ</div>
+                <div class="telem-grid-value" id="telSARJPort">--°</div>
+                <div class="telem-grid-unit">α rotation</div>
+              </div>
+              <div class="telem-grid-item solar-array">
+                <div class="telem-grid-label">STBD SARJ</div>
+                <div class="telem-grid-value" id="telSARJStbd">--°</div>
+                <div class="telem-grid-unit">α rotation</div>
+              </div>
+              <div class="telem-grid-item solar-array">
+                <div class="telem-grid-label">PORT BGA</div>
+                <div class="telem-grid-value" id="telBGAPort">--°</div>
+                <div class="telem-grid-unit">β gimbal</div>
+              </div>
+              <div class="telem-grid-item solar-array">
+                <div class="telem-grid-label">STBD BGA</div>
+                <div class="telem-grid-value" id="telBGAStbd">--°</div>
+                <div class="telem-grid-unit">β gimbal</div>
               </div>
             </div>
           </div>
@@ -458,13 +505,13 @@
     }
 
     
-    /* Telemetry Grid Panel - 4x2 */
+    /* Telemetry Grid Panel - 4x4 */
     .telemetry-grid-panel {
-      height: 140px;
-      min-height: 140px;
+      height: 200px;
+      min-height: 200px;
       background: rgba(13, 26, 45, 0.95);
       border-top: 1px solid var(--border-color);
-      padding: 8px 12px;
+      padding: 6px 10px;
       display: flex;
       flex-direction: column;
     }
@@ -483,14 +530,14 @@
       flex: 1;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 6px;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 4px;
     }
     .telem-grid-item {
       background: rgba(0, 15, 30, 0.8);
       border: 1px solid rgba(26, 58, 92, 0.5);
-      border-radius: 4px;
-      padding: 6px 8px;
+      border-radius: 3px;
+      padding: 4px 6px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -499,22 +546,29 @@
       border-color: var(--text-accent);
       background: rgba(0, 212, 255, 0.05);
     }
+    .telem-grid-item.solar-array {
+      background: rgba(20, 40, 10, 0.6);
+      border-color: rgba(126, 211, 33, 0.3);
+    }
+    .telem-grid-item.solar-array:hover {
+      border-color: var(--success-color);
+    }
     .telem-grid-label {
-      font-size: 0.45rem;
+      font-size: 0.4rem;
       color: var(--text-secondary);
       letter-spacing: 0.5px;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     .telem-grid-value {
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       font-family: 'Courier New', monospace;
       color: var(--success-color);
       font-weight: 600;
     }
     .telem-grid-unit {
-      font-size: 0.4rem;
+      font-size: 0.35rem;
       color: var(--text-secondary);
-      margin-top: 1px;
+      margin-top: 0px;
     }
     
     /* Timeline Bar */
@@ -613,17 +667,56 @@
     let orbitCount = 142000; // Approximate ISS orbit count
     
     const nasaTelemetry = {
+      // Environmental
       cabinPressure: null,
       cabinTemp: null,
       o2Level: null,
       co2Level: null,
-      solarArrayAngle: null,
-      quaternion: { w: 1, x: 0, y: 0, z: 0 }
+      // Life Support (Node 3)
+      ogsState: null,
+      urineTank: null,
+      wpaState: null,
+      cleanWater: null,
+      // Power/Attitude
+      cmgMomentum: null,
+      betaAngle: null,
+      issMass: null,
+      quaternion: { w: 1, x: 0, y: 0, z: 0 },
+      // Solar Arrays
+      sarjPort: null,
+      sarjStbd: null,
+      bgaPort2A: null,
+      bgaPort4A: null,
+      bgaStbd1A: null,
+      bgaStbd3A: null
     };
     
+    // Expanded telemetry items - organized by system
     const TELEMETRY_ITEMS = [
-      'NODE3000005', 'NODE3000004', 'USLAB000058', 'USLAB000059',
-      'P1000004', 'USLAB000018', 'USLAB000019', 'USLAB000020', 'USLAB000021'
+      // Environmental (US Lab)
+      'USLAB000058',  // Cabin Pressure [psia]
+      'USLAB000059',  // Cabin Temp [°F]
+      'USLAB000053',  // ppO2 [mmHg]
+      'USLAB000055',  // ppCO2 [mmHg]
+      // Life Support (Node 3 / Tranquility)
+      'NODE3000010',  // O2 Generator State
+      'NODE3000005',  // Urine Tank [%]
+      'NODE3000006',  // Water Processor State
+      'NODE3000009',  // Clean Water Tank [%]
+      // Power/Attitude
+      'USLAB000010',  // CMG Momentum [%]
+      'USLAB000040',  // Solar Beta Angle [°]
+      'USLAB000039',  // ISS Total Mass [kg]
+      // Attitude Quaternion
+      'USLAB000018', 'USLAB000019', 'USLAB000020', 'USLAB000021',
+      // Solar Array Rotary Joints (SARJ) - Alpha rotation
+      'S0000004',     // Port SARJ Angle [°]
+      'S0000003',     // Starboard SARJ Angle [°]
+      // Beta Gimbal Assemblies (BGA) - Solar panel tilt
+      'P4000007',     // Port 2A BGA [°]
+      'P4000008',     // Port 4A BGA [°]
+      'S4000007',     // Starboard 1A BGA [°]
+      'S4000008'      // Starboard 3A BGA [°]
     ];
     
     // 3D View State
@@ -635,6 +728,17 @@
     const ISS_GROUND_SPEED_DEG_PER_SEC = 360 / (92.68 * 60); // degrees longitude per second
     const TRACK_CACHE_KEY = 'artemisops_iss_ground_track';
     const MAX_TRACK_POINTS = 400; // ~2 orbits worth at 5 second intervals
+    
+    /*
+     * Ground Track Caching Strategy:
+     * - Gap < 10 seconds: Use cached data directly
+     * - Gap 10s to 30 min: Extrapolate missing points using linear projection
+     * - Gap > 30 min (half orbit): Clear cache - old positions are stale/wrong
+     * - Gap > 3 hours (2 orbits): Cache auto-expires
+     * 
+     * Linear extrapolation works for short gaps because ISS follows predictable
+     * sinusoidal ground track. For longer gaps, positions become unreliable.
+     */
     
     // ISS Tracker Module
     const ISSTracker = {
@@ -657,17 +761,26 @@
           const now = Date.now();
           const age = now - data.timestamp;
           
-          // If cache is older than 2 orbits, discard it
+          // If cache is older than 2 orbits, discard completely
           if (age > ISS_ORBITAL_PERIOD_MS * 2) {
-            console.log('Ground track cache too old, discarding');
+            console.log('Ground track cache too old (>2 orbits), discarding');
+            localStorage.removeItem(TRACK_CACHE_KEY);
+            return [];
+          }
+          
+          // If gap > 30 minutes (half orbit), the old track positions are stale
+          // ISS has moved too far - clear old data and start fresh
+          const HALF_ORBIT_MS = ISS_ORBITAL_PERIOD_MS / 2; // ~46 minutes
+          if (age > HALF_ORBIT_MS) {
+            console.log(`Gap of ${(age/60000).toFixed(1)} min (> half orbit) - clearing stale track data`);
             localStorage.removeItem(TRACK_CACHE_KEY);
             return [];
           }
           
           console.log(`Loaded ${data.positions.length} cached track points, age: ${(age/60000).toFixed(1)} min`);
           
-          // If there's a gap, try to extrapolate
-          if (age > 10000 && data.positions.length >= 2) { // Gap > 10 seconds
+          // If there's a small gap (10s - 30min), try to extrapolate
+          if (age > 10000 && data.positions.length >= 2) {
             const extrapolated = this.extrapolateTrack(data.positions, data.timestamp, now);
             return extrapolated;
           }
@@ -680,16 +793,11 @@
       },
       
       // Extrapolate missing track points based on orbital mechanics
+      // Only called for gaps < 30 minutes where linear extrapolation is reasonable
       extrapolateTrack(positions, lastTime, currentTime) {
         if (positions.length < 2) return positions;
         
         const gapSeconds = (currentTime - lastTime) / 1000;
-        const maxGapSeconds = ISS_ORBITAL_PERIOD_MS / 1000; // Don't extrapolate more than 1 orbit
-        
-        if (gapSeconds > maxGapSeconds) {
-          console.log('Gap too large for extrapolation, using cached data only');
-          return positions;
-        }
         
         // Get last two points to determine heading
         const p1 = positions[positions.length - 2];
@@ -702,14 +810,14 @@
         
         // Extrapolate new points every 5 seconds
         const extrapolatedPoints = [...positions];
-        const numPoints = Math.floor(gapSeconds / 5);
+        const numPoints = Math.min(Math.floor(gapSeconds / 5), 360); // Cap at 30 min worth
         
-        console.log(`Extrapolating ${numPoints} points over ${gapSeconds.toFixed(0)}s gap`);
+        console.log(`Extrapolating ${numPoints} points over ${(gapSeconds/60).toFixed(1)} min gap`);
         
         let lat = p2[0];
         let lng = p2[1];
         
-        for (let i = 1; i <= numPoints && i <= 200; i++) {
+        for (let i = 1; i <= numPoints; i++) {
           // Simple linear extrapolation with latitude bounds (ISS inclination ~51.6°)
           lat += dLat * 5;
           lng += dLng * 5;
@@ -954,27 +1062,60 @@
       const numValue = parseFloat(value);
       
       switch(itemName) {
-        case 'NODE3000005':
+        // Environmental
+        case 'USLAB000058':
           nasaTelemetry.cabinPressure = numValue;
           document.getElementById('telPressure').textContent = numValue.toFixed(1) + ' psia';
           break;
-        case 'NODE3000004':
+        case 'USLAB000059':
           nasaTelemetry.cabinTemp = numValue;
           const tempC = ((numValue - 32) * 5/9).toFixed(1);
           document.getElementById('telTemp').textContent = tempC + '°C';
           break;
-        case 'USLAB000058':
+        case 'USLAB000053':
           nasaTelemetry.o2Level = numValue;
-          document.getElementById('telO2').textContent = numValue.toFixed(1) + ' mmHg';
+          document.getElementById('telO2').textContent = numValue.toFixed(1);
           break;
-        case 'USLAB000059':
+        case 'USLAB000055':
           nasaTelemetry.co2Level = numValue;
-          document.getElementById('telCO2').textContent = numValue.toFixed(2) + ' mmHg';
+          document.getElementById('telCO2').textContent = numValue.toFixed(2);
           break;
-        case 'P1000004':
-          nasaTelemetry.solarArrayAngle = numValue;
-          document.getElementById('telSolar').textContent = Math.abs(numValue).toFixed(1) + '°';
+          
+        // Life Support (Node 3)
+        case 'NODE3000010':
+          nasaTelemetry.ogsState = numValue;
+          const ogsStates = ['OFF', 'STBY', 'PROC', 'SHUTDN'];
+          document.getElementById('telOGS').textContent = ogsStates[numValue] || numValue;
           break;
+        case 'NODE3000005':
+          nasaTelemetry.urineTank = numValue;
+          document.getElementById('telUrine').textContent = numValue.toFixed(0) + '%';
+          break;
+        case 'NODE3000006':
+          nasaTelemetry.wpaState = numValue;
+          const wpaStates = ['OFF', 'STBY', 'PROC', 'HOT', 'SHUTDN'];
+          document.getElementById('telWPA').textContent = wpaStates[numValue] || numValue;
+          break;
+        case 'NODE3000009':
+          nasaTelemetry.cleanWater = numValue;
+          document.getElementById('telWater').textContent = numValue.toFixed(0) + '%';
+          break;
+          
+        // Power/Attitude
+        case 'USLAB000010':
+          nasaTelemetry.cmgMomentum = numValue;
+          document.getElementById('telCMG').textContent = numValue.toFixed(0) + '%';
+          break;
+        case 'USLAB000040':
+          nasaTelemetry.betaAngle = numValue;
+          document.getElementById('telBeta').textContent = numValue.toFixed(1) + '°';
+          break;
+        case 'USLAB000039':
+          nasaTelemetry.issMass = numValue;
+          document.getElementById('telMass').textContent = (numValue/1000).toFixed(0) + 't';
+          break;
+          
+        // Quaternion
         case 'USLAB000018':
           nasaTelemetry.quaternion.w = numValue;
           updateAttitudeFromQuaternion();
@@ -991,7 +1132,73 @@
           nasaTelemetry.quaternion.z = numValue;
           updateAttitudeFromQuaternion();
           break;
+          
+        // Solar Array SARJ (Alpha rotation)
+        case 'S0000004':
+          nasaTelemetry.sarjPort = numValue;
+          document.getElementById('telSARJPort').textContent = numValue.toFixed(1) + '°';
+          updateSolarArrays();
+          break;
+        case 'S0000003':
+          nasaTelemetry.sarjStbd = numValue;
+          document.getElementById('telSARJStbd').textContent = numValue.toFixed(1) + '°';
+          updateSolarArrays();
+          break;
+          
+        // Solar Array BGA (Beta gimbal)
+        case 'P4000007':
+          nasaTelemetry.bgaPort2A = numValue;
+          document.getElementById('telBGAPort').textContent = numValue.toFixed(1) + '°';
+          updateSolarArrays();
+          break;
+        case 'P4000008':
+          nasaTelemetry.bgaPort4A = numValue;
+          updateSolarArrays();
+          break;
+        case 'S4000007':
+          nasaTelemetry.bgaStbd1A = numValue;
+          document.getElementById('telBGAStbd').textContent = numValue.toFixed(1) + '°';
+          updateSolarArrays();
+          break;
+        case 'S4000008':
+          nasaTelemetry.bgaStbd3A = numValue;
+          updateSolarArrays();
+          break;
       }
+    }
+    
+    // Solar array mesh references (populated after model load)
+    let solarArrayMeshes = { nadir: {}, velocity: {} };
+    
+    // Update solar array rotations based on telemetry
+    function updateSolarArrays() {
+      if (!issModelNadir || !issModelVelocity) return;
+      
+      // Solar arrays rotate around their local axes based on SARJ and BGA angles
+      // SARJ = alpha rotation (around truss axis)
+      // BGA = beta rotation (panel tilt toward sun)
+      
+      const sarjPortRad = (nasaTelemetry.sarjPort || 0) * Math.PI / 180;
+      const sarjStbdRad = (nasaTelemetry.sarjStbd || 0) * Math.PI / 180;
+      const bgaPortRad = (nasaTelemetry.bgaPort2A || 0) * Math.PI / 180;
+      const bgaStbdRad = (nasaTelemetry.bgaStbd1A || 0) * Math.PI / 180;
+      
+      // Apply rotations to array meshes if found
+      ['nadir', 'velocity'].forEach(view => {
+        const meshes = solarArrayMeshes[view];
+        if (meshes.portArrays) {
+          meshes.portArrays.forEach(mesh => {
+            mesh.rotation.z = sarjPortRad;
+            mesh.rotation.x = bgaPortRad;
+          });
+        }
+        if (meshes.stbdArrays) {
+          meshes.stbdArrays.forEach(mesh => {
+            mesh.rotation.z = sarjStbdRad;
+            mesh.rotation.x = bgaStbdRad;
+          });
+        }
+      });
     }
     
     function quaternionToEuler(q) {
@@ -1102,6 +1309,16 @@
             issModelNadir = model;
             issModelVelocity = model.clone();
             
+            // Find solar array meshes by name patterns
+            findSolarArrayMeshes(issModelNadir, 'nadir');
+            findSolarArrayMeshes(issModelVelocity, 'velocity');
+            
+            // Log found mesh names for debugging
+            console.log('ISS Model meshes:');
+            model.traverse(child => {
+              if (child.isMesh) console.log('  -', child.name);
+            });
+            
             if (nadirScene) nadirScene.add(issModelNadir);
             if (velocityScene) velocityScene.add(issModelVelocity);
             
@@ -1119,6 +1336,35 @@
           (error) => { console.error('Error loading ISS model:', error); reject(error); }
         );
       });
+    }
+    
+    // Find solar array meshes in the model by name patterns
+    function findSolarArrayMeshes(model, viewName) {
+      const portArrays = [];
+      const stbdArrays = [];
+      
+      model.traverse(child => {
+        if (!child.isMesh && !child.isGroup) return;
+        const name = (child.name || '').toLowerCase();
+        
+        // Common naming patterns for solar arrays
+        // Port side: P1, P3, P4, P6, port, left, 2A, 4A, 2B, 4B
+        // Starboard side: S1, S3, S4, S6, stbd, starboard, right, 1A, 3A, 1B, 3B
+        if (name.includes('solar') || name.includes('array') || name.includes('panel') || name.includes('wing')) {
+          if (name.includes('port') || name.includes('left') || name.includes('p1') || 
+              name.includes('p3') || name.includes('p4') || name.includes('p6') ||
+              name.includes('2a') || name.includes('4a') || name.includes('2b') || name.includes('4b')) {
+            portArrays.push(child);
+          } else if (name.includes('stbd') || name.includes('starboard') || name.includes('right') || 
+                     name.includes('s1') || name.includes('s3') || name.includes('s4') || name.includes('s6') ||
+                     name.includes('1a') || name.includes('3a') || name.includes('1b') || name.includes('3b')) {
+            stbdArrays.push(child);
+          }
+        }
+      });
+      
+      solarArrayMeshes[viewName] = { portArrays, stbdArrays };
+      console.log(`Found ${portArrays.length} port arrays, ${stbdArrays.length} stbd arrays in ${viewName} view`);
     }
     
     function animateDual3D() {
