@@ -1228,8 +1228,8 @@
       if (!issModelNadir || !issModelVelocity) return;
       
       // Convert telemetry angles to radians
-      // SARJ rotates around Z axis (truss axis)
-      // BGA rotates around local Y axis (perpendicular to array plane)
+      // SARJ rotates around Y axis (perpendicular to truss - windmill motion)
+      // BGA rotates around X axis (tilt panels toward/away from sun)
       const sarjPortRad = (nasaTelemetry.sarjPort || 0) * Math.PI / 180;
       const sarjStbdRad = (nasaTelemetry.sarjStbd || 0) * Math.PI / 180;
       
@@ -1244,24 +1244,24 @@
         const joints = solarJoints[viewName];
         if (!joints) return;
         
-        // SARJ rotation (around Z axis - along the truss)
-        if (joints.portSARJ) joints.portSARJ.rotation.z = sarjPortRad;
-        if (joints.stbdSARJ) joints.stbdSARJ.rotation.z = sarjStbdRad;
+        // SARJ rotation (around Y axis - windmill sweep motion)
+        if (joints.portSARJ) joints.portSARJ.rotation.y = sarjPortRad;
+        if (joints.stbdSARJ) joints.stbdSARJ.rotation.y = sarjStbdRad;
         
-        // BGA rotation (around local Y axis - panel tilt)
+        // BGA rotation (around X axis - panel tilt)
         joints.portBGA.forEach(joint => {
           if (joint.name.includes('2A') || joint.name.includes('2B')) {
-            joint.rotation.y = bgaPort2A;
+            joint.rotation.x = bgaPort2A;
           } else if (joint.name.includes('4A') || joint.name.includes('4B')) {
-            joint.rotation.y = bgaPort4A;
+            joint.rotation.x = bgaPort4A;
           }
         });
         
         joints.stbdBGA.forEach(joint => {
           if (joint.name.includes('1A') || joint.name.includes('1B')) {
-            joint.rotation.y = bgaStbd1A;
+            joint.rotation.x = bgaStbd1A;
           } else if (joint.name.includes('3A') || joint.name.includes('3B')) {
-            joint.rotation.y = bgaStbd3A;
+            joint.rotation.x = bgaStbd3A;
           }
         });
       });
