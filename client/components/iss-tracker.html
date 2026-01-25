@@ -630,6 +630,12 @@
     let nadirScene, nadirCamera, nadirRenderer, issModelNadir;
     let velocityScene, velocityCamera, velocityRenderer, issModelVelocity;
     
+    // ISS Orbital Constants
+    const ISS_ORBITAL_PERIOD_MS = 92.68 * 60 * 1000; // ~92.68 minutes in ms
+    const ISS_GROUND_SPEED_DEG_PER_SEC = 360 / (92.68 * 60); // degrees longitude per second
+    const TRACK_CACHE_KEY = 'artemisops_iss_ground_track';
+    const MAX_TRACK_POINTS = 400; // ~2 orbits worth at 5 second intervals
+    
     // ISS Tracker Module
     const ISSTracker = {
       map: null,
@@ -639,8 +645,114 @@
       positionHistory: [],
       showFootprint: true,
       showTrack: true,
+      lastUpdateTime: null,
+      
+      // Load cached ground track from localStorage
+      loadCachedTrack() {
+        try {
+          const cached = localStorage.getItem(TRACK_CACHE_KEY);
+          if (!cached) return [];
+          
+          const data = JSON.parse(cached);
+          const now = Date.now();
+          const age = now - data.timestamp;
+          
+          // If cache is older than 2 orbits, discard it
+          if (age > ISS_ORBITAL_PERIOD_MS * 2) {
+            console.log('Ground track cache too old, discarding');
+            localStorage.removeItem(TRACK_CACHE_KEY);
+            return [];
+          }
+          
+          console.log(`Loaded ${data.positions.length} cached track points, age: ${(age/60000).toFixed(1)} min`);
+          
+          // If there's a gap, try to extrapolate
+          if (age > 10000 && data.positions.length >= 2) { // Gap > 10 seconds
+            const extrapolated = this.extrapolateTrack(data.positions, data.timestamp, now);
+            return extrapolated;
+          }
+          
+          return data.positions;
+        } catch (e) {
+          console.error('Error loading cached track:', e);
+          return [];
+        }
+      },
+      
+      // Extrapolate missing track points based on orbital mechanics
+      extrapolateTrack(positions, lastTime, currentTime) {
+        if (positions.length < 2) return positions;
+        
+        const gapSeconds = (currentTime - lastTime) / 1000;
+        const maxGapSeconds = ISS_ORBITAL_PERIOD_MS / 1000; // Don't extrapolate more than 1 orbit
+        
+        if (gapSeconds > maxGapSeconds) {
+          console.log('Gap too large for extrapolation, using cached data only');
+          return positions;
+        }
+        
+        // Get last two points to determine heading
+        const p1 = positions[positions.length - 2];
+        const p2 = positions[positions.length - 1];
+        
+        // Calculate velocity vector (degrees per second)
+        const dt = 5; // Assumed 5 second interval between cached points
+        const dLat = (p2[0] - p1[0]) / dt;
+        const dLng = (p2[1] - p1[1]) / dt;
+        
+        // Extrapolate new points every 5 seconds
+        const extrapolatedPoints = [...positions];
+        const numPoints = Math.floor(gapSeconds / 5);
+        
+        console.log(`Extrapolating ${numPoints} points over ${gapSeconds.toFixed(0)}s gap`);
+        
+        let lat = p2[0];
+        let lng = p2[1];
+        
+        for (let i = 1; i <= numPoints && i <= 200; i++) {
+          // Simple linear extrapolation with latitude bounds (ISS inclination ~51.6°)
+          lat += dLat * 5;
+          lng += dLng * 5;
+          
+          // Wrap longitude
+          if (lng > 180) lng -= 360;
+          if (lng < -180) lng += 360;
+          
+          // Bound latitude to ISS inclination and reverse direction at bounds
+          if (lat > 51.6) { lat = 51.6 - (lat - 51.6); }
+          if (lat < -51.6) { lat = -51.6 - (lat + 51.6); }
+          
+          extrapolatedPoints.push([lat, lng]);
+        }
+        
+        // Trim to max points
+        if (extrapolatedPoints.length > MAX_TRACK_POINTS) {
+          extrapolatedPoints.splice(0, extrapolatedPoints.length - MAX_TRACK_POINTS);
+        }
+        
+        return extrapolatedPoints;
+      },
+      
+      // Save ground track to localStorage
+      saveTrackCache() {
+        try {
+          if (this.positionHistory.length < 2) return;
+          
+          const data = {
+            timestamp: Date.now(),
+            positions: this.positionHistory.slice(-MAX_TRACK_POINTS)
+          };
+          localStorage.setItem(TRACK_CACHE_KEY, JSON.stringify(data));
+        } catch (e) {
+          console.error('Error saving track cache:', e);
+        }
+      },
       
       async init() {
+        // Load cached ground track from previous session
+        this.positionHistory = this.loadCachedTrack();
+        console.log(`Starting with ${this.positionHistory.length} cached track points`);
+        
         // EPSG:4326 Equirectangular projection (NASA Mission Control style)
         this.map = L.map('iss-map', {
           crs: L.CRS.EPSG4326,
@@ -686,7 +798,8 @@
           dashArray: '8, 4'
         }).addTo(this.map);
         
-        this.groundTrack = L.polyline([], {
+        // Ground track - initialize with cached positions
+        this.groundTrack = L.polyline(this.positionHistory, {
           color: '#ffd60a',
           weight: 3,
           opacity: 0.8,
@@ -732,11 +845,14 @@
           
           // Update ground track
           this.positionHistory.push([lat, lng]);
-          if (this.positionHistory.length > 200) this.positionHistory.shift();
+          if (this.positionHistory.length > MAX_TRACK_POINTS) this.positionHistory.shift();
           if (this.groundTrack) {
             this.groundTrack.setLatLngs(this.positionHistory);
             if (!this.showTrack) this.groundTrack.remove();
           }
+          
+          // Save track to cache every update
+          this.saveTrackCache();
           
           document.getElementById('dataLat').textContent = lat.toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
           document.getElementById('dataLng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
