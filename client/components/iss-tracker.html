@@ -1194,39 +1194,81 @@
       }
     }
     
-    // Solar array mesh references (populated after model load)
-    let solarArrayMeshes = { nadir: {}, velocity: {} };
+    // Solar array joint references (populated after model load)
+    // The IGOAL model has dedicated rotation joints for SARJ and BGA
+    let solarJoints = { nadir: {}, velocity: {} };
+    
+    // Find solar array rotation joints in the model
+    function findSolarArrayJoints(model, viewName) {
+      const joints = {
+        portSARJ: null,   // PORT_ALPHA_ROT - rotates around Z axis
+        stbdSARJ: null,   // STBD_ALPHA_ROT - rotates around Z axis
+        portBGA: [],      // PORT_BETA_ROT_* - rotate around local Y axis
+        stbdBGA: []       // STBD_BETA_ROT_* - rotate around local Y axis
+      };
+      
+      model.traverse(child => {
+        if (!child.name) return;
+        
+        // SARJ joints (Alpha rotation)
+        if (child.name === 'PORT_ALPHA_ROT') joints.portSARJ = child;
+        if (child.name === 'STBD_ALPHA_ROT') joints.stbdSARJ = child;
+        
+        // BGA joints (Beta rotation)
+        if (child.name.startsWith('PORT_BETA_ROT_')) joints.portBGA.push(child);
+        if (child.name.startsWith('STBD_BETA_ROT_')) joints.stbdBGA.push(child);
+      });
+      
+      solarJoints[viewName] = joints;
+      console.log(`Found joints in ${viewName}: SARJ(port:${!!joints.portSARJ}, stbd:${!!joints.stbdSARJ}), BGA(port:${joints.portBGA.length}, stbd:${joints.stbdBGA.length})`);
+    }
     
     // Update solar array rotations based on telemetry
     function updateSolarArrays() {
       if (!issModelNadir || !issModelVelocity) return;
       
-      // Solar arrays rotate around their local axes based on SARJ and BGA angles
-      // SARJ = alpha rotation (around truss axis)
-      // BGA = beta rotation (panel tilt toward sun)
-      
+      // Convert telemetry angles to radians
+      // SARJ rotates around Z axis (truss axis)
+      // BGA rotates around local Y axis (perpendicular to array plane)
       const sarjPortRad = (nasaTelemetry.sarjPort || 0) * Math.PI / 180;
       const sarjStbdRad = (nasaTelemetry.sarjStbd || 0) * Math.PI / 180;
-      const bgaPortRad = (nasaTelemetry.bgaPort2A || 0) * Math.PI / 180;
-      const bgaStbdRad = (nasaTelemetry.bgaStbd1A || 0) * Math.PI / 180;
       
-      // Apply rotations to array meshes if found
-      ['nadir', 'velocity'].forEach(view => {
-        const meshes = solarArrayMeshes[view];
-        if (meshes.portArrays) {
-          meshes.portArrays.forEach(mesh => {
-            mesh.rotation.z = sarjPortRad;
-            mesh.rotation.x = bgaPortRad;
-          });
-        }
-        if (meshes.stbdArrays) {
-          meshes.stbdArrays.forEach(mesh => {
-            mesh.rotation.z = sarjStbdRad;
-            mesh.rotation.x = bgaStbdRad;
-          });
-        }
+      // BGA angles for each array wing
+      const bgaPort2A = (nasaTelemetry.bgaPort2A || 0) * Math.PI / 180;
+      const bgaPort4A = (nasaTelemetry.bgaPort4A || 0) * Math.PI / 180;
+      const bgaStbd1A = (nasaTelemetry.bgaStbd1A || 0) * Math.PI / 180;
+      const bgaStbd3A = (nasaTelemetry.bgaStbd3A || 0) * Math.PI / 180;
+      
+      // Apply rotations to both views
+      ['nadir', 'velocity'].forEach(viewName => {
+        const joints = solarJoints[viewName];
+        if (!joints) return;
+        
+        // SARJ rotation (around Z axis - along the truss)
+        if (joints.portSARJ) joints.portSARJ.rotation.z = sarjPortRad;
+        if (joints.stbdSARJ) joints.stbdSARJ.rotation.z = sarjStbdRad;
+        
+        // BGA rotation (around local Y axis - panel tilt)
+        joints.portBGA.forEach(joint => {
+          if (joint.name.includes('2A') || joint.name.includes('2B')) {
+            joint.rotation.y = bgaPort2A;
+          } else if (joint.name.includes('4A') || joint.name.includes('4B')) {
+            joint.rotation.y = bgaPort4A;
+          }
+        });
+        
+        joints.stbdBGA.forEach(joint => {
+          if (joint.name.includes('1A') || joint.name.includes('1B')) {
+            joint.rotation.y = bgaStbd1A;
+          } else if (joint.name.includes('3A') || joint.name.includes('3B')) {
+            joint.rotation.y = bgaStbd3A;
+          }
+        });
       });
     }
+    
+    // Legacy mesh references for compatibility
+    let solarArrayMeshes = { nadir: {}, velocity: {} };
     
     function quaternionToEuler(q) {
       const sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
@@ -1336,7 +1378,11 @@
             issModelNadir = model;
             issModelVelocity = model.clone();
             
-            // Find solar array meshes by name patterns
+            // Find solar array rotation joints (SARJ and BGA)
+            findSolarArrayJoints(issModelNadir, 'nadir');
+            findSolarArrayJoints(issModelVelocity, 'velocity');
+            
+            // Also find mesh references for legacy compatibility
             findSolarArrayMeshes(issModelNadir, 'nadir');
             findSolarArrayMeshes(issModelVelocity, 'velocity');
             
@@ -1430,7 +1476,9 @@
     window.nasaTelemetry = nasaTelemetry;
     window.updateSolarArrays = updateSolarArrays;
     window.solarArrayMeshes = solarArrayMeshes;
+    window.solarJoints = solarJoints;
     window.ISSTracker = ISSTracker;
+    window.getISSModels = () => ({ nadir: issModelNadir, velocity: issModelVelocity });
     
     // Initialize everything
     document.addEventListener('DOMContentLoaded', () => {
