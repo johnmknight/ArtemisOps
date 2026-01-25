@@ -856,6 +856,39 @@
         }
       },
       
+      // Split track into segments at antimeridian crossings (180°/-180°)
+      // This prevents Leaflet from drawing lines across the entire map
+      splitTrackAtAntimeridian(positions) {
+        if (!positions || positions.length < 2) return [];
+        
+        const segments = [];
+        let currentSegment = [positions[0]];
+        
+        for (let i = 1; i < positions.length; i++) {
+          const prevLng = positions[i - 1][1];
+          const currLng = positions[i][1];
+          
+          // Check for antimeridian crossing (longitude jump > 180°)
+          const lngDiff = Math.abs(currLng - prevLng);
+          if (lngDiff > 180) {
+            // End current segment and start new one
+            if (currentSegment.length >= 1) {
+              segments.push(currentSegment);
+            }
+            currentSegment = [positions[i]];
+          } else {
+            currentSegment.push(positions[i]);
+          }
+        }
+        
+        // Add final segment
+        if (currentSegment.length >= 1) {
+          segments.push(currentSegment);
+        }
+        
+        return segments;
+      },
+      
       async init() {
         // Load cached ground track from previous session
         this.positionHistory = this.loadCachedTrack();
@@ -906,8 +939,9 @@
           dashArray: '8, 4'
         }).addTo(this.map);
         
-        // Ground track - initialize with cached positions
-        this.groundTrack = L.polyline(this.positionHistory, {
+        // Ground track - initialize with cached positions (split at antimeridian)
+        const initialSegments = this.splitTrackAtAntimeridian(this.positionHistory);
+        this.groundTrack = L.polyline(initialSegments, {
           color: '#ffd60a',
           weight: 3,
           opacity: 0.8,
@@ -955,7 +989,9 @@
           this.positionHistory.push([lat, lng]);
           if (this.positionHistory.length > MAX_TRACK_POINTS) this.positionHistory.shift();
           if (this.groundTrack) {
-            this.groundTrack.setLatLngs(this.positionHistory);
+            // Split track at antimeridian crossings to prevent lines across map
+            const segments = this.splitTrackAtAntimeridian(this.positionHistory);
+            this.groundTrack.setLatLngs(segments);
             if (!this.showTrack) this.groundTrack.remove();
           }
           
