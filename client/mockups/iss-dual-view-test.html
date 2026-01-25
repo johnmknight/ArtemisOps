@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Dual 3D View Test</title>
+  <style>
+    :root {
+      --bg-primary: #0a0e14;
+      --bg-secondary: #0d1520;
+      --border-color: rgba(0, 212, 255, 0.2);
+      --text-primary: #e0e6ed;
+      --text-secondary: #8899a6;
+      --text-accent: #00d4ff;
+      --success-color: #00ff88;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* Header */
+    .header {
+      height: 50px;
+      background: linear-gradient(180deg, #1a2a3a 0%, var(--bg-secondary) 100%);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .header h1 {
+      font-size: 16px;
+      color: var(--text-accent);
+      font-weight: 600;
+    }
+    .header-status {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    
+    /* Main Container */
+    .main-container {
+      height: calc(100vh - 50px);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Dual 3D View Container */
+    .dual-view-container {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      min-height: 0;
+    }
+    
+    /* Individual 3D View Panel */
+    .iss-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #000;
+      min-width: 0;
+    }
+    .iss-view:first-child {
+      border-right: 1px solid var(--border-color);
+    }
+    
+    /* View Label */
+    .view-label {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 11px;
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 5px 12px;
+      border-radius: 4px;
+      z-index: 10;
+      letter-spacing: 1px;
+      border: 1px solid var(--border-color);
+    }
+    
+    /* Canvas fills the view */
+    .iss-view canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    /* Axis Indicator */
+    .axis-indicator {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    .axis-x { color: #ff6b6b; }
+    .axis-y { color: #51cf66; }
+    .axis-z { color: #339af0; }
+    
+    /* Telemetry Grid Panel */
+    .telemetry-panel {
+      height: 160px;
+      min-height: 160px;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .telemetry-header {
+      font-size: 11px;
+      color: var(--text-accent);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .telemetry-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .telem-item {
+      background: rgba(0, 15, 30, 0.8);
+      border: 1px solid rgba(26, 58, 92, 0.5);
+      border-radius: 5px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .telem-item:hover {
+      border-color: var(--text-accent);
+      background: rgba(0, 212, 255, 0.05);
+    }
+    .telem-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .telem-value {
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+      color: var(--success-color);
+      font-weight: 600;
+    }
+    .telem-unit {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 212, 255, 0.2);
+      border-top-color: var(--text-accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .loading-progress {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--text-accent);
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🛰️ ISS DUAL 3D VIEW TEST</h1>
+    <span class="header-status" id="statusText">Loading...</span>
+  </div>
+  
+  <div class="main-container">
+    <!-- Dual 3D Views -->
+    <div class="dual-view-container">
+      <!-- NADIR VIEW - Looking from below the station -->
+      <div class="iss-view" id="frontView">
+        <div class="view-label">NADIR VIEW</div>
+        <canvas id="frontCanvas"></canvas>
+        <div class="axis-indicator">
+          <span class="axis-z">←Truss→</span> <span class="axis-x">↑Vel</span>
+        </div>
+        <div class="loading-overlay" id="frontLoading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading ISS Model...</div>
+          <div class="loading-progress" id="frontProgress">0%</div>
+        </div>
+      </div>
+      
+      <!-- VELOCITY VIEW - Looking from behind along flight path -->
+      <div class="iss-view" id="sideView">
+        <div class="view-label">VELOCITY VIEW</div>
+        <canvas id="sideCanvas"></canvas>
+        <div class="axis-indicator">
+          <span class="axis-z">←Truss→</span> <span class="axis-y">↓Nadir</span>
+        </div>
+        <div class="loading-overlay" id="sideLoading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading ISS Model...</div>
+          <div class="loading-progress" id="sideProgress">0%</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Telemetry Grid -->
+    <div class="telemetry-panel">
+      <div class="telemetry-header">📊 STATION SYSTEMS TELEMETRY</div>
+      <div class="telemetry-grid">
+        <div class="telem-item">
+          <div class="telem-label">Destiny Lab</div>
+          <div class="telem-value" id="destinyTemp">21.2°C</div>
+          <div class="telem-unit">760 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Harmony</div>
+          <div class="telem-value" id="harmonyTemp">20.8°C</div>
+          <div class="telem-unit">758 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Columbus</div>
+          <div class="telem-value" id="columbusTemp">21.5°C</div>
+          <div class="telem-unit">761 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Kibo (JEM)</div>
+          <div class="telem-value" id="kiboTemp">22.1°C</div>
+          <div class="telem-unit">759 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Zvezda</div>
+          <div class="telem-value" id="zvezdaTemp">23.4°C</div>
+          <div class="telem-unit">757 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Zarya</div>
+          <div class="telem-value" id="zaryaTemp">22.8°C</div>
+          <div class="telem-unit">756 mmHg</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Attitude</div>
+          <div class="telem-value" id="attitude" style="font-size:13px;">R:0.8° P:-3.8°</div>
+          <div class="telem-unit">Y: -4.0°</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Solar Arrays</div>
+          <div class="telem-value" id="solar" style="font-size:13px;">P:45° S:-45°</div>
+          <div class="telem-unit">Tracking Sun</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  
+  <script type="module">
+    // Dual View 3D System
+    // Front view: looking along -Z axis (nadir/velocity direction)
+    // Side view: looking along -X axis (along truss)
+    
+    let frontScene, frontCamera, frontRenderer;
+    let sideScene, sideCamera, sideRenderer;
+    let issModelFront, issModelSide;
+    let sunLight;
+    
+    // Attitude state
+    const attitude = { roll: 0, pitch: 0, yaw: 0 };
+    
+    async function init() {
+      const THREE = await import('three');
+      const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+      
+      window.THREE = THREE;
+      
+      // Setup Front View
+      setupView('front', THREE);
+      
+      // Setup Side View  
+      setupView('side', THREE);
+      
+      // Load ISS Model
+      await loadISSModel(THREE, GLTFLoader);
+      
+      // Start animation
+      animate();
+      
+      // Handle resize
+      window.addEventListener('resize', onResize);
+      
+      document.getElementById('statusText').textContent = 'Model Loaded - Live';
+    }
+    
+    function setupView(viewName, THREE) {
+      const canvas = document.getElementById(viewName + 'Canvas');
+      const container = document.getElementById(viewName + 'View');
+      
+      // Scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+      
+      // Camera - orthographic for technical view
+      const aspect = container.clientWidth / container.clientHeight;
+      const frustumSize = 80;
+      const camera = new THREE.OrthographicCamera(
+        -frustumSize * aspect / 2,
+        frustumSize * aspect / 2,
+        frustumSize / 2,
+        -frustumSize / 2,
+        0.1,
+        1000
+      );
+      
+      // Camera positions for each view
+      // Model axes: X=velocity, Y=nadir/zenith, Z=truss (port/starboard)
+      if (viewName === 'front') {
+        // NADIR VIEW: Looking from below (-Y) up at station
+        // Truss (Z) horizontal left-right, Velocity (X) pointing "up" in image
+        camera.position.set(0, -100, 0);
+        camera.up.set(1, 0, 0); // Velocity (X) is "up" in this view
+        camera.lookAt(0, 0, 0);
+      } else {
+        // VELOCITY VIEW: Looking from behind (+X) at station's back
+        // Truss (Z) horizontal left-right, Nadir (Y) pointing DOWN
+        camera.position.set(100, 0, 0);
+        camera.up.set(0, -1, 0); // Nadir points DOWN (so -Y is up means Y points down visually)
+        camera.lookAt(0, 0, 0);
+      }
+      
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ 
+        canvas: canvas,
+        antialias: true 
+      });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      directionalLight.position.set(50, 30, 50);
+      scene.add(directionalLight);
+      
+      // Store references
+      if (viewName === 'front') {
+        frontScene = scene;
+        frontCamera = camera;
+        frontRenderer = renderer;
+      } else {
+        sideScene = scene;
+        sideCamera = camera;
+        sideRenderer = renderer;
+      }
+    }
+    
+    async function loadISSModel(THREE, GLTFLoader) {
+      const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
+      
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
+      
+      const loader = new GLTFLoader();
+      loader.setDRACOLoader(dracoLoader);
+      
+      const modelUrl = '/assets/iss-model-hd.glb';
+      
+      return new Promise((resolve, reject) => {
+        loader.load(
+          modelUrl,
+          (gltf) => {
+            const model = gltf.scene;
+            
+            // Center and scale the model
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            model.position.sub(center);
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 50 / maxDim;
+            model.scale.setScalar(scale);
+            
+            // Clone for second view
+            issModelFront = model;
+            issModelSide = model.clone();
+            
+            // Add to scenes
+            frontScene.add(issModelFront);
+            sideScene.add(issModelSide);
+            
+            // Hide loading overlays
+            document.getElementById('frontLoading').classList.add('hidden');
+            document.getElementById('sideLoading').classList.add('hidden');
+            
+            resolve();
+          },
+          (progress) => {
+            if (progress.total > 0) {
+              const pct = Math.round((progress.loaded / progress.total) * 100);
+              document.getElementById('frontProgress').textContent = pct + '%';
+              document.getElementById('sideProgress').textContent = pct + '%';
+            }
+          },
+          (error) => {
+            console.error('Error loading ISS model:', error);
+            document.getElementById('frontProgress').textContent = 'Error!';
+            document.getElementById('sideProgress').textContent = 'Error!';
+            reject(error);
+          }
+        );
+      });
+    }
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Simulate slow attitude drift for demo
+      const time = Date.now() * 0.0001;
+      attitude.roll = Math.sin(time * 0.5) * 2;
+      attitude.pitch = Math.sin(time * 0.3) * 3;
+      attitude.yaw = Math.sin(time * 0.2) * 4;
+      
+      // Apply attitude to both models
+      if (issModelFront && issModelSide) {
+        const euler = new THREE.Euler(
+          THREE.MathUtils.degToRad(attitude.pitch),
+          THREE.MathUtils.degToRad(attitude.yaw),
+          THREE.MathUtils.degToRad(attitude.roll),
+          'YXZ'
+        );
+        
+        issModelFront.setRotationFromEuler(euler);
+        issModelSide.setRotationFromEuler(euler);
+      }
+      
+      // Render both views
+      if (frontRenderer && frontScene && frontCamera) {
+        frontRenderer.render(frontScene, frontCamera);
+      }
+      if (sideRenderer && sideScene && sideCamera) {
+        sideRenderer.render(sideScene, sideCamera);
+      }
+      
+      // Update telemetry display
+      document.getElementById('attitude').textContent = 
+        `R:${attitude.roll.toFixed(1)}° P:${attitude.pitch.toFixed(1)}°`;
+    }
+    
+    function onResize() {
+      // Resize front view
+      const frontContainer = document.getElementById('frontView');
+      if (frontCamera && frontRenderer) {
+        const aspect = frontContainer.clientWidth / frontContainer.clientHeight;
+        const frustumSize = 80;
+        frontCamera.left = -frustumSize * aspect / 2;
+        frontCamera.right = frustumSize * aspect / 2;
+        frontCamera.top = frustumSize / 2;
+        frontCamera.bottom = -frustumSize / 2;
+        frontCamera.updateProjectionMatrix();
+        frontRenderer.setSize(frontContainer.clientWidth, frontContainer.clientHeight);
+      }
+      
+      // Resize side view
+      const sideContainer = document.getElementById('sideView');
+      if (sideCamera && sideRenderer) {
+        const aspect = sideContainer.clientWidth / sideContainer.clientHeight;
+        const frustumSize = 80;
+        sideCamera.left = -frustumSize * aspect / 2;
+        sideCamera.right = frustumSize * aspect / 2;
+        sideCamera.top = frustumSize / 2;
+        sideCamera.bottom = -frustumSize / 2;
+        sideCamera.updateProjectionMatrix();
+        sideRenderer.setSize(sideContainer.clientWidth, sideContainer.clientHeight);
+      }
+    }
+    
+    // Initialize on load
+    init().catch(console.error);
+  </script>
+</body>
+</html>

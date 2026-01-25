@@ -925,180 +925,6 @@
       font-size: 11px;
       margin: 10px;
     }
-    
-    /* ============================================
-       DUAL 3D VIEW LAYOUT (NASA Mission Control Style)
-       ============================================ */
-    
-    /* Station viewer now stacks vertically: 3D views on top, telemetry below */
-    .station-viewer-dual {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      background: #000;
-    }
-    
-    /* Container for the two 3D views side by side */
-    .dual-view-container {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      min-height: 0;
-    }
-    
-    /* Individual 3D view panel */
-    .iss-view {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      background: #000;
-      min-width: 0;
-    }
-    .iss-view:first-child {
-      border-right: 1px solid var(--border-color);
-    }
-    
-    /* View label overlay */
-    .view-label {
-      position: absolute;
-      top: 8px;
-      left: 10px;
-      font-size: 0.6rem;
-      color: var(--text-accent);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 4px 10px;
-      border-radius: 3px;
-      z-index: 10;
-      letter-spacing: 1px;
-      border: 1px solid var(--border-color);
-    }
-    
-    /* Canvas wrapper inside each view */
-    .view-canvas-wrapper {
-      flex: 1;
-      position: relative;
-      min-height: 0;
-    }
-    .view-canvas-wrapper canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    /* Axis indicator in corner */
-    .axis-indicator {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 0.55rem;
-      font-family: 'Courier New', monospace;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 4px 8px;
-      border-radius: 3px;
-    }
-    .axis-x { color: #ff6b6b; }
-    .axis-y { color: #51cf66; }
-    .axis-z { color: #339af0; }
-    
-    /* Telemetry Grid Panel */
-    .telemetry-grid-panel {
-      height: 140px;
-      min-height: 140px;
-      background: rgba(13, 26, 45, 0.95);
-      border-top: 1px solid var(--border-color);
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-    }
-    .telemetry-grid-header {
-      font-size: 0.55rem;
-      color: var(--text-accent);
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .telemetry-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 6px;
-    }
-    .telem-grid-item {
-      background: rgba(0, 15, 30, 0.8);
-      border: 1px solid rgba(26, 58, 92, 0.5);
-      border-radius: 4px;
-      padding: 6px 8px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .telem-grid-item:hover {
-      border-color: var(--text-accent);
-      background: rgba(0, 212, 255, 0.05);
-    }
-    .telem-grid-label {
-      font-size: 0.45rem;
-      color: var(--text-secondary);
-      letter-spacing: 0.5px;
-      margin-bottom: 2px;
-    }
-    .telem-grid-value {
-      font-size: 0.75rem;
-      font-family: 'Courier New', monospace;
-      color: var(--success-color);
-      font-weight: 600;
-    }
-    .telem-grid-unit {
-      font-size: 0.4rem;
-      color: var(--text-secondary);
-      margin-top: 1px;
-    }
-    
-    /* Canvas fills the view */
-    .iss-view canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    /* Loading Overlay for dual views */
-    .loading-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-    .loading-overlay.hidden { display: none; }
-    .loading-overlay .loading-spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(0, 212, 255, 0.2);
-      border-top-color: var(--text-accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    .loading-overlay .loading-text {
-      margin-top: 10px;
-      font-size: 0.55rem;
-      color: var(--text-secondary);
-    }
-    .loading-overlay .loading-progress {
-      margin-top: 4px;
-      font-size: 0.7rem;
-      color: var(--text-accent);
-      font-family: 'Courier New', monospace;
-    }
   </style>
 </head>
 <body>
@@ -1167,84 +993,204 @@
           <div class="live-badge" id="nasaLiveBadge"><span class="connecting-dot"></span>NASA LIVE</div>
         </div>
         
-        <div class="station-viewer-dual">
-          <!-- Dual 3D Views -->
-          <div class="dual-view-container">
-            <!-- NADIR VIEW - Looking from below the station -->
-            <div class="iss-view" id="nadirView">
-              <div class="view-label">NADIR VIEW</div>
-              <canvas id="nadirCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-x">↑Vel</span>
+        <div class="station-viewer">
+          <!-- Left module column - US Segment -->
+          <div class="module-column module-column-left">
+            <div class="column-header">US SEGMENT</div>
+            <div class="module-card" data-module="destiny">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 60 24">
+                  <rect x="2" y="4" width="56" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="15" y1="4" x2="15" y2="20" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                  <line x1="30" y1="4" x2="30" y2="20" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                  <line x1="45" y1="4" x2="45" y2="20" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                </svg>
+                <span class="module-label">Destiny</span>
               </div>
-              <div class="loading-overlay" id="nadirLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Loading ISS Model...</div>
-                <div class="loading-progress" id="nadirProgress">0%</div>
+              <div class="module-telem" id="telem-destiny">
+                <div class="telem-row"><span class="telem-lbl">Temp</span><span class="telem-val nominal" id="destiny-temp">--°C</span></div>
+                <div class="telem-row"><span class="telem-lbl">O₂</span><span class="telem-val nominal" id="destiny-o2">-- mmHg</span></div>
+                <div class="telem-row"><span class="telem-lbl">CO₂</span><span class="telem-val nominal" id="destiny-co2">-- mmHg</span></div>
               </div>
             </div>
-            
-            <!-- VELOCITY VIEW - Looking from behind along flight path -->
-            <div class="iss-view" id="velocityView">
-              <div class="view-label">VELOCITY VIEW</div>
-              <canvas id="velocityCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-y">↓Nadir</span>
+            <div class="module-card" data-module="harmony">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 40 24">
+                  <rect x="8" y="4" width="24" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="0" y="8" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <rect x="32" y="8" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Harmony</span>
               </div>
-              <div class="loading-overlay" id="velocityLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Loading ISS Model...</div>
-                <div class="loading-progress" id="velocityProgress">0%</div>
+              <div class="module-telem" id="telem-harmony">
+                <div class="telem-row"><span class="telem-lbl">Press</span><span class="telem-val nominal" id="harmony-press">-- psia</span></div>
+                <div class="telem-row"><span class="telem-lbl">Temp</span><span class="telem-val nominal" id="harmony-temp">--°C</span></div>
+              </div>
+            </div>
+            <div class="module-card" data-module="tranquility">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 40 28">
+                  <rect x="8" y="2" width="24" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="20" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Tranq</span>
+              </div>
+              <div class="module-telem" id="telem-tranquility">
+                <div class="telem-row"><span class="telem-lbl">Press</span><span class="telem-val nominal" id="tranq-press">-- psia</span></div>
+                <div class="telem-row"><span class="telem-lbl">Temp</span><span class="telem-val nominal" id="tranq-temp">--°C</span></div>
+              </div>
+            </div>
+            <div class="module-card" data-module="unity">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 40 24">
+                  <rect x="8" y="4" width="24" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="0" y="8" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <rect x="32" y="8" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Unity</span>
+              </div>
+              <div class="module-telem" id="telem-unity">
+                <div class="telem-row"><span class="telem-lbl">Press</span><span class="telem-val nominal" id="unity-press">-- psia</span></div>
+                <div class="telem-row"><span class="telem-lbl">Temp</span><span class="telem-val nominal" id="unity-temp">--°C</span></div>
+              </div>
+            </div>
+            <div class="module-card" data-module="quest">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 24 28">
+                  <rect x="2" y="2" width="20" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Quest</span>
+              </div>
+              <div class="module-telem" id="telem-quest">
+                <div class="telem-row"><span class="telem-lbl">Press</span><span class="telem-val nominal" id="quest-press">-- psia</span></div>
+                <div class="telem-row"><span class="telem-lbl">EVA</span><span class="telem-val nominal">STBY</span></div>
+              </div>
+            </div>
+            <div class="module-card" data-module="cupola">
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 30 22">
+                  <path d="M5 18 Q5 4 15 4 Q25 4 25 18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="5" y1="18" x2="25" y2="18" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span class="module-label">Cupola</span>
+              </div>
+              <div class="module-telem" id="telem-cupola">
+                <div class="telem-row"><span class="telem-lbl">Shutter</span><span class="telem-val nominal">OPEN</span></div>
+                <div class="telem-row"><span class="telem-lbl">View</span><span class="telem-val nominal">EARTH</span></div>
               </div>
             </div>
           </div>
           
-          <!-- Telemetry Grid -->
-          <div class="telemetry-grid-panel">
-            <div class="telemetry-grid-header">
-              <span>📊 STATION SYSTEMS TELEMETRY</span>
-              <div class="live-badge" id="telemLiveBadge"><span class="connecting-dot"></span>LIVE</div>
+          <!-- Center 3D viewer -->
+          <div class="iss-3d-wrapper">
+            <canvas id="iss3dCanvas"></canvas>
+            <div class="model-loading" id="modelLoading">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Loading ISS Model...</div>
+              <div class="loading-progress" id="loadingProgress">0%</div>
             </div>
-            <div class="telemetry-grid">
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">DESTINY LAB</div>
-                <div class="telem-grid-value" id="destiny-temp">--°C</div>
-                <div class="telem-grid-unit" id="destiny-press">-- mmHg</div>
+            <div class="telemetry-overlay" id="telemetryOverlay">
+              <div class="attitude-display">
+                <div class="attitude-item">
+                  <span class="att-label">ROLL</span>
+                  <span class="att-value" id="attRoll">--°</span>
+                </div>
+                <div class="attitude-item">
+                  <span class="att-label">PITCH</span>
+                  <span class="att-value" id="attPitch">--°</span>
+                </div>
+                <div class="attitude-item">
+                  <span class="att-label">YAW</span>
+                  <span class="att-value" id="attYaw">--°</span>
+                </div>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">HARMONY</div>
-                <div class="telem-grid-value" id="harmony-temp">--°C</div>
-                <div class="telem-grid-unit" id="harmony-press">-- psia</div>
+            </div>
+          </div>
+          
+          <!-- Right module column - International/Russian -->
+          <div class="module-column module-column-right">
+            <div class="column-header">INTL / RUS</div>
+            <div class="module-card" data-module="columbus">
+              <div class="module-telem" id="telem-columbus">
+                <div class="telem-row"><span class="telem-val nominal" id="columbus-press">-- psia</span><span class="telem-lbl">Press</span></div>
+                <div class="telem-row"><span class="telem-val nominal" id="columbus-temp">--°C</span><span class="telem-lbl">Temp</span></div>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">COLUMBUS</div>
-                <div class="telem-grid-value" id="columbus-temp">--°C</div>
-                <div class="telem-grid-unit" id="columbus-press">-- psia</div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 24">
+                  <rect x="2" y="4" width="46" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <circle cx="25" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <circle cx="38" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Columbus</span>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">KIBO (JEM)</div>
-                <div class="telem-grid-value" id="kibo-temp">--°C</div>
-                <div class="telem-grid-unit" id="kibo-press">-- psia</div>
+            </div>
+            <div class="module-card" data-module="kibo">
+              <div class="module-telem" id="telem-kibo">
+                <div class="telem-row"><span class="telem-val nominal" id="kibo-press">-- psia</span><span class="telem-lbl">Press</span></div>
+                <div class="telem-row"><span class="telem-val nominal" id="kibo-temp">--°C</span><span class="telem-lbl">Temp</span></div>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ZVEZDA</div>
-                <div class="telem-grid-value" id="zvezda-temp">--°C</div>
-                <div class="telem-grid-unit" id="zvezda-press">-- psia</div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 24">
+                  <rect x="2" y="4" width="32" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="34" y="7" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Kibo</span>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ZARYA</div>
-                <div class="telem-grid-value" id="zarya-temp">--°C</div>
-                <div class="telem-grid-unit" id="zarya-press">-- psia</div>
+            </div>
+            <div class="module-card" data-module="zvezda">
+              <div class="module-telem" id="telem-zvezda">
+                <div class="telem-row"><span class="telem-val nominal" id="zvezda-press">-- psia</span><span class="telem-lbl">Press</span></div>
+                <div class="telem-row"><span class="telem-val nominal" id="zvezda-temp">--°C</span><span class="telem-lbl">Temp</span></div>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ATTITUDE</div>
-                <div class="telem-grid-value" id="attitudeDisplay">R:--° P:--°</div>
-                <div class="telem-grid-unit" id="attitudeYaw">Y: --°</div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 24">
+                  <rect x="2" y="4" width="46" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="42" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Zvezda</span>
               </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">SOLAR ARRAYS</div>
-                <div class="telem-grid-value" id="solarAngles">--°</div>
-                <div class="telem-grid-unit">Tracking Sun</div>
+            </div>
+            <div class="module-card" data-module="zarya">
+              <div class="module-telem" id="telem-zarya">
+                <div class="telem-row"><span class="telem-val nominal" id="zarya-press">-- psia</span><span class="telem-lbl">Press</span></div>
+                <div class="telem-row"><span class="telem-val nominal">OK</span><span class="telem-lbl">Power</span></div>
+              </div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 24">
+                  <rect x="2" y="4" width="46" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="10" y="0" width="6" height="4" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <rect x="34" y="0" width="6" height="4" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Zarya</span>
+              </div>
+            </div>
+            <div class="module-card" data-module="nauka">
+              <div class="module-telem" id="telem-nauka">
+                <div class="telem-row"><span class="telem-val nominal" id="nauka-press">-- psia</span><span class="telem-lbl">Press</span></div>
+                <div class="telem-row"><span class="telem-val nominal">OK</span><span class="telem-lbl">Status</span></div>
+              </div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 24">
+                  <rect x="2" y="4" width="46" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="18" y="0" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Nauka</span>
+              </div>
+            </div>
+            <div class="module-card" data-module="solar">
+              <div class="module-telem" id="telem-solar">
+                <div class="telem-row"><span class="telem-val nominal" id="solar-angle">--°</span><span class="telem-lbl">Angle</span></div>
+                <div class="telem-row"><span class="telem-val nominal">~30kW</span><span class="telem-lbl">Power</span></div>
+              </div>
+              <div class="module-icon-wrap">
+                <svg class="module-icon" viewBox="0 0 50 20">
+                  <rect x="20" y="6" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="0" y="2" width="20" height="16" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <rect x="30" y="2" width="20" height="16" fill="none" stroke="currentColor" stroke-width="1"/>
+                </svg>
+                <span class="module-label">Solar</span>
               </div>
             </div>
           </div>
@@ -2306,189 +2252,10 @@
       }
     }
     
-    // ============================================================
-    // DUAL 3D VIEW SYSTEM - Nadir + Velocity Views
-    // ============================================================
-    let nadirScene, nadirCamera, nadirRenderer, issModelNadir;
-    let velocityScene, velocityCamera, velocityRenderer, issModelVelocity;
-    
-    async function initDual3DISS() {
-      const THREE = await import('three');
-      const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-      const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
-      
-      window.THREE = THREE;
-      
-      // Setup Nadir View
-      setupDualView('nadir', THREE);
-      
-      // Setup Velocity View
-      setupDualView('velocity', THREE);
-      
-      // Load ISS Model
-      await loadDualISSModel(THREE, GLTFLoader, DRACOLoader);
-      
-      // Start animation loop
-      animateDual3D();
-      
-      // Handle resize
-      window.addEventListener('resize', onDualResize);
-    }
-    
-    function setupDualView(viewName, THREE) {
-      const canvas = document.getElementById(viewName + 'Canvas');
-      const container = document.getElementById(viewName + 'View');
-      if (!canvas || !container) {
-        console.warn('Dual view elements not found for:', viewName);
-        return;
-      }
-      
-      // Scene
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-      
-      // Camera - orthographic for technical view
-      const aspect = container.clientWidth / container.clientHeight;
-      const frustumSize = 80;
-      const camera = new THREE.OrthographicCamera(
-        -frustumSize * aspect / 2, frustumSize * aspect / 2,
-        frustumSize / 2, -frustumSize / 2, 0.1, 1000
-      );
-      
-      // Camera positions - Model axes: X=velocity, Y=nadir/zenith, Z=truss
-      if (viewName === 'nadir') {
-        camera.position.set(0, -100, 0);
-        camera.up.set(1, 0, 0);
-        camera.lookAt(0, 0, 0);
-      } else {
-        camera.position.set(100, 0, 0);
-        camera.up.set(0, -1, 0);
-        camera.lookAt(0, 0, 0);
-      }
-      
-      // Renderer
-      const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-      scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-      directionalLight.position.set(50, 30, 50);
-      scene.add(directionalLight);
-      
-      // Store references
-      if (viewName === 'nadir') {
-        nadirScene = scene;
-        nadirCamera = camera;
-        nadirRenderer = renderer;
-      } else {
-        velocityScene = scene;
-        velocityCamera = camera;
-        velocityRenderer = renderer;
-      }
-    }
-    
-    async function loadDualISSModel(THREE, GLTFLoader, DRACOLoader) {
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
-      const loader = new GLTFLoader();
-      loader.setDRACOLoader(dracoLoader);
-      
-      return new Promise((resolve, reject) => {
-        loader.load('/assets/iss-model-hd.glb',
-          (gltf) => {
-            const model = gltf.scene;
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            model.position.sub(center);
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 50 / maxDim;
-            model.scale.setScalar(scale);
-            
-            issModelNadir = model;
-            issModelVelocity = model.clone();
-            
-            if (nadirScene) nadirScene.add(issModelNadir);
-            if (velocityScene) velocityScene.add(issModelVelocity);
-            
-            document.getElementById('nadirLoading')?.classList.add('hidden');
-            document.getElementById('velocityLoading')?.classList.add('hidden');
-            resolve();
-          },
-          (progress) => {
-            if (progress.total > 0) {
-              const pct = Math.round((progress.loaded / progress.total) * 100);
-              const nadirProg = document.getElementById('nadirProgress');
-              const velProg = document.getElementById('velocityProgress');
-              if (nadirProg) nadirProg.textContent = pct + '%';
-              if (velProg) velProg.textContent = pct + '%';
-            }
-          },
-          (error) => {
-            console.error('Error loading ISS model:', error);
-            reject(error);
-          }
-        );
-      });
-    }
-    
-    function animateDual3D() {
-      requestAnimationFrame(animateDual3D);
-      
-      // Apply attitude from NASA telemetry
-      if (issModelNadir && issModelVelocity && window.THREE && targetQuaternion) {
-        if (!currentQuaternion) currentQuaternion = targetQuaternion.clone();
-        currentQuaternion.slerp(targetQuaternion, 0.05);
-        issModelNadir.quaternion.copy(currentQuaternion);
-        issModelVelocity.quaternion.copy(currentQuaternion);
-      }
-      
-      // Update attitude display
-      if (targetAttitude) {
-        const attDisp = document.getElementById('attitudeDisplay');
-        const attYaw = document.getElementById('attitudeYaw');
-        if (attDisp) attDisp.textContent = `R:${targetAttitude.roll?.toFixed(1) || '--'}° P:${targetAttitude.pitch?.toFixed(1) || '--'}°`;
-        if (attYaw) attYaw.textContent = `Y: ${targetAttitude.yaw?.toFixed(1) || '--'}°`;
-      }
-      
-      // Render both views
-      if (nadirRenderer && nadirScene && nadirCamera) nadirRenderer.render(nadirScene, nadirCamera);
-      if (velocityRenderer && velocityScene && velocityCamera) velocityRenderer.render(velocityScene, velocityCamera);
-    }
-    
-    function onDualResize() {
-      const frustumSize = 80;
-      
-      const nadirContainer = document.getElementById('nadirView');
-      if (nadirCamera && nadirRenderer && nadirContainer) {
-        const aspect = nadirContainer.clientWidth / nadirContainer.clientHeight;
-        nadirCamera.left = -frustumSize * aspect / 2;
-        nadirCamera.right = frustumSize * aspect / 2;
-        nadirCamera.top = frustumSize / 2;
-        nadirCamera.bottom = -frustumSize / 2;
-        nadirCamera.updateProjectionMatrix();
-        nadirRenderer.setSize(nadirContainer.clientWidth, nadirContainer.clientHeight);
-      }
-      
-      const velContainer = document.getElementById('velocityView');
-      if (velocityCamera && velocityRenderer && velContainer) {
-        const aspect = velContainer.clientWidth / velContainer.clientHeight;
-        velocityCamera.left = -frustumSize * aspect / 2;
-        velocityCamera.right = frustumSize * aspect / 2;
-        velocityCamera.top = frustumSize / 2;
-        velocityCamera.bottom = -frustumSize / 2;
-        velocityCamera.updateProjectionMatrix();
-        velocityRenderer.setSize(velContainer.clientWidth, velContainer.clientHeight);
-      }
-    }
-    
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
-      initDual3DISS(); // Initialize dual 3D views
+      init3DISS(); // Initialize 3D ISS model
       updateISSPosition();
       loadCrew();
       updateTime();
