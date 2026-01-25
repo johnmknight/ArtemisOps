@@ -1470,7 +1470,11 @@
       if (!sunLight || !sunIndicator || !window.THREE) return;
       
       const beta = nasaTelemetry.betaAngle || 0;
-      const time = Date.now() * 0.0001; // Slow rotation for sun position
+      
+      // ISS orbital period is ~92 minutes (5,520,000 ms)
+      // Sun position should rotate once per orbit relative to the station
+      const orbitPeriodMs = 92 * 60 * 1000;
+      const time = (Date.now() % orbitPeriodMs) / orbitPeriodMs * Math.PI * 2;
       
       // Calculate sun direction based on beta angle
       // Beta angle is the angle between the orbital plane and the sun vector
