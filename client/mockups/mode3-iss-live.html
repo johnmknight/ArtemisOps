@@ -1817,17 +1817,22 @@
         document.getElementById('dataAlt').textContent = alt.toFixed(0) + ' km';
         document.getElementById('dataVel').textContent = vel.toFixed(0) + ' km/h';
         
-        // Update telemetry
-        document.getElementById('telAlt').textContent = alt.toFixed(0) + ' km';
-        document.getElementById('telVis').textContent = vis.charAt(0).toUpperCase() + vis.slice(1);
+        // Update telemetry (with null checks for removed elements)
+        const telAlt = document.getElementById('telAlt');
+        const telVis = document.getElementById('telVis');
+        if (telAlt) telAlt.textContent = alt.toFixed(0) + ' km';
+        if (telVis) telVis.textContent = vis.charAt(0).toUpperCase() + vis.slice(1);
         
-        // Update stats
-        document.getElementById('statVel').textContent = vel.toFixed(0);
+        // Update stats (with null checks)
+        const statVelEl = document.getElementById('statVel');
+        if (statVelEl) statVelEl.textContent = vel.toFixed(0);
         
         // Increment orbit count slowly
         orbitCount += 0.0001;
-        document.getElementById('statOrbit').textContent = Math.floor(orbitCount).toLocaleString();
-        document.getElementById('orbitBadge').textContent = '🛰️ ORBIT ' + Math.floor(orbitCount).toLocaleString();
+        const statOrbitEl = document.getElementById('statOrbit');
+        const orbitBadgeEl = document.getElementById('orbitBadge');
+        if (statOrbitEl) statOrbitEl.textContent = Math.floor(orbitCount).toLocaleString();
+        if (orbitBadgeEl) orbitBadgeEl.textContent = '🛰️ ORBIT ' + Math.floor(orbitCount).toLocaleString();
         
         // Get location name (reverse geocode)
         getLocationName(lat, lng);
@@ -1843,16 +1848,21 @@
         const response = await fetch(`/api/iss/location/${lat.toFixed(4)},${lng.toFixed(4)}`);
         const data = await response.json();
         
+        const overLocEl = document.getElementById('overLocation');
+        const overCountryEl = document.getElementById('overCountry');
+        
         if (data.location) {
-          document.getElementById('overLocation').textContent = data.location;
-          document.getElementById('overCountry').textContent = data.country_code || '';
+          if (overLocEl) overLocEl.textContent = data.location;
+          if (overCountryEl) overCountryEl.textContent = data.country_code || '';
         } else {
-          document.getElementById('overLocation').textContent = 'Ocean';
-          document.getElementById('overCountry').textContent = 'International Waters';
+          if (overLocEl) overLocEl.textContent = 'Ocean';
+          if (overCountryEl) overCountryEl.textContent = 'International Waters';
         }
       } catch {
-        document.getElementById('overLocation').textContent = lat.toFixed(1) + '°, ' + lng.toFixed(1) + '°';
-        document.getElementById('overCountry').textContent = '';
+        const overLocEl = document.getElementById('overLocation');
+        const overCountryEl = document.getElementById('overCountry');
+        if (overLocEl) overLocEl.textContent = lat.toFixed(1) + '°, ' + lng.toFixed(1) + '°';
+        if (overCountryEl) overCountryEl.textContent = '';
       }
     }
     
@@ -1863,7 +1873,8 @@
         const data = await response.json();
         
         const issCrew = data.crew || [];
-        document.getElementById('crewCount').textContent = data.count || issCrew.length;
+        const crewCountEl = document.getElementById('crewCount');
+        if (crewCountEl) crewCountEl.textContent = data.count || issCrew.length;
         
         const crewHtml = issCrew.map(person => {
           // Try to determine agency from name (simplified)
@@ -1881,11 +1892,13 @@
           `;
         }).join('');
         
-        document.getElementById('crewList').innerHTML = crewHtml || '<div style="color: var(--text-secondary);">No crew data</div>';
+        const crewListEl = document.getElementById('crewList');
+        if (crewListEl) crewListEl.innerHTML = crewHtml || '<div style="color: var(--text-secondary);">No crew data</div>';
         
       } catch (error) {
         console.error('Failed to load crew:', error);
-        document.getElementById('crewList').innerHTML = '<div style="color: var(--text-secondary);">Crew data unavailable</div>';
+        const crewListEl = document.getElementById('crewList');
+        if (crewListEl) crewListEl.innerHTML = '<div style="color: var(--text-secondary);">Crew data unavailable</div>';
       }
     }
     
