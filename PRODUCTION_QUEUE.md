@@ -3,7 +3,29 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** January 21, 2026
+**Last Updated:** January 25, 2026
+
+---
+
+## 🎯 Current Sprint - Active Work
+
+### Recently Completed (Jan 25)
+- [x] Switch ISS tracker map to EPSG:4326 Equirectangular projection (NASA Mission Control style)
+- [x] Integrate NASA GIBS Blue Marble satellite tiles
+- [x] Add lat/lon grid lines overlay (30° intervals)
+- [x] Enable fractional zoom for optimal map fill
+- [x] Fix tile wrapping (no duplicate world maps)
+- [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
+
+### In Progress
+- [ ] **Update ISS map icon** - Replace current icon with icon gallery style
+- [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
+- [ ] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
+
+### Up Next
+- [ ] Add orbit track rendering (sinusoidal curves in equirectangular projection)
+- [ ] Implement ground station visibility overlays
+- [ ] Add day/night terminator line to map
 
 ---
 
@@ -205,10 +227,12 @@ client/js/components/
 |--------|------|---------|
 | Pre-Launch Countdown | `mode1-prelaunch.html` | Mission Control Mode reference |
 | Ascent Phase | `mode2-ascent.html` | Post-launch display reference |
-| ISS Live Tracker | `mode3-iss-live.html` | ✅ Integrated |
+| ISS Live Tracker | `mode3-iss-live.html` | ✅ Integrated (EPSG:4326 + NASA GIBS) |
+| ISS Layout Mockup | `mode3-layout-mockup.html` | Dual 3D view reference |
 | Artemis II Diagram | `mode3-artemis2-nasa-style.html` | ✅ Integrated |
 | Artemis III Diagram | `mode3-artemis3-nrho.html` | ✅ Integrated |
-| Icon Library | `icon-library.html` | Reference |
+| Icon Gallery v7 | `icon-gallery-v7.html` | Reference for spacecraft icons |
+| Map Projection Test | `map-epsg4326-test.html` | EPSG:4326 projection demo |
 
 ---
 
@@ -219,6 +243,8 @@ client/js/components/
 client/
 ├── index.html                    # Main desktop app
 ├── mission-control.html          # 🔄 NEW: Kiosk/signage mode
+├── data/
+│   └── spacecraft-manifest.json  # Spacecraft registry for icons/tracking
 ├── js/
 │   ├── iss-tracker.js            # ISS tracking with Leaflet
 │   ├── spacecraft-icons.js       # SVG spacecraft icons
@@ -234,7 +260,8 @@ client/
     ├── mode1-prelaunch.html
     ├── mode2-ascent.html
     ├── mode3-*.html
-    └── icon-*.html
+    ├── icon-gallery-v7.html      # Final icon references
+    └── map-epsg4326-test.html    # Projection test
 ```
 
 ### Server Files
