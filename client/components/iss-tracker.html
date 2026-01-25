@@ -1426,6 +1426,12 @@
       });
     }
     
+    // Expose key objects for testing/debugging
+    window.nasaTelemetry = nasaTelemetry;
+    window.updateSolarArrays = updateSolarArrays;
+    window.solarArrayMeshes = solarArrayMeshes;
+    window.ISSTracker = ISSTracker;
+    
     // Initialize everything
     document.addEventListener('DOMContentLoaded', () => {
       ISSTracker.init();
