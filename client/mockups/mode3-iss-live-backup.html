@@ -1615,30 +1615,26 @@
       }
     }
     
-    // Initialize map with EPSG:4326 Equirectangular projection (NASA Mission Control style)
+    // Initialize map
     function initMap() {
       map = L.map('iss-map', {
-        crs: L.CRS.EPSG4326,  // Equirectangular projection like NASA Mission Control
-        center: [0, 0],
-        zoom: 1,
-        minZoom: 0,
-        maxZoom: 4,
-        maxBounds: [[-90, -180], [90, 180]],
+        center: [20, 0],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 8,
+        maxBounds: [[-85, -180], [85, 180]],
         maxBoundsViscosity: 1.0,
         worldCopyJump: false
       });
       
-      // NASA GIBS Blue Marble tiles in EPSG:4326 (WMS)
-      L.tileLayer.wms('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi', {
-        layers: 'BlueMarble_ShadedRelief_Bathymetry',
-        format: 'image/jpeg',
-        transparent: false,
-        attribution: '&copy; NASA GIBS Blue Marble',
-        crs: L.CRS.EPSG4326
+      // Dark tile layer - noWrap prevents repeating
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+        noWrap: true,
+        bounds: [[-90, -180], [90, 180]]
       }).addTo(map);
-      
-      // Add lat/lon grid lines (like NASA Mission Control display)
-      addGridLines();
       
       // ISS marker icon
       const issIcon = L.divIcon({
@@ -1689,27 +1685,6 @@
       // Update button states
       document.getElementById('btnFootprint').classList.add('active');
       document.getElementById('btnTrack').classList.add('active');
-    }
-    
-    // Add lat/lon grid lines (NASA Mission Control style)
-    function addGridLines() {
-      // Latitude lines every 30°
-      [-60, -30, 0, 30, 60].forEach(lat => {
-        L.polyline([[lat, -180], [lat, 180]], {
-          color: 'rgba(255,255,255,0.2)',
-          weight: 1,
-          dashArray: '4,4'
-        }).addTo(map);
-      });
-      
-      // Longitude lines every 30°
-      for (let lon = -150; lon <= 180; lon += 30) {
-        L.polyline([[-90, lon], [90, lon]], {
-          color: 'rgba(255,255,255,0.2)',
-          weight: 1,
-          dashArray: '4,4'
-        }).addTo(map);
-      }
     }
     
     // Fetch ISS position from our server (proxied API)

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Tracker - EPSG:4326 Equirectangular Test</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; font-family: 'Courier New', monospace; color: #fff; }
+        h2 { padding: 8px 15px; font-size: 12px; color: #00bcd4; background: #111; }
+        .map-container {
+            width: 100%;
+            height: 350px;
+            border-bottom: 2px solid #333;
+        }
+        .leaflet-container { background: #000 !important; }
+        .leaflet-control-attribution {
+            background: rgba(0,0,0,0.7) !important;
+            color: #666 !important;
+            font-size: 9px !important;
+        }
+        .iss-marker { background: transparent; border: none; }
+        .iss-icon svg { filter: drop-shadow(0 0 6px #00ff00); }
+        
+        /* Grid overlay styling */
+        .grid-line {
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 1;
+        }
+    </style>
+</head>
+<body>
+    <h2>NASA GIBS Blue Marble - EPSG:4326 Equirectangular Projection (like NASA Mission Control)</h2>
+    <div id="map1" class="map-container"></div>
+
+    <script>
+        // ISS Icon
+        const issIcon = L.divIcon({
+            className: 'iss-marker',
+            html: `<div class="iss-icon">
+                <svg viewBox="0 0 60 36" width="50" height="30">
+                    <rect x="6" y="0" width="10" height="36" fill="#ffd60a" rx="1"/>
+                    <rect x="44" y="0" width="10" height="36" fill="#ffd60a" rx="1"/>
+                    <rect x="18" y="12" width="24" height="12" fill="#888" rx="2"/>
+                    <circle cx="30" cy="18" r="4" fill="#00ff00"/>
+                </svg>
+            </div>`,
+            iconSize: [50, 30],
+            iconAnchor: [25, 15]
+        });
+
+        // Sample ISS position
+        const issLat = 28.5;
+        const issLon = -88.3;
+
+        // === EPSG:4326 Equirectangular Map ===
+        // This is the projection NASA uses for mission control displays
+        const map1 = L.map('map1', {
+            crs: L.CRS.EPSG4326,  // Equirectangular projection!
+            center: [0, 0],
+            zoom: 1,
+            minZoom: 0,
+            maxZoom: 5,
+            maxBounds: [[-90, -180], [90, 180]],
+            maxBoundsViscosity: 1.0
+        });
+
+        // NASA GIBS Blue Marble in EPSG:4326
+        // Note: GIBS uses {y}/{x} order for EPSG:4326
+        L.tileLayer('https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default//EPSG4326_500m/{z}/{y}/{x}.jpeg', {
+            attribution: '&copy; NASA GIBS Blue Marble',
+            tileSize: 512,
+            maxZoom: 8,
+            noWrap: true,
+            bounds: [[-90, -180], [90, 180]]
+        }).addTo(map1);
+
+        // Add ISS marker
+        L.marker([issLat, issLon], { icon: issIcon }).addTo(map1);
+
+        // Add grid lines (like NASA display)
+        function addGridLines(map) {
+            // Latitude lines every 30 degrees
+            for (let lat = -60; lat <= 60; lat += 30) {
+                L.polyline([
+                    [lat, -180],
+                    [lat, 180]
+                ], {
+                    color: 'rgba(255,255,255,0.3)',
+                    weight: 1,
+                    dashArray: '5,5'
+                }).addTo(map);
+            }
+            
+            // Longitude lines every 30 degrees
+            for (let lon = -150; lon <= 180; lon += 30) {
+                L.polyline([
+                    [-90, lon],
+                    [90, lon]
+                ], {
+                    color: 'rgba(255,255,255,0.3)',
+                    weight: 1,
+                    dashArray: '5,5'
+                }).addTo(map);
+            }
+        }
+        
+        addGridLines(map1);
+
+        // Add sample orbit track (sinusoidal curve)
+        const orbitPoints = [];
+        for (let lon = -180; lon <= 180; lon += 5) {
+            // ISS orbit is roughly sinusoidal in equirectangular projection
+            // Inclination ~51.6 degrees
+            const lat = 51.6 * Math.sin((lon + 90) * Math.PI / 180);
+            orbitPoints.push([lat, lon]);
+        }
+        
+        L.polyline(orbitPoints, {
+            color: '#00ff00',
+            weight: 2,
+            opacity: 0.8
+        }).addTo(map1);
+    </script>
+</body>
+</html>
