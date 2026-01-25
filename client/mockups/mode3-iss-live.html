@@ -1621,18 +1621,17 @@
         crs: L.CRS.EPSG4326,  // Equirectangular projection like NASA Mission Control
         center: [0, 0],
         zoom: 1,
-        minZoom: 1,
+        minZoom: 0,
         maxZoom: 5,
+        zoomSnap: 0,  // Allow fractional zoom for perfect fit
+        zoomDelta: 0.5,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0,
         worldCopyJump: false
       });
       
-      // Fit world bounds - will show entire world without repetition
-      map.fitBounds([[-90, -180], [90, 180]], { 
-        padding: [0, 0],
-        maxZoom: 1  // Limit zoom so world fits
-      });
+      // Fit to container - fractional zoom allows perfect fill
+      map.fitBounds([[-90, -180], [90, 180]]);
       
       // NASA GIBS Blue Marble tiles in EPSG:4326 (WMS)
       L.tileLayer.wms('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi', {
