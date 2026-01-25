@@ -727,7 +727,7 @@
     const ISS_ORBITAL_PERIOD_MS = 92.68 * 60 * 1000; // ~92.68 minutes in ms
     const ISS_GROUND_SPEED_DEG_PER_SEC = 360 / (92.68 * 60); // degrees longitude per second
     const TRACK_CACHE_KEY = 'artemisops_iss_ground_track';
-    const MAX_TRACK_POINTS = 400; // ~2 orbits worth at 5 second intervals
+    const MAX_TRACK_POINTS = 1200; // ~1 full orbit (93 min × 12 updates/min = 1116 points)
     
     /*
      * Ground Track Caching Strategy:
@@ -761,25 +761,16 @@
           const now = Date.now();
           const age = now - data.timestamp;
           
-          // If cache is older than 2 orbits, discard completely
-          if (age > ISS_ORBITAL_PERIOD_MS * 2) {
-            console.log('Ground track cache too old (>2 orbits), discarding');
-            localStorage.removeItem(TRACK_CACHE_KEY);
-            return [];
-          }
-          
-          // If gap > 30 minutes (half orbit), the old track positions are stale
-          // ISS has moved too far - clear old data and start fresh
-          const HALF_ORBIT_MS = ISS_ORBITAL_PERIOD_MS / 2; // ~46 minutes
-          if (age > HALF_ORBIT_MS) {
-            console.log(`Gap of ${(age/60000).toFixed(1)} min (> half orbit) - clearing stale track data`);
+          // If cache is older than 3 orbits, discard completely
+          if (age > ISS_ORBITAL_PERIOD_MS * 3) {
+            console.log('Ground track cache too old (>3 orbits), discarding');
             localStorage.removeItem(TRACK_CACHE_KEY);
             return [];
           }
           
           console.log(`Loaded ${data.positions.length} cached track points, age: ${(age/60000).toFixed(1)} min`);
           
-          // If there's a small gap (10s - 30min), try to extrapolate
+          // If there's a gap, try to extrapolate (up to 30 min worth)
           if (age > 10000 && data.positions.length >= 2) {
             const extrapolated = this.extrapolateTrack(data.positions, data.timestamp, now);
             return extrapolated;
