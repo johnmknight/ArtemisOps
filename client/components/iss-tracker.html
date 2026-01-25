@@ -413,22 +413,11 @@
           maxZoom: 19
         }).addTo(this.map);
         
-        // ISS marker icon
-        const issIcon = L.divIcon({
-          className: 'iss-marker',
-          html: `
-            <div class="iss-icon">
-              <svg viewBox="0 0 60 36" width="60" height="36">
-                <rect x="6" y="0" width="10" height="36" fill="#ffd60a" opacity="0.9" rx="1"/>
-                <rect x="44" y="0" width="10" height="36" fill="#ffd60a" opacity="0.9" rx="1"/>
-                <rect x="0" y="14" width="60" height="8" fill="#00bcd4" rx="1"/>
-                <rect x="20" y="10" width="20" height="16" fill="#00bcd4" rx="2"/>
-                <circle cx="30" cy="18" r="4" fill="#0d1a2d" opacity="0.5"/>
-              </svg>
-            </div>
-          `,
-          iconSize: [60, 36],
-          iconAnchor: [30, 18]
+        // ISS marker icon - using PNG asset
+        const issIcon = L.icon({
+          iconUrl: '../assets/icons/spacecraft/big-iss-icon.png',
+          iconSize: [80, 48],
+          iconAnchor: [40, 24]
         });
         
         this.issMarker = L.marker([0, 0], { icon: issIcon }).addTo(this.map);
