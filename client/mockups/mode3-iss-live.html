@@ -2046,7 +2046,7 @@
       const loadingEl = document.getElementById('modelLoading');
       const progressEl = document.getElementById('loadingProgress');
       
-      loader.load('/assets/iss-model-hd.glb', 
+      loader.load('../assets/iss-model-hd.glb', 
         function(gltf) {
           issModel = gltf.scene;
           
@@ -2392,7 +2392,7 @@
       loader.setDRACOLoader(dracoLoader);
       
       return new Promise((resolve, reject) => {
-        loader.load('/assets/iss-model-hd.glb',
+        loader.load('../assets/iss-model-hd.glb',
           (gltf) => {
             const model = gltf.scene;
             const box = new THREE.Box3().setFromObject(model);
