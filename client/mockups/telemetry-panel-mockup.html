@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Telemetry Panel Mockup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --bg-card: #0f1e33;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --text-accent: #00bcd4;
+      --success-color: #7ed321;
+      --warning-color: #f5a623;
+      --danger-color: #ff4757;
+      --accent-yellow: #ffd60a;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      text-align: center;
+      color: var(--text-accent);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+    }
+    
+    .telemetry-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    
+    /* Section Card */
+    .telem-section {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(180deg, rgba(0,188,212,0.15) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-accent);
+    }
+    
+    .section-subtitle {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+    }
+    
+    .section-body {
+      padding: 12px;
+    }
+    
+    /* Telemetry Grid */
+    .telem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    
+    .telem-grid.single-col {
+      grid-template-columns: 1fr;
+    }
+    
+    .telem-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .telem-item.wide {
+      grid-column: span 2;
+    }
+    
+    .telem-label {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+    
+    .telem-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+    }
+    
+    .telem-value.ok { color: var(--success-color); }
+    .telem-value.warn { color: var(--warning-color); }
+    .telem-value.danger { color: var(--danger-color); }
+    .telem-value.accent { color: var(--text-accent); }
+    
+    /* Status Indicator */
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-dot.ok { background: var(--success-color); }
+    .status-dot.warn { background: var(--warning-color); }
+    .status-dot.off { background: var(--text-secondary); }
+    
+    /* Segment Colors */
+    .icon-uslab { background: #0b3d91; color: #fff; }
+    .icon-node1 { background: #1e5aa8; color: #fff; }
+    .icon-node2 { background: #2a6fc9; color: #fff; }
+    .icon-node3 { background: #3a7fd9; color: #fff; }
+    .icon-columbus { background: #003399; color: #fff; }
+    .icon-jem { background: #c41e3a; color: #fff; }
+    .icon-russian { background: #d52b1e; color: #fff; }
+    .icon-truss { background: #4a5568; color: #fff; }
+    .icon-power { background: #f5a623; color: #000; }
+    .icon-thermal { background: #00bcd4; color: #000; }
+    .icon-vehicle { background: #7ed321; color: #000; }
+    .icon-eva { background: #9b59b6; color: #fff; }
+    
+    /* Live Badge */
+    .live-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6rem;
+      color: var(--success-color);
+      background: rgba(126, 211, 33, 0.1);
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid rgba(126, 211, 33, 0.3);
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    /* Channel ID tooltip */
+    .channel-id {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+    
+    /* Subsection divider */
+    .subsection {
+      font-size: 0.6rem;
+      color: var(--text-accent);
+      letter-spacing: 1px;
+      padding: 8px 0 4px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+    
+    /* Legend */
+    .legend {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+    .legend-title {
+      font-size: 0.75rem;
+      color: var(--text-accent);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+    }
+    .legend-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>📡 ISS STATION SYSTEMS TELEMETRY</h1>
+  
+  <div class="telemetry-container">
+    
+    <!-- ENVIRONMENTAL - US LAB -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-uslab">LAB</div>
+        <div>
+          <div class="section-title">ENVIRONMENTAL</div>
+          <div class="section-subtitle">US Laboratory (Destiny)</div>
+        </div>
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN TEMP</div>
+              <div class="channel-id">USLAB000059</div>
+            </div>
+            <div class="telem-value ok">23.4°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN PRESSURE</div>
+              <div class="channel-id">USLAB000058</div>
+            </div>
+            <div class="telem-value ok">14.7 psia</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ppO₂</div>
+              <div class="channel-id">USLAB000053</div>
+            </div>
+            <div class="telem-value ok">160.2 mmHg</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ppCO₂</div>
+              <div class="channel-id">USLAB000055</div>
+            </div>
+            <div class="telem-value ok">2.84 mmHg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- LIFE SUPPORT - NODE 3 -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-node3">N3</div>
+        <div>
+          <div class="section-title">LIFE SUPPORT</div>
+          <div class="section-subtitle">Node 3 (Tranquility)</div>
+        </div>
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">O₂ GENERATOR</div>
+              <div class="channel-id">NODE3000010</div>
+            </div>
+            <div class="telem-value ok"><span class="status-dot ok"></span>PROC</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">WATER PROCESSOR</div>
+              <div class="channel-id">NODE3000006</div>
+            </div>
+            <div class="telem-value ok"><span class="status-dot ok"></span>PROC</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">URINE TANK</div>
+              <div class="channel-id">NODE3000005</div>
+            </div>
+            <div class="telem-value warn">67%</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CLEAN WATER</div>
+              <div class="channel-id">NODE3000009</div>
+            </div>
+            <div class="telem-value ok">84%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ATTITUDE & NAVIGATION -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-uslab">NAV</div>
+        <div>
+          <div class="section-title">ATTITUDE & NAVIGATION</div>
+          <div class="section-subtitle">GN&C System</div>
+        </div>
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item wide">
+            <div>
+              <div class="telem-label">QUATERNION (Q1-Q4)</div>
+              <div class="channel-id">USLAB000018-21</div>
+            </div>
+            <div class="telem-value accent" style="font-size:0.7rem">0.12, -0.45, 0.88, 0.03</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ROLL</div>
+            </div>
+            <div class="telem-value">-2.4°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">PITCH</div>
+            </div>
+            <div class="telem-value">1.8°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">YAW</div>
+            </div>
+            <div class="telem-value">-0.6°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CMG MOMENTUM</div>
+              <div class="channel-id">USLAB000010</div>
+            </div>
+            <div class="telem-value ok">42%</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">BETA ANGLE</div>
+              <div class="channel-id">USLAB000040</div>
+            </div>
+            <div class="telem-value accent">-52.3°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ISS MASS</div>
+              <div class="channel-id">USLAB000039</div>
+            </div>
+            <div class="telem-value">420,421 kg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SOLAR ARRAYS - PORT -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-power">⚡</div>
+        <div>
+          <div class="section-title">SOLAR ARRAYS - PORT</div>
+          <div class="section-subtitle">P4/P6 Truss Segments</div>
+        </div>
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      </div>
+      <div class="section-body">
+        <div class="subsection">SARJ (Alpha Rotation)</div>
+        <div class="telem-grid">
+          <div class="telem-item wide">
+            <div>
+              <div class="telem-label">PORT SARJ ANGLE</div>
+              <div class="channel-id">S0000004</div>
+            </div>
+            <div class="telem-value accent">181.5°</div>
+          </div>
+        </div>
+        <div class="subsection" style="margin-top:12px">BGA (Beta Gimbal)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">2A BGA</div>
+              <div class="channel-id">P4000007</div>
+            </div>
+            <div class="telem-value">-12.4°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">4A BGA</div>
+              <div class="channel-id">P4000008</div>
+            </div>
+            <div class="telem-value">-11.8°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">2B BGA</div>
+              <div class="channel-id">P6000007</div>
+            </div>
+            <div class="telem-value">-13.1°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">4B BGA</div>
+              <div class="channel-id">P6000008</div>
+            </div>
+            <div class="telem-value">-12.9°</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SOLAR ARRAYS - STARBOARD -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-power">⚡</div>
+        <div>
+          <div class="section-title">SOLAR ARRAYS - STBD</div>
+          <div class="section-subtitle">S4/S6 Truss Segments</div>
+        </div>
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      </div>
+      <div class="section-body">
+        <div class="subsection">SARJ (Alpha Rotation)</div>
+        <div class="telem-grid">
+          <div class="telem-item wide">
+            <div>
+              <div class="telem-label">STBD SARJ ANGLE</div>
+              <div class="channel-id">S0000003</div>
+            </div>
+            <div class="telem-value accent">178.5°</div>
+          </div>
+        </div>
+        <div class="subsection" style="margin-top:12px">BGA (Beta Gimbal)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">1A BGA</div>
+              <div class="channel-id">S4000007</div>
+            </div>
+            <div class="telem-value">-10.2°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">3A BGA</div>
+              <div class="channel-id">S4000008</div>
+            </div>
+            <div class="telem-value">-10.6°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">1B BGA</div>
+              <div class="channel-id">S6000007</div>
+            </div>
+            <div class="telem-value">-11.0°</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">3B BGA</div>
+              <div class="channel-id">S6000008</div>
+            </div>
+            <div class="telem-value">-10.8°</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- THERMAL CONTROL -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-thermal">❄</div>
+        <div>
+          <div class="section-title">THERMAL CONTROL</div>
+          <div class="section-subtitle">ETCS Loops A & B</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="subsection">Loop A</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">PUMP STATUS</div>
+              <div class="channel-id">S0000007</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">OUTLET TEMP</div>
+              <div class="channel-id">S0000008</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+        </div>
+        <div class="subsection" style="margin-top:12px">Loop B</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">PUMP STATUS</div>
+              <div class="channel-id">S0000009</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">OUTLET TEMP</div>
+              <div class="channel-id">S0000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- COLUMBUS MODULE -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-columbus">COL</div>
+        <div>
+          <div class="section-title">COLUMBUS</div>
+          <div class="section-subtitle">ESA Laboratory Module</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN TEMP</div>
+              <div class="channel-id">COL000001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">HUMIDITY</div>
+              <div class="channel-id">COL000002</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--%</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">POWER DRAW</div>
+              <div class="channel-id">COL000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- kW</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">EXPERIMENT</div>
+              <div class="channel-id">COL000020</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- JEM/KIBO -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-jem">JEM</div>
+        <div>
+          <div class="section-title">KIBO</div>
+          <div class="section-subtitle">JAXA Experiment Module</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN TEMP</div>
+              <div class="channel-id">JEM000001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">AIRLOCK</div>
+              <div class="channel-id">JEM000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">RMS ARM</div>
+              <div class="channel-id">JEM000020</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">EF PAYLOADS</div>
+              <div class="channel-id">JEM000030</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- RUSSIAN SEGMENT -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-russian">RUS</div>
+        <div>
+          <div class="section-title">RUSSIAN SEGMENT</div>
+          <div class="section-subtitle">Zvezda, Zarya, Nauka, Prichal</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ZVEZDA TEMP</div>
+              <div class="channel-id">RUSSEG00001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">ELEKTRON O₂</div>
+              <div class="channel-id">RUSSEG00010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">PROGRESS</div>
+              <div class="channel-id">RUSSEG00020</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">SOYUZ</div>
+              <div class="channel-id">RUSSEG00030</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AIRLOCK / EVA -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-eva">EVA</div>
+        <div>
+          <div class="section-title">AIRLOCK / EVA</div>
+          <div class="section-subtitle">Quest Joint Airlock</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CREWLOCK PRESS</div>
+              <div class="channel-id">AIRLOCK000001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psia</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">EQLOCK PRESS</div>
+              <div class="channel-id">AIRLOCK000002</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psia</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">O₂ SUPPLY</div>
+              <div class="channel-id">AIRLOCK000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psi</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">N₂ SUPPLY</div>
+              <div class="channel-id">AIRLOCK000011</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- DOCKED VEHICLES -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-vehicle">🚀</div>
+        <div>
+          <div class="section-title">DOCKED VEHICLES</div>
+          <div class="section-subtitle">Commercial Crew & Cargo</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="subsection">Crew Dragon (Node 2 Fwd)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN PRESS</div>
+              <div class="channel-id">DRAGON00001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psia</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">BATTERY</div>
+              <div class="channel-id">DRAGON00010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--%</div>
+          </div>
+        </div>
+        <div class="subsection" style="margin-top:12px">Starliner (Node 2 Zenith)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">CABIN PRESS</div>
+              <div class="channel-id">CST00001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">-- psia</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">BATTERY</div>
+              <div class="channel-id">CST00010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- NODES 1 & 2 -->
+    <div class="telem-section">
+      <div class="section-header">
+        <div class="section-icon icon-node1">N1</div>
+        <div>
+          <div class="section-title">NODES 1 & 2</div>
+          <div class="section-subtitle">Unity & Harmony</div>
+        </div>
+        <div class="live-badge" style="opacity:0.5"><span class="status-dot off"></span>PENDING</div>
+      </div>
+      <div class="section-body">
+        <div class="subsection">Node 1 (Unity)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">TEMP</div>
+              <div class="channel-id">NODE1000001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">HATCHES</div>
+              <div class="channel-id">NODE1000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+        </div>
+        <div class="subsection" style="margin-top:12px">Node 2 (Harmony)</div>
+        <div class="telem-grid">
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">TEMP</div>
+              <div class="channel-id">NODE2000001</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--°C</div>
+          </div>
+          <div class="telem-item">
+            <div>
+              <div class="telem-label">BERTHING</div>
+              <div class="channel-id">NODE2000010</div>
+            </div>
+            <div class="telem-value" style="opacity:0.4">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-title">📋 SEGMENT LEGEND</div>
+    <div class="legend-items">
+      <div class="legend-item"><div class="legend-icon icon-uslab">LAB</div>US Lab (Destiny)</div>
+      <div class="legend-item"><div class="legend-icon icon-node1">N1</div>Node 1 (Unity)</div>
+      <div class="legend-item"><div class="legend-icon icon-node2">N2</div>Node 2 (Harmony)</div>
+      <div class="legend-item"><div class="legend-icon icon-node3">N3</div>Node 3 (Tranquility)</div>
+      <div class="legend-item"><div class="legend-icon icon-columbus">COL</div>Columbus (ESA)</div>
+      <div class="legend-item"><div class="legend-icon icon-jem">JEM</div>Kibo (JAXA)</div>
+      <div class="legend-item"><div class="legend-icon icon-russian">RUS</div>Russian Segment</div>
+      <div class="legend-item"><div class="legend-icon icon-power">⚡</div>Power/Solar</div>
+      <div class="legend-item"><div class="legend-icon icon-thermal">❄</div>Thermal</div>
+      <div class="legend-item"><div class="legend-icon icon-eva">EVA</div>Airlock/EVA</div>
+      <div class="legend-item"><div class="legend-icon icon-vehicle">🚀</div>Vehicles</div>
+    </div>
+  </div>
+  
+</body>
+</html>

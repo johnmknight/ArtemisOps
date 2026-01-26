@@ -6,6 +6,7 @@ Supports NASA and ESA crewed missions
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
 from datetime import datetime, timezone
@@ -17,7 +18,7 @@ from database import (
 )
 from fetcher import sync_all_missions, ensure_default_missions
 from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until
-from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name
+from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -120,6 +121,15 @@ app = FastAPI(
     description="Mission Control Backend for NASA and ESA Crewed Missions",
     version="0.5.0",
     lifespan=lifespan
+)
+
+# CORS middleware for cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -445,6 +455,18 @@ async def get_iss_telemetry_data():
     return get_nasa_telemetry()
 
 
+@app.get("/api/iss/news")
+async def get_iss_news_data(limit: int = 10):
+    """
+    Get latest ISS news from NASA ISS Blog and Spaceflight Now RSS feeds.
+    Cached for 15 minutes.
+    """
+    try:
+        return await get_iss_news(limit)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"ISS news unavailable: {str(e)}")
+
+
 @app.get("/api/iss/location/{lat},{lng}")
 async def get_iss_location_name(lat: float, lng: float):
     """
@@ -455,6 +477,18 @@ async def get_iss_location_name(lat: float, lng: float):
         return await get_location_name(lat, lng)
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Location lookup unavailable: {str(e)}")
+
+
+@app.get("/api/iss/news")
+async def get_iss_news_data(limit: int = 10):
+    """
+    Get latest ISS news from NASA ISS Blog and Spaceflight Now.
+    Data is cached for 15 minutes.
+    """
+    try:
+        return await get_iss_news(limit)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"ISS news unavailable: {str(e)}")
 
 
 @app.get("/api/status")

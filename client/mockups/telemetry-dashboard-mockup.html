@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Telemetry Dashboard Mockup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --bg-section: #0f1f35;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --text-accent: #00bcd4;
+      --success-color: #7ed321;
+      --warning-color: #f5a623;
+      --danger-color: #d0021b;
+      --nasa-blue: #0b3d91;
+      --esa-blue: #003399;
+      --jaxa-red: #c41e3a;
+      --csa-blue: #1e88e5;
+      --roscosmos-blue: #0033a0;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .dashboard {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      color: var(--text-accent);
+    }
+    
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(126, 211, 33, 0.2);
+      border: 1px solid var(--success-color);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+    
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 16px;
+    }
+    
+    .section {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-section);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-accent);
+    }
+    
+    .section-subtitle {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+    }
+    
+    .section-body {
+      padding: 12px;
+    }
+    
+    .subsection {
+      margin-bottom: 12px;
+    }
+    
+    .subsection:last-child {
+      margin-bottom: 0;
+    }
+    
+    .subsection-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: rgba(0, 188, 212, 0.1);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .subsection-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: bold;
+    }
+    
+    .subsection-title {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+    
+    .telem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    
+    .telem-grid.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .telem-grid.cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .telem-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(26, 58, 92, 0.5);
+      border-radius: 4px;
+      padding: 8px;
+      text-align: center;
+    }
+    
+    .telem-item.subscribed {
+      border-color: var(--success-color);
+      background: rgba(126, 211, 33, 0.1);
+    }
+    
+    .telem-item.not-subscribed {
+      opacity: 0.6;
+    }
+    
+    .telem-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .telem-value {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+    
+    .telem-unit {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    
+    .telem-id {
+      font-size: 0.5rem;
+      color: rgba(139, 148, 158, 0.5);
+      margin-top: 4px;
+    }
+    
+    /* Module/Segment Colors */
+    .icon-uslab { background: var(--nasa-blue); color: #fff; }
+    .icon-node1 { background: #2196f3; color: #fff; }
+    .icon-node2 { background: #03a9f4; color: #fff; }
+    .icon-node3 { background: #00bcd4; color: #fff; }
+    .icon-airlock { background: #009688; color: #fff; }
+    .icon-z1 { background: #4caf50; color: #fff; }
+    .icon-s0 { background: #8bc34a; color: #000; }
+    .icon-p1 { background: #ff9800; color: #000; }
+    .icon-s1 { background: #ff5722; color: #fff; }
+    .icon-p3 { background: #e91e63; color: #fff; }
+    .icon-s3 { background: #9c27b0; color: #fff; }
+    .icon-p4 { background: #673ab7; color: #fff; }
+    .icon-s4 { background: #3f51b5; color: #fff; }
+    .icon-p6 { background: #795548; color: #fff; }
+    .icon-s6 { background: #607d8b; color: #fff; }
+    .icon-ros { background: var(--roscosmos-blue); color: #fff; }
+    .icon-csa { background: var(--csa-blue); color: #fff; }
+    .icon-esa { background: var(--esa-blue); color: #fff; }
+    .icon-jaxa { background: var(--jaxa-red); color: #fff; }
+    
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    
+    .status-legend {
+      display: flex;
+      gap: 20px;
+      margin-left: auto;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.65rem;
+    }
+    
+    .status-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    
+    .status-box.subscribed {
+      border-color: var(--success-color);
+      background: rgba(126, 211, 33, 0.2);
+    }
+    
+    .status-box.not-subscribed {
+      border-color: var(--border-color);
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <h1>🛰️ ISS TELEMETRY DASHBOARD</h1>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        <span>NASA LIGHTSTREAMER LIVE</span>
+      </div>
+    </header>
+    
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color icon-uslab"></div>US Lab</div>
+      <div class="legend-item"><div class="legend-color icon-node1"></div>Node 1</div>
+      <div class="legend-item"><div class="legend-color icon-node2"></div>Node 2</div>
+      <div class="legend-item"><div class="legend-color icon-node3"></div>Node 3</div>
+      <div class="legend-item"><div class="legend-color icon-airlock"></div>Airlock</div>
+      <div class="legend-item"><div class="legend-color icon-z1"></div>Z1 Truss</div>
+      <div class="legend-item"><div class="legend-color icon-p1"></div>P1 Truss</div>
+      <div class="legend-item"><div class="legend-color icon-s1"></div>S1 Truss</div>
+      <div class="legend-item"><div class="legend-color icon-p4"></div>P4/P6</div>
+      <div class="legend-item"><div class="legend-color icon-s4"></div>S4/S6</div>
+      <div class="legend-item"><div class="legend-color icon-ros"></div>Russian</div>
+      <div class="legend-item"><div class="legend-color icon-csa"></div>CSA</div>
+      
+      <div class="status-legend">
+        <div class="status-item"><div class="status-box subscribed"></div>Subscribed</div>
+        <div class="status-item"><div class="status-box not-subscribed"></div>Available</div>
+      </div>
+    </div>
+    
+    <div class="telemetry-grid">
+      
+      <!-- ENVIRONMENTAL & LIFE SUPPORT (ETHOS) -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon icon-uslab">⚗️</div>
+          <div>
+            <div class="section-title">ENVIRONMENTAL & LIFE SUPPORT</div>
+            <div class="section-subtitle">ETHOS Console - Atmosphere, Water, O₂ Generation</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <!-- US Lab Atmosphere -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-uslab">LAB</div>
+              <div class="subsection-title">US LAB (DESTINY) ATMOSPHERE</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">CABIN TEMP</div>
+                <div class="telem-value">22.1°C</div>
+                <div class="telem-id">USLAB000059</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">PRESSURE</div>
+                <div class="telem-value">14.7 psia</div>
+                <div class="telem-id">USLAB000058</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">ppO₂</div>
+                <div class="telem-value">160.2</div>
+                <div class="telem-unit">mmHg</div>
+                <div class="telem-id">USLAB000053</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">ppCO₂</div>
+                <div class="telem-value">3.21</div>
+                <div class="telem-unit">mmHg</div>
+                <div class="telem-id">USLAB000055</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">ppN₂</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000054</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">AIR COOLING</div>
+                <div class="telem-value">--°C</div>
+                <div class="telem-id">USLAB000061</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">PORT A/C</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000064</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">STBD A/C</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000065</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Node 3 Life Support -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-node3">N3</div>
+              <div class="subsection-title">NODE 3 (TRANQUILITY) - ECLSS</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">O₂ GEN STATE</div>
+                <div class="telem-value">PROC</div>
+                <div class="telem-id">NODE3000010</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">O₂ RATE</div>
+                <div class="telem-value">-- lb/d</div>
+                <div class="telem-id">NODE3000011</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">URINE TANK</div>
+                <div class="telem-value">42%</div>
+                <div class="telem-id">NODE3000005</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">URINE PROC</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000004</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">WATER PROC</div>
+                <div class="telem-value">STBY</div>
+                <div class="telem-id">NODE3000006</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">WPA STEP</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000007</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">CLEAN H₂O</div>
+                <div class="telem-value">78%</div>
+                <div class="telem-id">NODE3000009</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">WASTE H₂O</div>
+                <div class="telem-value">--%</div>
+                <div class="telem-id">NODE3000008</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Node 3 Atmosphere -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-node3">N3</div>
+              <div class="subsection-title">NODE 3 ATMOSPHERE</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">ppO₂</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">ppN₂</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">ppCO₂</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000003</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">A/C STATE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">NODE3000018</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Airlock -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-airlock">Q</div>
+              <div class="subsection-title">QUEST AIRLOCK</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">AIRLOCK PRESS</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">AIRLOCK000054</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CREWLOCK</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">AIRLOCK000049</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">HI P O₂ TANK</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">AIRLOCK000055</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">N₂ TANK</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">AIRLOCK000057</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ATTITUDE & GUIDANCE (ADCO) -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon icon-z1">🧭</div>
+          <div>
+            <div class="section-title">ATTITUDE & GUIDANCE</div>
+            <div class="section-subtitle">ADCO Console - CMGs, Quaternions, State Vectors</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <!-- Attitude -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-uslab">ATT</div>
+              <div class="subsection-title">ATTITUDE (LVLH)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">ROLL</div>
+                <div class="telem-value">-0.2°</div>
+                <div class="telem-id">USLAB000ROL</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">PITCH</div>
+                <div class="telem-value">-5.1°</div>
+                <div class="telem-id">USLAB000PIT</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">YAW</div>
+                <div class="telem-value">0.8°</div>
+                <div class="telem-id">USLAB000YAW</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">GNC MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000012</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">QUAT W</div>
+                <div class="telem-value">0.998</div>
+                <div class="telem-id">USLAB000018</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">QUAT X</div>
+                <div class="telem-value">0.002</div>
+                <div class="telem-id">USLAB000019</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">QUAT Y</div>
+                <div class="telem-value">-0.044</div>
+                <div class="telem-id">USLAB000020</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">QUAT Z</div>
+                <div class="telem-value">0.007</div>
+                <div class="telem-id">USLAB000021</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CMGs -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-z1">CMG</div>
+              <div class="subsection-title">CONTROL MOMENT GYROSCOPES (Z1 TRUSS)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">CMG MOMENTUM</div>
+                <div class="telem-value">23%</div>
+                <div class="telem-id">USLAB000010</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMGs ONLINE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000005</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-1</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-2</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-3</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000003</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-4</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000004</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-1 RPM</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">Z1000009</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">CMG-2 RPM</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">Z1000010</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mass & Beta -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-uslab">ORB</div>
+              <div class="subsection-title">ORBITAL PARAMETERS</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">ISS MASS</div>
+                <div class="telem-value">420,421</div>
+                <div class="telem-unit">kg</div>
+                <div class="telem-id">USLAB000039</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">SOLAR BETA</div>
+                <div class="telem-value">-52.3°</div>
+                <div class="telem-id">USLAB000040</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">ALTITUDE</div>
+                <div class="telem-value">-- km</div>
+                <div class="telem-id">USLAB000ALT</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">STATION MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">USLAB000086</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- POWER SYSTEMS (SPARTAN) -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background: linear-gradient(135deg, #673ab7, #ff9800);">⚡</div>
+          <div>
+            <div class="section-title">POWER SYSTEMS</div>
+            <div class="section-subtitle">SPARTAN Console - Solar Arrays, SARJs, BGAs</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <!-- SARJ -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-s0">SARJ</div>
+              <div class="subsection-title">SOLAR ALPHA ROTARY JOINTS (S0 TRUSS)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">PORT SARJ</div>
+                <div class="telem-value">181.5°</div>
+                <div class="telem-id">S0000004</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">STBD SARJ</div>
+                <div class="telem-value">178.5°</div>
+                <div class="telem-id">S0000003</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">PORT MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">S0000008</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">STBD MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">S0000009</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Port Solar Arrays -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-p4">P4</div>
+              <div class="subsection-title">PORT SOLAR ARRAYS (P4/P6 TRUSS)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">2A BGA</div>
+                <div class="telem-value">45.2°</div>
+                <div class="telem-id">P4000007</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">4A BGA</div>
+                <div class="telem-value">44.8°</div>
+                <div class="telem-id">P4000008</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">2A VOLTAGE</div>
+                <div class="telem-value">-- V</div>
+                <div class="telem-id">P4000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">2A CURRENT</div>
+                <div class="telem-value">-- A</div>
+                <div class="telem-id">P4000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">2B BGA</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">P6000008</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">4B BGA</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">P6000007</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">4B VOLTAGE</div>
+                <div class="telem-value">-- V</div>
+                <div class="telem-id">P6000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">4B CURRENT</div>
+                <div class="telem-value">-- A</div>
+                <div class="telem-id">P6000002</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Starboard Solar Arrays -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-s4">S4</div>
+              <div class="subsection-title">STARBOARD SOLAR ARRAYS (S4/S6 TRUSS)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item subscribed">
+                <div class="telem-label">1A BGA</div>
+                <div class="telem-value">-12.3°</div>
+                <div class="telem-id">S4000007</div>
+              </div>
+              <div class="telem-item subscribed">
+                <div class="telem-label">3A BGA</div>
+                <div class="telem-value">-11.9°</div>
+                <div class="telem-id">S4000008</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">1A VOLTAGE</div>
+                <div class="telem-value">-- V</div>
+                <div class="telem-id">S4000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">1A CURRENT</div>
+                <div class="telem-value">-- A</div>
+                <div class="telem-id">S4000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">1B BGA</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">S6000008</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">3B BGA</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">S6000007</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">3B VOLTAGE</div>
+                <div class="telem-value">-- V</div>
+                <div class="telem-id">S6000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">3B CURRENT</div>
+                <div class="telem-value">-- A</div>
+                <div class="telem-id">S6000002</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- THERMAL (SPARTAN) -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background: linear-gradient(135deg, #ff5722, #2196f3);">🌡️</div>
+          <div>
+            <div class="section-title">THERMAL CONTROL</div>
+            <div class="section-subtitle">SPARTAN Console - ETCS Loops, Radiators, TRRJs</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <!-- TRRJ -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-s1">TRRJ</div>
+              <div class="subsection-title">THERMAL RADIATOR ROTATING JOINTS</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">PORT TRRJ</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">S0000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">STBD TRRJ</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">S0000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">PORT MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">S0000006</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">STBD MODE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">S0000007</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ETCS Loops -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-p1">ETCS</div>
+              <div class="subsection-title">EXTERNAL THERMAL CONTROL SYSTEM</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LOOP A FLOW</div>
+                <div class="telem-value">-- kg/hr</div>
+                <div class="telem-id">S1000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LOOP A TEMP</div>
+                <div class="telem-value">--°C</div>
+                <div class="telem-id">S1000003</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LOOP B FLOW</div>
+                <div class="telem-value">-- kg/hr</div>
+                <div class="telem-id">P1000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LOOP B TEMP</div>
+                <div class="telem-value">--°C</div>
+                <div class="telem-id">P1000003</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ROBOTICS (CSA) -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon icon-csa">🦾</div>
+          <div>
+            <div class="section-title">ROBOTICS</div>
+            <div class="section-subtitle">CSA Console - Canadarm2, Dextre, Mobile Transporter</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <!-- SSRMS -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-csa">ARM</div>
+              <div class="subsection-title">CANADARM2 (SSRMS)</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">BASE LOC</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSASSRMS002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">OP BASE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSASSRMS003</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LEE PAYLOAD</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSASSRMS011</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">LEE HOT</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSAMBA00003-6</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">SR JOINT</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">CSASSRMS004</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">SY JOINT</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">CSASSRMS005</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">SP JOINT</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">CSASSRMS006</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">EP JOINT</div>
+                <div class="telem-value">--°</div>
+                <div class="telem-id">CSASSRMS007</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mobile Transporter -->
+          <div class="subsection">
+            <div class="subsection-header">
+              <div class="subsection-icon icon-csa">MT</div>
+              <div class="subsection-title">MOBILE TRANSPORTER</div>
+            </div>
+            <div class="telem-grid cols-4">
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">MT POSITION</div>
+                <div class="telem-value">-- cm</div>
+                <div class="telem-id">CSAMT000001</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">UTILITY PORT</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSAMT000002</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">MBS BASE</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSAMBS00001-2</div>
+              </div>
+              <div class="telem-item not-subscribed">
+                <div class="telem-label">POA PAYLOAD</div>
+                <div class="telem-value">--</div>
+                <div class="telem-id">CSAMBA00004</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>

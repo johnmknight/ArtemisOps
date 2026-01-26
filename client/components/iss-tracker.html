@@ -55,6 +55,20 @@
       padding: 8px 24px;
       background: linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%);
       border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+    :fullscreen .header-bar,
+    :-webkit-full-screen .header-bar {
+      padding: 4px 16px;
+    }
+    :fullscreen .agency-logo,
+    :-webkit-full-screen .agency-logo {
+      width: 26px; height: 26px;
+      font-size: 7px;
+    }
+    :fullscreen .mission-info h1,
+    :-webkit-full-screen .mission-info h1 {
+      font-size: 1.1rem;
     }
     .header-left { display: flex; align-items: center; gap: 16px; }
     .agency-logos { display: flex; gap: 6px; }
@@ -75,14 +89,29 @@
     }
     .current-time { font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--text-secondary); }
     
-    /* Main Content - 50/50 Grid */
+    /* Main Content - 3 Column Grid */
     .main-content {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      padding: 12px 16px;
+      grid-template-columns: 50% 20% 30%;
+      padding: 8px 12px;
       min-height: 0;
-      gap: 12px;
+      gap: 10px;
+    }
+    
+    /* Fullscreen optimizations */
+    :fullscreen .main-content,
+    :-webkit-full-screen .main-content {
+      padding: 6px 10px;
+      gap: 8px;
+    }
+    :fullscreen .header-bar,
+    :-webkit-full-screen .header-bar {
+      padding: 6px 16px;
+    }
+    :fullscreen .timeline-bar,
+    :-webkit-full-screen .timeline-bar {
+      padding: 6px 12px;
     }
     
     /* Map Container */
@@ -94,6 +123,8 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      min-height: 0;
+      height: 100%;
     }
     .map-header {
       display: flex;
@@ -102,6 +133,7 @@
       padding: 8px 12px;
       background: rgba(0, 188, 212, 0.1);
       border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
     }
     .map-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--iss-color); }
     .map-controls { display: flex; gap: 8px; }
@@ -118,7 +150,138 @@
     .map-btn:hover { background: rgba(0, 188, 212, 0.3); }
     .map-btn.active { background: var(--iss-color); color: #000; }
     
-    #iss-map { flex: 1; min-height: 300px; background: #0a1628; }
+    #iss-map { 
+      flex: 1; 
+      min-height: 0;
+      background: #0a1628; 
+    }
+    
+    /* Large Views Column (middle) */
+    .large-views-column {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+    .large-view-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+    .large-view {
+      flex: 1;
+      position: relative;
+      background: #000;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .large-view canvas,
+    .large-view iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .large-view .view-label {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 0.65rem;
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 4px 10px;
+      border-radius: 3px;
+      z-index: 10;
+      letter-spacing: 1px;
+      border: 1px solid var(--border-color);
+    }
+    .large-view .axis-indicator {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      font-size: 0.55rem;
+      font-family: 'Courier New', monospace;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px;
+      border-radius: 3px;
+    }
+    
+    /* Small Views (in side panel) - 4:3 aspect ratio */
+    .small-view-container {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .small-view {
+      flex: 1;
+      position: relative;
+      background: #000;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .small-view canvas,
+    .small-view iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .view-label-small {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 0.5rem;
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 2px 6px;
+      border-radius: 2px;
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+
+    /* ISS Marker with glow highlight */
+    .iss-marker {
+      background: transparent !important;
+      border: none !important;
+    }
+    .iss-marker-container {
+      position: relative;
+      width: 80px;
+      height: 48px;
+    }
+    .iss-marker-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle at center, 
+        rgba(0, 188, 212, 0.9) 0%, 
+        rgba(0, 188, 212, 0.6) 20%, 
+        rgba(0, 188, 212, 0.3) 40%, 
+        rgba(0, 150, 180, 0.15) 60%,
+        transparent 80%);
+      border-radius: 50%;
+      filter: blur(6px);
+      animation: iss-glow-pulse 2s ease-in-out infinite;
+    }
+    .iss-marker-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 48px;
+      filter: drop-shadow(0 0 6px rgba(0, 188, 212, 1)) drop-shadow(0 0 12px rgba(0, 188, 212, 0.6));
+    }
+    @keyframes iss-glow-pulse {
+      0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    }
 </style>
 </head>
 <body>
@@ -158,148 +321,195 @@
           </div>
         </div>
         <div id="iss-map"></div>
-        <div class="data-overlay">
-          <div class="data-row">
-            <div class="data-item"><label>LATITUDE</label><span id="dataLat">--°</span></div>
-            <div class="data-item"><label>LONGITUDE</label><span id="dataLng">--°</span></div>
+      </div>
+
+      <!-- Middle Column: Video Views (stacked) -->
+      <div class="large-views-column">
+        <div class="large-view-container">
+          <div class="large-view">
+            <div class="view-label">ISS LIVE 1</div>
+            <iframe 
+              id="issVideo1"
+              src="https://www.youtube.com/embed/aB1yRz0HhdY?autoplay=1&mute=1"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
           </div>
-          <div class="data-row">
-            <div class="data-item"><label>ALTITUDE</label><span id="dataAlt">-- km</span></div>
-            <div class="data-item"><label>VELOCITY</label><span id="dataVel">-- km/h</span></div>
+          <div class="large-view">
+            <div class="view-label">ISS LIVE 2</div>
+            <iframe 
+              id="issVideo2"
+              src="https://www.youtube.com/embed/FV4Q9DryTG8?autoplay=1&mute=1"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
           </div>
         </div>
       </div>
 
-      <!-- Station Systems Panel -->
+      <!-- Right Column: 3D Views + Telemetry -->
       <div class="side-panel">
         <div class="panel-header">
-          <span class="panel-title">⚡ STATION SYSTEMS</span>
+          <span class="panel-title">📍 POSITION & ATTITUDE</span>
           <div class="live-badge"><span class="live-dot"></span>NASA LIVE</div>
         </div>
         
-        <div class="station-viewer-dual">
-          <!-- Dual 3D Views -->
-          <div class="dual-view-container">
-            <div class="iss-view" id="nadirView">
-              <div class="view-label">NADIR VIEW</div>
-              <canvas id="nadirCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-x">↑Vel</span>
-              </div>
-              <div class="loading-overlay" id="nadirLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Loading ISS Model...</div>
-                <div class="loading-progress" id="nadirProgress">0%</div>
-              </div>
+        <!-- 3D Views -->
+        <div class="dual-view-container">
+          <div class="iss-view" id="nadirView">
+            <div class="view-label">NADIR</div>
+            <canvas id="nadirCanvas"></canvas>
+            <div class="axis-indicator">
+              <span class="axis-z">←T→</span> <span class="axis-x">↑V</span>
             </div>
-            
-            <div class="iss-view" id="velocityView">
-              <div class="view-label">VELOCITY VIEW</div>
-              <canvas id="velocityCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-y">↓Nadir</span>
+            <div class="loading-overlay" id="nadirLoading">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Loading...</div>
+              <div class="loading-progress" id="nadirProgress">0%</div>
+            </div>
+          </div>
+          <div class="iss-view" id="velocityView">
+            <div class="view-label">VELOCITY</div>
+            <canvas id="velocityCanvas"></canvas>
+            <div class="axis-indicator">
+              <span class="axis-z">←T→</span> <span class="axis-y">↓N</span>
+            </div>
+            <div class="loading-overlay" id="velocityLoading">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Loading...</div>
+              <div class="loading-progress" id="velocityProgress">0%</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="telemetry-sections">
+          <!-- POSITION & TRAJECTORY -->
+          <div class="telem-section">
+            <div class="section-header">
+              <span class="section-title">🌍 POSITION & TRAJECTORY</span>
+            </div>
+            <div class="section-content">
+              <div class="telem-grid-2col">
+                <div class="telem-item highlight">
+                  <div class="telem-label">LATITUDE</div>
+                  <div class="telem-value large" id="telLat">--°</div>
+                </div>
+                <div class="telem-item highlight">
+                  <div class="telem-label">LONGITUDE</div>
+                  <div class="telem-value large" id="telLng">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">ALTITUDE</div>
+                  <div class="telem-value" id="telAlt">--</div>
+                  <div class="telem-unit">km</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">RANGE</div>
+                  <div class="telem-value dim" id="telRange">--</div>
+                  <div class="telem-unit">km</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">APOGEE</div>
+                  <div class="telem-value" id="telApogee">--</div>
+                  <div class="telem-unit">km</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">PERIGEE</div>
+                  <div class="telem-value" id="telPerigee">--</div>
+                  <div class="telem-unit">km</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">INCLINATION</div>
+                  <div class="telem-value" id="telInclination">51.64°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">PERIOD</div>
+                  <div class="telem-value" id="telPeriod">92.8</div>
+                  <div class="telem-unit">min</div>
+                </div>
               </div>
-              <div class="loading-overlay" id="velocityLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Loading ISS Model...</div>
-                <div class="loading-progress" id="velocityProgress">0%</div>
+              <!-- AOS/LOS Bar -->
+              <div class="aos-los-bar">
+                <div class="signal-status">
+                  <div class="signal-dot" id="signalDot"></div>
+                  <span id="signalLabel">--</span>
+                </div>
+                <div class="aos-time" id="aosLosTime">Next pass calculating...</div>
               </div>
             </div>
           </div>
           
-          <!-- Telemetry Grid Panel - Expanded 4x4 grid -->
-          <div class="telemetry-grid-panel">
-            <div class="telemetry-grid-header">
-              <span>📊 STATION SYSTEMS TELEMETRY</span>
-              <div class="live-badge" id="telemLiveBadge"><span class="live-dot"></span>LIVE</div>
+          <!-- VELOCITY & ATTITUDE -->
+          <div class="telem-section">
+            <div class="section-header">
+              <span class="section-title">🧭 VELOCITY & ATTITUDE</span>
             </div>
-            <div class="telemetry-grid">
-              <!-- Row 1: Environmental -->
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">CABIN TEMP</div>
-                <div class="telem-grid-value" id="telTemp">--°C</div>
-                <div class="telem-grid-unit">US Lab</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">PRESSURE</div>
-                <div class="telem-grid-value" id="telPressure">-- psia</div>
-                <div class="telem-grid-unit">cabin</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">OXYGEN</div>
-                <div class="telem-grid-value" id="telO2">-- mmHg</div>
-                <div class="telem-grid-unit">ppO₂</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">CO₂</div>
-                <div class="telem-grid-value" id="telCO2">-- mmHg</div>
-                <div class="telem-grid-unit">ppCO₂</div>
+            <div class="section-content">
+              <!-- Velocity -->
+              <div class="telem-grid-2col" style="margin-bottom: 8px;">
+                <div class="telem-item wide highlight">
+                  <div class="telem-label">VELOCITY</div>
+                  <div class="telem-value large" id="telVelocity">--</div>
+                  <div class="telem-unit">km/h (<span id="telVelKms">--</span> km/s)</div>
+                </div>
               </div>
               
-              <!-- Row 2: Life Support (Node 3/Tranquility) -->
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">O₂ GEN</div>
-                <div class="telem-grid-value" id="telOGS">--</div>
-                <div class="telem-grid-unit">state</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">URINE TANK</div>
-                <div class="telem-grid-value" id="telUrine">--%</div>
-                <div class="telem-grid-unit">capacity</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">WATER PROC</div>
-                <div class="telem-grid-value" id="telWPA">--</div>
-                <div class="telem-grid-unit">state</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">CLEAN H₂O</div>
-                <div class="telem-grid-value" id="telWater">--%</div>
-                <div class="telem-grid-unit">tank</div>
+              <!-- Quaternion -->
+              <div class="quaternion-display">
+                <div class="quat-label">ATTITUDE QUATERNION (LVLH)</div>
+                <div class="quat-values">
+                  <div class="quat-item"><span>Q0</span><span id="quatQ0">--</span></div>
+                  <div class="quat-item"><span>Q1</span><span id="quatQ1">--</span></div>
+                  <div class="quat-item"><span>Q2</span><span id="quatQ2">--</span></div>
+                  <div class="quat-item"><span>Q3</span><span id="quatQ3">--</span></div>
+                </div>
               </div>
               
-              <!-- Row 3: Power & Attitude -->
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">CMG</div>
-                <div class="telem-grid-value" id="telCMG">--%</div>
-                <div class="telem-grid-unit">momentum</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">BETA ANGLE</div>
-                <div class="telem-grid-value" id="telBeta">--°</div>
-                <div class="telem-grid-unit">solar</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ATTITUDE</div>
-                <div class="telem-grid-value" id="attitudeDisplay">R:--° P:--°</div>
-                <div class="telem-grid-unit" id="attitudeYaw">Y:--°</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ISS MASS</div>
-                <div class="telem-grid-value" id="telMass">-- kg</div>
-                <div class="telem-grid-unit">total</div>
+              <!-- Euler Angles -->
+              <div class="telem-grid-3col">
+                <div class="telem-item">
+                  <div class="telem-label">ROLL</div>
+                  <div class="telem-value" id="telRoll">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">PITCH</div>
+                  <div class="telem-value" id="telPitch">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">YAW</div>
+                  <div class="telem-value" id="telYaw">--°</div>
+                </div>
               </div>
               
-              <!-- Row 4: Solar Arrays -->
-              <div class="telem-grid-item solar-array">
-                <div class="telem-grid-label">PORT SARJ</div>
-                <div class="telem-grid-value" id="telSARJPort">--°</div>
-                <div class="telem-grid-unit">α rotation</div>
+              <!-- Attitude Errors -->
+              <div class="telem-grid-3col" style="margin-top: 6px;">
+                <div class="telem-item">
+                  <div class="telem-label">ROLL ERR</div>
+                  <div class="telem-value dim" id="telRollErr">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">PITCH ERR</div>
+                  <div class="telem-value dim" id="telPitchErr">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">YAW ERR</div>
+                  <div class="telem-value dim" id="telYawErr">--°</div>
+                </div>
               </div>
-              <div class="telem-grid-item solar-array">
-                <div class="telem-grid-label">STBD SARJ</div>
-                <div class="telem-grid-value" id="telSARJStbd">--°</div>
-                <div class="telem-grid-unit">α rotation</div>
-              </div>
-              <div class="telem-grid-item solar-array">
-                <div class="telem-grid-label">PORT BGA</div>
-                <div class="telem-grid-value" id="telBGAPort">--°</div>
-                <div class="telem-grid-unit">β gimbal</div>
-              </div>
-              <div class="telem-grid-item solar-array">
-                <div class="telem-grid-label">STBD BGA</div>
-                <div class="telem-grid-value" id="telBGAStbd">--°</div>
-                <div class="telem-grid-unit">β gimbal</div>
+              
+              <!-- Additional -->
+              <div class="telem-grid-2col" style="margin-top: 6px;">
+                <div class="telem-item">
+                  <div class="telem-label">BETA ANGLE</div>
+                  <div class="telem-value accent" id="telBeta">--°</div>
+                </div>
+                <div class="telem-item">
+                  <div class="telem-label">ISS MASS</div>
+                  <div class="telem-value" id="telMass">--</div>
+                  <div class="telem-unit">kg</div>
+                </div>
               </div>
             </div>
           </div>
@@ -336,17 +546,55 @@
 
     <!-- News Ticker -->
     <div class="news-ticker">
-      <div class="ticker-content">
+      <div class="ticker-content" id="tickerContent">
         <div class="ticker-label">ISS UPDATE</div>
-        <div class="ticker-item"><span class="ticker-time">12:30 UTC</span>Crew Dragon Endeavour docked at Harmony module · Crew rotation complete</div>
-        <div class="ticker-item"><span class="ticker-time">09:15 UTC</span>EVA scheduled for tomorrow · Battery replacement on P4 truss</div>
-        <div class="ticker-item"><span class="ticker-time">Yesterday</span>Cygnus cargo spacecraft departed · Destructive reentry over Pacific</div>
-        <div class="ticker-label">ISS UPDATE</div>
-        <div class="ticker-item"><span class="ticker-time">12:30 UTC</span>Crew Dragon Endeavour docked at Harmony module · Crew rotation complete</div>
-        <div class="ticker-item"><span class="ticker-time">09:15 UTC</span>EVA scheduled for tomorrow · Battery replacement on P4 truss</div>
+        <div class="ticker-item"><span class="ticker-time">Loading...</span>Fetching latest ISS news...</div>
       </div>
     </div>
   </div>
+
+  <script>
+    // News Ticker - Fetch live ISS news
+    async function loadISSNews() {
+      const tickerContent = document.getElementById('tickerContent');
+      if (!tickerContent) return;
+      
+      try {
+        const response = await fetch('/api/iss/news?limit=8');
+        if (!response.ok) throw new Error('News fetch failed');
+        
+        const data = await response.json();
+        
+        if (data.news && data.news.length > 0) {
+          // Build ticker HTML
+          let html = '<div class="ticker-label">ISS UPDATE</div>';
+          
+          data.news.forEach(item => {
+            const time = item.time_ago || '';
+            const title = item.title || 'ISS Update';
+            html += `<div class="ticker-item"><span class="ticker-time">${time}</span>${title}</div>`;
+          });
+          
+          // Duplicate for seamless scrolling
+          html += '<div class="ticker-label">ISS UPDATE</div>';
+          data.news.forEach(item => {
+            const time = item.time_ago || '';
+            const title = item.title || 'ISS Update';
+            html += `<div class="ticker-item"><span class="ticker-time">${time}</span>${title}</div>`;
+          });
+          
+          tickerContent.innerHTML = html;
+        }
+      } catch (error) {
+        console.error('Failed to load ISS news:', error);
+        tickerContent.innerHTML = '<div class="ticker-label">ISS UPDATE</div><div class="ticker-item"><span class="ticker-time">--</span>News feed temporarily unavailable</div>';
+      }
+    }
+    
+    // Load news on page load and refresh every 15 minutes
+    loadISSNews();
+    setInterval(loadISSNews, 15 * 60 * 1000);
+  </script>
 
 
   <style>
@@ -381,14 +629,25 @@
       border: 1px solid var(--border-color);
       border-radius: 4px;
       overflow: hidden;
+      min-height: 0;
+      height: 100%;
+    }
+    :fullscreen .side-panel,
+    :-webkit-full-screen .side-panel {
+      max-width: 380px;
     }
     .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: rgba(0, 188, 212, 0.1);
       border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+    :fullscreen .panel-header,
+    :-webkit-full-screen .panel-header {
+      padding: 6px 10px;
     }
     .panel-title {
       font-size: 0.8rem;
@@ -415,19 +674,74 @@
       50% { opacity: 0.4; }
     }
     
-    /* Station Viewer - Dual 3D Layout */
-    .station-viewer-dual {
-      flex: 1;
+    /* View Toggle Buttons */
+    .view-toggle {
       display: flex;
-      flex-direction: column;
-      min-height: 0;
-      background: #000;
+      gap: 4px;
     }
-    .dual-view-container {
+    .toggle-btn {
+      background: rgba(0, 188, 212, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      font-size: 0.55rem;
+      font-family: 'Courier New', monospace;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn:hover {
+      border-color: var(--iss-color);
+      color: var(--text-primary);
+    }
+    .toggle-btn.active {
+      background: rgba(0, 188, 212, 0.3);
+      border-color: var(--iss-color);
+      color: var(--text-accent);
+    }
+    
+    /* Video Views */
+    .video-view {
       flex: 1;
+      position: relative;
+      background: #000;
+      min-width: 0;
+    }
+    .video-view:first-child {
+      border-right: 2px solid var(--iss-color);
+    }
+    .video-view iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .video-view .view-label {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 0.6rem;
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 4px 10px;
+      border-radius: 3px;
+      z-index: 10;
+      letter-spacing: 1px;
+      border: 1px solid var(--border-color);
+    }
+    
+    /* Hidden class */
+    .hidden {
+      display: none !important;
+    }
+    
+    /* 3D Views Layout */
+    .dual-view-container {
+      height: 120px;
+      min-height: 120px;
       display: flex;
       flex-direction: row;
-      min-height: 0;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
     }
     .iss-view {
       flex: 1;
@@ -571,6 +885,212 @@
       margin-top: 0px;
     }
     
+    /* NEW: Position & Attitude Telemetry Sections */
+    .telemetry-sections {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px;
+      min-height: 0;
+    }
+    .telem-section {
+      background: rgba(0, 15, 30, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .section-header {
+      padding: 3px 6px;
+      background: rgba(0, 188, 212, 0.1);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .section-title {
+      font-size: 0.5rem;
+      color: var(--text-accent);
+      letter-spacing: 0.5px;
+    }
+    .section-content {
+      padding: 4px;
+      flex: 1;
+    }
+    
+    /* Telemetry Grid Layouts */
+    .telem-grid-2col {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3px;
+    }
+    .telem-grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .telem-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 3px 4px;
+      text-align: center;
+    }
+    .telem-item.wide { grid-column: span 2; }
+    .telem-item.highlight {
+      border-color: var(--iss-color);
+      background: rgba(0, 188, 212, 0.1);
+    }
+    .telem-label {
+      font-size: 0.4rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+      margin-bottom: 1px;
+    }
+    .telem-value {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+    }
+    .telem-value.large { font-size: 0.85rem; }
+    .telem-value.accent { color: var(--text-accent); }
+    .telem-value.dim { opacity: 0.4; }
+    .telem-unit {
+      font-size: 0.35rem;
+      color: var(--text-secondary);
+      margin-top: 0px;
+    }
+    
+    /* AOS/LOS Bar */
+    .aos-los-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      margin-top: 3px;
+    }
+    .signal-status {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.5rem;
+    }
+    .signal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+    }
+    .signal-dot.aos { background: var(--success-color); }
+    .signal-dot.los { background: var(--text-secondary); }
+    .aos-time {
+      flex: 1;
+      text-align: right;
+      font-size: 0.55rem;
+      color: var(--text-accent);
+    }
+    
+    /* Quaternion Display */
+    .quaternion-display {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 3px 4px;
+      margin-bottom: 3px;
+    }
+    .quat-label {
+      font-size: 0.4rem;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+    .quat-values {
+      display: flex;
+      justify-content: space-between;
+    }
+    .quat-item {
+      text-align: center;
+    }
+    .quat-item span:first-child {
+      display: block;
+      font-size: 0.35rem;
+      color: var(--text-secondary);
+    }
+    .quat-item span:last-child {
+      font-size: 0.6rem;
+      color: var(--text-accent);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Video Panel */
+    .video-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .video-stack {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border-color);
+      min-height: 0;
+    }
+    .video-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #000;
+      min-height: 0;
+    }
+    .video-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 10px;
+      background: rgba(0, 188, 212, 0.1);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .video-title {
+      font-size: 0.6rem;
+      color: var(--text-accent);
+      letter-spacing: 0.5px;
+    }
+    .video-controls {
+      display: flex;
+      gap: 4px;
+    }
+    .video-btn {
+      background: rgba(0, 188, 212, 0.2);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 2px 6px;
+      font-size: 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .video-btn:hover {
+      background: rgba(0, 188, 212, 0.4);
+      border-color: var(--iss-color);
+    }
+    .video-wrapper {
+      flex: 1;
+      position: relative;
+      min-height: 0;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
     /* Timeline Bar */
     .timeline-bar {
       background: var(--bg-panel);
@@ -579,6 +1099,19 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
+    }
+    :fullscreen .timeline-bar,
+    :-webkit-full-screen .timeline-bar {
+      padding: 6px 12px;
+    }
+    :fullscreen .next-pass .time,
+    :-webkit-full-screen .next-pass .time {
+      font-size: 0.85rem;
+    }
+    :fullscreen .stat-value,
+    :-webkit-full-screen .stat-value {
+      font-size: 0.8rem;
     }
     .next-pass label {
       font-size: 0.6rem;
@@ -608,6 +1141,15 @@
       border-top: 1px solid var(--border-color);
       padding: 6px 0;
       overflow: hidden;
+      flex-shrink: 0;
+    }
+    :fullscreen .news-ticker,
+    :-webkit-full-screen .news-ticker {
+      padding: 4px 0;
+    }
+    :fullscreen .ticker-item,
+    :-webkit-full-screen .ticker-item {
+      font-size: 0.6rem;
     }
     .ticker-content {
       display: flex;
@@ -660,6 +1202,22 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   
   <script type="module">
+    // Video mute toggle
+    window.toggleMute = function(playerId) {
+      const iframe = document.getElementById(playerId);
+      const btn = document.getElementById(playerId === 'nasaTvPlayer' ? 'btnNasaTvMute' : 'btnIssHdMute');
+      if (!iframe) return;
+      
+      const src = iframe.src;
+      if (src.includes('mute=1')) {
+        iframe.src = src.replace('mute=1', 'mute=0');
+        btn.textContent = '🔊';
+      } else {
+        iframe.src = src.replace('mute=0', 'mute=1');
+        btn.textContent = '🔇';
+      }
+    };
+
     // NASA Telemetry State
     let targetAttitude = { roll: 0, pitch: 0, yaw: 0 };
     let targetQuaternion = null;
@@ -880,6 +1438,106 @@
         return segments;
       },
       
+      // Calculate sun position (subsolar point)
+      getSunPosition(date = new Date()) {
+        const rad = Math.PI / 180;
+        const deg = 180 / Math.PI;
+        
+        // Days since J2000.0 epoch
+        const jd = date.getTime() / 86400000 + 2440587.5;
+        const n = jd - 2451545.0;
+        
+        // Mean longitude and anomaly of the Sun
+        const L = (280.460 + 0.9856474 * n) % 360;
+        const g = (357.528 + 0.9856003 * n) % 360;
+        
+        // Ecliptic longitude of the Sun
+        const lambda = L + 1.915 * Math.sin(g * rad) + 0.020 * Math.sin(2 * g * rad);
+        
+        // Obliquity of the ecliptic
+        const epsilon = 23.439 - 0.0000004 * n;
+        
+        // Sun's declination
+        const sunDec = Math.asin(Math.sin(epsilon * rad) * Math.sin(lambda * rad)) * deg;
+        
+        // Equation of time (approximate)
+        const eot = -1.915 * Math.sin(g * rad) - 0.020 * Math.sin(2 * g * rad) 
+                    + 2.466 * Math.sin(2 * lambda * rad) - 0.053 * Math.sin(4 * lambda * rad);
+        
+        // Solar noon in UTC
+        const utcHours = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+        const sunLng = -15 * (utcHours - 12 + eot / 60);
+        
+        return { lat: sunDec, lng: ((sunLng + 540) % 360) - 180 };
+      },
+      
+      // Generate terminator polygon points
+      getTerminatorCoords(sunPos) {
+        const rad = Math.PI / 180;
+        const coords = [];
+        
+        // Generate points along the terminator
+        for (let i = 0; i <= 360; i += 2) {
+          const lng = -180 + i;
+          
+          // Calculate latitude of terminator at this longitude
+          const hourAngle = (lng - sunPos.lng) * rad;
+          const lat = Math.atan(-Math.cos(hourAngle) / Math.tan(sunPos.lat * rad)) * 180 / Math.PI;
+          
+          coords.push([lat, lng]);
+        }
+        
+        return coords;
+      },
+      
+      // Create the night polygon
+      createTerminator() {
+        const sunPos = this.getSunPosition();
+        const rad = Math.PI / 180;
+        const nightCoords = [];
+        
+        // Generate terminator line points
+        for (let i = 0; i <= 360; i += 2) {
+          const lng = -180 + i;
+          const hourAngle = (lng - sunPos.lng) * rad;
+          
+          // Handle edge cases near poles
+          if (Math.abs(sunPos.lat) < 0.1) {
+            // Near equinox, terminator is nearly vertical
+            nightCoords.push([0, lng]);
+          } else {
+            const tanLat = -Math.cos(hourAngle) / Math.tan(sunPos.lat * rad);
+            const lat = Math.atan(tanLat) * 180 / Math.PI;
+            nightCoords.push([lat, lng]);
+          }
+        }
+        
+        // Close the polygon toward the pole opposite the sun
+        // Night is on the side away from the sun
+        const nightPole = sunPos.lat > 0 ? -90 : 90;
+        
+        // Add pole corners to complete the night polygon
+        nightCoords.push([nightPole, 180]);
+        nightCoords.push([nightPole, -180]);
+        
+        return L.polygon(nightCoords, {
+          color: '#1a3a5c',
+          weight: 1,
+          fillColor: '#000011',
+          fillOpacity: 0.45,
+          interactive: false
+        });
+      },
+      
+      // Update terminator position
+      updateTerminator() {
+        if (this.terminatorLayer) {
+          this.map.removeLayer(this.terminatorLayer);
+        }
+        this.terminatorLayer = this.createTerminator();
+        this.terminatorLayer.addTo(this.map);
+      },
+      
       async init() {
         // Load cached ground track from previous session
         this.positionHistory = this.loadCachedTrack();
@@ -913,8 +1571,14 @@
           bounds: [[-90, -180], [90, 180]]
         }).addTo(this.map);
         
-        const issIcon = L.icon({
-          iconUrl: '../assets/icons/spacecraft/big-iss-icon.png',
+        const issIcon = L.divIcon({
+          className: 'iss-marker',
+          html: `
+            <div class="iss-marker-container">
+              <div class="iss-marker-glow"></div>
+              <img class="iss-marker-icon" src="../assets/icons/spacecraft/big-iss-icon.png" alt="ISS">
+            </div>
+          `,
           iconSize: [80, 48],
           iconAnchor: [40, 24]
         });
@@ -939,8 +1603,30 @@
           dashArray: '10, 6'
         }).addTo(this.map);
         
+        // Day/Night Terminator
+        this.terminatorLayer = this.createTerminator();
+        this.terminatorLayer.addTo(this.map);
+        
+        // Update terminator every minute
+        setInterval(() => this.updateTerminator(), 60000);
+        
         await this.updatePosition();
         setInterval(() => this.updatePosition(), 5000);
+        
+        // Handle fullscreen changes - resize map
+        const self = this;
+        document.addEventListener('fullscreenchange', function() {
+          setTimeout(() => {
+            self.map.invalidateSize();
+            self.map.fitBounds([[-90, -180], [90, 180]]);
+          }, 100);
+        });
+        document.addEventListener('webkitfullscreenchange', function() {
+          setTimeout(() => {
+            self.map.invalidateSize();
+            self.map.fitBounds([[-90, -180], [90, 180]]);
+          }, 100);
+        });
       },
       
       async updatePosition() {
@@ -989,10 +1675,11 @@
           // Save track to cache every update
           this.saveTrackCache();
           
-          document.getElementById('dataLat').textContent = lat.toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
-          document.getElementById('dataLng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
-          document.getElementById('dataAlt').textContent = Math.round(data.altitude) + ' km';
-          document.getElementById('dataVel').textContent = Math.round(data.velocity) + ' km/h';
+          document.getElementById('telLat').textContent = lat.toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
+          document.getElementById('telLng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
+          document.getElementById('telAlt').textContent = Math.round(data.altitude);
+          document.getElementById('telVelocity').textContent = Math.round(data.velocity).toLocaleString();
+          document.getElementById('telVelKms').textContent = (data.velocity / 3600).toFixed(2);
           document.getElementById('statVel').textContent = Math.round(data.velocity);
           
           // Update location name
@@ -1139,7 +1826,7 @@
           break;
         case 'USLAB000039':
           nasaTelemetry.issMass = numValue;
-          document.getElementById('telMass').textContent = (numValue/1000).toFixed(0) + 't';
+          document.getElementById('telMass').textContent = Math.round(numValue).toLocaleString();
           break;
           
         // Quaternion
@@ -1196,27 +1883,45 @@
     
     // Solar array joint references (populated after model load)
     // The IGOAL model has dedicated rotation joints for SARJ and BGA
+    //
+    // *** BUG OPEN (2026-01-26): SARJ rotation causes X-pattern in velocity view ***
+    // ISS Solar Array Rotation System
+    // Port and starboard SARJ operate independently - X-pattern is normal when values differ
+    // See: docs/ISS-SOLAR-ARRAY-JOINTS-STATUS.md for details
+    //
     let solarJoints = { nadir: {}, velocity: {} };
     
     // Find solar array rotation joints in the model
+    // NASA ISS Stationary model node names:
+    // SARJ: 20_P4_Truss (port), 23_S4_Truss (starboard) - X-axis rotation
+    // BGA: *_Truss_01, *_Truss_02 for each wing pair - Z-axis rotation
     function findSolarArrayJoints(model, viewName) {
       const joints = {
-        portSARJ: null,   // PORT_ALPHA_ROT - rotates around Z axis
-        stbdSARJ: null,   // STBD_ALPHA_ROT - rotates around Z axis
-        portBGA: [],      // PORT_BETA_ROT_* - rotate around local Y axis
-        stbdBGA: []       // STBD_BETA_ROT_* - rotate around local Y axis
+        portSARJ: null,   // 20_P4_Truss - rotates around X axis
+        stbdSARJ: null,   // 23_S4_Truss - rotates around X axis
+        portBGA: [],      // P4 and P6 wings - rotate around Z axis
+        stbdBGA: []       // S4 and S6 wings - rotate around Z axis
       };
       
       model.traverse(child => {
         if (!child.name) return;
         
-        // SARJ joints (Alpha rotation)
-        if (child.name === 'PORT_ALPHA_ROT') joints.portSARJ = child;
-        if (child.name === 'STBD_ALPHA_ROT') joints.stbdSARJ = child;
+        // SARJ joints (X-axis rotation for paddlewheel motion)
+        if (child.name === '20_P4_Truss') joints.portSARJ = child;
+        if (child.name === '23_S4_Truss') joints.stbdSARJ = child;
         
-        // BGA joints (Beta rotation)
-        if (child.name.startsWith('PORT_BETA_ROT_')) joints.portBGA.push(child);
-        if (child.name.startsWith('STBD_BETA_ROT_')) joints.stbdBGA.push(child);
+        // BGA joints (Z-axis rotation for propeller spin)
+        // Port side: P4 and P6 wings
+        if (child.name === '20_P4_Truss_01') joints.portBGA.push({ node: child, id: '4B' });
+        if (child.name === '20_P4_Truss_02') joints.portBGA.push({ node: child, id: '2B' });
+        if (child.name === '08_P6_Truss_01') joints.portBGA.push({ node: child, id: '4A' });
+        if (child.name === '08_P6_Truss_02') joints.portBGA.push({ node: child, id: '2A' });
+        
+        // Starboard side: S4 and S6 wings
+        if (child.name === '23_S4_Truss_01') joints.stbdBGA.push({ node: child, id: '3B' });
+        if (child.name === '23_S4_Truss_02') joints.stbdBGA.push({ node: child, id: '1B' });
+        if (child.name === '32_S6_Truss_01') joints.stbdBGA.push({ node: child, id: '3A' });
+        if (child.name === '32_S6_Truss_02') joints.stbdBGA.push({ node: child, id: '1A' });
       });
       
       solarJoints[viewName] = joints;
@@ -1224,12 +1929,16 @@
     }
     
     // Update solar array rotations based on telemetry
+    // NASA ISS Stationary model:
+    // SARJ: X-axis rotation (paddlewheel around truss)
+    // BGA: Z-axis rotation (propeller spin around boom)
+    // Note: _02 wings are geometrically mirrored, so rotation must be negated
     function updateSolarArrays() {
       if (!issModelNadir || !issModelVelocity) return;
       
       // Convert telemetry angles to radians
-      // SARJ rotates around Y axis (perpendicular to truss - windmill motion)
-      // BGA rotates around X axis (tilt panels toward/away from sun)
+      // SARJ rotates entire outboard section around truss axis (X)
+      // BGA rotates individual wings around boom axis (Z)
       const sarjPortRad = (nasaTelemetry.sarjPort || 0) * Math.PI / 180;
       const sarjStbdRad = (nasaTelemetry.sarjStbd || 0) * Math.PI / 180;
       
@@ -1244,24 +1953,33 @@
         const joints = solarJoints[viewName];
         if (!joints) return;
         
-        // SARJ rotation (around Y axis - windmill sweep motion)
-        if (joints.portSARJ) joints.portSARJ.rotation.y = sarjPortRad;
-        if (joints.stbdSARJ) joints.stbdSARJ.rotation.y = sarjStbdRad;
+        // SARJ rotation: X-axis (paddlewheel motion around truss)
+        if (joints.portSARJ) joints.portSARJ.rotation.x = sarjPortRad;
+        if (joints.stbdSARJ) joints.stbdSARJ.rotation.x = sarjStbdRad;
         
-        // BGA rotation (around X axis - panel tilt)
+        // BGA rotation: Z-axis (propeller spin around boom)
+        // _02 wings are mirrored geometry, so negate their rotation
         joints.portBGA.forEach(joint => {
-          if (joint.name.includes('2A') || joint.name.includes('2B')) {
-            joint.rotation.x = bgaPort2A;
-          } else if (joint.name.includes('4A') || joint.name.includes('4B')) {
-            joint.rotation.x = bgaPort4A;
+          const id = joint.id;
+          const isWing02 = joint.node.name.endsWith('_02');
+          const sign = isWing02 ? -1 : 1;
+          
+          if (id === '2A' || id === '2B') {
+            joint.node.rotation.z = sign * bgaPort2A;
+          } else if (id === '4A' || id === '4B') {
+            joint.node.rotation.z = sign * bgaPort4A;
           }
         });
         
         joints.stbdBGA.forEach(joint => {
-          if (joint.name.includes('1A') || joint.name.includes('1B')) {
-            joint.rotation.x = bgaStbd1A;
-          } else if (joint.name.includes('3A') || joint.name.includes('3B')) {
-            joint.rotation.x = bgaStbd3A;
+          const id = joint.id;
+          const isWing02 = joint.node.name.endsWith('_02');
+          const sign = isWing02 ? -1 : 1;
+          
+          if (id === '1A' || id === '1B') {
+            joint.node.rotation.z = sign * bgaStbd1A;
+          } else if (id === '3A' || id === '3B') {
+            joint.node.rotation.z = sign * bgaStbd3A;
           }
         });
       });
@@ -1296,8 +2014,17 @@
       }
       
       targetAttitude = euler;
-      document.getElementById('attitudeDisplay').textContent = `R:${euler.roll.toFixed(1)}° P:${euler.pitch.toFixed(1)}°`;
-      document.getElementById('attitudeYaw').textContent = `Y:${euler.yaw.toFixed(1)}°`;
+      
+      // Update quaternion display
+      document.getElementById('quatQ0').textContent = q.w.toFixed(4);
+      document.getElementById('quatQ1').textContent = q.x.toFixed(4);
+      document.getElementById('quatQ2').textContent = q.y.toFixed(4);
+      document.getElementById('quatQ3').textContent = q.z.toFixed(4);
+      
+      // Update Euler angles
+      document.getElementById('telRoll').textContent = euler.roll.toFixed(2) + '°';
+      document.getElementById('telPitch').textContent = euler.pitch.toFixed(2) + '°';
+      document.getElementById('telYaw').textContent = euler.yaw.toFixed(2) + '°';
     }
 
     
@@ -1345,11 +2072,24 @@
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+      // Brighter ambient light for visibility
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
       scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      
+      // Main directional light (sun-like)
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
       directionalLight.position.set(50, 30, 50);
       scene.add(directionalLight);
+      
+      // Fill light from opposite side
+      const fillLight = new THREE.DirectionalLight(0x88aaff, 1.0);
+      fillLight.position.set(-50, -20, -30);
+      scene.add(fillLight);
+      
+      // Top light for solar panels visibility
+      const topLight = new THREE.DirectionalLight(0xffffee, 1.5);
+      topLight.position.set(0, 100, 0);
+      scene.add(topLight);
       
       if (viewName === 'nadir') {
         nadirScene = scene; nadirCamera = camera; nadirRenderer = renderer;
@@ -1365,7 +2105,7 @@
       loader.setDRACOLoader(dracoLoader);
       
       return new Promise((resolve, reject) => {
-        loader.load('../assets/iss-model-hd.glb',
+        loader.load('../assets/iss-stationary.glb',
           (gltf) => {
             const model = gltf.scene;
             const box = new THREE.Box3().setFromObject(model);
@@ -1480,6 +2220,46 @@
     window.ISSTracker = ISSTracker;
     window.getISSModels = () => ({ nadir: issModelNadir, velocity: issModelVelocity });
     
+    // === News Ticker ===
+    async function fetchISSNews() {
+      try {
+        // Try local API first, then fallback to different ports
+        let response;
+        const urls = ['/api/iss/news?limit=8', 'http://localhost:8000/api/iss/news?limit=8', 'http://localhost:8001/api/iss/news?limit=8'];
+        
+        for (const url of urls) {
+          try {
+            response = await fetch(url);
+            if (response.ok) break;
+          } catch { continue; }
+        }
+        
+        if (!response || !response.ok) throw new Error('News fetch failed');
+        const data = await response.json();
+        
+        const tickerContent = document.getElementById('tickerContent');
+        if (!tickerContent || !data.news || data.news.length === 0) return;
+        
+        // Build ticker HTML
+        let html = '';
+        // Duplicate for seamless scroll
+        for (let i = 0; i < 2; i++) {
+          html += '<div class="ticker-label">ISS UPDATE</div>';
+          data.news.forEach(item => {
+            const time = item.time_ago || '';
+            const title = item.title || 'ISS News';
+            html += `<div class="ticker-item"><span class="ticker-time">${time}</span>${title}</div>`;
+          });
+        }
+        
+        tickerContent.innerHTML = html;
+        console.log(`Loaded ${data.news.length} ISS news items`);
+      } catch (err) {
+        console.warn('Failed to fetch ISS news:', err);
+        // Keep placeholder text on error
+      }
+    }
+    
     // Initialize everything
     document.addEventListener('DOMContentLoaded', () => {
       ISSTracker.init();
@@ -1487,6 +2267,10 @@
       initNASATelemetry();
       updateTime();
       setInterval(updateTime, 1000);
+      
+      // Fetch news on load and refresh every 15 minutes
+      fetchISSNews();
+      setInterval(fetchISSNews, 15 * 60 * 1000);
     });
   </script>
 </body>

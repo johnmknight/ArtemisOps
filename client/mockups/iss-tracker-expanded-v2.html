@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISS Tracker - Expanded Telemetry Mockup v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a1628;
+      --bg-panel: #0d1a2d;
+      --bg-card: #0f1e33;
+      --border-color: #1a3a5c;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --text-accent: #00bcd4;
+      --iss-color: #00bcd4;
+      --success-color: #7ed321;
+      --warning-color: #f5a623;
+      --danger-color: #ff4757;
+      --accent-yellow: #ffd60a;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+    
+    .mission-control {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    /* Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 24px;
+      background: linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .agency-logos { display: flex; gap: 4px; }
+    .agency-logo {
+      width: 28px; height: 28px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; font-weight: bold;
+    }
+    .mission-info h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 3px; }
+    .mission-subtitle { font-size: 0.65rem; color: var(--iss-color); letter-spacing: 1px; }
+    .orbit-badge {
+      background: rgba(0, 188, 212, 0.2);
+      border: 1px solid var(--iss-color);
+      padding: 4px 12px; border-radius: 4px;
+      font-size: 0.65rem; font-weight: 600;
+      color: var(--iss-color); letter-spacing: 1px;
+    }
+    .current-time { font-size: 0.85rem; color: var(--text-secondary); }
+    
+    /* Main Content - 50/50 Grid */
+    .main-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 12px;
+      min-height: 0;
+      gap: 10px;
+    }
+    
+    /* LEFT SIDE: Map + 3D Views */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+    
+    /* Map Container */
+    .map-container {
+      flex: 1;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: rgba(0, 188, 212, 0.1);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .map-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; color: var(--iss-color); }
+    .map-controls { display: flex; gap: 6px; }
+    .map-btn {
+      background: rgba(0, 188, 212, 0.2);
+      border: 1px solid var(--iss-color);
+      color: var(--iss-color);
+      padding: 3px 8px;
+      font-size: 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    #iss-map { flex: 1; background: #0a1628; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.8rem; }
+    
+    /* 3D Views Container - Below Map */
+    .views-container {
+      height: 100px;
+      min-height: 100px;
+      display: flex;
+      gap: 8px;
+    }
+    .iss-view {
+      flex: 1;
+      position: relative;
+      background: #000;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 0.55rem;
+    }
+    .view-label {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 0.5rem;
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 2px 6px;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+    }
+    
+    /* RIGHT SIDE: Full Telemetry Panel */
+    .telemetry-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: rgba(0, 188, 212, 0.1);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .panel-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; color: var(--iss-color); }
+    .live-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.55rem; color: var(--success-color);
+      background: rgba(126, 211, 33, 0.15);
+      padding: 2px 6px; border-radius: 3px;
+      border: 1px solid rgba(126, 211, 33, 0.3);
+    }
+    .live-dot {
+      width: 5px; height: 5px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    
+    /* Scrollable Telemetry Content */
+    .telemetry-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px;
+    }
+    .telemetry-scroll::-webkit-scrollbar { width: 5px; }
+    .telemetry-scroll::-webkit-scrollbar-track { background: var(--bg-primary); }
+    .telemetry-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    
+    /* Telemetry Section */
+    .telem-section { margin-bottom: 8px; }
+    .telem-section:last-child { margin-bottom: 0; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 6px;
+      background: rgba(0, 188, 212, 0.1);
+      border-radius: 3px;
+      margin-bottom: 4px;
+    }
+    .section-icon {
+      width: 18px; height: 18px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: bold; flex-shrink: 0;
+    }
+    .section-title { font-size: 0.55rem; color: var(--text-accent); letter-spacing: 0.5px; }
+    .section-subtitle { font-size: 0.45rem; color: var(--text-secondary); margin-left: 4px; }
+    
+    /* Telemetry Grid */
+    .telem-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+    }
+    .telem-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .telem-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .telem-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+    
+    .telem-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 3px 4px;
+      text-align: center;
+    }
+    .telem-item.wide { grid-column: span 2; }
+    .telem-label {
+      font-size: 0.45rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.2px;
+      margin-bottom: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .telem-value {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .telem-value.ok { color: var(--success-color); }
+    .telem-value.warn { color: var(--warning-color); }
+    .telem-value.accent { color: var(--text-accent); }
+    .telem-value.dim { opacity: 0.4; }
+    .telem-unit {
+      font-size: 0.4rem;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    
+    /* Segment Icon Colors */
+    .icon-uslab { background: #0b3d91; color: #fff; }
+    .icon-node1 { background: #1e5aa8; color: #fff; }
+    .icon-node2 { background: #2a6fc9; color: #fff; }
+    .icon-node3 { background: #3a7fd9; color: #fff; }
+    .icon-columbus { background: #003399; color: #fff; }
+    .icon-jem { background: #c41e3a; color: #fff; }
+    .icon-russian { background: #d52b1e; color: #fff; }
+    .icon-truss { background: #4a5568; color: #fff; }
+    .icon-power { background: #f5a623; color: #000; }
+    .icon-thermal { background: #00bcd4; color: #000; }
+    .icon-airlock { background: #9b59b6; color: #fff; }
+    .icon-csa { background: #1e88e5; color: #fff; }
+    .icon-comms { background: #e91e63; color: #fff; }
+    .icon-cdh { background: #607d8b; color: #fff; }
+    
+    /* Status dot */
+    .status-dot {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      margin-right: 3px;
+    }
+    .status-dot.ok { background: var(--success-color); }
+    .status-dot.warn { background: var(--warning-color); }
+    .status-dot.off { background: var(--text-secondary); }
+    
+    /* Timeline Bar */
+    .timeline-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 24px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+    }
+    .next-pass label { font-size: 0.55rem; color: var(--text-secondary); }
+    .next-pass .time { font-size: 0.8rem; color: var(--text-accent); }
+    .next-pass .location { font-size: 0.6rem; color: var(--text-secondary); }
+    .orbit-stats { display: flex; gap: 32px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 0.9rem; color: var(--text-primary); font-weight: bold; }
+    .stat-label { font-size: 0.5rem; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="mission-control">
+    <!-- Header -->
+    <header class="header-bar">
+      <div class="header-left">
+        <div class="agency-logos">
+          <div class="agency-logo" style="background:#0b3d91;color:#fff">NASA</div>
+          <div class="agency-logo" style="background:#003399;color:#fff">ESA</div>
+          <div class="agency-logo" style="background:#c41e3a;color:#fff">JAXA</div>
+          <div class="agency-logo" style="background:#1e88e5;color:#fff">CSA</div>
+          <div class="agency-logo" style="background:#0033a0;color:#fff">RSA</div>
+        </div>
+        <div class="mission-info">
+          <h1>ISS EXPEDITION 72</h1>
+          <div class="mission-subtitle">International Space Station · Low Earth Orbit</div>
+        </div>
+      </div>
+      <div class="orbit-badge">🛰️ ORBIT 142,851</div>
+      <div class="current-time">14:32:18 UTC</div>
+    </header>
+
+    <main class="main-content">
+      <!-- LEFT SIDE: Map + 3D Views -->
+      <div class="left-panel">
+        <div class="map-container">
+          <div class="map-header">
+            <span class="map-title">🌍 REAL-TIME ISS TRACKER</span>
+            <div class="map-controls">
+              <button class="map-btn">Footprint</button>
+              <button class="map-btn">Track</button>
+              <button class="map-btn">Center</button>
+            </div>
+          </div>
+          <div id="iss-map">[Map renders here]</div>
+        </div>
+        
+        <!-- 3D Views - Below Map -->
+        <div class="views-container">
+          <div class="iss-view">
+            <div class="view-label">NADIR VIEW</div>
+            [3D Model]
+          </div>
+          <div class="iss-view">
+            <div class="view-label">VELOCITY VIEW</div>
+            [3D Model]
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: Full Telemetry Panel -->
+      <div class="telemetry-panel">
+        <div class="panel-header">
+          <span class="panel-title">📊 STATION SYSTEMS TELEMETRY</span>
+          <div class="live-badge"><span class="live-dot"></span>NASA LIVE</div>
+        </div>
+        
+        <div class="telemetry-scroll">
+
+          <!-- ENVIRONMENTAL - US LAB -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-uslab">LAB</div>
+              <span class="section-title">ENVIRONMENTAL</span>
+              <span class="section-subtitle">US Lab (Destiny)</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">CABIN TEMP</div><div class="telem-value ok">23.4°C</div><div class="telem-unit">USLAB000059</div></div>
+              <div class="telem-item"><div class="telem-label">PRESSURE</div><div class="telem-value ok">14.7 psia</div><div class="telem-unit">USLAB000058</div></div>
+              <div class="telem-item"><div class="telem-label">ppO₂</div><div class="telem-value ok">160.2</div><div class="telem-unit">USLAB000053</div></div>
+              <div class="telem-item"><div class="telem-label">ppCO₂</div><div class="telem-value ok">2.84</div><div class="telem-unit">USLAB000055</div></div>
+              <div class="telem-item"><div class="telem-label">ppN₂</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000054</div></div>
+              <div class="telem-item"><div class="telem-label">AIR COOL</div><div class="telem-value dim">--°C</div><div class="telem-unit">USLAB000061</div></div>
+              <div class="telem-item"><div class="telem-label">AVION COOL</div><div class="telem-value dim">--°C</div><div class="telem-unit">USLAB000060</div></div>
+              <div class="telem-item"><div class="telem-label">PORT A/C</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000064</div></div>
+              <div class="telem-item"><div class="telem-label">STBD A/C</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000065</div></div>
+              <div class="telem-item"><div class="telem-label">VAC VENT</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000063</div></div>
+              <div class="telem-item"><div class="telem-label">COOL LT</div><div class="telem-value dim">--%</div><div class="telem-unit">USLAB000056</div></div>
+              <div class="telem-item"><div class="telem-label">COOL MT</div><div class="telem-value dim">--%</div><div class="telem-unit">USLAB000057</div></div>
+            </div>
+          </div>
+          
+          <!-- LIFE SUPPORT - NODE 3 -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-node3">N3</div>
+              <span class="section-title">LIFE SUPPORT (ECLSS)</span>
+              <span class="section-subtitle">Node 3 (Tranquility)</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">O₂ GEN</div><div class="telem-value ok"><span class="status-dot ok"></span>PROC</div><div class="telem-unit">NODE3000010</div></div>
+              <div class="telem-item"><div class="telem-label">O₂ RATE</div><div class="telem-value dim">-- lb/d</div><div class="telem-unit">NODE3000011</div></div>
+              <div class="telem-item"><div class="telem-label">WATER PROC</div><div class="telem-value ok"><span class="status-dot ok"></span>PROC</div><div class="telem-unit">NODE3000006</div></div>
+              <div class="telem-item"><div class="telem-label">WPA STEP</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000007</div></div>
+              <div class="telem-item"><div class="telem-label">URINE PROC</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000004</div></div>
+              <div class="telem-item"><div class="telem-label">URINE TANK</div><div class="telem-value warn">67%</div><div class="telem-unit">NODE3000005</div></div>
+              <div class="telem-item"><div class="telem-label">CLEAN H₂O</div><div class="telem-value ok">84%</div><div class="telem-unit">NODE3000009</div></div>
+              <div class="telem-item"><div class="telem-label">WASTE H₂O</div><div class="telem-value dim">--%</div><div class="telem-unit">NODE3000008</div></div>
+              <div class="telem-item"><div class="telem-label">N3 ppO₂</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000001</div></div>
+              <div class="telem-item"><div class="telem-label">N3 ppN₂</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000002</div></div>
+              <div class="telem-item"><div class="telem-label">N3 ppCO₂</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000003</div></div>
+              <div class="telem-item"><div class="telem-label">N3 A/C</div><div class="telem-value dim">--</div><div class="telem-unit">NODE3000018</div></div>
+            </div>
+          </div>
+          
+          <!-- NODE 2 - HARMONY -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-node2">N2</div>
+              <span class="section-title">NODE 2 ENVIRONMENT</span>
+              <span class="section-subtitle">Harmony</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">COOL MT</div><div class="telem-value dim">--%</div><div class="telem-unit">NODE2000001</div></div>
+              <div class="telem-item"><div class="telem-label">COOL LT</div><div class="telem-value dim">--%</div><div class="telem-unit">NODE2000002</div></div>
+              <div class="telem-item"><div class="telem-label">A/C STATE</div><div class="telem-value dim">--</div><div class="telem-unit">NODE2000003</div></div>
+              <div class="telem-item"><div class="telem-label">AIR COOL</div><div class="telem-value dim">--°C</div><div class="telem-unit">NODE2000006</div></div>
+              <div class="telem-item"><div class="telem-label">AVION COOL</div><div class="telem-value dim">--°C</div><div class="telem-unit">NODE2000007</div></div>
+              <div class="telem-item"><div class="telem-label">MDM</div><div class="telem-value dim">--</div><div class="telem-unit">NODE2000005</div></div>
+            </div>
+          </div>
+          
+          <!-- ATTITUDE & GUIDANCE -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-uslab">NAV</div>
+              <span class="section-title">ATTITUDE & GUIDANCE</span>
+              <span class="section-subtitle">GN&C / ADCO</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item wide"><div class="telem-label">QUATERNION (Q0-Q3)</div><div class="telem-value accent" style="font-size:0.55rem">0.998, 0.002, -0.044, 0.007</div><div class="telem-unit">USLAB000018-21</div></div>
+              <div class="telem-item"><div class="telem-label">ROLL</div><div class="telem-value">-2.4°</div><div class="telem-unit">calc</div></div>
+              <div class="telem-item"><div class="telem-label">PITCH</div><div class="telem-value">1.8°</div><div class="telem-unit">calc</div></div>
+              <div class="telem-item"><div class="telem-label">YAW</div><div class="telem-value">-0.6°</div><div class="telem-unit">calc</div></div>
+              <div class="telem-item"><div class="telem-label">GNC MODE</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000012</div></div>
+              <div class="telem-item"><div class="telem-label">ROLL ERR</div><div class="telem-value dim">--°</div><div class="telem-unit">USLAB000022</div></div>
+              <div class="telem-item"><div class="telem-label">PITCH ERR</div><div class="telem-value dim">--°</div><div class="telem-unit">USLAB000023</div></div>
+              <div class="telem-item"><div class="telem-label">YAW ERR</div><div class="telem-value dim">--°</div><div class="telem-unit">USLAB000024</div></div>
+              <div class="telem-item"><div class="telem-label">RATE X</div><div class="telem-value dim">--°/s</div><div class="telem-unit">USLAB000025</div></div>
+              <div class="telem-item"><div class="telem-label">RATE Y</div><div class="telem-value dim">--°/s</div><div class="telem-unit">USLAB000026</div></div>
+              <div class="telem-item"><div class="telem-label">RATE Z</div><div class="telem-value dim">--°/s</div><div class="telem-unit">USLAB000027</div></div>
+              <div class="telem-item"><div class="telem-label">CMG MOM</div><div class="telem-value ok">42%</div><div class="telem-unit">USLAB000010</div></div>
+              <div class="telem-item"><div class="telem-label">CMGs ON</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000005</div></div>
+              <div class="telem-item"><div class="telem-label">BETA ANG</div><div class="telem-value accent">-52.3°</div><div class="telem-unit">USLAB000040</div></div>
+              <div class="telem-item"><div class="telem-label">ISS MASS</div><div class="telem-value">420,421</div><div class="telem-unit">USLAB000039</div></div>
+              <div class="telem-item"><div class="telem-label">DESAT</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000011</div></div>
+              <div class="telem-item"><div class="telem-label">ATT SRC</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000013</div></div>
+              <div class="telem-item"><div class="telem-label">GPS-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000043</div></div>
+            </div>
+          </div>
+          
+          <!-- CMG DETAILS -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-truss">Z1</div>
+              <span class="section-title">CMG DETAILS</span>
+              <span class="section-subtitle">Z1 Truss</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">CMG-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000001</div></div>
+              <div class="telem-item"><div class="telem-label">CMG-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000002</div></div>
+              <div class="telem-item"><div class="telem-label">CMG-3</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000003</div></div>
+              <div class="telem-item"><div class="telem-label">CMG-4</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000004</div></div>
+              <div class="telem-item"><div class="telem-label">1 RPM</div><div class="telem-value dim">--</div><div class="telem-unit">Z1000009</div></div>
+              <div class="telem-item"><div class="telem-label">2 RPM</div><div class="telem-value dim">--</div><div class="telem-unit">Z1000010</div></div>
+              <div class="telem-item"><div class="telem-label">3 RPM</div><div class="telem-value dim">--</div><div class="telem-unit">Z1000011</div></div>
+              <div class="telem-item"><div class="telem-label">4 RPM</div><div class="telem-value dim">--</div><div class="telem-unit">Z1000012</div></div>
+              <div class="telem-item"><div class="telem-label">1 VIB</div><div class="telem-value dim">-- g</div><div class="telem-unit">Z1000001</div></div>
+              <div class="telem-item"><div class="telem-label">2 VIB</div><div class="telem-value dim">-- g</div><div class="telem-unit">Z1000002</div></div>
+              <div class="telem-item"><div class="telem-label">3 VIB</div><div class="telem-value dim">-- g</div><div class="telem-unit">Z1000003</div></div>
+              <div class="telem-item"><div class="telem-label">4 VIB</div><div class="telem-value dim">-- g</div><div class="telem-unit">Z1000004</div></div>
+            </div>
+          </div>
+          
+          <!-- SOLAR ARRAYS - PORT -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-power">⚡</div>
+              <span class="section-title">SOLAR ARRAYS - PORT</span>
+              <span class="section-subtitle">P4/P6 Truss</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">PORT SARJ</div><div class="telem-value accent">181.5°</div><div class="telem-unit">S0000004</div></div>
+              <div class="telem-item"><div class="telem-label">SARJ MODE</div><div class="telem-value dim">--</div><div class="telem-unit">S0000008</div></div>
+              <div class="telem-item"><div class="telem-label">2A BGA</div><div class="telem-value">-12.4°</div><div class="telem-unit">P4000007</div></div>
+              <div class="telem-item"><div class="telem-label">4A BGA</div><div class="telem-value">-11.8°</div><div class="telem-unit">P4000008</div></div>
+              <div class="telem-item"><div class="telem-label">2B BGA</div><div class="telem-value dim">--°</div><div class="telem-unit">P6000008</div></div>
+              <div class="telem-item"><div class="telem-label">4B BGA</div><div class="telem-value dim">--°</div><div class="telem-unit">P6000007</div></div>
+              <div class="telem-item"><div class="telem-label">2A V</div><div class="telem-value dim">-- V</div><div class="telem-unit">P4000001</div></div>
+              <div class="telem-item"><div class="telem-label">2A A</div><div class="telem-value dim">-- A</div><div class="telem-unit">P4000002</div></div>
+              <div class="telem-item"><div class="telem-label">4A V</div><div class="telem-value dim">-- V</div><div class="telem-unit">P4000004</div></div>
+              <div class="telem-item"><div class="telem-label">4A A</div><div class="telem-value dim">-- A</div><div class="telem-unit">P4000005</div></div>
+              <div class="telem-item"><div class="telem-label">P4 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">P4000006</div></div>
+              <div class="telem-item"><div class="telem-label">P6 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">P6000006</div></div>
+            </div>
+          </div>
+          
+          <!-- SOLAR ARRAYS - STARBOARD -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-power">⚡</div>
+              <span class="section-title">SOLAR ARRAYS - STBD</span>
+              <span class="section-subtitle">S4/S6 Truss</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">STBD SARJ</div><div class="telem-value accent">178.5°</div><div class="telem-unit">S0000003</div></div>
+              <div class="telem-item"><div class="telem-label">SARJ MODE</div><div class="telem-value dim">--</div><div class="telem-unit">S0000009</div></div>
+              <div class="telem-item"><div class="telem-label">1A BGA</div><div class="telem-value">-10.2°</div><div class="telem-unit">S4000007</div></div>
+              <div class="telem-item"><div class="telem-label">3A BGA</div><div class="telem-value">-10.6°</div><div class="telem-unit">S4000008</div></div>
+              <div class="telem-item"><div class="telem-label">1B BGA</div><div class="telem-value dim">--°</div><div class="telem-unit">S6000008</div></div>
+              <div class="telem-item"><div class="telem-label">3B BGA</div><div class="telem-value dim">--°</div><div class="telem-unit">S6000007</div></div>
+              <div class="telem-item"><div class="telem-label">1A V</div><div class="telem-value dim">-- V</div><div class="telem-unit">S4000001</div></div>
+              <div class="telem-item"><div class="telem-label">1A A</div><div class="telem-value dim">-- A</div><div class="telem-unit">S4000002</div></div>
+              <div class="telem-item"><div class="telem-label">3A V</div><div class="telem-value dim">-- V</div><div class="telem-unit">S4000004</div></div>
+              <div class="telem-item"><div class="telem-label">3A A</div><div class="telem-value dim">-- A</div><div class="telem-unit">S4000005</div></div>
+              <div class="telem-item"><div class="telem-label">S4 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">S4000006</div></div>
+              <div class="telem-item"><div class="telem-label">S6 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">S6000006</div></div>
+            </div>
+          </div>
+
+          <!-- THERMAL CONTROL -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-thermal">❄</div>
+              <span class="section-title">THERMAL CONTROL</span>
+              <span class="section-subtitle">ETCS / TRRJ</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">PORT TRRJ</div><div class="telem-value dim">--°</div><div class="telem-unit">S0000002</div></div>
+              <div class="telem-item"><div class="telem-label">STBD TRRJ</div><div class="telem-value dim">--°</div><div class="telem-unit">S0000001</div></div>
+              <div class="telem-item"><div class="telem-label">PORT MODE</div><div class="telem-value dim">--</div><div class="telem-unit">S0000007</div></div>
+              <div class="telem-item"><div class="telem-label">STBD MODE</div><div class="telem-value dim">--</div><div class="telem-unit">S0000006</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP A FLOW</div><div class="telem-value dim">-- kg/h</div><div class="telem-unit">S1000001</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP B FLOW</div><div class="telem-value dim">-- kg/h</div><div class="telem-unit">P1000001</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP A PRESS</div><div class="telem-value dim">-- kPa</div><div class="telem-unit">S1000002</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP B PRESS</div><div class="telem-value dim">-- kPa</div><div class="telem-unit">P1000002</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP A TEMP</div><div class="telem-value dim">--°C</div><div class="telem-unit">S1000003</div></div>
+              <div class="telem-item"><div class="telem-label">LOOP B TEMP</div><div class="telem-value dim">--°C</div><div class="telem-unit">P1000003</div></div>
+              <div class="telem-item"><div class="telem-label">S1 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">S1000006</div></div>
+              <div class="telem-item"><div class="telem-label">P1 MDM</div><div class="telem-value dim">--</div><div class="telem-unit">P1000008</div></div>
+            </div>
+          </div>
+          
+          <!-- ROBOTICS - CSA -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-csa">CSA</div>
+              <span class="section-title">ROBOTICS</span>
+              <span class="section-subtitle">Canadarm2 / Dextre / MT</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">MT POS</div><div class="telem-value dim">-- cm</div><div class="telem-unit">CSAMT000001</div></div>
+              <div class="telem-item"><div class="telem-label">MT PORT</div><div class="telem-value dim">--</div><div class="telem-unit">CSAMT000002</div></div>
+              <div class="telem-item"><div class="telem-label">SSRMS BASE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASSRMS002</div></div>
+              <div class="telem-item"><div class="telem-label">SSRMS LEE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASSRMS011</div></div>
+              <div class="telem-item"><div class="telem-label">SSRMS PWR</div><div class="telem-value dim">--</div><div class="telem-unit">CSASSRMS001</div></div>
+              <div class="telem-item"><div class="telem-label">SSRMS MODE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASSRMS003</div></div>
+              <div class="telem-item"><div class="telem-label">SR JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS004</div></div>
+              <div class="telem-item"><div class="telem-label">SY JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS005</div></div>
+              <div class="telem-item"><div class="telem-label">SP JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS006</div></div>
+              <div class="telem-item"><div class="telem-label">EP JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS007</div></div>
+              <div class="telem-item"><div class="telem-label">WP JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS008</div></div>
+              <div class="telem-item"><div class="telem-label">WY JOINT</div><div class="telem-value dim">--°</div><div class="telem-unit">CSASSRMS009</div></div>
+              <div class="telem-item"><div class="telem-label">SPDM PWR</div><div class="telem-value dim">--</div><div class="telem-unit">CSASPDM0001</div></div>
+              <div class="telem-item"><div class="telem-label">SPDM MODE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASPDM0002</div></div>
+              <div class="telem-item"><div class="telem-label">ARM1 BASE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASPDM0003</div></div>
+              <div class="telem-item"><div class="telem-label">ARM2 BASE</div><div class="telem-value dim">--</div><div class="telem-unit">CSASPDM0011</div></div>
+              <div class="telem-item"><div class="telem-label">MBS PWR</div><div class="telem-value dim">--</div><div class="telem-unit">CSAMBS00001</div></div>
+              <div class="telem-item"><div class="telem-label">MBS LOCK</div><div class="telem-value dim">--</div><div class="telem-unit">CSAMBS00002</div></div>
+            </div>
+          </div>
+          
+          <!-- COMMUNICATIONS -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-comms">📡</div>
+              <span class="section-title">COMMUNICATIONS</span>
+              <span class="section-subtitle">S-Band / Ku-Band / UHF</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">S-BAND 1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000092</div></div>
+              <div class="telem-item"><div class="telem-label">S-BAND 2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000093</div></div>
+              <div class="telem-item"><div class="telem-label">KU TX</div><div class="telem-value dim">--</div><div class="telem-unit">Z1000013</div></div>
+              <div class="telem-item"><div class="telem-label">KU ELEV</div><div class="telem-value dim">--°</div><div class="telem-unit">Z1000014</div></div>
+              <div class="telem-item"><div class="telem-label">KU X-ELEV</div><div class="telem-value dim">--°</div><div class="telem-unit">Z1000015</div></div>
+              <div class="telem-item"><div class="telem-label">UHF 1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000099</div></div>
+              <div class="telem-item"><div class="telem-label">UHF 2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000100</div></div>
+              <div class="telem-item"><div class="telem-label">VIDEO CH1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000088</div></div>
+              <div class="telem-item"><div class="telem-label">VIDEO CH2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000089</div></div>
+              <div class="telem-item"><div class="telem-label">VIDEO CH3</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000090</div></div>
+              <div class="telem-item"><div class="telem-label">VIDEO CH4</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000091</div></div>
+              <div class="telem-item"><div class="telem-label">TDRS</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000094</div></div>
+            </div>
+          </div>
+          
+          <!-- QUEST AIRLOCK / EVA -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-airlock">EVA</div>
+              <span class="section-title">QUEST AIRLOCK</span>
+              <span class="section-subtitle">EVA Systems</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">AIRLOCK P</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000054</div></div>
+              <div class="telem-item"><div class="telem-label">CREWLOCK</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000049</div></div>
+              <div class="telem-item"><div class="telem-label">EQLOCK</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000050</div></div>
+              <div class="telem-item"><div class="telem-label">HI P O₂</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000055</div></div>
+              <div class="telem-item"><div class="telem-label">LO P O₂</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000056</div></div>
+              <div class="telem-item"><div class="telem-label">N₂ TANK</div><div class="telem-value dim">-- torr</div><div class="telem-unit">AIRLOCK000057</div></div>
+              <div class="telem-item"><div class="telem-label">A/C STATE</div><div class="telem-value dim">--</div><div class="telem-unit">AIRLOCK000053</div></div>
+              <div class="telem-item"><div class="telem-label">IH1 PRESS</div><div class="telem-value dim">--</div><div class="telem-unit">AIRLOCK000051</div></div>
+              <div class="telem-item"><div class="telem-label">IH2 PRESS</div><div class="telem-value dim">--</div><div class="telem-unit">AIRLOCK000052</div></div>
+              <div class="telem-item"><div class="telem-label">EMU 1 V</div><div class="telem-value dim">-- V</div><div class="telem-unit">AIRLOCK000007</div></div>
+              <div class="telem-item"><div class="telem-label">EMU 2 V</div><div class="telem-value dim">-- V</div><div class="telem-unit">AIRLOCK000009</div></div>
+              <div class="telem-item"><div class="telem-label">BCA 1</div><div class="telem-value dim">--</div><div class="telem-unit">AIRLOCK000015</div></div>
+            </div>
+          </div>
+          
+          <!-- RUSSIAN SEGMENT -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-russian">RUS</div>
+              <span class="section-title">RUSSIAN SEGMENT</span>
+              <span class="section-subtitle">Zvezda / Zarya / Nauka / Prichal</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">SM MODE</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000001</div></div>
+              <div class="telem-item"><div class="telem-label">RS GNC</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000021</div></div>
+              <div class="telem-item"><div class="telem-label">KURS 1</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000002</div></div>
+              <div class="telem-item"><div class="telem-label">KURS 2</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000003</div></div>
+              <div class="telem-item"><div class="telem-label">TORU</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000004</div></div>
+              <div class="telem-item"><div class="telem-label">SM FWD</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000013</div></div>
+              <div class="telem-item"><div class="telem-label">SM AFT</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000014</div></div>
+              <div class="telem-item"><div class="telem-label">SM NAD</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000015</div></div>
+              <div class="telem-item"><div class="telem-label">FGB NAD</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000016</div></div>
+              <div class="telem-item"><div class="telem-label">MRM1</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000018</div></div>
+              <div class="telem-item"><div class="telem-label">MRM2</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000019</div></div>
+              <div class="telem-item"><div class="telem-label">MLM</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000020</div></div>
+              <div class="telem-item"><div class="telem-label">PRICHAL</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000025</div></div>
+              <div class="telem-item"><div class="telem-label">THRUSTER</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000022</div></div>
+              <div class="telem-item"><div class="telem-label">PROP AFT</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000024</div></div>
+              <div class="telem-item"><div class="telem-label">PROP FWD</div><div class="telem-value dim">--</div><div class="telem-unit">RUSSEG000023</div></div>
+            </div>
+          </div>
+          
+          <!-- INTERNATIONAL PARTNERS -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-columbus">COL</div>
+              <span class="section-title">COLUMBUS (ESA)</span>
+              <span class="section-subtitle">European Lab</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">COL MDM</div><div class="telem-value dim">--</div><div class="telem-unit">COL000001</div></div>
+              <div class="telem-item"><div class="telem-label">AIR TEMP</div><div class="telem-value dim">--°C</div><div class="telem-unit">COL000002</div></div>
+              <div class="telem-item"><div class="telem-label">EDR PWR</div><div class="telem-value dim">--</div><div class="telem-unit">COL000003</div></div>
+              <div class="telem-item"><div class="telem-label">FSL PWR</div><div class="telem-value dim">--</div><div class="telem-unit">COL000004</div></div>
+              <div class="telem-item"><div class="telem-label">BIO PWR</div><div class="telem-value dim">--</div><div class="telem-unit">COL000005</div></div>
+              <div class="telem-item"><div class="telem-label">EPM PWR</div><div class="telem-value dim">--</div><div class="telem-unit">COL000006</div></div>
+            </div>
+          </div>
+          
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-jem">JEM</div>
+              <span class="section-title">KIBO (JAXA)</span>
+              <span class="section-subtitle">Japanese Experiment Module</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">JEM MDM</div><div class="telem-value dim">--</div><div class="telem-unit">JEM000001</div></div>
+              <div class="telem-item"><div class="telem-label">AIR TEMP</div><div class="telem-value dim">--°C</div><div class="telem-unit">JEM000002</div></div>
+              <div class="telem-item"><div class="telem-label">EF PWR</div><div class="telem-value dim">--</div><div class="telem-unit">JEM000003</div></div>
+              <div class="telem-item"><div class="telem-label">JEMRMS</div><div class="telem-value dim">--</div><div class="telem-unit">JEM000004</div></div>
+              <div class="telem-item"><div class="telem-label">A/L PWR</div><div class="telem-value dim">--</div><div class="telem-unit">JEM000005</div></div>
+              <div class="telem-item"><div class="telem-label">ELM PWR</div><div class="telem-value dim">--</div><div class="telem-unit">JEM000006</div></div>
+            </div>
+          </div>
+          
+          <!-- C&DH -->
+          <div class="telem-section">
+            <div class="section-header">
+              <div class="section-icon icon-cdh">C&DH</div>
+              <span class="section-title">COMMAND & DATA</span>
+              <span class="section-subtitle">MDM Status</span>
+            </div>
+            <div class="telem-grid cols-6">
+              <div class="telem-item"><div class="telem-label">C&C-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000066</div></div>
+              <div class="telem-item"><div class="telem-label">C&C-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000067</div></div>
+              <div class="telem-item"><div class="telem-label">C&C-3</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000068</div></div>
+              <div class="telem-item"><div class="telem-label">GNC-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000069</div></div>
+              <div class="telem-item"><div class="telem-label">GNC-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000070</div></div>
+              <div class="telem-item"><div class="telem-label">PL-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000071</div></div>
+              <div class="telem-item"><div class="telem-label">PL-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000072</div></div>
+              <div class="telem-item"><div class="telem-label">LA-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000073</div></div>
+              <div class="telem-item"><div class="telem-label">LA-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000074</div></div>
+              <div class="telem-item"><div class="telem-label">EXT-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000075</div></div>
+              <div class="telem-item"><div class="telem-label">EXT-2</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000076</div></div>
+              <div class="telem-item"><div class="telem-label">INT-1</div><div class="telem-value dim">--</div><div class="telem-unit">USLAB000077</div></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </main>
+
+    <!-- Timeline Bar -->
+    <div class="timeline-bar">
+      <div class="next-pass">
+        <label>CURRENT POSITION</label>
+        <div class="time">PACIFIC OCEAN</div>
+        <div class="location">-12.4°, -142.8°</div>
+      </div>
+      <div class="orbit-stats">
+        <div class="stat-item">
+          <div class="stat-value">16</div>
+          <div class="stat-label">Orbits/Day</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">27,580</div>
+          <div class="stat-label">km/h</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">142,851</div>
+          <div class="stat-label">Total Orbits</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">25 yrs</div>
+          <div class="stat-label">In Orbit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

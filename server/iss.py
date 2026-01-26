@@ -309,3 +309,166 @@ async def get_location_name(lat: float, lng: float) -> Dict[str, Any]:
                 "source": "coordinates",
                 "cached": False,
             }
+
+
+# === ISS News ===
+
+# Spaceflight Now ISS News (most reliable for ISS-specific news)
+SPACEFLIGHT_NOW_ISS_RSS = "https://spaceflightnow.com/category/iss/feed/"
+# NASA Space Station Blog
+NASA_ISS_BLOG_RSS = "https://blogs.nasa.gov/spacestation/feed/"
+
+NEWS_CACHE_TTL = 900  # 15 minutes
+
+_news_cache = {
+    "news": {"data": None, "timestamp": None}
+}
+
+
+def _parse_rss_date(date_str: str) -> Optional[datetime]:
+    """Parse RSS date formats"""
+    if not date_str:
+        return None
+    formats = [
+        "%a, %d %b %Y %H:%M:%S %z",
+        "%a, %d %b %Y %H:%M:%S %Z",
+        "%a, %d %b %Y %H:%M:%S GMT",
+        "%a, %d %b %Y %H:%M:%S +0000",
+        "%Y-%m-%dT%H:%M:%S%z",
+        "%Y-%m-%dT%H:%M:%SZ",
+    ]
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(date_str.strip(), fmt)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except:
+            continue
+    return None
+
+
+def _format_time_ago(dt: datetime) -> str:
+    """Format datetime as relative time"""
+    if not dt:
+        return ""
+    
+    now = datetime.now(timezone.utc)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    
+    diff = now - dt
+    hours = diff.total_seconds() / 3600
+    days = diff.days
+    
+    if hours < 1:
+        return f"{int(diff.total_seconds() / 60)} min ago"
+    elif hours < 24:
+        return f"{int(hours)}h ago"
+    elif days == 1:
+        return "Yesterday"
+    elif days < 7:
+        return f"{days} days ago"
+    else:
+        return dt.strftime("%b %d")
+
+
+async def get_iss_news(limit: int = 10) -> Dict[str, Any]:
+    """
+    Fetch latest ISS news from Spaceflight Now and NASA ISS Blog RSS feeds.
+    Returns cached data if within TTL.
+    """
+    import xml.etree.ElementTree as ET
+    
+    cached = _news_cache["news"]
+    
+    # Return valid cache
+    if _is_cache_valid(cached, NEWS_CACHE_TTL):
+        return {
+            **cached["data"],
+            "cached": True,
+            "cache_age_seconds": round(_get_cache_age(cached), 1)
+        }
+    
+    now = datetime.now(timezone.utc)
+    news_items = []
+    
+    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+        # Try Spaceflight Now ISS feed FIRST (most reliable for ISS-specific news)
+        try:
+            response = await client.get(SPACEFLIGHT_NOW_ISS_RSS)
+            response.raise_for_status()
+            
+            root = ET.fromstring(response.text)
+            channel = root.find("channel")
+            
+            if channel:
+                for item in channel.findall("item")[:limit]:
+                    title = item.find("title")
+                    pub_date = item.find("pubDate")
+                    link = item.find("link")
+                    
+                    pub_dt = _parse_rss_date(pub_date.text if pub_date is not None else None)
+                    
+                    news_items.append({
+                        "title": title.text if title is not None else "ISS News",
+                        "time": pub_dt.isoformat() if pub_dt else None,
+                        "time_ago": _format_time_ago(pub_dt),
+                        "link": link.text if link is not None else None,
+                        "source": "Spaceflight Now",
+                        "summary": None
+                    })
+                    
+            logger.info(f"Fetched {len(news_items)} news items from Spaceflight Now ISS feed")
+            
+        except Exception as e:
+            logger.warning(f"Spaceflight Now ISS feed fetch failed: {e}")
+        
+        # Try NASA ISS Blog as supplement
+        if len(news_items) < limit:
+            try:
+                response = await client.get(NASA_ISS_BLOG_RSS)
+                response.raise_for_status()
+                
+                root = ET.fromstring(response.text)
+                channel = root.find("channel")
+                
+                if channel:
+                    remaining = limit - len(news_items)
+                    for item in channel.findall("item")[:remaining]:
+                        title = item.find("title")
+                        pub_date = item.find("pubDate")
+                        link = item.find("link")
+                        description = item.find("description")
+                        
+                        pub_dt = _parse_rss_date(pub_date.text if pub_date is not None else None)
+                        
+                        news_items.append({
+                            "title": title.text if title is not None else "NASA ISS Update",
+                            "time": pub_dt.isoformat() if pub_dt else None,
+                            "time_ago": _format_time_ago(pub_dt),
+                            "link": link.text if link is not None else None,
+                            "source": "NASA ISS Blog",
+                            "summary": (description.text[:150] + "...") if description is not None and description.text else None
+                        })
+                        
+                logger.info(f"Added NASA ISS Blog items, total: {len(news_items)}")
+                
+            except Exception as e:
+                logger.warning(f"Spaceflight Now fetch failed: {e}")
+    
+    # Sort by date (newest first)
+    news_items.sort(key=lambda x: x["time"] or "", reverse=True)
+    
+    result = {
+        "news": news_items[:limit],
+        "count": len(news_items),
+        "timestamp": now.isoformat(),
+    }
+    
+    _news_cache["news"] = {"data": result, "timestamp": now}
+    
+    return {
+        **result,
+        "cached": False
+    }
