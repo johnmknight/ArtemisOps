@@ -246,6 +246,35 @@
       font-weight: 600;
     }
 
+    /* Video container (right of countdown) */
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding-top: clamp(6px, 1vh, 16px);
+      flex-shrink: 1;
+      min-width: 0;
+    }
+    
+    .video-container iframe {
+      height: clamp(70px, min(12vw, 42vh), 220px);
+      aspect-ratio: 16 / 9;
+      width: auto;
+      border-radius: 8px;
+      border: 2px solid rgba(0, 255, 204, 0.2);
+      box-shadow: 0 0 50px rgba(0, 255, 204, 0.15);
+      background: rgba(0, 20, 40, 0.5);
+    }
+    
+    .video-label {
+      font-size: clamp(0.6rem, 1vh, 0.85rem);
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
     /* Countdown digits */
     .countdown-timer {
       display: flex;
@@ -585,13 +614,19 @@
       <div class="countdown-content">
         <div class="countdown-label" id="countdownLabel">T-Minus · Countdown to Launch</div>
         
-        <!-- Countdown row: Agency Logo | Timer | Mission Patch -->
+        <!-- Countdown row: Agency Logo | Mission Patch | Timer -->
         <div class="countdown-row">
           
           <!-- Agency Logo (left) -->
           <div class="agency-logo-container">
             <img id="agencyLogo" src="/assets/logos/nasa-logo.svg" alt="NASA" class="agency-logo">
             <span class="agency-name" id="agencyName">NASA</span>
+          </div>
+          
+          <!-- Mission Patch (between logo and timer) -->
+          <div class="mission-patch-container">
+            <img id="missionPatch" src="/assets/patches/artemis-ii-patch.png" alt="Mission Patch" class="mission-patch-large" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Artemis_2_mission_patch.png/220px-Artemis_2_mission_patch.png'">
+            <span class="mission-name" id="missionName">Artemis II</span>
           </div>
           
           <!-- Countdown Timer -->
@@ -617,10 +652,15 @@
             </div>
           </div>
           
-          <!-- Mission Patch (right) -->
-          <div class="mission-patch-container">
-            <img id="missionPatch" src="/assets/patches/artemis-ii-patch.png" alt="Mission Patch" class="mission-patch-large" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Artemis_2_mission_patch.png/220px-Artemis_2_mission_patch.png'">
-            <span class="mission-name" id="missionName">Artemis II</span>
+          <!-- NASA TV Video (right) -->
+          <div class="video-container">
+            <iframe 
+              src="https://www.youtube.com/embed/nrVnsO_rdew?autoplay=1&mute=1"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+            <span class="video-label">NASA TV</span>
           </div>
           
         </div>
