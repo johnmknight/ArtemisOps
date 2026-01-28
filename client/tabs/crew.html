@@ -45,6 +45,7 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      max-width: 700px;
     }
     
     .crew-grid {
@@ -54,7 +55,12 @@
     }
     
     .crew-grid.compact {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(200px, 280px));
+      justify-content: start;
+    }
+    
+    .crew-grid.compact .crew-photo {
+      height: 200px;
     }
 
     /* Crew Card Styles */
