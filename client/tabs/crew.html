@@ -27,82 +27,79 @@
       color: var(--text-primary);
     }
     
-    /* Main Layout */
+    /* Main Layout - No Scroll */
     .crew-layout {
       height: 100%;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    
-    .crew-layout.eva-mode {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 20px;
+      padding: 15px;
+      display: flex;
+      gap: 15px;
+      overflow: hidden;
     }
     
     /* Left Panel - Crew Grid */
     .left-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 700px;
-    }
-    
-    .crew-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    
-    .crew-grid.compact {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      max-width: 280px;
-    }
-    
-    .crew-grid.compact .crew-photo {
-      height: 180px;
-    }
-    
-    .crew-grid.compact .crew-card {
-      width: 100%;
-    }
-    
-    .crew-grid.compact .crew-bio {
-      display: none;
-    }
-    
-    .left-panel.eva-active {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 20px;
-    }
-    
-    .left-panel.eva-active .video-container {
       flex: 1;
-      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
     }
 
-    /* Crew Card Styles */
+    /* Crew Grid - Flexible for 2-9 crew */
+    .crew-grid {
+      flex: 1;
+      display: grid;
+      gap: 10px;
+      align-content: stretch;
+    }
+    
+    /* Dynamic grid based on crew count */
+    .crew-grid[data-crew-count="2"] { grid-template-columns: repeat(2, 1fr); }
+    .crew-grid[data-crew-count="3"] { grid-template-columns: repeat(3, 1fr); }
+    .crew-grid[data-crew-count="4"] { grid-template-columns: repeat(4, 1fr); }
+    .crew-grid[data-crew-count="5"] { grid-template-columns: repeat(5, 1fr); }
+    .crew-grid[data-crew-count="6"] { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .crew-grid[data-crew-count="7"] { grid-template-columns: repeat(4, 1fr); }
+    .crew-grid[data-crew-count="8"] { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .crew-grid[data-crew-count="9"] { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, 1fr); }
+    
+    /* EVA Mode Layout - Only for active EVA */
+    .crew-layout.eva-active .left-panel {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    
+    .crew-layout.eva-active .crew-grid {
+      flex: 0 0 auto;
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .crew-layout.eva-active .video-container {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    /* Crew Card - Compact & Flexible */
     .crew-card {
       background: rgba(15, 25, 45, 0.9);
-      border: 2px solid rgba(74, 158, 255, 0.3);
-      border-radius: 8px;
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 6px;
       overflow: hidden;
-      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
     
     .crew-card:hover {
       border-color: var(--accent-blue);
-      box-shadow: 0 0 25px rgba(74, 158, 255, 0.3);
-      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(74, 158, 255, 0.2);
     }
     
     .crew-card.on-eva {
       border-color: var(--accent-orange);
-      box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
     }
     
     .crew-card.iva-support {
@@ -111,7 +108,9 @@
     
     .crew-photo {
       width: 100%;
-      height: 240px;
+      flex: 1;
+      min-height: 80px;
+      max-height: 200px;
       object-fit: cover;
       object-position: center 15%;
       background: rgba(0, 0, 0, 0.3);
@@ -119,50 +118,52 @@
     
     .crew-photo-placeholder {
       width: 100%;
-      height: 240px;
+      flex: 1;
+      min-height: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: rgba(0, 0, 0, 0.3);
-      font-size: 4em;
+      font-size: 2em;
     }
     
     .crew-info {
-      padding: 16px;
+      padding: 8px;
+      flex-shrink: 0;
     }
     
     .crew-name {
-      font-size: 1.2em;
+      font-size: 0.85em;
       font-weight: bold;
       color: var(--text-primary);
-      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .crew-role {
       color: var(--accent-blue);
-      font-size: 0.9em;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
+      font-size: 0.7em;
+      letter-spacing: 0.5px;
     }
 
     .crew-agency {
       display: inline-block;
       background: rgba(74, 158, 255, 0.2);
       border: 1px solid rgba(74, 158, 255, 0.4);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.75em;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.6em;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
     }
     
     .crew-status {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.75em;
-      letter-spacing: 1px;
-      margin-left: 8px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.6em;
+      margin-left: 4px;
     }
     
     .crew-status.eva {
@@ -178,50 +179,41 @@
     }
     
     .crew-bio {
-      color: var(--text-secondary);
-      font-size: 0.85em;
-      line-height: 1.6;
-      margin-bottom: 12px;
+      display: none; /* Hidden by default for compact view */
     }
     
     .crew-link {
-      color: var(--accent-cyan);
-      text-decoration: none;
-      font-size: 0.8em;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    .crew-link:hover {
-      text-decoration: underline;
+      display: none; /* Hidden for compact view */
     }
 
-    /* Right Panel - EVA Panel */
+    /* EVA Panel - Right Side */
     .eva-panel {
+      width: 320px;
+      flex-shrink: 0;
       background: rgba(15, 25, 45, 0.95);
-      border: 2px solid rgba(74, 158, 255, 0.3);
-      border-radius: 8px;
-      padding: 20px;
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 6px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 10px;
+      overflow: hidden;
     }
     
     .eva-panel-header {
       text-align: center;
-      padding-bottom: 15px;
+      padding-bottom: 8px;
       border-bottom: 1px solid rgba(74, 158, 255, 0.2);
     }
     
     .eva-panel-title {
-      font-size: 1.1em;
-      letter-spacing: 2px;
+      font-size: 0.9em;
+      letter-spacing: 1px;
       color: var(--accent-cyan);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
     
     .eva-panel-title.live {
@@ -231,25 +223,25 @@
     /* Countdown Timer */
     .countdown-container {
       text-align: center;
-      padding: 20px;
+      padding: 12px;
       background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid rgba(74, 158, 255, 0.3);
     }
     
     .countdown-label {
-      font-size: 0.85em;
+      font-size: 0.7em;
       color: var(--text-secondary);
-      margin-bottom: 10px;
-      letter-spacing: 2px;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
     }
     
     .countdown-timer {
-      font-size: 2.5em;
+      font-size: 1.8em;
       font-weight: bold;
       color: var(--accent-cyan);
       font-family: 'Courier New', monospace;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       white-space: nowrap;
     }
     
@@ -257,36 +249,33 @@
       color: var(--accent-red);
       animation: pulse 1s infinite;
     }
-
+    
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.7; }
     }
     
     .countdown-units {
-      font-size: 0.7em;
+      font-size: 0.55em;
       color: var(--text-secondary);
-      margin-top: 5px;
-      letter-spacing: 8px;
+      margin-top: 3px;
+      letter-spacing: 4px;
     }
-    
+
     /* EVA Schedule List */
     .eva-schedule {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
     }
     
     .eva-item {
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(74, 158, 255, 0.2);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 10px;
-      transition: all 0.3s;
-    }
-    
-    .eva-item:hover {
-      border-color: rgba(74, 158, 255, 0.4);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 0.8em;
     }
     
     .eva-item.next {
@@ -297,29 +286,18 @@
     .eva-item.live {
       border-color: var(--accent-red);
       background: rgba(255, 68, 68, 0.1);
-      animation: pulse-border 2s infinite;
     }
     
-    @keyframes pulse-border {
-      0%, 100% { box-shadow: 0 0 5px rgba(255, 68, 68, 0.3); }
-      50% { box-shadow: 0 0 15px rgba(255, 68, 68, 0.5); }
-    }
-    
-    .eva-item.completed {
-      opacity: 0.6;
-      border-color: var(--accent-green);
-    }
-
     .eva-item-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     
     .eva-item-title {
       font-weight: bold;
-      color: var(--text-primary);
+      font-size: 0.9em;
     }
     
     .eva-item-date {
@@ -328,21 +306,21 @@
     }
     
     .eva-item-details {
-      font-size: 0.85em;
+      font-size: 0.8em;
       color: var(--text-secondary);
     }
     
     .eva-item-crew {
-      margin-top: 6px;
+      margin-top: 4px;
       color: var(--accent-cyan);
-      font-size: 0.85em;
+      font-size: 0.8em;
     }
     
     .eva-status-badge {
-      font-size: 0.7em;
-      padding: 3px 8px;
-      border-radius: 4px;
-      letter-spacing: 1px;
+      font-size: 0.65em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 6px;
     }
     
     .eva-status-badge.next {
@@ -354,67 +332,63 @@
       background: var(--accent-red);
       color: #fff;
     }
-    
-    .eva-status-badge.completed {
-      background: var(--accent-green);
-      color: #fff;
-    }
 
-    /* EVA Crew Panel (during active EVA) */
+    /* EVA Crew Section */
     .eva-crew-section {
       border-top: 1px solid rgba(74, 158, 255, 0.2);
-      padding-top: 15px;
+      padding-top: 10px;
     }
     
     .eva-crew-title {
-      font-size: 0.9em;
+      font-size: 0.75em;
       color: var(--accent-orange);
-      letter-spacing: 2px;
-      margin-bottom: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
       text-align: center;
     }
     
     .eva-crew-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
     }
     
     .eva-crew-card {
       background: rgba(255, 152, 0, 0.1);
       border: 1px solid var(--accent-orange);
-      border-radius: 6px;
-      padding: 10px;
+      border-radius: 4px;
+      padding: 6px;
       text-align: center;
+      width: 70px;
     }
     
     .eva-crew-card img {
-      width: 80px;
-      height: 80px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       object-fit: cover;
       object-position: center 15%;
       border: 2px solid var(--accent-orange);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     
     .eva-crew-name {
-      font-size: 0.9em;
+      font-size: 0.7em;
       font-weight: bold;
     }
     
     .eva-crew-role {
-      font-size: 0.75em;
+      font-size: 0.6em;
       color: var(--accent-orange);
     }
     
     .eva-info-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85em;
+      gap: 6px;
+      font-size: 0.7em;
       color: var(--text-secondary);
-      margin-top: 10px;
+      margin-top: 6px;
     }
     
     .eva-info-row span {
@@ -425,36 +399,36 @@
     .video-container {
       background: rgba(0, 0, 0, 0.7);
       border: 2px solid var(--accent-red);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
-      margin-top: 20px;
-      box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+      display: flex;
+      flex-direction: column;
     }
     
     .video-header {
       background: rgba(255, 68, 68, 0.3);
-      padding: 10px 15px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1em;
+      gap: 8px;
+      font-size: 0.85em;
       font-weight: bold;
-      letter-spacing: 1px;
+      flex-shrink: 0;
     }
     
     .live-indicator {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       background: var(--accent-red);
       border-radius: 50%;
       animation: pulse 1s infinite;
     }
     
     .video-player {
-      width: 100%;
-      aspect-ratio: 16/9;
+      flex: 1;
       background: #000;
-      min-height: 250px;
+      min-height: 150px;
     }
     
     .video-player iframe {
@@ -466,13 +440,13 @@
     /* Loading State */
     .loading-state {
       text-align: center;
-      padding: 60px 20px;
+      padding: 40px 20px;
       color: var(--text-secondary);
     }
     
     .loading-state .icon {
-      font-size: 3em;
-      margin-bottom: 16px;
+      font-size: 2em;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -482,7 +456,7 @@
       <div class="crew-grid" id="crewGrid">
         <div class="loading-state">
           <div class="icon">👨‍🚀</div>
-          <div>Loading crew information...</div>
+          <div>Loading crew...</div>
         </div>
       </div>
     </div>
@@ -494,37 +468,31 @@
       evaData: null,
       countdownInterval: null,
       
-      // Mock EVA data - will be replaced by API data
       mockEvaData: {
         evas: [
           {
             id: "eva-1",
             title: "Lunar Surface Exploration",
-            scheduled_start: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
+            scheduled_start: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
             estimated_duration_hours: 6.5,
-            status: "scheduled", // scheduled, in_progress, completed
+            status: "scheduled",
             crew: ["Christina Koch", "Jeremy Hansen"],
-            objectives: ["Surface samples", "Equipment check"],
             live_feed_url: null
           },
           {
             id: "eva-2", 
             title: "Sample Collection",
             scheduled_start: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-            estimated_duration_hours: 5,
             status: "scheduled",
             crew: ["TBD"],
-            objectives: ["Collect lunar samples"],
             live_feed_url: null
           },
           {
             id: "eva-3",
             title: "Equipment Deployment", 
             scheduled_start: new Date(Date.now() + 96 * 60 * 60 * 1000).toISOString(),
-            estimated_duration_hours: 4,
             status: "scheduled",
             crew: ["TBD"],
-            objectives: ["Deploy science equipment"],
             live_feed_url: null
           }
         ]
@@ -545,10 +513,9 @@
             this.startEva(event.data.evaId);
           }
         });
-        
         window.parent.postMessage({ type: 'tabReady', tab: 'crew' }, '*');
       },
-
+      
       hasScheduledEvas() {
         return this.evaData && this.evaData.evas && this.evaData.evas.length > 0;
       },
@@ -562,7 +529,7 @@
         if (!this.hasScheduledEvas()) return null;
         return this.evaData.evas.find(eva => eva.status === 'in_progress');
       },
-      
+
       getEvaCrew(eva) {
         if (!eva || !eva.crew) return [];
         return this.crew.filter(member => 
@@ -581,7 +548,7 @@
         if (eva) {
           eva.status = 'in_progress';
           eva.actual_start = new Date().toISOString();
-          eva.live_feed_url = "https://www.youtube.com/embed/86YLFOog4GM?autoplay=1"; // NASA TV
+          eva.live_feed_url = "https://www.youtube.com/embed/86YLFOog4GM?autoplay=1";
           this.render();
         }
       },
@@ -595,18 +562,15 @@
         const date = new Date(isoString);
         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
       },
-
+      
       formatCountdown(targetDate) {
         const now = new Date();
         const target = new Date(targetDate);
         const diff = target - now;
-        
         if (diff <= 0) return { hours: '00', minutes: '00', seconds: '00', expired: true };
-        
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
         return {
           hours: hours.toString().padStart(2, '0'),
           minutes: minutes.toString().padStart(2, '0'),
@@ -619,28 +583,23 @@
         const now = new Date();
         const start = new Date(startTime);
         const diff = now - start;
-        
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
         return {
           hours: hours.toString().padStart(2, '0'),
           minutes: minutes.toString().padStart(2, '0'),
           seconds: seconds.toString().padStart(2, '0')
         };
       },
-      
+
       startCountdown() {
         if (this.countdownInterval) clearInterval(this.countdownInterval);
-        
         this.countdownInterval = setInterval(() => {
           const timerEl = document.getElementById('evaTimer');
           if (!timerEl) return;
-          
           const activeEva = this.getActiveEva();
           const nextEva = this.getNextEva();
-          
           if (activeEva && activeEva.actual_start) {
             const elapsed = this.formatElapsed(activeEva.actual_start);
             timerEl.textContent = `${elapsed.hours} : ${elapsed.minutes} : ${elapsed.seconds}`;
@@ -650,7 +609,7 @@
           }
         }, 1000);
       },
-
+      
       renderCrewCard(member, status = null) {
         const statusClass = status === 'eva' ? 'on-eva' : (status === 'iva' ? 'iva-support' : '');
         const statusBadge = status ? `<span class="crew-status ${status}">${status === 'eva' ? '🚶 EVA' : '📡 IVA'}</span>` : '';
@@ -665,23 +624,17 @@
             <div class="crew-info">
               <div class="crew-name">${member.name}</div>
               <div class="crew-role">${member.role}</div>
-              <span class="crew-agency">${member.agency}</span>
+              <span class="crew-agency">${member.agency || ''}</span>
               ${statusBadge}
-              <div class="crew-bio">${member.bio || ''}</div>
-              ${member.nasa_bio ? 
-                `<a href="${member.nasa_bio}" target="_blank" class="crew-link">View Full Bio →</a>` : 
-                ''
-              }
             </div>
           </div>
         `;
       },
-      
+
       renderEvaPanel() {
         const activeEva = this.getActiveEva();
         const nextEva = this.getNextEva();
         const isLive = !!activeEva;
-        
         const evaCrew = activeEva ? this.getEvaCrew(activeEva) : [];
         
         let timerLabel, timerValue, timerClass;
@@ -704,22 +657,19 @@
                 ${isLive ? '🔴' : '🚶'} ${isLive ? 'SPACEWALK IN PROGRESS' : 'UPCOMING SPACEWALKS'}
               </div>
             </div>
-            
             <div class="countdown-container">
               <div class="countdown-label">${timerLabel}</div>
               <div class="countdown-timer ${timerClass}" id="evaTimer">${timerValue}</div>
-              <div class="countdown-units">HRS &nbsp;&nbsp;&nbsp; MIN &nbsp;&nbsp;&nbsp; SEC</div>
+              <div class="countdown-units">HRS &nbsp; MIN &nbsp; SEC</div>
             </div>
-            
             ${isLive ? this.renderEvaCrewSection(evaCrew, activeEva) : ''}
-            
             <div class="eva-schedule">
               ${this.evaData.evas.map((eva, index) => this.renderEvaItem(eva, index + 1)).join('')}
             </div>
           </div>
         `;
       },
-      
+
       renderEvaCrewSection(evaCrew, activeEva) {
         return `
           <div class="eva-crew-section">
@@ -728,37 +678,30 @@
               ${evaCrew.map((member, idx) => `
                 <div class="eva-crew-card">
                   ${member.photo ? 
-                    `<img src="${member.photo}" alt="${member.name}" 
-                         onerror="this.outerHTML='<div style=\\'font-size:2em\\'>👨‍🚀</div>'">` :
-                    `<div style="font-size:2em">👨‍🚀</div>`
+                    `<img src="${member.photo}" alt="${member.name}">` :
+                    `<div style="font-size:1.5em">👨‍🚀</div>`
                   }
                   <div class="eva-crew-name">${member.name.split(' ').pop()}</div>
-                  <div class="eva-crew-role">EV-${idx + 1} (${member.agency})</div>
+                  <div class="eva-crew-role">EV-${idx + 1}</div>
                 </div>
               `).join('')}
             </div>
             <div class="eva-info-row">📅 <span>${this.formatDate(activeEva.scheduled_start)}</span></div>
-            <div class="eva-info-row">⏱️ <span>Started: ${this.formatTime(activeEva.actual_start)}</span></div>
-            <div class="eva-info-row">🎯 <span>${activeEva.title}</span></div>
+            <div class="eva-info-row">⏱️ <span>${this.formatTime(activeEva.actual_start)}</span></div>
           </div>
         `;
       },
-
+      
       renderEvaItem(eva, number) {
         let statusClass = '';
         let statusBadge = '';
-        
         if (eva.status === 'in_progress') {
           statusClass = 'live';
           statusBadge = '<span class="eva-status-badge live">🔴 LIVE</span>';
-        } else if (eva.status === 'completed') {
-          statusClass = 'completed';
-          statusBadge = '<span class="eva-status-badge completed">✓ DONE</span>';
         } else if (this.getNextEva()?.id === eva.id) {
           statusClass = 'next';
           statusBadge = '<span class="eva-status-badge next">⏳ NEXT</span>';
         }
-        
         return `
           <div class="eva-item ${statusClass}">
             <div class="eva-item-header">
@@ -766,15 +709,13 @@
               <span class="eva-item-date">${this.formatDate(eva.scheduled_start)}</span>
             </div>
             <div class="eva-item-details">${eva.title}</div>
-            <div class="eva-item-details">${this.formatTime(eva.scheduled_start)}</div>
             <div class="eva-item-crew">👨‍🚀 ${eva.crew.join(', ')} ${statusBadge}</div>
           </div>
         `;
       },
-      
+
       renderVideoFeed(eva) {
         if (!eva || !eva.live_feed_url) return '';
-        
         return `
           <div class="video-container">
             <div class="video-header">
@@ -794,45 +735,40 @@
         const grid = document.getElementById('crewGrid');
         
         if (!this.crew || this.crew.length === 0) {
-          grid.innerHTML = `
-            <div class="loading-state">
-              <div class="icon">👨‍🚀</div>
-              <div>No crew information available</div>
-            </div>
-          `;
+          grid.innerHTML = `<div class="loading-state"><div class="icon">👨‍🚀</div><div>No crew data</div></div>`;
           return;
         }
         
         const hasEvas = this.hasScheduledEvas();
         const activeEva = this.getActiveEva();
+        const crewCount = activeEva ? this.getIvaCrew(activeEva).length : this.crew.length;
         
-        // Update layout class
-        if (hasEvas) {
-          layout.classList.add('eva-mode');
-        } else {
-          layout.classList.remove('eva-mode');
-        }
+        // Render based on EVA state
+        layout.classList.remove('eva-active');
         
-        // Render crew cards
         if (activeEva) {
-          // EVA in progress - show IVA crew on left with video between them
+          layout.classList.add('eva-mode', 'eva-active');
           const ivaCrew = this.getIvaCrew(activeEva);
-          leftPanel.classList.add('eva-active');
-          
           leftPanel.innerHTML = `
-            <div class="crew-grid compact" id="crewGrid">
+            <div class="crew-grid" id="crewGrid" data-crew-count="${ivaCrew.length}">
               ${ivaCrew.map(member => this.renderCrewCard(member, 'iva')).join('')}
             </div>
             ${this.renderVideoFeed(activeEva)}
           `;
         } else {
-          // Normal or Pre-EVA mode
-          grid.classList.remove('compact');
-          grid.innerHTML = this.crew.map(member => this.renderCrewCard(member)).join('');
-          leftPanel.innerHTML = `<div class="crew-grid" id="crewGrid">${this.crew.map(member => this.renderCrewCard(member)).join('')}</div>`;
+          if (hasEvas) {
+            layout.classList.add('eva-mode');
+          } else {
+            layout.classList.remove('eva-mode');
+          }
+          leftPanel.innerHTML = `
+            <div class="crew-grid" id="crewGrid" data-crew-count="${this.crew.length}">
+              ${this.crew.map(member => this.renderCrewCard(member)).join('')}
+            </div>
+          `;
         }
         
-        // Render EVA panel
+        // Render EVA panel if needed
         if (hasEvas) {
           let evaPanel = document.getElementById('evaPanel');
           if (!evaPanel) {
