@@ -90,7 +90,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      min-height: 0;
+      height: fit-content;
     }
     
     .crew-card:hover {
@@ -108,18 +108,15 @@
     
     .crew-photo {
       width: 100%;
-      flex: 1;
-      min-height: 80px;
-      max-height: 200px;
+      height: 180px;
       object-fit: cover;
-      object-position: center 15%;
+      object-position: center 25%;
       background: rgba(0, 0, 0, 0.3);
     }
     
     .crew-photo-placeholder {
       width: 100%;
-      flex: 1;
-      min-height: 80px;
+      height: 180px;
       display: flex;
       align-items: center;
       justify-content: center;
