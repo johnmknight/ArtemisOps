@@ -55,12 +55,34 @@
     }
     
     .crew-grid.compact {
-      grid-template-columns: repeat(2, minmax(200px, 280px));
-      justify-content: start;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 280px;
     }
     
     .crew-grid.compact .crew-photo {
-      height: 200px;
+      height: 180px;
+    }
+    
+    .crew-grid.compact .crew-card {
+      width: 100%;
+    }
+    
+    .crew-grid.compact .crew-bio {
+      display: none;
+    }
+    
+    .left-panel.eva-active {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    
+    .left-panel.eva-active .video-container {
+      flex: 1;
+      max-width: 500px;
     }
 
     /* Crew Card Styles */
@@ -793,12 +815,10 @@
         
         // Render crew cards
         if (activeEva) {
-          // EVA in progress - show IVA crew on left
+          // EVA in progress - show IVA crew on left with video between them
           const ivaCrew = this.getIvaCrew(activeEva);
-          grid.classList.add('compact');
-          grid.innerHTML = ivaCrew.map(member => this.renderCrewCard(member, 'iva')).join('');
+          leftPanel.classList.add('eva-active');
           
-          // Add video feed below crew
           leftPanel.innerHTML = `
             <div class="crew-grid compact" id="crewGrid">
               ${ivaCrew.map(member => this.renderCrewCard(member, 'iva')).join('')}
