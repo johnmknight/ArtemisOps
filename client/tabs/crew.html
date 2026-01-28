@@ -66,7 +66,7 @@
     /* EVA Mode Layout - Only for active EVA */
     .crew-layout.eva-active .left-panel {
       flex-direction: row;
-      align-items: stretch;
+      align-items: flex-start;
     }
     
     .crew-layout.eva-active .crew-grid {
@@ -79,7 +79,8 @@
     
     .crew-layout.eva-active .video-container {
       flex: 0 0 auto;
-      max-width: 33vw;
+      max-width: 33%;
+      max-height: 100%;
     }
 
     /* Crew Card - Compact & Flexible */
@@ -426,6 +427,7 @@
       width: 100%;
       aspect-ratio: 4/3;
       background: #000;
+      max-height: calc(100vh - 200px);
     }
     
     .video-player iframe {
