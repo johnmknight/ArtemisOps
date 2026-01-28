@@ -401,25 +401,28 @@
 
     /* Video Feed */
     .video-container {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 68, 68, 0.5);
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid var(--accent-red);
       border-radius: 8px;
       overflow: hidden;
-      margin-top: 15px;
+      margin-top: 20px;
+      box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
     }
     
     .video-header {
-      background: rgba(255, 68, 68, 0.2);
-      padding: 8px 12px;
+      background: rgba(255, 68, 68, 0.3);
+      padding: 10px 15px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85em;
+      gap: 10px;
+      font-size: 1em;
+      font-weight: bold;
+      letter-spacing: 1px;
     }
     
     .live-indicator {
-      width: 8px;
-      height: 8px;
+      width: 12px;
+      height: 12px;
       background: var(--accent-red);
       border-radius: 50%;
       animation: pulse 1s infinite;
@@ -429,6 +432,7 @@
       width: 100%;
       aspect-ratio: 16/9;
       background: #000;
+      min-height: 250px;
     }
     
     .video-player iframe {
