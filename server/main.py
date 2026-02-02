@@ -422,13 +422,24 @@ async def get_iss_data():
 
 
 @app.get("/api/iss/position")
-async def get_iss_position_data():
+async def get_iss_position_data(include_location: bool = True):
     """
     Get current ISS position (latitude, longitude, altitude, velocity).
     Data from Where The ISS At API, with Open Notify as fallback.
+    
+    Query params:
+        include_location: If true (default), includes reverse-geocoded location name.
+                         This saves a separate API call for clients.
     """
     try:
-        return await get_iss_position()
+        position = await get_iss_position()
+        
+        # Include location name to save client a second API call
+        if include_location and position.get("latitude") and position.get("longitude"):
+            location = await get_location_name(position["latitude"], position["longitude"])
+            position["location"] = location
+        
+        return position
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"ISS position unavailable: {str(e)}")
 

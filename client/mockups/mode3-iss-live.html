@@ -865,18 +865,59 @@
       background: #1a3a5c !important;
     }
     
-    /* ISS Marker Animation */
+    /* ISS Marker with enhanced visibility */
     .iss-marker {
       background: transparent !important;
       border: none !important;
     }
-    .iss-icon {
-      filter: drop-shadow(0 0 10px #00bcd4);
-      animation: iss-pulse 2s ease-in-out infinite;
+    .iss-marker-container {
+      position: relative;
+      width: 80px;
+      height: 48px;
     }
-    @keyframes iss-pulse {
-      0%, 100% { filter: drop-shadow(0 0 10px #00bcd4); }
-      50% { filter: drop-shadow(0 0 20px #ffd60a); }
+    .iss-marker-backdrop {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 44px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    .iss-marker-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at center, 
+        rgba(255, 214, 10, 0.8) 0%, 
+        rgba(0, 188, 212, 0.6) 25%, 
+        rgba(0, 188, 212, 0.3) 45%, 
+        transparent 70%);
+      border-radius: 50%;
+      filter: blur(8px);
+      animation: iss-glow-pulse 2s ease-in-out infinite;
+    }
+    .iss-marker-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 48px;
+      filter: 
+        drop-shadow(0 0 1px white) 
+        drop-shadow(0 0 2px white) 
+        drop-shadow(0 0 3px rgba(255,255,255,0.8))
+        drop-shadow(0 0 8px rgba(0, 188, 212, 1)) 
+        drop-shadow(0 0 16px rgba(255, 214, 10, 0.7));
+    }
+    @keyframes iss-glow-pulse {
+      0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
     }
     
     /* Live update flash animation */
@@ -1701,9 +1742,16 @@
       // Add lat/lon grid lines (like NASA Mission Control display)
       addGridLines();
       
-      // ISS marker icon - using PNG asset
-      const issIcon = L.icon({
-        iconUrl: '../assets/icons/spacecraft/big-iss-icon.png',
+      // ISS marker icon - using divIcon with enhanced visibility
+      const issIcon = L.divIcon({
+        className: 'iss-marker',
+        html: `
+          <div class="iss-marker-container">
+            <div class="iss-marker-glow"></div>
+            <div class="iss-marker-backdrop"></div>
+            <img class="iss-marker-icon" src="../assets/icons/spacecraft/big-iss-icon.png" alt="ISS">
+          </div>
+        `,
         iconSize: [80, 48],
         iconAnchor: [40, 24]
       });
@@ -1758,7 +1806,7 @@
     // Fetch ISS position from our server (proxied API)
     async function updateISSPosition() {
       try {
-        // Use server-side proxy instead of direct external API call
+        // Use server-side proxy - now includes location data (optimization)
         const response = await fetch('/api/iss/position');
         const data = await response.json();
         
@@ -1768,6 +1816,7 @@
         const vel = data.velocity_kmh;
         const vis = data.visibility;
         const footprint = data.footprint_km;
+        const location = data.location; // Now included in response!
         
         // Update marker
         issMarker.setLatLng([lat, lng]);
@@ -1816,8 +1865,16 @@
         if (statOrbitEl) statOrbitEl.textContent = Math.floor(orbitCount).toLocaleString();
         if (orbitBadgeEl) orbitBadgeEl.textContent = '🛰️ ORBIT ' + Math.floor(orbitCount).toLocaleString();
         
-        // Get location name (reverse geocode)
-        getLocationName(lat, lng);
+        // Update location from combined response (no extra API call!)
+        const overLocEl = document.getElementById('overLocation');
+        const overCountryEl = document.getElementById('overCountry');
+        if (location) {
+          if (overLocEl) overLocEl.textContent = location.location || 'Ocean';
+          if (overCountryEl) overCountryEl.textContent = location.country_code || 'International Waters';
+        } else {
+          // Fallback only if location not in response
+          getLocationName(lat, lng);
+        }
         
       } catch (error) {
         console.error('Failed to fetch ISS position:', error);

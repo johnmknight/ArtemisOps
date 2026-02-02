@@ -9,14 +9,13 @@
     
     :root {
       --bg-primary: #0a1628;
-      --bg-card: rgba(12, 20, 35, 0.9);
+      --bg-card: rgba(12, 20, 35, 0.95);
       --text-primary: #ffffff;
-      --text-muted: #6b7280;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --accent-orange: #f59e0b;
+      --text-muted: #94a3b8;
+      --accent-cyan: #22d3ee;
+      --accent-orange: #fb923c;
       --accent-red: #ef4444;
-      --border-subtle: rgba(255,255,255,0.08);
+      --border-subtle: rgba(255,255,255,0.1);
     }
     
     html, body {
@@ -27,24 +26,14 @@
       color: var(--text-primary);
     }
     
-    /* Main Layout */
+    /* === NORMAL MODE === */
     .crew-layout {
       height: 100%;
-      padding: 20px;
+      padding: 16px;
       display: flex;
-      gap: 20px;
-      overflow: hidden;
+      gap: 16px;
     }
     
-    .left-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    /* Crew Grid */
     .crew-grid {
       flex: 1;
       display: grid;
@@ -52,16 +41,16 @@
       align-content: start;
     }
     
-    .crew-grid[data-crew-count="2"] { grid-template-columns: repeat(2, 1fr); }
-    .crew-grid[data-crew-count="3"] { grid-template-columns: repeat(3, 1fr); }
-    .crew-grid[data-crew-count="4"] { grid-template-columns: repeat(4, 1fr); }
-    .crew-grid[data-crew-count="5"] { grid-template-columns: repeat(5, 1fr); }
-    .crew-grid[data-crew-count="6"] { grid-template-columns: repeat(3, 1fr); }
-    .crew-grid[data-crew-count="7"] { grid-template-columns: repeat(4, 1fr); }
-    .crew-grid[data-crew-count="8"] { grid-template-columns: repeat(4, 1fr); }
-    .crew-grid[data-crew-count="9"] { grid-template-columns: repeat(5, 1fr); }
+    .crew-grid[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+    .crew-grid[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
+    .crew-grid[data-count="4"] { grid-template-columns: repeat(4, 1fr); }
+    .crew-grid[data-count="5"] { grid-template-columns: repeat(5, 1fr); }
+    .crew-grid[data-count="6"] { grid-template-columns: repeat(3, 1fr); }
+    .crew-grid[data-count="7"] { grid-template-columns: repeat(4, 1fr); }
+    .crew-grid[data-count="8"] { grid-template-columns: repeat(4, 1fr); }
+    .crew-grid[data-count="9"] { grid-template-columns: repeat(5, 1fr); }
 
-    /* Crew Card - Clean Design */
+    /* Normal Mode Crew Card */
     .crew-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -74,7 +63,6 @@
       height: 160px;
       object-fit: cover;
       object-position: center 25%;
-      background: rgba(0,0,0,0.2);
     }
     
     .crew-info {
@@ -82,231 +70,162 @@
     }
     
     .crew-name {
-      font-size: 0.9em;
+      font-size: 1em;
       font-weight: 600;
-      margin-bottom: 2px;
     }
     
     .crew-role {
-      font-size: 0.75em;
+      font-size: 0.8em;
       color: var(--text-muted);
     }
-    
-    .crew-agency {
-      display: inline-block;
-      font-size: 0.65em;
-      color: var(--accent-cyan);
-      margin-top: 4px;
-    }
 
-    /* EVA Active Layout - Video Centered */
-    .crew-layout.eva-active {
-      gap: 16px;
-    }
-    
-    .crew-layout.eva-active .left-panel {
-      flex-direction: row;
-      align-items: stretch;
-      gap: 16px;
-    }
-    
-    .crew-layout.eva-active .iva-strip {
-      flex: 0 0 auto;
-      width: 70px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding-top: 8px;
-    }
-    
-    .crew-layout.eva-active .iva-member {
-      text-align: center;
-    }
-    
-    .crew-layout.eva-active .iva-member img {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: center 25%;
-      border: 2px solid var(--accent-cyan);
-    }
-    
-    .crew-layout.eva-active .iva-member-name {
-      font-size: 0.65em;
-      margin-top: 4px;
-      color: var(--text-muted);
-    }
-    
-    .crew-layout.eva-active .iva-label {
-      font-size: 0.6em;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    
-    .crew-layout.eva-active .video-container {
-      flex: 0 0 auto;
-      width: 33%;
-    }
-
-    /* EVA Panel - Slim, Supporting Role */
-    .eva-panel {
-      width: 220px;
+    /* EVA Sidebar - Normal Mode */
+    .eva-sidebar {
+      width: 240px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
     
-    .eva-status {
+    .timer-box {
       text-align: center;
+      padding: 16px;
+      background: var(--bg-card);
+      border-radius: 8px;
     }
     
-    .eva-status-label {
+    .timer-label {
       font-size: 0.7em;
-      letter-spacing: 0.1em;
       color: var(--text-muted);
       text-transform: uppercase;
-      margin-bottom: 4px;
+      letter-spacing: 0.1em;
     }
     
-    .eva-status-label.live {
-      color: var(--accent-red);
-    }
-    
-    .eva-timer {
-      font-size: 2.5em;
+    .timer-value {
+      font-size: 2em;
       font-weight: 300;
-      font-family: 'SF Mono', 'Consolas', monospace;
-      letter-spacing: 0.05em;
-      color: var(--text-primary);
-    }
-    
-    .eva-timer.live {
-      color: var(--accent-red);
-    }
-    
-    .eva-timer-units {
-      font-size: 0.6em;
-      color: var(--text-muted);
-      letter-spacing: 0.3em;
-      margin-top: 2px;
-    }
-
-    /* EVA Crew - Minimal */
-    .eva-crew {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      padding: 12px 0;
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    
-    .eva-crew-member {
-      text-align: center;
-    }
-    
-    .eva-crew-member img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: center 25%;
-      border: 2px solid var(--accent-orange);
-    }
-    
-    .eva-crew-member-name {
-      font-size: 0.7em;
+      font-family: 'SF Mono', Consolas, monospace;
       margin-top: 4px;
-      color: var(--text-muted);
     }
     
-    .eva-crew-member-role {
-      font-size: 0.65em;
-      color: var(--accent-orange);
-    }
+    .schedule-list { flex: 1; }
     
-    /* EVA Schedule - Compact List */
-    .eva-schedule {
-      flex: 1;
-      overflow-y: auto;
-    }
-    
-    .eva-schedule-item {
+    .schedule-item {
       padding: 10px 0;
       border-bottom: 1px solid var(--border-subtle);
-      font-size: 0.8em;
-    }
-    
-    .eva-schedule-item:last-child {
-      border-bottom: none;
-    }
-    
-    .eva-schedule-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2px;
-    }
-    
-    .eva-schedule-title {
-      font-weight: 500;
-    }
-    
-    .eva-schedule-title.live {
-      color: var(--accent-red);
-    }
-    
-    .eva-schedule-title.next {
-      color: var(--accent-orange);
-    }
-    
-    .eva-schedule-date {
-      color: var(--text-muted);
-      font-size: 0.9em;
-    }
-    
-    .eva-schedule-crew {
-      color: var(--text-muted);
       font-size: 0.85em;
     }
+    
+    .schedule-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .schedule-title { font-weight: 500; }
+    .schedule-title.next { color: var(--accent-orange); }
+    .schedule-date { color: var(--text-muted); }
+    .schedule-crew { color: var(--text-muted); font-size: 0.9em; }
 
-    /* Video Container - Clean */
-    .video-container {
-      background: #000;
-      border-radius: 8px;
+    /* === EVA ACTIVE: 3-Column Layout === */
+    .crew-layout.eva-active {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .section-header {
+      font-size: 0.7em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 12px;
+    }
+    
+    /* LEFT COLUMN: IVA Crew - Large & Visible */
+    .iva-column {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .iva-crew-grid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .iva-card {
+      flex: 1;
+      background: var(--bg-card);
+      border: 3px solid var(--accent-cyan);
+      border-radius: 10px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .iva-card img {
+      flex: 1;
+      width: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      min-height: 0;
+    }
+    
+    .iva-card-name {
+      padding: 12px;
+      font-size: 1.4em;
+      font-weight: 700;
+      text-align: center;
+      background: rgba(34, 211, 238, 0.15);
+      letter-spacing: 0.02em;
+    }
+
+    /* CENTER COLUMN: Video */
+    .video-column {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .video-container {
+      flex: 1;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     
     .video-header {
-      background: rgba(239, 68, 68, 0.9);
-      padding: 6px 12px;
+      background: var(--accent-red);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.75em;
-      font-weight: 500;
+      gap: 10px;
+      font-size: 0.9em;
+      font-weight: 700;
+      letter-spacing: 0.05em;
     }
     
     .live-dot {
-      width: 8px;
-      height: 8px;
+      width: 12px;
+      height: 12px;
       background: #fff;
       border-radius: 50%;
-      animation: pulse 1.5s ease-in-out infinite;
+      animation: pulse 1.5s infinite;
     }
     
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      50% { opacity: 0.3; }
     }
     
     .video-player {
-      width: 100%;
-      aspect-ratio: 4/3;
+      flex: 1;
+      min-height: 0;
     }
     
     .video-player iframe {
@@ -314,24 +233,129 @@
       height: 100%;
       border: none;
     }
+
+    /* RIGHT COLUMN: EVA Crew + Timeline (2 sub-columns) */
+    .eva-column {
+      display: flex;
+      flex-direction: column;
+    }
     
-    /* Loading */
+    .eva-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
+    
+    /* EVA Crew Sub-column */
+    .eva-crew-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .eva-card {
+      flex: 1;
+      background: var(--bg-card);
+      border: 3px solid var(--accent-orange);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .eva-card img {
+      flex: 1;
+      width: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      min-height: 0;
+    }
+    
+    .eva-card-info {
+      padding: 10px;
+      text-align: center;
+      background: rgba(251, 146, 60, 0.15);
+    }
+    
+    .eva-card-name {
+      font-size: 1.2em;
+      font-weight: 700;
+    }
+    
+    .eva-card-role {
+      font-size: 0.9em;
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    /* Timeline Sub-column */
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .timeline-timer {
+      text-align: center;
+      padding: 16px 12px;
+      background: var(--bg-card);
+      border: 3px solid var(--accent-red);
+      border-radius: 10px;
+    }
+    
+    .timeline-timer-label {
+      font-size: 0.7em;
+      color: var(--accent-red);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+    
+    .timeline-timer-value {
+      font-size: 2em;
+      font-weight: 400;
+      font-family: 'SF Mono', Consolas, monospace;
+      color: var(--accent-red);
+      margin-top: 4px;
+    }
+    
+    .timeline-items {
+      flex: 1;
+    }
+    
+    .timeline-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .timeline-item-title {
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+    
+    .timeline-item.live .timeline-item-title {
+      color: var(--accent-red);
+    }
+    
+    .timeline-item-date {
+      font-size: 0.8em;
+      color: var(--text-muted);
+    }
+    
     .loading {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 200px;
+      height: 100%;
       color: var(--text-muted);
     }
   </style>
 </head>
 <body>
   <div class="crew-layout" id="crewLayout">
-    <div class="left-panel" id="leftPanel">
-      <div class="crew-grid" id="crewGrid">
-        <div class="loading">Loading crew...</div>
-      </div>
-    </div>
+    <div class="loading">Loading crew...</div>
   </div>
 
   <script>
@@ -342,29 +366,9 @@
       
       mockEvaData: {
         evas: [
-          {
-            id: "eva-1",
-            title: "Lunar Surface EVA",
-            scheduled_start: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-            duration_hours: 6.5,
-            status: "scheduled",
-            crew: ["Christina Koch", "Jeremy Hansen"],
-            feed_url: null
-          },
-          {
-            id: "eva-2",
-            title: "Sample Collection",
-            scheduled_start: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-            status: "scheduled",
-            crew: ["TBD"]
-          },
-          {
-            id: "eva-3",
-            title: "Equipment Deploy",
-            scheduled_start: new Date(Date.now() + 96 * 60 * 60 * 1000).toISOString(),
-            status: "scheduled",
-            crew: ["TBD"]
-          }
+          { id: "eva-1", title: "Lunar Surface EVA", scheduled_start: new Date(Date.now() + 2*60*60*1000).toISOString(), status: "scheduled", crew: ["Christina Koch", "Jeremy Hansen"] },
+          { id: "eva-2", title: "Sample Collection", scheduled_start: new Date(Date.now() + 48*60*60*1000).toISOString(), status: "scheduled", crew: ["TBD"] },
+          { id: "eva-3", title: "Equipment Deploy", scheduled_start: new Date(Date.now() + 96*60*60*1000).toISOString(), status: "scheduled", crew: ["TBD"] }
         ]
       },
       
@@ -380,23 +384,13 @@
         window.parent.postMessage({ type: 'tabReady', tab: 'crew' }, '*');
       },
       
-      hasEvas() {
-        return this.evaData?.evas?.length > 0;
-      },
-      
-      getNextEva() {
-        return this.evaData?.evas?.find(e => e.status === 'scheduled' || e.status === 'active');
-      },
-      
-      getActiveEva() {
-        return this.evaData?.evas?.find(e => e.status === 'active');
-      },
+      hasEvas() { return this.evaData?.evas?.length > 0; },
+      getNextEva() { return this.evaData?.evas?.find(e => e.status === 'scheduled' || e.status === 'active'); },
+      getActiveEva() { return this.evaData?.evas?.find(e => e.status === 'active'); },
       
       getEvaCrew(eva) {
         if (!eva?.crew) return [];
-        return this.crew.filter(m => 
-          eva.crew.some(n => m.name.includes(n) || n.includes(m.name.split(' ').pop()))
-        );
+        return this.crew.filter(m => eva.crew.some(n => m.name.includes(n) || n.includes(m.name.split(' ').pop())));
       },
       
       getIvaCrew(eva) {
@@ -413,11 +407,11 @@
           this.render();
         }
       },
-
+      
       formatTime(ms) {
-        const h = Math.floor(ms / 3600000);
-        const m = Math.floor((ms % 3600000) / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
+        const h = Math.floor(Math.abs(ms) / 3600000);
+        const m = Math.floor((Math.abs(ms) % 3600000) / 60000);
+        const s = Math.floor((Math.abs(ms) % 60000) / 1000);
         return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
       },
       
@@ -439,87 +433,107 @@
           }
         }, 1000);
       },
-      
-      renderCrewCard(member) {
-        return `
-          <div class="crew-card">
-            <img src="${member.photo || ''}" alt="${member.name}" class="crew-photo"
-                 onerror="this.style.display='none'">
-            <div class="crew-info">
-              <div class="crew-name">${member.name}</div>
-              <div class="crew-role">${member.role}</div>
-              <div class="crew-agency">${member.agency || ''}</div>
-            </div>
-          </div>
-        `;
-      },
 
-      renderEvaPanel() {
-        const active = this.getActiveEva();
+      renderNormal() {
         const next = this.getNextEva();
-        const isLive = !!active;
-        const evaCrew = active ? this.getEvaCrew(active) : [];
+        const timerValue = next ? this.formatTime(new Date(next.scheduled_start) - Date.now()) : '--:--:--';
         
-        let label, time;
-        if (active?.start_time) {
-          label = 'EVA ELAPSED';
-          time = this.formatTime(Date.now() - new Date(active.start_time));
-        } else if (next) {
-          label = 'NEXT EVA';
-          time = this.formatTime(new Date(next.scheduled_start) - Date.now());
-        }
-
         return `
-          <div class="eva-panel" id="evaPanel">
-            <div class="eva-status">
-              <div class="eva-status-label ${isLive ? 'live' : ''}">${label}</div>
-              <div class="eva-timer ${isLive ? 'live' : ''}" id="evaTimer">${time}</div>
-              <div class="eva-timer-units">HRS   MIN   SEC</div>
-            </div>
-            
-            ${isLive ? `
-              <div class="eva-crew">
-                ${evaCrew.map((m, i) => `
-                  <div class="eva-crew-member">
-                    <img src="${m.photo || ''}" alt="${m.name}">
-                    <div class="eva-crew-member-name">${m.name.split(' ').pop()}</div>
-                    <div class="eva-crew-member-role">EV-${i + 1}</div>
+          <div class="crew-grid" data-count="${this.crew.length}">
+            ${this.crew.map(m => `
+              <div class="crew-card">
+                <img src="${m.photo || ''}" alt="${m.name}" class="crew-photo">
+                <div class="crew-info">
+                  <div class="crew-name">${m.name}</div>
+                  <div class="crew-role">${m.role}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          ${this.hasEvas() ? `
+            <div class="eva-sidebar">
+              <div class="timer-box">
+                <div class="timer-label">Next EVA</div>
+                <div class="timer-value" id="evaTimer">${timerValue}</div>
+              </div>
+              <div class="schedule-list">
+                ${this.evaData.evas.map((eva, i) => `
+                  <div class="schedule-item">
+                    <div class="schedule-row">
+                      <span class="schedule-title ${next?.id === eva.id ? 'next' : ''}">EVA-${i+1}</span>
+                      <span class="schedule-date">${this.formatDate(eva.scheduled_start)}</span>
+                    </div>
+                    <div class="schedule-crew">${eva.crew.join(', ')}</div>
                   </div>
                 `).join('')}
               </div>
-            ` : ''}
-            
-            <div class="eva-schedule">
-              ${this.evaData.evas.map((eva, i) => {
-                const isActive = eva.status === 'active';
-                const isNext = !isActive && next?.id === eva.id;
-                return `
-                  <div class="eva-schedule-item">
-                    <div class="eva-schedule-header">
-                      <span class="eva-schedule-title ${isActive ? 'live' : ''} ${isNext ? 'next' : ''}">
-                        EVA-${i + 1}${isActive ? ' • LIVE' : ''}${isNext ? ' • NEXT' : ''}
-                      </span>
-                      <span class="eva-schedule-date">${this.formatDate(eva.scheduled_start)}</span>
-                    </div>
-                    <div class="eva-schedule-crew">${eva.crew.join(', ')}</div>
-                  </div>
-                `;
-              }).join('')}
             </div>
-          </div>
+          ` : ''}
         `;
       },
 
-      renderVideo(eva) {
-        if (!eva?.feed_url) return '';
+      renderEvaActive(active) {
+        const ivaCrew = this.getIvaCrew(active);
+        const evaCrew = this.getEvaCrew(active);
+        const elapsed = this.formatTime(Date.now() - new Date(active.start_time));
+        
         return `
-          <div class="video-container">
-            <div class="video-header">
-              <span class="live-dot"></span>
-              <span>LIVE</span>
+          <!-- LEFT: IVA Crew -->
+          <div class="iva-column">
+            <div class="section-header">Inside Vehicle</div>
+            <div class="iva-crew-grid">
+              ${ivaCrew.map(m => `
+                <div class="iva-card">
+                  <img src="${m.photo || ''}" alt="${m.name}">
+                  <div class="iva-card-name">${m.name.split(' ').pop()}</div>
+                </div>
+              `).join('')}
             </div>
-            <div class="video-player">
-              <iframe src="${eva.feed_url}" allowfullscreen></iframe>
+          </div>
+          
+          <!-- CENTER: Video -->
+          <div class="video-column">
+            <div class="section-header">Live Feed</div>
+            <div class="video-container">
+              <div class="video-header">
+                <span class="live-dot"></span>
+                <span>LIVE</span>
+              </div>
+              <div class="video-player">
+                <iframe src="${active.feed_url}" allowfullscreen></iframe>
+              </div>
+            </div>
+          </div>
+          
+          <!-- RIGHT: EVA Crew + Timeline -->
+          <div class="eva-column">
+            <div class="section-header">Spacewalk</div>
+            <div class="eva-content">
+              <div class="eva-crew-list">
+                ${evaCrew.map((m, i) => `
+                  <div class="eva-card">
+                    <img src="${m.photo || ''}" alt="${m.name}">
+                    <div class="eva-card-info">
+                      <div class="eva-card-name">${m.name.split(' ').pop()}</div>
+                      <div class="eva-card-role">EV-${i + 1}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="timeline-list">
+                <div class="timeline-timer">
+                  <div class="timeline-timer-label">Elapsed</div>
+                  <div class="timeline-timer-value" id="evaTimer">${elapsed}</div>
+                </div>
+                <div class="timeline-items">
+                  ${this.evaData.evas.map((eva, i) => `
+                    <div class="timeline-item ${eva.status === 'active' ? 'live' : ''}">
+                      <div class="timeline-item-title">EVA-${i+1}${eva.status === 'active' ? ' • LIVE' : ''}</div>
+                      <div class="timeline-item-date">${this.formatDate(eva.scheduled_start)}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -527,50 +541,24 @@
 
       render() {
         const layout = document.getElementById('crewLayout');
-        const leftPanel = document.getElementById('leftPanel');
         
         if (!this.crew?.length) {
-          leftPanel.innerHTML = '<div class="loading">No crew data</div>';
+          layout.innerHTML = '<div class="loading">No crew data</div>';
           return;
         }
         
-        const hasEvas = this.hasEvas();
         const active = this.getActiveEva();
         
         layout.classList.remove('eva-active');
         
         if (active) {
           layout.classList.add('eva-active');
-          const iva = this.getIvaCrew(active);
-          leftPanel.innerHTML = `
-            <div class="iva-strip">
-              <div class="iva-label">IVA</div>
-              ${iva.map(m => `
-                <div class="iva-member">
-                  <img src="${m.photo || ''}" alt="${m.name}">
-                  <div class="iva-member-name">${m.name.split(' ').pop()}</div>
-                </div>
-              `).join('')}
-            </div>
-            ${this.renderVideo(active)}
-          `;
+          layout.innerHTML = this.renderEvaActive(active);
         } else {
-          leftPanel.innerHTML = `
-            <div class="crew-grid" data-crew-count="${this.crew.length}">
-              ${this.crew.map(m => this.renderCrewCard(m)).join('')}
-            </div>
-          `;
+          layout.innerHTML = this.renderNormal();
         }
         
-        if (hasEvas) {
-          let panel = document.getElementById('evaPanel');
-          if (!panel) {
-            layout.insertAdjacentHTML('beforeend', this.renderEvaPanel());
-          } else {
-            panel.outerHTML = this.renderEvaPanel();
-          }
-          this.startTimer();
-        }
+        if (this.hasEvas()) this.startTimer();
       }
     };
     

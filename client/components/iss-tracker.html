@@ -253,21 +253,32 @@
       width: 80px;
       height: 48px;
     }
+    /* Dark backdrop for contrast on any terrain */
+    .iss-marker-backdrop {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 44px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
     .iss-marker-glow {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       background: radial-gradient(circle at center, 
-        rgba(0, 188, 212, 0.9) 0%, 
-        rgba(0, 188, 212, 0.6) 20%, 
-        rgba(0, 188, 212, 0.3) 40%, 
-        rgba(0, 150, 180, 0.15) 60%,
-        transparent 80%);
+        rgba(255, 214, 10, 0.8) 0%, 
+        rgba(0, 188, 212, 0.6) 25%, 
+        rgba(0, 188, 212, 0.3) 45%, 
+        transparent 70%);
       border-radius: 50%;
-      filter: blur(6px);
+      filter: blur(8px);
       animation: iss-glow-pulse 2s ease-in-out infinite;
     }
     .iss-marker-icon {
@@ -276,11 +287,17 @@
       left: 0;
       width: 80px;
       height: 48px;
-      filter: drop-shadow(0 0 6px rgba(0, 188, 212, 1)) drop-shadow(0 0 12px rgba(0, 188, 212, 0.6));
+      /* White outline via stacked drop-shadows + cyan glow */
+      filter: 
+        drop-shadow(0 0 1px white) 
+        drop-shadow(0 0 2px white) 
+        drop-shadow(0 0 3px rgba(255,255,255,0.8))
+        drop-shadow(0 0 8px rgba(0, 188, 212, 1)) 
+        drop-shadow(0 0 16px rgba(255, 214, 10, 0.7));
     }
     @keyframes iss-glow-pulse {
       0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
     }
 </style>
 </head>
@@ -1576,6 +1593,7 @@
           html: `
             <div class="iss-marker-container">
               <div class="iss-marker-glow"></div>
+              <div class="iss-marker-backdrop"></div>
               <img class="iss-marker-icon" src="../assets/icons/spacecraft/big-iss-icon.png" alt="ISS">
             </div>
           `,
@@ -1633,6 +1651,7 @@
         try {
           // Try server proxy first, fallback to direct API
           let data;
+          let locationData = null;
           try {
             const response = await fetch('/api/iss/position');
             if (response.ok) {
@@ -1642,6 +1661,8 @@
               data.altitude = data.altitude_km || data.altitude;
               data.velocity = data.velocity_kmh || data.velocity;
               data.footprint = data.footprint_km || data.footprint || 4400;
+              // Location is now included in the response (optimization #1)
+              locationData = data.location;
             } else {
               throw new Error('Proxy unavailable');
             }
@@ -1682,8 +1703,14 @@
           document.getElementById('telVelKms').textContent = (data.velocity / 3600).toFixed(2);
           document.getElementById('statVel').textContent = Math.round(data.velocity);
           
-          // Update location name
-          this.updateLocationName(lat, lng);
+          // Update location name (now from combined response - no extra API call!)
+          if (locationData) {
+            document.getElementById('overLocation').textContent = locationData.location || 'Ocean';
+            document.getElementById('overCountry').textContent = locationData.country_code || 'International Waters';
+          } else {
+            // Fallback if location not in response
+            this.updateLocationName(lat, lng);
+          }
           
           // Increment orbit count
           orbitCount += 0.0001;
@@ -1696,19 +1723,18 @@
       },
       
       async updateLocationName(lat, lng) {
+        // Fallback function - normally location comes with position response
         try {
-          const response = await fetch(`https://api.wheretheiss.at/v1/coordinates/${lat},${lng}`);
-          const data = await response.json();
-          if (data.timezone_id) {
-            const parts = data.timezone_id.split('/');
-            const location = parts[parts.length - 1].replace(/_/g, ' ');
-            document.getElementById('overLocation').textContent = location;
-            document.getElementById('overCountry').textContent = data.country_code || 'Ocean';
+          const response = await fetch(`/api/iss/location/${lat.toFixed(4)},${lng.toFixed(4)}`);
+          if (response.ok) {
+            const data = await response.json();
+            document.getElementById('overLocation').textContent = data.location || 'Ocean';
+            document.getElementById('overCountry').textContent = data.country_code || 'International Waters';
           } else {
-            document.getElementById('overLocation').textContent = 'Ocean';
-            document.getElementById('overCountry').textContent = 'International Waters';
+            throw new Error('Server unavailable');
           }
         } catch {
+          // Last resort - show coordinates
           document.getElementById('overLocation').textContent = lat.toFixed(1) + '°, ' + lng.toFixed(1) + '°';
           document.getElementById('overCountry').textContent = '';
         }
