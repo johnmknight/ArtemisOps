@@ -417,14 +417,122 @@ async def get_last_sync() -> Optional[dict]:
             return dict(row) if row else None
 
 
+# === Milestone Status Calculation ===
+
+def parse_milestone_date(date_label: str, launch_date: datetime = None) -> Optional[datetime]:
+    """
+    Parse a milestone date_label into a datetime object.
+    
+    Supported formats:
+    - "Dec 2025" -> last day of that month at 23:59:59
+    - "Jan 2, 2026" -> that date at end of day
+    - "T-6:40:00" -> launch_date minus 6h40m (requires launch_date)
+    - "T-00:00" or "T-0:00" -> launch_date
+    """
+    import re
+    
+    if not date_label:
+        return None
+    
+    date_label = date_label.strip()
+    
+    # Handle T-minus format (e.g., "T-6:40:00", "T-00:00")
+    t_minus_match = re.match(r'^T-?(\d+):(\d+):?(\d+)?$', date_label)
+    if t_minus_match:
+        if not launch_date:
+            return None
+        hours = int(t_minus_match.group(1))
+        minutes = int(t_minus_match.group(2))
+        seconds = int(t_minus_match.group(3) or 0)
+        return launch_date - timedelta(hours=hours, minutes=minutes, seconds=seconds)
+    
+    # Handle "Month Year" format (e.g., "Dec 2025")
+    month_year_match = re.match(r'^([A-Za-z]+)\s+(\d{4})$', date_label)
+    if month_year_match:
+        try:
+            month_name = month_year_match.group(1)
+            year = int(month_year_match.group(2))
+            # Parse month name
+            parsed = datetime.strptime(f"{month_name} 1, {year}", "%b %d, %Y")
+            # Get last day of that month
+            if parsed.month == 12:
+                last_day = datetime(year + 1, 1, 1, tzinfo=timezone.utc) - timedelta(seconds=1)
+            else:
+                last_day = datetime(year, parsed.month + 1, 1, tzinfo=timezone.utc) - timedelta(seconds=1)
+            return last_day
+        except:
+            pass
+    
+    # Handle "Month Day, Year" format (e.g., "Jan 2, 2026")
+    full_date_match = re.match(r'^([A-Za-z]+)\s+(\d+),?\s+(\d{4})$', date_label)
+    if full_date_match:
+        try:
+            month_name = full_date_match.group(1)
+            day = int(full_date_match.group(2))
+            year = int(full_date_match.group(3))
+            # End of that day
+            return datetime(year, datetime.strptime(month_name, "%b").month, day, 23, 59, 59, tzinfo=timezone.utc)
+        except:
+            pass
+    
+    return None
+
+
+def calculate_milestone_statuses(milestones: list[dict], launch_date: datetime = None) -> list[dict]:
+    """
+    Calculate dynamic status for milestones based on current date.
+    
+    Rules:
+    - If milestone's target date has passed -> "completed"
+    - First non-completed milestone -> "active" 
+    - Everything after -> "pending"
+    """
+    now = datetime.now(timezone.utc)
+    
+    # First pass: determine which milestones are past their date
+    for ms in milestones:
+        target_dt = parse_milestone_date(ms.get('date_label'), launch_date)
+        ms['_target_datetime'] = target_dt
+        ms['_is_past'] = target_dt is not None and target_dt < now
+    
+    # Second pass: assign statuses
+    found_active = False
+    for ms in milestones:
+        if ms['_is_past']:
+            ms['status'] = 'completed'
+        elif not found_active:
+            ms['status'] = 'active'
+            found_active = True
+        else:
+            ms['status'] = 'pending'
+        
+        # Clean up internal fields
+        del ms['_target_datetime']
+        del ms['_is_past']
+    
+    return milestones
+
+
 # === Full Mission Data (with crew and milestones) ===
 
 async def get_full_mission(mission_id: str) -> Optional[dict]:
-    """Get mission with crew and milestones"""
+    """Get mission with crew and milestones, with dynamic milestone status calculation"""
     mission = await get_mission(mission_id)
     if not mission:
         return None
     
     mission['crew'] = await get_crew(mission['id'])
-    mission['milestones'] = await get_milestones(mission['id'])
+    milestones = await get_milestones(mission['id'])
+    
+    # Parse launch date for T-minus calculations
+    launch_date = None
+    if mission.get('launch_date'):
+        try:
+            launch_date = datetime.fromisoformat(mission['launch_date'].replace('Z', '+00:00'))
+        except:
+            pass
+    
+    # Calculate dynamic milestone statuses
+    mission['milestones'] = calculate_milestone_statuses(milestones, launch_date)
+    
     return mission

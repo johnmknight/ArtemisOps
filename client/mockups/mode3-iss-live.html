@@ -1154,7 +1154,7 @@
           <div class="agency-logo" style="background:#0033a0;color:#fff">RSA</div>
         </div>
         <div class="mission-info">
-          <h1>ISS EXPEDITION 72</h1>
+          <h1 id="expeditionTitle">ISS EXPEDITION --</h1>
           <div class="mission-subtitle">International Space Station · Low Earth Orbit</div>
         </div>
       </div>
@@ -1313,21 +1313,16 @@
           <div class="stat-label">Total Orbits</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value">25 yrs</div>
+          <div class="stat-value" id="statYears">-- yrs</div>
           <div class="stat-label">In Orbit</div>
         </div>
       </div>
     </div>
     
     <div class="news-ticker">
-      <div class="ticker-content">
+      <div class="ticker-content" id="tickerContent">
         <div class="ticker-label">ISS UPDATE</div>
-        <div class="ticker-item"><span class="ticker-time">12:30 UTC</span>Crew Dragon Endeavour docked at Harmony module · Crew rotation complete</div>
-        <div class="ticker-item"><span class="ticker-time">09:15 UTC</span>EVA scheduled for tomorrow · Battery replacement on P4 truss</div>
-        <div class="ticker-item"><span class="ticker-time">Yesterday</span>Cygnus cargo spacecraft departed · Destructive reentry over Pacific</div>
-        <div class="ticker-label">ISS UPDATE</div>
-        <div class="ticker-item"><span class="ticker-time">12:30 UTC</span>Crew Dragon Endeavour docked at Harmony module · Crew rotation complete</div>
-        <div class="ticker-item"><span class="ticker-time">09:15 UTC</span>EVA scheduled for tomorrow · Battery replacement on P4 truss</div>
+        <div class="ticker-item"><span class="ticker-time">Loading...</span>Fetching latest ISS news...</div>
       </div>
     </div>
   </div>
@@ -1344,7 +1339,38 @@
     let positionHistory = [];
     let showFootprint = true;
     let showTrack = true;
-    let orbitCount = 142850; // Approximate orbit count since 1998
+    
+    // ISS Launch Date: November 20, 1998 (Zarya module)
+    const ISS_LAUNCH_DATE = new Date('1998-11-20T06:40:00Z');
+    // Use a known baseline: Expedition 70 started September 27, 2023
+    const EXPEDITION_70_START = new Date('2023-09-27T00:00:00Z');
+    const EXPEDITION_70_NUMBER = 70;
+    // Average expedition duration in days (~6 months, but varies)
+    const AVG_EXPEDITION_DAYS = 180;
+    // ISS orbits per day (roughly 15.5)
+    const ORBITS_PER_DAY = 15.5;
+    
+    // Calculate dynamic values
+    function calculateOrbitCount() {
+      const now = new Date();
+      const daysSinceLaunch = (now - ISS_LAUNCH_DATE) / (1000 * 60 * 60 * 24);
+      return Math.floor(daysSinceLaunch * ORBITS_PER_DAY);
+    }
+    
+    function calculateYearsInOrbit() {
+      const now = new Date();
+      const years = (now - ISS_LAUNCH_DATE) / (1000 * 60 * 60 * 24 * 365.25);
+      return Math.floor(years);
+    }
+    
+    function calculateExpeditionNumber() {
+      const now = new Date();
+      const daysSinceExp70 = (now - EXPEDITION_70_START) / (1000 * 60 * 60 * 24);
+      // Calculate from known baseline (Expedition 70)
+      return EXPEDITION_70_NUMBER + Math.floor(daysSinceExp70 / AVG_EXPEDITION_DAYS);
+    }
+    
+    let orbitCount = calculateOrbitCount();
     
     // Three.js variables for 3D ISS model
     let scene, camera, renderer, issModel, controls;
@@ -2537,13 +2563,81 @@
       }
     }
     
+    // Update dynamic ISS statistics
+    function updateISSStats() {
+      // Update expedition number
+      const expTitle = document.getElementById('expeditionTitle');
+      if (expTitle) {
+        expTitle.textContent = `ISS EXPEDITION ${calculateExpeditionNumber()}`;
+      }
+      
+      // Update orbit count
+      const orbitBadge = document.getElementById('orbitBadge');
+      if (orbitBadge) {
+        orbitBadge.textContent = `🛰️ ORBIT ${calculateOrbitCount().toLocaleString()}`;
+      }
+      
+      // Update stat displays
+      const statOrbit = document.getElementById('statOrbit');
+      if (statOrbit) {
+        statOrbit.textContent = calculateOrbitCount().toLocaleString();
+      }
+      
+      const statYears = document.getElementById('statYears');
+      if (statYears) {
+        statYears.textContent = `${calculateYearsInOrbit()} yrs`;
+      }
+    }
+    
+    // Fetch and display ISS news
+    async function loadISSNews() {
+      try {
+        const response = await fetch('/api/iss/news?limit=6');
+        if (!response.ok) throw new Error('Failed to fetch news');
+        
+        const data = await response.json();
+        const tickerContent = document.getElementById('tickerContent');
+        
+        if (data.news && data.news.length > 0) {
+          let html = '';
+          // Duplicate the news items for seamless scrolling
+          for (let i = 0; i < 2; i++) {
+            html += '<div class="ticker-label">ISS UPDATE</div>';
+            data.news.forEach(item => {
+              const timeStr = item.time_ago || '';
+              // Truncate title if too long
+              const title = item.title.length > 80 ? item.title.substring(0, 77) + '...' : item.title;
+              html += `<div class="ticker-item"><span class="ticker-time">${timeStr}</span>${title}</div>`;
+            });
+          }
+          tickerContent.innerHTML = html;
+        }
+      } catch (error) {
+        console.warn('Could not load ISS news:', error);
+        // Keep the loading message or show error
+        const tickerContent = document.getElementById('tickerContent');
+        if (tickerContent) {
+          tickerContent.innerHTML = `
+            <div class="ticker-label">ISS UPDATE</div>
+            <div class="ticker-item"><span class="ticker-time">--</span>Unable to load news feed</div>
+          `;
+        }
+      }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      // Update dynamic stats immediately
+      updateISSStats();
+      
       initMap();
       initDual3DISS(); // Initialize dual 3D views
       updateISSPosition();
       loadCrew();
       updateTime();
+      
+      // Load ISS news
+      loadISSNews();
       
       // Initialize NASA Lightstreamer telemetry
       initNASATelemetry();
@@ -2553,6 +2647,12 @@
       
       // Update time every second
       setInterval(updateTime, 1000);
+      
+      // Update stats every minute (orbit count changes slowly)
+      setInterval(updateISSStats, 60000);
+      
+      // Refresh news every 15 minutes
+      setInterval(loadISSNews, 15 * 60 * 1000);
     });
   </script>
 </body>

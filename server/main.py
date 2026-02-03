@@ -619,6 +619,10 @@ if CLIENT_DIR.exists():
     if (CLIENT_DIR / "tabs").exists():
         app.mount("/tabs", StaticFiles(directory=CLIENT_DIR / "tabs"), name="tabs")
     
+    # Serve images from root /images/ path
+    if (CLIENT_DIR / "images").exists():
+        app.mount("/images", StaticFiles(directory=CLIENT_DIR / "images"), name="images")
+    
     @app.get("/")
     async def serve_client():
         return FileResponse(CLIENT_DIR / "index.html")

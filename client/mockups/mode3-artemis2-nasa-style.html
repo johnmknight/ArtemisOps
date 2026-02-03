@@ -63,7 +63,7 @@
       gap: 12px;
     }
 
-    .nasa-logo, .artemis-logo {
+    .nasa-logo {
       height: 40px;
     }
 
@@ -140,18 +140,315 @@
       min-height: 0;
     }
 
-    /* Orbital Map */
+    /* Orbital Map with NASA Image */
     .orbital-map-container {
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
       border-right: none;
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .orbital-map-svg {
+    /* Image wrapper maintains aspect ratio and positions marker correctly */
+    .trajectory-image-wrapper {
+      position: relative;
       width: 100%;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nasa-trajectory-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Marker overlay - positioned absolutely within the image bounds */
+    .trajectory-overlay {
+      position: absolute;
+      /* These will be calculated by JS to match image bounds */
+      pointer-events: none;
+    }
+
+    /* Dark overlay to blend edges */
+    .map-edge-blend {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, 
+        rgba(10, 22, 40, 0.4) 0%, 
+        transparent 3%, 
+        transparent 97%, 
+        rgba(10, 22, 40, 0.4) 100%
+      );
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Subtle vignette overlay */
+    .map-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(10, 22, 40, 0.4) 100%);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    /* Overlay container */
+    .map-overlays {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Current phase overlay */
+    .overlay-phase {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid var(--trajectory-outbound);
+      border-radius: 6px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .overlay-phase-label {
+      font-size: 0.65rem;
+      color: var(--trajectory-outbound);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .overlay-phase-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Distance overlay */
+    .overlay-distance {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      text-align: right;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .overlay-distance-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .overlay-distance-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .overlay-distance-unit {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-left: 4px;
+    }
+
+    /* Spacecraft position marker */
+    .spacecraft-marker {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      cursor: pointer;
+      transition: left 0.5s ease-out, top 0.5s ease-out;
+    }
+
+    .spacecraft-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .spacecraft-icon svg {
+      filter: drop-shadow(0 0 15px rgba(255, 214, 10, 1)) drop-shadow(0 0 30px rgba(255, 214, 10, 0.6));
+    }
+
+    .spacecraft-pulse {
+      position: absolute;
+      inset: 10px;
+      border: 2px solid var(--waypoint-active);
+      border-radius: 50%;
+      animation: spacecraft-pulse 2s ease-out infinite;
+    }
+
+    .spacecraft-pulse-2 {
+      position: absolute;
+      inset: 10px;
+      border: 2px solid var(--waypoint-active);
+      border-radius: 50%;
+      animation: spacecraft-pulse 2s ease-out infinite 0.5s;
+    }
+
+    .spacecraft-glow {
+      position: absolute;
+      inset: 15px;
+      background: radial-gradient(circle, rgba(255, 214, 10, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: glow-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes spacecraft-pulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .spacecraft-label {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 8px;
+      white-space: nowrap;
+      background: rgba(10, 22, 40, 0.95);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--waypoint-active);
+      letter-spacing: 2px;
+      border: 1px solid rgba(255, 214, 10, 0.5);
+      box-shadow: 0 0 20px rgba(255, 214, 10, 0.3);
+    }
+
+    /* Trajectory trail effect */
+    .trajectory-trail {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .trail-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--trajectory-outbound);
+      border-radius: 50%;
+      opacity: 0.6;
+      transform: translate(-50%, -50%);
+    }
+
+    .trail-dot:nth-child(odd) {
+      opacity: 0.4;
+      width: 4px;
+      height: 4px;
+    }
+
+    /* Legend overlay */
+    .overlay-legend {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .legend-title {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.7rem;
+    }
+
+    .legend-line {
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-line.outbound { background: var(--trajectory-outbound); }
+    .legend-line.flyby { background: var(--waypoint-active); }
+    .legend-line.return { 
+      background: repeating-linear-gradient(90deg, var(--trajectory-return), var(--trajectory-return) 4px, transparent 4px, transparent 8px);
+    }
+
+    /* Stats overlay */
+    .overlay-stats {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
     }
 
     /* Side Panel */
@@ -395,43 +692,6 @@
       color: var(--text-secondary);
       margin-right: 8px;
     }
-
-    /* SVG Styles */
-    .waypoint-circle {
-      fill: none;
-      stroke-width: 2;
-    }
-
-    .waypoint-number {
-      font-family: 'Arial', sans-serif;
-      font-size: 10px;
-      font-weight: bold;
-      text-anchor: middle;
-      dominant-baseline: central;
-    }
-
-    .trajectory-label {
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      fill: #8b949e;
-      letter-spacing: 1px;
-    }
-
-    .earth-label, .moon-label {
-      font-family: 'Arial', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 2px;
-    }
-
-    @keyframes spacecraft-glow {
-      0%, 100% { filter: drop-shadow(0 0 8px #ffd60a); }
-      50% { filter: drop-shadow(0 0 16px #ffd60a); }
-    }
-
-    .active-spacecraft {
-      animation: spacecraft-glow 2s ease-in-out infinite;
-    }
   </style>
 </head>
 <body>
@@ -457,7 +717,7 @@
           <span class="met-label">MET</span>
           <span class="met-value" id="met">02:18:45:32</span>
         </div>
-        <div class="phase-badge">OUTBOUND TRANSIT</div>
+        <div class="phase-badge" id="phaseBadge">OUTBOUND TRANSIT</div>
       </div>
       
       <div class="header-right">
@@ -473,190 +733,123 @@
     <!-- Main Content -->
     <main class="main-content">
       
-      <!-- Orbital Map SVG -->
+      <!-- Orbital Map with NASA Image -->
       <div class="orbital-map-container">
-        <svg class="orbital-map-svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <!-- Gradients -->
-            <radialGradient id="earthGradient" cx="30%" cy="30%">
-              <stop offset="0%" stop-color="#4a90d9"/>
-              <stop offset="50%" stop-color="#2d5a8a"/>
-              <stop offset="100%" stop-color="#1a3a5c"/>
-            </radialGradient>
+        <div class="trajectory-image-wrapper">
+          <!-- NASA Official Artemis II Mission Map (Upscaled 4x) -->
+          <img class="nasa-trajectory-image" 
+               id="trajectoryImage"
+               src="/images/artemis2-upscaled-4x.png"
+               alt="Artemis II Trajectory"
+               onload="initializeOverlay()">
+          
+          <!-- Trajectory overlay - positioned by JS to match image bounds -->
+          <div class="trajectory-overlay" id="trajectoryOverlay">
+            <!-- Waypoint markers 1-15 -->
+            <div class="waypoint-marker" style="left: 26%; top: 13%;"></div>
+            <div class="waypoint-marker" style="left: 29%; top: 13%;"></div>
+            <div class="waypoint-marker" style="left: 32%; top: 12%;"></div>
+            <div class="waypoint-marker" style="left: 35%; top: 10%;"></div>
+            <div class="waypoint-marker" style="left: 11%; top: 33%;"></div>
+            <div class="waypoint-marker" style="left: 16%; top: 43%;"></div>
+            <div class="waypoint-marker" style="left: 41%; top: 34%;"></div>
+            <div class="waypoint-marker" style="left: 53%; top: 5%;"></div>
+            <div class="waypoint-marker" style="left: 6%; top: 38%;"></div>
+            <div class="waypoint-marker" style="left: 33%; top: 51%;"></div>
+            <div class="waypoint-marker" style="left: 91%; top: 60%;"></div>
+            <div class="waypoint-marker" style="left: 62%; top: 63%;"></div>
+            <div class="waypoint-marker" style="left: 45%; top: 13%;"></div>
+            <div class="waypoint-marker" style="left: 15%; top: 9%;"></div>
+            <div class="waypoint-marker" style="left: 13%; top: 17%;"></div>
             
-            <radialGradient id="moonGradient" cx="30%" cy="30%">
-              <stop offset="0%" stop-color="#d4d4d4"/>
-              <stop offset="50%" stop-color="#a0a0a0"/>
-              <stop offset="100%" stop-color="#707070"/>
-            </radialGradient>
-            
-            <!-- Glow filters -->
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
-              <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-            
-            <!-- Orion spacecraft symbol -->
-            <symbol id="orion" viewBox="0 0 40 20">
-              <polygon points="5,10 15,5 15,15" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="15" y="6" width="18" height="8" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/>
-              <line x1="22" y1="6" x2="22" y2="2" stroke="currentColor" stroke-width="1"/>
-              <line x1="22" y1="14" x2="22" y2="18" stroke="currentColor" stroke-width="1"/>
-              <rect x="19" y="0" width="6" height="3" fill="none" stroke="currentColor" stroke-width="0.75"/>
-              <rect x="19" y="17" width="6" height="3" fill="none" stroke="currentColor" stroke-width="0.75"/>
-            </symbol>
-          </defs>
+            <!-- Spacecraft Position Marker -->
+            <div class="spacecraft-marker" id="spacecraftMarker">
+              <div class="spacecraft-glow"></div>
+              <div class="spacecraft-pulse"></div>
+              <div class="spacecraft-pulse-2"></div>
+              <div class="spacecraft-icon">
+                <svg width="36" height="36" viewBox="0 0 40 40">
+                  <defs>
+                    <linearGradient id="orionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#ffd60a"/>
+                      <stop offset="100%" style="stop-color:#ff9500"/>
+                    </linearGradient>
+                  </defs>
+                  <polygon points="20,2 30,38 20,30 10,38" fill="url(#orionGrad)" stroke="#fff" stroke-width="1.5"/>
+                  <circle cx="20" cy="18" r="4" fill="#fff" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="spacecraft-label">ORION</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Edge blend overlay -->
+        <div class="map-edge-blend"></div>
+        
+        <!-- Vignette overlay -->
+        <div class="map-vignette"></div>
+        
+        <!-- Dynamic Overlays (info panels) -->
+        <div class="map-overlays">
           
-          <!-- Background stars -->
-          <g opacity="0.4">
-            <circle cx="50" cy="50" r="1" fill="#fff"/>
-            <circle cx="150" cy="80" r="0.5" fill="#fff"/>
-            <circle cx="250" cy="30" r="1" fill="#fff"/>
-            <circle cx="400" cy="60" r="0.5" fill="#fff"/>
-            <circle cx="550" cy="40" r="1" fill="#fff"/>
-            <circle cx="700" cy="70" r="0.5" fill="#fff"/>
-            <circle cx="800" cy="50" r="1" fill="#fff"/>
-            <circle cx="100" cy="420" r="0.5" fill="#fff"/>
-            <circle cx="300" cy="450" r="1" fill="#fff"/>
-            <circle cx="500" cy="470" r="0.5" fill="#fff"/>
-            <circle cx="750" cy="440" r="1" fill="#fff"/>
-            <circle cx="850" cy="460" r="0.5" fill="#fff"/>
-          </g>
+          <!-- Current Phase -->
+          <div class="overlay-phase">
+            <div class="overlay-phase-label">Current Phase</div>
+            <div class="overlay-phase-value" id="currentPhase">OUTBOUND TRANSIT</div>
+          </div>
           
-          <!-- Earth -->
-          <g transform="translate(140, 250)">
-            <circle r="85" fill="url(#earthGradient)"/>
-            <ellipse rx="85" ry="30" fill="none" stroke="rgba(100,180,255,0.3)" stroke-width="1"/>
-            <circle r="85" fill="none" stroke="rgba(100,180,255,0.4)" stroke-width="2"/>
-            <text y="110" text-anchor="middle" class="earth-label" fill="#4a90d9">EARTH</text>
-          </g>
-          
-          <!-- Moon -->
-          <g transform="translate(760, 250)">
-            <circle r="35" fill="url(#moonGradient)"/>
-            <circle cx="-8" cy="-8" r="6" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
-            <circle cx="10" cy="5" r="8" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
-            <circle cx="-5" cy="12" r="4" fill="none" stroke="rgba(100,100,100,0.5)" stroke-width="1"/>
-            <text y="55" text-anchor="middle" class="moon-label" fill="#a0a0a0">MOON</text>
-          </g>
-          
-          <!-- High Earth Orbit (stages 1-6) -->
-          <ellipse cx="140" cy="250" rx="130" ry="80" fill="none" stroke="#00bcd4" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-          <text x="140" y="145" text-anchor="middle" class="trajectory-label" fill="#00bcd4" opacity="0.6">HIGH EARTH ORBIT</text>
-          
-          <!-- Outbound trajectory (stages 7-10) -->
-          <path d="M 260 190 Q 380 80 500 70 Q 620 60 700 130 Q 740 170 750 215" 
-                fill="none" stroke="#00bcd4" stroke-width="2.5"/>
-          
-          <!-- Lunar flyby (stage 11) -->
-          <path d="M 750 215 Q 810 250 795 310 Q 780 360 720 340" 
-                fill="none" stroke="#ffd60a" stroke-width="3" filter="url(#glow)"/>
-          
-          <!-- Return trajectory (stages 12-15) -->
-          <path d="M 720 340 Q 580 420 420 440 Q 280 455 225 335" 
-                fill="none" stroke="#8bc34a" stroke-width="2" stroke-dasharray="8,4"/>
-          
-          <!-- Waypoint markers -->
-          <!-- 7: TLI -->
-          <g transform="translate(260, 190)">
-            <circle r="10" class="waypoint-circle" stroke="#7ed321" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#7ed321">7</text>
-          </g>
-          <text x="260" y="170" text-anchor="middle" class="trajectory-label">TLI BURN</text>
-          
-          <!-- 8: Outbound -->
-          <g transform="translate(420, 75)">
-            <circle r="8" class="waypoint-circle" stroke="#00bcd4" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#00bcd4">8</text>
-          </g>
-          
-          <!-- 9: Current position (active) -->
-          <g transform="translate(580, 85)" class="active-spacecraft">
-            <circle r="10" class="waypoint-circle" stroke="#ffd60a" fill="#0a1628" stroke-width="3"/>
-            <text class="waypoint-number" fill="#ffd60a">9</text>
-          </g>
-          
-          <!-- Spacecraft at position 9 -->
-          <g transform="translate(610, 95) rotate(-15)">
-            <use href="#orion" width="35" height="18" x="-17" y="-9" style="color: #ffd60a" filter="url(#glow)"/>
-          </g>
-          
-          <!-- 10: Approach -->
-          <g transform="translate(720, 160)">
-            <circle r="8" class="waypoint-circle" stroke="#00bcd4" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#00bcd4">10</text>
-          </g>
-          
-          <!-- 11: Lunar flyby -->
-          <g transform="translate(800, 290)">
-            <circle r="10" class="waypoint-circle" stroke="#ffd60a" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#ffd60a">11</text>
-          </g>
-          <text x="840" y="280" text-anchor="start" class="trajectory-label">LUNAR FLYBY</text>
-          <text x="840" y="295" text-anchor="start" class="trajectory-label">~7,400 km</text>
-          
-          <!-- 12: Trans-Earth -->
-          <g transform="translate(720, 340)">
-            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#8bc34a">12</text>
-          </g>
-          
-          <!-- 13: Return coast -->
-          <g transform="translate(500, 430)">
-            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#8bc34a">13</text>
-          </g>
-          <text x="500" y="455" text-anchor="middle" class="trajectory-label" fill="#8bc34a">RETURN COAST</text>
-          
-          <!-- 14: Approach -->
-          <g transform="translate(320, 420)">
-            <circle r="8" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628"/>
-            <text class="waypoint-number" fill="#8bc34a">14</text>
-          </g>
-          
-          <!-- 15: Splashdown -->
-          <g transform="translate(225, 335)">
-            <circle r="12" class="waypoint-circle" stroke="#8bc34a" fill="#0a1628" stroke-width="2"/>
-            <text class="waypoint-number" fill="#8bc34a">15</text>
-          </g>
-          <text x="225" y="365" text-anchor="middle" class="trajectory-label" fill="#8bc34a">SPLASHDOWN</text>
-          
-          <!-- Distance indicator -->
-          <g opacity="0.6">
-            <line x1="225" y1="250" x2="580" y2="85" stroke="#3a5a7a" stroke-width="1" stroke-dasharray="3,3"/>
-            <text x="400" y="155" text-anchor="middle" fill="#8b949e" font-family="Courier New" font-size="11">185,000 km</text>
-          </g>
+          <!-- Distance to Moon -->
+          <div class="overlay-distance">
+            <div class="overlay-distance-label">Distance to Moon</div>
+            <div>
+              <span class="overlay-distance-value" id="distanceValue">198,500</span>
+              <span class="overlay-distance-unit">km</span>
+            </div>
+          </div>
           
           <!-- Legend -->
-          <g transform="translate(30, 420)">
-            <rect width="150" height="65" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
-            <text x="10" y="18" fill="#8b949e" font-size="9" letter-spacing="1">TRAJECTORY</text>
-            <line x1="10" y1="32" x2="35" y2="32" stroke="#00bcd4" stroke-width="2"/>
-            <text x="42" y="36" fill="#8b949e" font-size="9">Outbound</text>
-            <line x1="85" y1="32" x2="110" y2="32" stroke="#ffd60a" stroke-width="2"/>
-            <text x="117" y="36" fill="#8b949e" font-size="9">Active</text>
-            <line x1="10" y1="50" x2="35" y2="50" stroke="#8bc34a" stroke-width="2" stroke-dasharray="4,2"/>
-            <text x="42" y="54" fill="#8b949e" font-size="9">Return</text>
-          </g>
+          <div class="overlay-legend">
+            <div class="legend-title">Mission Phases</div>
+            <div class="legend-items">
+              <div class="legend-item">
+                <div class="legend-line outbound"></div>
+                <span>Outbound Transit</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line flyby"></div>
+                <span>Lunar Flyby</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line return"></div>
+                <span>Return to Earth</span>
+              </div>
+            </div>
+          </div>
           
-          <!-- Mission info box -->
-          <g transform="translate(30, 30)">
-            <rect width="170" height="50" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
-            <text x="10" y="20" fill="#00bcd4" font-size="10" letter-spacing="1">CURRENT PHASE</text>
-            <text x="10" y="38" fill="#fff" font-size="13" font-weight="bold">OUTBOUND TRANSIT</text>
-          </g>
+          <!-- Mission Stats -->
+          <div class="overlay-stats">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-value" id="velocity">3,850</div>
+                <div class="stat-label">km/h</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="altitude">185K</div>
+                <div class="stat-label">Alt km</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="missionDay">Day 3</div>
+                <div class="stat-label">Mission</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="progress">35%</div>
+                <div class="stat-label">Complete</div>
+              </div>
+            </div>
+          </div>
           
-          <!-- Distance overlays -->
-          <g transform="translate(700, 30)">
-            <rect width="170" height="50" fill="rgba(10,22,40,0.9)" stroke="#1a3a5c" rx="4"/>
-            <text x="10" y="20" fill="#8b949e" font-size="9" letter-spacing="1">DISTANCE TO MOON</text>
-            <text x="10" y="38" fill="#fff" font-family="Courier New" font-size="16" font-weight="bold">198,500 km</text>
-          </g>
-          
-        </svg>
+        </div>
       </div>
       
       <!-- Side Panel -->
@@ -699,11 +892,11 @@
                 <div class="telemetry-label">Pressure</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">3,850</div>
+                <div class="telemetry-value" id="velocityPanel">3,850</div>
                 <div class="telemetry-label">Velocity km/h</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">185K</div>
+                <div class="telemetry-value" id="altitudePanel">185K</div>
                 <div class="telemetry-label">Alt. km</div>
               </div>
             </div>
@@ -730,52 +923,52 @@
     <div class="timeline-bar">
       <div class="timeline-phases">
         <div class="phase completed">
-          <div class="phase-marker">1</div>
+          <div class="phase-marker">✓</div>
           <div class="phase-info">
             <div class="phase-name">Launch</div>
-            <div class="phase-time">T+0:00</div>
+            <div class="phase-time">Feb 8</div>
           </div>
         </div>
         <div class="phase completed">
-          <div class="phase-marker">7</div>
+          <div class="phase-marker">✓</div>
           <div class="phase-info">
             <div class="phase-name">TLI Burn</div>
             <div class="phase-time">T+2:00</div>
           </div>
         </div>
         <div class="phase active">
-          <div class="phase-marker">9</div>
+          <div class="phase-marker">●</div>
           <div class="phase-info">
             <div class="phase-name">Outbound</div>
             <div class="phase-time">Day 3</div>
           </div>
         </div>
         <div class="phase upcoming">
-          <div class="phase-marker">11</div>
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Lunar Flyby</div>
             <div class="phase-time">Day 4</div>
           </div>
         </div>
         <div class="phase upcoming">
-          <div class="phase-marker">12</div>
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Return</div>
             <div class="phase-time">Day 5-8</div>
           </div>
         </div>
         <div class="phase upcoming">
-          <div class="phase-marker">14</div>
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Entry</div>
             <div class="phase-time">Day 10</div>
           </div>
         </div>
         <div class="phase upcoming">
-          <div class="phase-marker">15</div>
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Splashdown</div>
-            <div class="phase-time">Day 10</div>
+            <div class="phase-time">Feb 18</div>
           </div>
         </div>
       </div>
@@ -816,22 +1009,234 @@
   </div>
 
   <script>
+    // Initialize overlay to match image bounds
+    function initializeOverlay() {
+      updateOverlayBounds();
+      // Initial position update
+      const initialMET = met.d * 24 + met.h + met.m / 60;
+      updateSpacecraftPosition(initialMET);
+    }
+    
+    function updateOverlayBounds() {
+      const img = document.getElementById('trajectoryImage');
+      const overlay = document.getElementById('trajectoryOverlay');
+      const container = img.parentElement;
+      
+      if (!img.complete || img.naturalWidth === 0) return;
+      
+      // Get the actual rendered dimensions of the image
+      const containerRect = container.getBoundingClientRect();
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const containerAspect = containerRect.width / containerRect.height;
+      
+      let imgWidth, imgHeight, imgLeft, imgTop;
+      
+      if (containerAspect > imgAspect) {
+        // Container is wider - image is height-constrained
+        imgHeight = containerRect.height;
+        imgWidth = imgHeight * imgAspect;
+        imgLeft = (containerRect.width - imgWidth) / 2;
+        imgTop = 0;
+      } else {
+        // Container is taller - image is width-constrained
+        imgWidth = containerRect.width;
+        imgHeight = imgWidth / imgAspect;
+        imgLeft = 0;
+        imgTop = (containerRect.height - imgHeight) / 2;
+      }
+      
+      // Position overlay to match image bounds
+      overlay.style.position = 'absolute';
+      overlay.style.left = imgLeft + 'px';
+      overlay.style.top = imgTop + 'px';
+      overlay.style.width = imgWidth + 'px';
+      overlay.style.height = imgHeight + 'px';
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      updateOverlayBounds();
+      const metHours = met.d * 24 + met.h + met.m / 60;
+      updateSpacecraftPosition(metHours);
+    });
+
+    // ============================================================================
+    // WAYPOINT COORDINATE REFERENCE (artemis2-upscaled-4x.png - 4164×2344)
+    // ============================================================================
+    // | Circle | X %  | Y %  | Description                                    |
+    // |--------|------|------|------------------------------------------------|
+    // |   1    | 26%  | 13%  | Launch                                         |
+    // |   2    | 29%  | 13%  | Orbit insertion                                |
+    // |   3    | 32%  | 12%  | Orbit                                          |
+    // |   4    | 35%  | 10%  | Pre-TLI                                        |
+    // |   5    | 11%  | 33%  | Core stage sep                                 |
+    // |   6    | 16%  | 43%  | Prox ops demo                                  |
+    // |   7    | 41%  | 34%  | TLI burn                                       |
+    // |   8    | 53%  |  5%  | Outbound transit                               |
+    // |   9    |  6%  | 38%  | Entry interface                                |
+    // |  10    | 33%  | 51%  | Return coast                                   |
+    // |  11    | 91%  | 60%  | Lunar flyby (far side)                         |
+    // |  12    | 62%  | 63%  | Trans-Earth injection                          |
+    // |  13    | 45%  | 13%  | ICPS disposal                                  |
+    // |  14    | 15%  |  9%  | Pre-launch / pad                               |
+    // |  15    | 13%  | 17%  | Splashdown                                     |
+    // ============================================================================
+    
+    // Mission simulation data - coordinates matched to NASA Official Artemis II Map
+    const missionData = {
+      // Total mission duration in hours (10 days)
+      totalDuration: 240,
+      // Simulated MET start (hours into mission)
+      metStart: 66.76, // Day 2, 18:45:32
+      // Waypoints along trajectory matching NASA Official Mission Map (artemis2-nasa-official-map.jpg)
+      // Earth center: ~12% from left, Moon center: ~82% from left
+      // Following the numbered waypoints on the NASA infographic
+      waypoints: [
+        // Launch sequence (Points 1-4 around Earth)
+        { phase: 'LAUNCH', x: 12, y: 25, day: 0 },                    // Point 1-2: Launch from KSC
+        { phase: 'EARTH ORBIT', x: 14, y: 20, day: 0.02 },            // Point 3: In orbit
+        { phase: 'CORE STAGE SEP', x: 8, y: 42, day: 0.04 },          // Point 5: Core stage cutoff
+        { phase: 'PROX OPS DEMO', x: 14, y: 62, day: 0.08 },          // Point 6: Proximity operations
+        // Trans-Lunar Injection
+        { phase: 'TLI BURN', x: 20, y: 55, day: 0.15 },               // Point 7: TLI by ESM
+        { phase: 'ICPS DISPOSAL', x: 38, y: 32, day: 0.5 },           // Point 13: ICPS Earth disposal
+        // Outbound transit
+        { phase: 'OUTBOUND TRANSIT', x: 48, y: 22, day: 1 },          // Between 13 and 8
+        { phase: 'OUTBOUND TRANSIT', x: 56, y: 18, day: 2 },          // Point 8: Outbound transit
+        { phase: 'OUTBOUND TRANSIT', x: 65, y: 20, day: 3 },          // Approaching Moon
+        // Lunar flyby
+        { phase: 'LUNAR APPROACH', x: 75, y: 28, day: 3.5 },          // Nearing Moon
+        { phase: 'LUNAR FLYBY', x: 88, y: 42, day: 4 },               // Point 11: Far side flyby (4000 nmi)
+        // Return trajectory
+        { phase: 'TRANS-EARTH', x: 72, y: 52, day: 4.3 },             // Point 12: CM/SM separation
+        { phase: 'RETURN COAST', x: 55, y: 56, day: 5 },              // Return trajectory
+        { phase: 'RETURN COAST', x: 38, y: 54, day: 6 },              // Continuing return
+        { phase: 'RETURN COAST', x: 28, y: 52, day: 7 },              // Point 10 area
+        { phase: 'ENTRY PREP', x: 18, y: 48, day: 9 },                // Approaching Earth
+        { phase: 'ENTRY INTERFACE', x: 10, y: 42, day: 9.8 },         // Point 9: Entry interface
+        { phase: 'SPLASHDOWN', x: 8, y: 28, day: 10 }                 // Point 15: Splashdown
+      ]
+    };
+
+    // Calculate current position based on MET
+    function getCurrentWaypointIndex(metHours) {
+      const missionDay = metHours / 24;
+      for (let i = missionData.waypoints.length - 1; i >= 0; i--) {
+        if (missionDay >= missionData.waypoints[i].day) {
+          return i;
+        }
+      }
+      return 0;
+    }
+
+    // Interpolate position between waypoints
+    function interpolatePosition(metHours) {
+      const missionDay = metHours / 24;
+      const waypoints = missionData.waypoints;
+      
+      for (let i = 0; i < waypoints.length - 1; i++) {
+        if (missionDay >= waypoints[i].day && missionDay < waypoints[i + 1].day) {
+          const progress = (missionDay - waypoints[i].day) / (waypoints[i + 1].day - waypoints[i].day);
+          return {
+            x: waypoints[i].x + (waypoints[i + 1].x - waypoints[i].x) * progress,
+            y: waypoints[i].y + (waypoints[i + 1].y - waypoints[i].y) * progress,
+            phase: waypoints[i].phase
+          };
+        }
+      }
+      
+      // If past all waypoints, return last
+      const last = waypoints[waypoints.length - 1];
+      return { x: last.x, y: last.y, phase: last.phase };
+    }
+
+    // Calculate distance to Moon based on position
+    function calculateMoonDistance(x) {
+      // Earth center at ~12%, Moon center at ~88%
+      // Max distance at Earth: 384,400 km
+      // Min distance at Moon flyby: ~7,400 km (4,000 nmi from surface + Moon radius)
+      const earthX = 12;
+      const moonX = 88;
+      
+      if (x <= earthX) return 384400;
+      if (x >= moonX) return 7400;
+      
+      const progress = (x - earthX) / (moonX - earthX);
+      const distance = 384400 - (384400 - 7400) * progress;
+      return Math.round(distance);
+    }
+
+    // State
+    let met = { d: 2, h: 18, m: 45, s: 32 };
+    
     function updateTime() {
       const now = new Date();
       document.getElementById('utc').textContent = now.toUTCString().split(' ')[4] + ' UTC';
     }
-    setInterval(updateTime, 1000);
-    
-    let met = { d: 2, h: 18, m: 45, s: 32 };
+
     function updateMET() {
       met.s++;
       if (met.s >= 60) { met.s = 0; met.m++; }
       if (met.m >= 60) { met.m = 0; met.h++; }
       if (met.h >= 24) { met.h = 0; met.d++; }
+      
       document.getElementById('met').textContent = 
         `${String(met.d).padStart(2,'0')}:${String(met.h).padStart(2,'0')}:${String(met.m).padStart(2,'0')}:${String(met.s).padStart(2,'0')}`;
+      
+      // Update position and stats
+      const metHours = met.d * 24 + met.h + met.m / 60;
+      updateSpacecraftPosition(metHours);
     }
+
+    function updateSpacecraftPosition(metHours) {
+      const pos = interpolatePosition(metHours);
+      const marker = document.getElementById('spacecraftMarker');
+      
+      // Update marker position
+      marker.style.left = pos.x + '%';
+      marker.style.top = pos.y + '%';
+      
+      // Update phase display
+      document.getElementById('currentPhase').textContent = pos.phase;
+      document.getElementById('phaseBadge').textContent = pos.phase;
+      
+      // Update distance
+      const distance = calculateMoonDistance(pos.x);
+      document.getElementById('distanceValue').textContent = distance.toLocaleString();
+      
+      // Update mission day
+      const missionDay = Math.floor(metHours / 24) + 1;
+      document.getElementById('missionDay').textContent = `Day ${missionDay}`;
+      
+      // Update progress
+      const progress = Math.round((metHours / missionData.totalDuration) * 100);
+      document.getElementById('progress').textContent = progress + '%';
+      
+      // Update velocity (varies with distance - faster near Earth/Moon)
+      const baseVelocity = 3500;
+      const velocityVariation = Math.sin(((pos.x - 8) / 80) * Math.PI) * 1500;
+      const velocity = Math.round(baseVelocity + velocityVariation);
+      document.getElementById('velocity').textContent = velocity.toLocaleString();
+      document.getElementById('velocityPanel').textContent = velocity.toLocaleString();
+      
+      // Update altitude (Earth-relative distance)
+      const altitude = Math.round(185000 + (pos.x - 8) * 4700);
+      const altitudeStr = altitude >= 1000 ? Math.round(altitude / 1000) + 'K' : altitude.toString();
+      document.getElementById('altitude').textContent = altitudeStr;
+      document.getElementById('altitudePanel').textContent = altitudeStr;
+    }
+
+    // Initialize
+    setInterval(updateTime, 1000);
     setInterval(updateMET, 1000);
+    updateTime();
+    
+    // Overlay initialization happens via onload on the image
+    // Fallback in case image is already cached
+    const img = document.getElementById('trajectoryImage');
+    if (img.complete && img.naturalWidth > 0) {
+      initializeOverlay();
+    }
   </script>
 </body>
 </html>

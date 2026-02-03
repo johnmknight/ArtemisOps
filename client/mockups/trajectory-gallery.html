@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artemis II Background Options Gallery</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a1628;
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #00bcd4;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #8b949e;
+      margin-bottom: 30px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+    }
+    
+    .section-header img {
+      height: 40px;
+    }
+    
+    h2 {
+      color: #4a9eff;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+    }
+    
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: rgba(13, 26, 45, 0.9);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    
+    .card:hover {
+      border-color: #00bcd4;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .card-image {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: #000;
+    }
+    
+    .card-content {
+      padding: 15px;
+    }
+    
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    
+    .card-meta {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+    
+    .card-desc {
+      font-size: 0.85rem;
+      color: #b0b8c1;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .card-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .card-link {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(74, 158, 255, 0.15);
+      border: 1px solid rgba(74, 158, 255, 0.4);
+      border-radius: 4px;
+      color: #4a9eff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .card-link:hover {
+      background: rgba(74, 158, 255, 0.3);
+      color: #fff;
+    }
+    
+    .card-link.primary {
+      background: rgba(0, 188, 212, 0.2);
+      border-color: #00bcd4;
+      color: #00bcd4;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 6px;
+    }
+    
+    .badge.image { background: #1a5f4a; color: #7ed321; }
+    .badge.video { background: #5f1a4a; color: #ff6b9d; }
+    .badge.current { background: #4a5f1a; color: #ffd60a; }
+    
+    .resolution {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+    
+    .note {
+      background: rgba(255, 214, 10, 0.1);
+      border: 1px solid rgba(255, 214, 10, 0.3);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #ffd60a;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌙 ARTEMIS II TRAJECTORY BACKGROUNDS</h1>
+  <p class="subtitle">Available visualization options from NASA SVS and ESA</p>
+  
+  <!-- NASA Section -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 100 100" width="40" height="40">
+        <circle cx="50" cy="50" r="48" fill="#0b3d91"/>
+        <text x="50" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">NASA</text>
+      </svg>
+      <h2>NASA OFFICIAL VISUALIZATIONS</h2>
+    </div>
+    
+    <div class="gallery">
+      <!-- Current Background -->
+      <div class="card">
+        <img class="card-image" src="/images/artemis2-nasa-official-map.jpg" alt="Current Background">
+        <div class="card-content">
+          <div class="card-title"><span class="badge current">CURRENT</span> Official Mission Map</div>
+          <div class="card-meta">NASA HQ • Infographic Style</div>
+          <div class="card-desc">Currently in use. Official NASA mission infographic showing numbered waypoints, mission phases, and trajectory details with Earth and Moon.</div>
+          <div class="card-links">
+            <a href="/images/artemis2-nasa-official-map.jpg" target="_blank" class="card-link primary">View Current</a>
+            <a href="https://www.nasa.gov/image-article/artemis-ii-map-2/" target="_blank" class="card-link">NASA Source</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SVS Full Trajectory -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full.00800_preview.jpg" alt="SVS Full Trajectory">
+        <div class="card-content">
+          <div class="card-title"><span class="badge image">IMAGE</span> SVS 3D Full Trajectory</div>
+          <div class="card-meta">NASA SVS #5610 • January 2026 • <span class="resolution">4K: 3840×2160</span></div>
+          <div class="card-desc">Photorealistic 3D render showing Earth, Moon, and complete trajectory path with red trail. Clean dark background, ideal for overlay.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full.00800.jpg" target="_blank" class="card-link primary">4K Image (1.4 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full.00800_preview.jpg" target="_blank" class="card-link">1080p Preview</a>
+            <a href="https://svs.gsfc.nasa.gov/5610/" target="_blank" class="card-link">SVS Page</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SVS Moon Close-up -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_close.00450_preview.jpg" alt="SVS Moon Close-up">
+        <div class="card-content">
+          <div class="card-title"><span class="badge image">IMAGE</span> SVS Moon Flyby Close-up</div>
+          <div class="card-meta">NASA SVS #5610 • January 2026 • <span class="resolution">4K: 3840×2160</span></div>
+          <div class="card-desc">Detailed Moon surface with trajectory arc passing behind. Moon-fixed view at closest approach. Stunning lunar detail.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_close.00450.jpg" target="_blank" class="card-link primary">4K Image (1.9 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_close.00450_preview.jpg" target="_blank" class="card-link">1080p Preview</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SVS Medium Moon View -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_medium.01140_preview.jpg" alt="SVS Moon Medium">
+        <div class="card-content">
+          <div class="card-title"><span class="badge image">IMAGE</span> SVS Moon Flyby Medium</div>
+          <div class="card-meta">NASA SVS #5610 • January 2026 • <span class="resolution">4K: 3840×2160</span></div>
+          <div class="card-desc">Medium distance view showing trajectory arc around Moon's far side. Good balance of Moon detail and trajectory visibility.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_medium.01140.jpg" target="_blank" class="card-link primary">4K Image (1.8 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_moon-fixed_medium.01140_preview.jpg" target="_blank" class="card-link">1080p Preview</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SVS Full Trajectory Video -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full.00800_preview.jpg" alt="SVS Video">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> SVS Trajectory Animation</div>
+          <div class="card-meta">NASA SVS #5610 • 60fps • <span class="resolution">4K: 40.6 MB</span></div>
+          <div class="card-desc">Animated 3D visualization showing complete trajectory from Earth orbit to Moon flyby and return. Could be used as looping video background.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full_1080p60.mp4" target="_blank" class="card-link primary">1080p Video (9.9 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full_2160p60.mp4" target="_blank" class="card-link">4K Video (40.6 MB)</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SVS Mission Map Animation -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Artemis-II-Trajectory-Thumbnail_print.jpg" alt="Mission Map Animation">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> JSC Mission Map Animation</div>
+          <div class="card-meta">NASA JSC/Goddard SVS #14938 • <span class="resolution">4K: 136 MB</span></div>
+          <div class="card-desc">Official animated mission map showing figure-8 trajectory with labeled phases. Similar style to your current static image but animated.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/jsc2025m000169_Artemis_II_Mission_Map_1080.mp4" target="_blank" class="card-link primary">1080p Video (34.9 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/jsc2025m000169_Artemis_II_Mission_Map_4K.mp4" target="_blank" class="card-link">4K Video (136 MB)</a>
+            <a href="https://svs.gsfc.nasa.gov/14938/" target="_blank" class="card-link">SVS Page</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lighting POV Animation -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Artemis-2-Lighting-POV-Thumbnail_print.jpg" alt="Lighting POV">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> Lunar Lighting Comparison</div>
+          <div class="card-meta">NASA SVS #14938 • Crew POV • <span class="resolution">4K Available</span></div>
+          <div class="card-desc">Shows what Artemis II crew will see - comparing Feb 2026 launch window (fully lit far side) vs later windows. Unique crew perspective.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Artemis_2_Lighting_POV_V3_1080.mp4" target="_blank" class="card-link primary">1080p Video</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Artemis_2_Lighting_POV_V3_4K.mp4" target="_blank" class="card-link">4K Video (58 MB)</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Apollo 11 Earthrise -->
+      <div class="card">
+        <img class="card-image" src="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Apollo-11-CSM-Earthrise-V8-Thumbnail_print.jpg" alt="Earthrise">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> Earthrise Recreation</div>
+          <div class="card-meta">NASA SVS #14938 • Historic Reference</div>
+          <div class="card-desc">Recreation of Apollo 8's famous Earthrise moment using LRO data and Smithsonian Apollo 11 3D model. Beautiful supplementary visual.</div>
+          <div class="card-links">
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Apollo_11_CSM_Earthrise_V8_1080.mp4" target="_blank" class="card-link primary">1080p Video</a>
+            <a href="https://svs.gsfc.nasa.gov/vis/a010000/a014900/a014938/Apollo_11_CSM_Earthrise_V8_4K.mp4" target="_blank" class="card-link">4K Video (271 MB)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ESA Section -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 100 100" width="40" height="40">
+        <circle cx="50" cy="50" r="48" fill="#003247"/>
+        <text x="50" y="58" text-anchor="middle" fill="white" font-size="20" font-weight="bold">ESA</text>
+      </svg>
+      <h2>ESA / AIRBUS VISUALIZATIONS</h2>
+    </div>
+    
+    <div class="gallery">
+      <!-- ESA Orion with ESM -->
+      <div class="card">
+        <img class="card-image" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2020/06/orion_with_service_module_in_lunar_orbit/22046107-2-eng-GB/Orion_with_Service_Module_in_lunar_orbit_pillars.jpg" alt="Orion ESM">
+        <div class="card-content">
+          <div class="card-title"><span class="badge image">IMAGE</span> Orion with ESM in Lunar Orbit</div>
+          <div class="card-meta">ESA • European Service Module Focus</div>
+          <div class="card-desc">Artist concept of Orion spacecraft with European Service Module solar arrays deployed, with Moon in background. Highlights ESA contribution.</div>
+          <div class="card-links">
+            <a href="https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Orion/European_Service_Module" target="_blank" class="card-link primary">ESA ESM Page</a>
+            <a href="https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Orion/Artemis_II" target="_blank" class="card-link">ESA Artemis II</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ESA Mission Video -->
+      <div class="card">
+        <img class="card-image" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/videos/2024/02/artemis_ii_from_the_european_service_module_s_perspective/25768832-1-eng-GB/Artemis_II_from_the_European_Service_Module_s_perspective_pillars.png" alt="ESA Video">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> Artemis II - ESM Perspective</div>
+          <div class="card-meta">ESA • European Service Module View</div>
+          <div class="card-desc">Animation showing Artemis II mission from the European Service Module's perspective. Unique angle showing ESM propulsion and life support role.</div>
+          <div class="card-links">
+            <a href="https://www.esa.int/ESA_Multimedia/Videos/2024/02/Artemis_II_from_the_European_Service_Module_s_perspective" target="_blank" class="card-link primary">ESA Video Page</a>
+            <a href="https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Orion/Artemis_II" target="_blank" class="card-link">Mission Details</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Airbus ESM -->
+      <div class="card">
+        <img class="card-image" src="https://www.airbus.com/sites/g/files/jlcbta136/files/styles/airbus_1440x810/public/2024-02/ESM%20on%20its%20way%20to%20the%20Moon_0.jpg" alt="Airbus ESM">
+        <div class="card-content">
+          <div class="card-title"><span class="badge image">IMAGE</span> Airbus ESM Artwork</div>
+          <div class="card-meta">Airbus Defence & Space • Prime Contractor</div>
+          <div class="card-desc">High-quality render of Orion with European Service Module from Airbus, showing spacecraft configuration and solar array deployment.</div>
+          <div class="card-links">
+            <a href="https://www.airbus.com/en/space/orion-european-service-module/artemis-ii-mission" target="_blank" class="card-link primary">Airbus Artemis II</a>
+            <a href="https://www.airbus.com/en/products-services/space/space-exploration/moon-missions/orion-european-service-module" target="_blank" class="card-link">ESM Details</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ESA 360 View -->
+      <div class="card">
+        <img class="card-image" src="https://www.esa.int/var/esa/storage/images/esa_multimedia/videos/2020/06/orion_with_european_service_module_for_artemis_-_360/22046502-1-eng-GB/Orion_with_European_Service_Module_for_Artemis_360_pillars.jpg" alt="ESA 360">
+        <div class="card-content">
+          <div class="card-title"><span class="badge video">VIDEO</span> Orion ESM 360° View</div>
+          <div class="card-meta">ESA • Interactive 360 Video</div>
+          <div class="card-desc">360-degree artist impression of Orion spacecraft with European Service Module. Shows all angles of the spacecraft destined for lunar missions.</div>
+          <div class="card-links">
+            <a href="https://www.esa.int/ESA_Multimedia/Videos/2020/06/Orion_with_European_Service_Module_for_Artemis_360" target="_blank" class="card-link primary">ESA 360 Video</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="note">
+      <strong>Note:</strong> ESA imagery focuses on the European Service Module contribution rather than full trajectory visualizations. For trajectory backgrounds, NASA SVS provides the most comprehensive options. ESA content is excellent for spacecraft detail views and supplementary materials.
+    </div>
+  </div>
+  
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="section-header">
+      <h2>💡 RECOMMENDATIONS FOR ARTEMISOPS</h2>
+    </div>
+    
+    <div class="gallery">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-title">Option 1: Keep Current (Recommended)</div>
+          <div class="card-desc">Your current NASA mission map infographic is the best choice for a static scalable background because:
+            <ul style="margin: 10px 0 0 20px; color: #b0b8c1;">
+              <li>Contains numbered waypoints that match your animation</li>
+              <li>Shows mission phases with clear labels</li>
+              <li>Official NASA infographic style</li>
+              <li>Scales well to different resolutions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <div class="card-title">Option 2: SVS 3D Full Trajectory</div>
+          <div class="card-desc">The NASA SVS 3D render would provide:
+            <ul style="margin: 10px 0 0 20px; color: #b0b8c1;">
+              <li>Cleaner, more cinematic look</li>
+              <li>Better for dark theme integration</li>
+              <li>Higher resolution (4K available)</li>
+              <li>Would need new waypoint coordinates</li>
+            </ul>
+          </div>
+          <div class="card-links" style="margin-top: 12px;">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full.00800.jpg" target="_blank" class="card-link primary">Download 4K</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-content">
+          <div class="card-title">Option 3: Video Background Loop</div>
+          <div class="card-desc">Using the SVS animation as a video background would add:
+            <ul style="margin: 10px 0 0 20px; color: #b0b8c1;">
+              <li>Dynamic visual interest</li>
+              <li>Premium feel to the interface</li>
+              <li>Higher bandwidth/performance cost</li>
+              <li>Orion marker would need different approach</li>
+            </ul>
+          </div>
+          <div class="card-links" style="margin-top: 12px;">
+            <a href="https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005610/artemis2_full_1080p60.mp4" target="_blank" class="card-link primary">Download 1080p</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>
