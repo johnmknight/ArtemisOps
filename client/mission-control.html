@@ -188,12 +188,12 @@
       margin-bottom: clamp(10px, 1.5vh, 20px);
     }
 
-    /* Logos row (below countdown) */
-    .logos-row {
+    /* Info row with flanking logos */
+    .info-with-logos {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
-      gap: clamp(30px, 5vw, 80px);
+      gap: clamp(16px, 2.5vw, 40px);
       margin-bottom: clamp(12px, 2.5vh, 28px);
     }
 
@@ -202,6 +202,7 @@
       flex-direction: column;
       align-items: center;
       gap: 6px;
+      flex-shrink: 0;
     }
 
     .agency-logo {
@@ -309,7 +310,6 @@
       background: rgba(0, 30, 60, 0.4);
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
-      margin-bottom: clamp(10px, 2vh, 20px);
       flex-wrap: wrap;
     }
 
@@ -572,20 +572,13 @@
           </div>
         </div>
         
-        <!-- Agency Logo & Mission Patch -->
-        <div class="logos-row">
+        <!-- Launch info with flanking logos -->
+        <div class="info-with-logos">
           <div class="agency-logo-container">
             <img id="agencyLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/200px-NASA_logo.svg.png" alt="NASA" class="agency-logo">
             <span class="agency-name" id="agencyName">NASA</span>
           </div>
-          <div class="mission-patch-container">
-            <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
-            <span class="mission-name" id="missionName">---</span>
-          </div>
-        </div>
-        
-        <!-- Launch info -->
-        <div class="launch-info-row">
+          <div class="launch-info-row">
           <div class="launch-info-item">
             <div class="launch-info-label">Target Date</div>
             <div class="launch-info-value" id="launchDate">---</div>
@@ -597,6 +590,11 @@
           <div class="launch-info-item">
             <div class="launch-info-label">Location</div>
             <div class="launch-info-value" id="launchSite">---</div>
+          </div>
+          </div>
+          <div class="mission-patch-container">
+            <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
+            <span class="mission-name" id="missionName">---</span>
           </div>
         </div>
         
