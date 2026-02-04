@@ -37,7 +37,7 @@
     .mission-control {
       display: grid;
       grid-template-rows: 48px 1fr 72px;
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: 1fr;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
@@ -132,97 +132,6 @@
     .time-local {
       font-size: 0.65rem;
       color: var(--text-secondary);
-    }
-
-    /* ===== LEFT COLUMN - STATUS ===== */
-    .status-column {
-      display: flex;
-      flex-direction: column;
-      padding: 14px;
-      background: var(--bg-panel);
-      border-right: 1px solid var(--border-subtle);
-      overflow: hidden;
-    }
-
-    .primary-status {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
-      border: 2px solid var(--success-color);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-      margin-bottom: 12px;
-    }
-
-    .primary-status.hold {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
-      border-color: var(--warning-color);
-    }
-
-    .primary-status.scrub {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
-      border-color: var(--danger-color);
-    }
-
-    .primary-status-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-    }
-
-    .primary-status-value {
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: var(--success-color);
-    }
-
-    .primary-status.hold .primary-status-value { color: var(--warning-color); }
-    .primary-status.scrub .primary-status-value { color: var(--danger-color); }
-
-    .status-breakdown {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .status-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      background: var(--bg-card);
-      border-radius: 6px;
-      border-left: 3px solid var(--success-color);
-    }
-
-    .status-item.hold { border-left-color: var(--warning-color); }
-    .status-item.no-go { border-left-color: var(--danger-color); }
-
-    .status-item-label {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .status-item-value {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--success-color);
-    }
-
-    .status-item.hold .status-item-value { color: var(--warning-color); }
-    .status-item.no-go .status-item-value { color: var(--danger-color); }
-
-    .status-footer {
-      margin-top: auto;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-subtle);
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      text-align: center;
     }
 
     /* ===== CENTER - COUNTDOWN WITH FLANKING LOGOS ===== */
@@ -627,33 +536,6 @@
       </div>
     </header>
     
-    <!-- LEFT: STATUS SIDEBAR -->
-    <aside class="status-column">
-      <div class="primary-status" id="primaryStatus">
-        <div class="primary-status-label">Launch Status</div>
-        <div class="primary-status-value" id="primaryStatusValue">---</div>
-      </div>
-      <div class="status-breakdown">
-        <div class="status-item" id="statusWeather">
-          <span class="status-item-label">Weather</span>
-          <span class="status-item-value">---</span>
-        </div>
-        <div class="status-item" id="statusRange">
-          <span class="status-item-label">Range</span>
-          <span class="status-item-value">---</span>
-        </div>
-        <div class="status-item" id="statusVehicle">
-          <span class="status-item-label">Vehicle</span>
-          <span class="status-item-value">---</span>
-        </div>
-        <div class="status-item" id="statusCrew">
-          <span class="status-item-label">Crew</span>
-          <span class="status-item-value">---</span>
-        </div>
-      </div>
-      <div class="status-footer" id="statusFooter">Loading...</div>
-    </aside>
-    
     <!-- CENTER: COUNTDOWN WITH FLANKING LOGOS -->
     <section class="countdown-center">
       <div class="grid-overlay"></div>
@@ -890,7 +772,7 @@
         updateMissionUI(data);
       } catch (error) {
         console.error('Failed to fetch mission:', error);
-        document.getElementById('statusFooter').textContent = 'Connection error';
+        console.error('Connection error');
       }
     }
 
@@ -931,48 +813,12 @@
       }
       document.getElementById('launchSite').textContent = data.site || 'TBD';
 
-      // Status (derive from mission status text)
-      updateStatusDisplay(data.status);
-
       // Timeline
       updateTimeline(data.milestones || []);
 
-      // Status footer
-      document.getElementById('statusFooter').textContent = truncate(data.status || 'Status nominal', 40);
+
     }
 
-
-    // ===== UPDATE STATUS DISPLAY =====
-    function updateStatusDisplay(statusText) {
-      const primary = document.getElementById('primaryStatus');
-      const primaryValue = document.getElementById('primaryStatusValue');
-
-      // Parse status - look for keywords
-      const lowerStatus = (statusText || '').toLowerCase();
-      let mainStatus = 'GO';
-      let statusClass = '';
-
-      if (lowerStatus.includes('hold') || lowerStatus.includes('delay')) {
-        mainStatus = 'HOLD';
-        statusClass = 'hold';
-      } else if (lowerStatus.includes('scrub') || lowerStatus.includes('cancel')) {
-        mainStatus = 'SCRUB';
-        statusClass = 'scrub';
-      } else if (lowerStatus.includes('go') || lowerStatus.includes('nominal') || lowerStatus.includes('confirmed')) {
-        mainStatus = '✓ GO';
-        statusClass = '';
-      }
-
-      primary.className = 'primary-status ' + statusClass;
-      primaryValue.textContent = mainStatus;
-
-      // Set individual status items (default to GO for now)
-      ['statusWeather', 'statusRange', 'statusVehicle', 'statusCrew'].forEach(id => {
-        const el = document.getElementById(id);
-        el.className = 'status-item';
-        el.querySelector('.status-item-value').textContent = '✓ GO';
-      });
-    }
 
     // ===== FETCH WEATHER =====
     async function fetchWeather() {
@@ -1024,16 +870,6 @@
         statusVal.textContent = 'NO GO';
         statusVal.className = 'weather-status-value no-go';
         weatherBox.classList.add('no-go');
-      }
-
-      // Update weather status item in sidebar
-      const weatherStatusItem = document.getElementById('statusWeather');
-      if (analysis.status === 'go') {
-        weatherStatusItem.className = 'status-item';
-        weatherStatusItem.querySelector('.status-item-value').textContent = '✓ GO';
-      } else {
-        weatherStatusItem.className = 'status-item no-go';
-        weatherStatusItem.querySelector('.status-item-value').textContent = '✗ NO GO';
       }
 
       // Update label with site name
