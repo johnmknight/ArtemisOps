@@ -180,28 +180,34 @@
       text-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
     }
 
-    /* Main countdown row with flanking logos */
+    /* Countdown row */
     .countdown-row {
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      gap: clamp(24px, 3vw, 50px);
+      margin-bottom: clamp(10px, 1.5vh, 20px);
+    }
+
+    /* Logos row (below countdown) */
+    .logos-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: clamp(30px, 5vw, 80px);
       margin-bottom: clamp(12px, 2.5vh, 28px);
     }
 
-    /* Agency logo (left of countdown) */
     .agency-logo-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding-top: clamp(8px, 1.5vh, 24px);
+      gap: 6px;
     }
 
     .agency-logo {
-      height: clamp(130px, min(13vw, 28vh), 240px);
+      height: clamp(50px, min(8vw, 14vh), 140px);
       width: auto;
-      min-width: 100px;
+      min-width: 50px;
       object-fit: contain;
       filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
       background: transparent;
@@ -215,19 +221,17 @@
       font-weight: 600;
     }
 
-    /* Mission patch (right of countdown) */
     .mission-patch-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding-top: clamp(8px, 1.5vh, 24px);
+      gap: 6px;
     }
 
     .mission-patch-large {
-      height: clamp(130px, min(13vw, 28vh), 240px);
+      height: clamp(50px, min(8vw, 14vh), 140px);
       width: auto;
-      min-width: 100px;
+      min-width: 50px;
       object-fit: contain;
       filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.25));
       background: transparent;
@@ -543,16 +547,8 @@
       <div class="countdown-content">
         <div class="countdown-label" id="countdownLabel">T-Minus · Countdown to Launch</div>
         
-        <!-- Countdown row: Agency Logo | Timer | Mission Patch -->
+        <!-- Countdown Timer -->
         <div class="countdown-row">
-          
-          <!-- Agency Logo (left) -->
-          <div class="agency-logo-container">
-            <img id="agencyLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/200px-NASA_logo.svg.png" alt="NASA" class="agency-logo">
-            <span class="agency-name" id="agencyName">NASA</span>
-          </div>
-          
-          <!-- Countdown Timer -->
           <div class="countdown-timer">
             <div class="countdown-segment">
               <div class="countdown-value" id="days">---</div>
@@ -574,13 +570,18 @@
               <div class="countdown-unit">Sec</div>
             </div>
           </div>
-          
-          <!-- Mission Patch (right) -->
+        </div>
+        
+        <!-- Agency Logo & Mission Patch -->
+        <div class="logos-row">
+          <div class="agency-logo-container">
+            <img id="agencyLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/200px-NASA_logo.svg.png" alt="NASA" class="agency-logo">
+            <span class="agency-name" id="agencyName">NASA</span>
+          </div>
           <div class="mission-patch-container">
             <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
             <span class="mission-name" id="missionName">---</span>
           </div>
-          
         </div>
         
         <!-- Launch info -->
