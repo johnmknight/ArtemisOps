@@ -56,16 +56,15 @@
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: 1fr auto;
       height: 100%;
     }
     
     .crew-photo-wrapper {
       width: 100%;
-      aspect-ratio: 3 / 4;
       overflow: hidden;
-      flex-shrink: 0;
+      min-height: 0;
     }
     
     .crew-photo {
@@ -77,7 +76,6 @@
     
     .crew-info {
       padding: 10px 12px;
-      flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -405,7 +403,7 @@
         window.addEventListener('message', e => {
           if (e.data.type === 'setCrewData') {
             this.crew = e.data.crew || [];
-            this.evaData = e.data.evaData || this.mockEvaData;
+            this.evaData = e.data.evaData || null;
             this.render();
           }
           if (e.data.type === 'startEva') this.startEva(e.data.evaId);
