@@ -58,30 +58,42 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      height: 100%;
+    }
+    
+    .crew-photo-wrapper {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      flex-shrink: 0;
     }
     
     .crew-photo {
       width: 100%;
-      flex: 1;
-      min-height: 200px;
+      height: 100%;
       object-fit: cover;
       object-position: center 20%;
     }
     
     .crew-info {
       padding: 10px 12px;
-      flex-shrink: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
     
     .crew-name {
       font-size: 1em;
       font-weight: 600;
+      flex-shrink: 0;
     }
     
     .crew-role {
       font-size: 0.8em;
       color: var(--text-muted);
       margin-bottom: 6px;
+      flex-shrink: 0;
     }
     
     .crew-bio {
@@ -89,6 +101,11 @@
       color: var(--text-muted);
       line-height: 1.4;
       opacity: 0.85;
+      flex: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
     }
 
     /* EVA Sidebar - Normal Mode */
@@ -454,7 +471,9 @@
           <div class="crew-grid" data-count="${this.crew.length}">
             ${this.crew.map(m => `
               <div class="crew-card">
-                <img src="${m.photo || ''}" alt="${m.name}" class="crew-photo">
+                <div class="crew-photo-wrapper">
+                  <img src="${m.photo || ''}" alt="${m.name}" class="crew-photo">
+                </div>
                 <div class="crew-info">
                   <div class="crew-name">${m.name}</div>
                   <div class="crew-role">${m.role}</div>

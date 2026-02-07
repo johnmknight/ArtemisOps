@@ -585,37 +585,40 @@ async def fetch_crew_for_mission(api_id: str) -> list[dict]:
 # FALLBACK DATA
 # ============================================================================
 
+# Source: https://www.nasa.gov/feature/our-artemis-crew/
+# Photos: Official Artemis II portraits from NASA JSC
+# Bios: Derived from individual NASA/CSA astronaut bio pages
 ARTEMIS_II_CREW_FALLBACK = [
     {
         "name": "Reid Wiseman",
         "role": "Commander",
         "agency": "NASA",
-        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2013e090068.jpg",
-        "bio": "NASA astronaut and U.S. Navy Captain. Previously flew on Expedition 41 aboard the ISS in 2014.",
-        "bio_url": "https://www.nasa.gov/people/reid-wiseman/",
+        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016434-alt.jpg",
+        "bio": "Reid Wiseman was selected as a NASA astronaut in 2009 and is currently assigned as commander of NASA's Artemis II mission to the Moon. He flew aboard the International Space Station for Expedition 41 from May through November 2014, logging more than 165 days in space, and served as chief of the Astronaut Office from December 2020 until November 2022.",
+        "bio_url": "https://www.nasa.gov/humans-in-space/astronauts/g-reid-wiseman/",
     },
     {
         "name": "Victor Glover",
         "role": "Pilot",
         "agency": "NASA",
-        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038718.jpg",
-        "bio": "NASA astronaut and U.S. Navy Captain. Pilot of SpaceX Crew-1 and ISS Expedition 64 crew member.",
-        "bio_url": "https://www.nasa.gov/people/victor-j-glover/",
+        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016433-alt.jpg",
+        "bio": "Victor J. Glover was selected as a NASA astronaut in 2013 and is currently assigned as the pilot of NASA's Artemis II mission to the Moon. He previously served as pilot on NASA's SpaceX Crew-1, spending 168 days aboard the International Space Station as part of Expedition 64 and participating in four spacewalks.",
+        "bio_url": "https://www.nasa.gov/humans-in-space/astronauts/victor-j-glover/",
     },
     {
         "name": "Christina Koch",
         "role": "Mission Specialist",
         "agency": "NASA",
-        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/03/jsc2018e038864.jpg",
-        "bio": "NASA astronaut and electrical engineer. Holds record for longest single spaceflight by a woman (328 days).",
-        "bio_url": "https://www.nasa.gov/people/christina-h-koch/",
+        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016435-alt.jpg",
+        "bio": "Christina Hammock Koch was selected as a NASA astronaut in 2013 and is currently assigned as a mission specialist on the Artemis II mission to the Moon. She set a record for the longest single spaceflight by a woman with a total of 328 days in space and participated in the first all-female spacewalks.",
+        "bio_url": "https://www.nasa.gov/humans-in-space/astronauts/christina-koch/",
     },
     {
         "name": "Jeremy Hansen",
         "role": "Mission Specialist",
         "agency": "CSA",
-        "photo_url": "https://www.asc-csa.gc.ca/images/recherche/tiles/5eed17e3-4a8f-46f5-8317-f372c3b79ece.jpg",
-        "bio": "Canadian Space Agency astronaut and former CF-18 fighter pilot. First Canadian to fly to the Moon.",
+        "photo_url": "https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016436-alt.jpg",
+        "bio": "Jeremy Hansen is a Canadian Space Agency astronaut selected in 2009 and a former CF-18 fighter pilot. He will become the first Canadian to ever venture to the Moon as a mission specialist on NASA's Artemis II mission.",
         "bio_url": "https://www.asc-csa.gc.ca/eng/astronauts/canadian/active/bio-jeremy-hansen.asp",
     }
 ]
@@ -656,12 +659,13 @@ async def sync_all_missions() -> dict:
                 await upsert_mission(mission)
                 result["missions_updated"] += 1
                 
-                if mission.get("api_id"):
+                if "artemis-ii" in mission["id"]:
+                    # Always use curated fallback for Artemis II
+                    # (API bios are inconsistent lengths)
+                    crew = ARTEMIS_II_CREW_FALLBACK
+                    await upsert_crew(mission["id"], crew)
+                elif mission.get("api_id"):
                     crew = await fetch_crew_for_mission(mission["api_id"])
-                    
-                    if not crew and "artemis-ii" in mission["id"]:
-                        crew = ARTEMIS_II_CREW_FALLBACK
-                    
                     if crew:
                         await upsert_crew(mission["id"], crew)
                 
