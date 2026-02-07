@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Kiosk</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    
+    /* Fullscreen iframe container */
+    .kiosk-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    
+    /* Tab frames - stacked, only active visible */
+    .tab-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .tab-frame.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="kiosk-container">
+    <iframe id="frame-mission" class="tab-frame active" src="tabs/mission.html"></iframe>
+    <iframe id="frame-tracking" class="tab-frame" src="tabs/tracking.html"></iframe>
+    <iframe id="frame-crew" class="tab-frame" src="tabs/crew.html"></iframe>
+    <iframe id="frame-info" class="tab-frame" src="tabs/info.html"></iframe>
+  </div>
+
+  <script>
+    // Minimal Kiosk Controller
+    const TABS = ['mission', 'tracking', 'crew', 'info'];
+    
+    const Kiosk = {
+      currentIndex: 0,
+      missionData: null,
+      weatherData: null,
+      tabsReady: {},
+      
+      init() {
+        console.log('Kiosk mode initializing...');
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => this.handleKey(e));
+        
+        // Listen for tab ready messages
+        window.addEventListener('message', (e) => this.handleMessage(e));
+        
+        // Load data
+        this.loadData();
+      },
+      
+      handleKey(e) {
+        switch (e.key) {
+          case 'ArrowRight':
+            this.nextTab();
+            e.preventDefault();
+            break;
+          case 'ArrowLeft':
+            this.prevTab();
+            e.preventDefault();
+            break;
+          case '1': case '2': case '3': case '4':
+            this.goToTab(parseInt(e.key) - 1);
+            break;
+          case 'f': case 'F': case 'F11':
+            if (!e.ctrlKey && !e.metaKey) {
+              this.toggleFullscreen();
+              e.preventDefault();
+            }
+            break;
+        }
+      },
+      
+      nextTab() {
+        this.goToTab((this.currentIndex + 1) % TABS.length);
+      },
+      
+      prevTab() {
+        this.goToTab((this.currentIndex - 1 + TABS.length) % TABS.length);
+      },
+      
+      goToTab(index) {
+        this.currentIndex = index;
+        const tabId = TABS[index];
+        
+        // Update frame visibility
+        document.querySelectorAll('.tab-frame').forEach((frame, i) => {
+          frame.classList.toggle('active', i === index);
+        });
+        
+        console.log('Switched to:', tabId);
+      },
+      
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => console.log(err));
+        } else {
+          document.exitFullscreen();
+        }
+      },
+      
+      handleMessage(event) {
+        const { type, tab } = event.data;
+        if (type === 'tabReady') {
+          this.tabsReady[tab] = true;
+          this.pushDataToTab(tab);
+        }
+      },
+      
+      async loadData() {
+        try {
+          // Load mission data
+          const missionRes = await fetch('/api/missions/artemis-ii');
+          this.missionData = await missionRes.json();
+          
+          // Load weather data
+          const weatherRes = await fetch('/api/missions/artemis-ii/weather');
+          this.weatherData = await weatherRes.json();
+          
+          // Push to ready tabs
+          Object.keys(this.tabsReady).forEach(tab => this.pushDataToTab(tab));
+          
+        } catch (err) {
+          console.error('Failed to load data:', err);
+        }
+      },
+      
+      pushDataToTab(tabId) {
+        const frame = document.getElementById(rame-+tabId);
+        if (!frame || !frame.contentWindow) return;
+        
+        if (tabId === 'mission') {
+          frame.contentWindow.postMessage({ type: 'missionData', data: this.missionData }, '*');
+          frame.contentWindow.postMessage({ type: 'weatherData', data: this.weatherData }, '*');
+        } else if (tabId === 'crew') {
+          frame.contentWindow.postMessage({ type: 'setCrewData', crew: this.missionData?.crew }, '*');
+        } else if (tabId === 'info') {
+          frame.contentWindow.postMessage({ type: 'setMissionData', data: this.missionData }, '*');
+        }
+      }
+    };
+    
+    Kiosk.init();
+  </script>
+</body>
+</html>

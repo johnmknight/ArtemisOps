@@ -10,6 +10,8 @@ Mission clock and status tracking app for NASA and ESA crewed space missions.
 - **Mission Timeline**: Visual progress tracking for milestones
 - **Weather Data**: Launch site weather forecasts (only when launch is within 7 days)
 - **Live Updates**: WebSocket-based real-time data sync
+- **Multi-Screen Kiosk Mode**: Control multiple displays from a central server
+- **Remote Navigation**: API-driven page switching across screens
 - **Offline Support**: Cached data when offline
 - **Notifications**: Browser and in-app alerts for milestone and countdown events
 
@@ -76,7 +78,12 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8080
 | `/api/crew` | GET | Default mission crew - legacy |
 | `/api/status` | GET | Server status |
 | `/api/sync` | POST | Force data refresh |
-| `/ws` | WebSocket | Real-time updates |
+| `/ws` | WebSocket | Real-time updates (legacy) |
+| `/ws/screen/{id}` | WebSocket | Screen-specific connection for multi-display |
+| `/api/screens` | GET | List all connected screens |
+| `/api/screens/{id}` | GET | Get specific screen status |
+| `/api/screens/{id}/page` | POST | Navigate screen to page (1-4) |
+| `/api/screens/all/page` | POST | Navigate all screens to same page |
 
 ## Weather Feature
 
@@ -158,6 +165,65 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python main.py
+```
+
+## Multi-Screen Kiosk Mode
+
+ArtemisOps supports controlling multiple displays from a single server - perfect for mission control room setups.
+
+### URL Parameters
+
+```
+http://localhost:8000?id=1        # Screen 1, default page (Mission)
+http://localhost:8000?id=2&page=2 # Screen 2, start on Tracking
+http://localhost:8000?id=3&page=3 # Screen 3, start on Crew
+```
+
+### Page Numbers
+
+| Page | Name | Content |
+|------|------|--------|
+| 1 | Mission | Countdown, milestones, launch info |
+| 2 | Tracking | ISS tracker / Artemis trajectory map |
+| 3 | Crew | Astronaut profiles and bios |
+| 4 | Info | Mission details and description |
+
+### Remote Control API
+
+```bash
+# List all connected screens
+curl http://localhost:8000/api/screens
+
+# Switch screen 1 to Tracking page
+curl -X POST "http://localhost:8000/api/screens/1/page?page=2"
+
+# Switch all screens to Mission page
+curl -X POST "http://localhost:8000/api/screens/all/page?page=1"
+
+# Switch by page name
+curl -X POST "http://localhost:8000/api/screens/1/page?page_name=crew"
+```
+
+### Architecture
+
+```
+┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+│  Screen 1   │   │  Screen 2   │   │  Screen 3   │
+│  ?id=1      │   │  ?id=2      │   │  ?id=3      │
+└──────┬──────┘   └──────┬──────┘   └──────┬──────┘
+       │ WebSocket        │                 │
+       └──────────────────┴─────────────────┘
+                          │
+                  ┌───────▼───────┐
+                  │    SERVER     │
+                  │   FastAPI +   │
+                  │  Screen Hub   │
+                  └───────┬───────┘
+                          │
+          ┌───────────────┴───────────────┐
+          │                               │
+    Control API                     Claude/Automation
+    POST /api/screens/1/page        (programmatic control)
 ```
 
 See PLANNING.md for feature roadmap.

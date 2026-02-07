@@ -32,18 +32,130 @@
     /* ===== MAIN LAYOUT ===== */
     .mission-layout {
       display: grid;
-      grid-template-rows: 1fr auto;
+      grid-template-rows: auto 1fr auto;
       grid-template-columns: 1fr;
       height: 100%;
       width: 100%;
       overflow: hidden;
     }
 
+    /* ===== NASA-STYLE HEADER BAR ===== */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+      background: linear-gradient(180deg, #0a1525 0%, #050a10 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      min-height: 44px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-mission-name {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .header-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--success-color);
+    }
+
+    .header-status-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-clock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header-clock-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .header-clock-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-accent);
+      letter-spacing: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-met {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .header-met-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .header-met-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--countdown-color);
+      letter-spacing: 1px;
+    }
+
+    .header-met-value.elapsed {
+      color: var(--success-color);
+    }
+
 
 
     /* ===== CENTER - COUNTDOWN ===== */
     .countdown-center {
-      grid-row: 1 / 2;
+      grid-row: 2 / 3;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -99,62 +211,9 @@
       padding: 0 10px;
     }
 
-    /* Info row with flanking logos */
-    .info-with-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(16px, 2.5vw, 40px);
+    /* Launch info row */
+    .launch-info-container {
       margin-bottom: clamp(12px, 2vh, 24px);
-    }
-
-    .agency-logo-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .agency-logo {
-      height: clamp(50px, min(8vw, 14vh), 140px);
-      width: auto;
-      min-width: 50px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 20px rgba(255,255,255,0.12));
-      background: transparent;
-    }
-
-    .agency-name {
-      font-size: clamp(0.6rem, 1vh, 0.85rem);
-      color: var(--text-secondary);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .mission-patch-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .mission-patch-large {
-      height: clamp(50px, min(8vw, 14vh), 140px);
-      width: auto;
-      min-width: 50px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
-      background: transparent;
-    }
-
-    .mission-name {
-      font-size: clamp(0.6rem, 1vh, 0.85rem);
-      color: var(--text-secondary);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 600;
     }
 
 
@@ -436,7 +495,30 @@
 <body>
   <div class="mission-layout">
     
-    <!-- CENTER: COUNTDOWN WITH FLANKING LOGOS -->
+    <!-- NASA-STYLE HEADER BAR -->
+    <header class="header-bar">
+      <div class="header-left">
+        <span class="header-mission-name" id="headerMissionName">ARTEMIS II</span>
+        <div class="header-status-badge">
+          <span class="dot"></span>
+          <span>PRE-LAUNCH</span>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="header-clock">
+          <span class="header-clock-label">UTC</span>
+          <span class="header-clock-value" id="utcClock">--:--:--</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-met">
+          <span class="header-met-label" id="headerMetLabel">T-MINUS</span>
+          <span class="header-met-value" id="headerMetValue">---:--:--:--</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- CENTER: COUNTDOWN -->
     <section class="countdown-center">
       <div class="grid-overlay"></div>
       
@@ -468,29 +550,21 @@
           </div>
         </div>
         
-        <!-- Launch info with flanking logos -->
-        <div class="info-with-logos">
-          <div class="agency-logo-container">
-            <img id="agencyLogo" src="/assets/logos/nasa-logo.svg" alt="NASA" class="agency-logo">
-            <span class="agency-name" id="agencyName">NASA</span>
-          </div>
+        <!-- Launch info -->
+        <div class="launch-info-container">
           <div class="launch-info-row">
-          <div class="launch-info-item">
-            <div class="launch-info-label">Target Date</div>
-            <div class="launch-info-value" id="launchDate">Loading...</div>
-          </div>
-          <div class="launch-info-item">
-            <div class="launch-info-label">Time</div>
-            <div class="launch-info-value accent" id="launchTime">--:-- UTC</div>
-          </div>
-          <div class="launch-info-item">
-            <div class="launch-info-label">Location</div>
-            <div class="launch-info-value" id="launchSite">Loading...</div>
-          </div>
-          </div>
-          <div class="mission-patch-container">
-            <img id="missionPatch" src="/assets/patches/artemis-ii-patch.png" alt="Mission Patch" class="mission-patch-large" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Artemis_2_mission_patch.png/220px-Artemis_2_mission_patch.png'">
-            <span class="mission-name" id="missionName">Artemis II</span>
+            <div class="launch-info-item">
+              <div class="launch-info-label">Target Date</div>
+              <div class="launch-info-value" id="launchDate">Loading...</div>
+            </div>
+            <div class="launch-info-item">
+              <div class="launch-info-label">Window</div>
+              <div class="launch-info-value accent" id="launchTime">--:-- UTC</div>
+            </div>
+            <div class="launch-info-item">
+              <div class="launch-info-label">Site</div>
+              <div class="launch-info-value" id="launchSite">Loading...</div>
+            </div>
           </div>
         </div>
         
@@ -568,9 +642,20 @@
         // Start countdown ticker
         this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
         
+        // Start UTC clock
+        this.updateUTCClock();
+        setInterval(() => this.updateUTCClock(), 1000);
   
         // Notify parent that this tab is ready
         window.parent.postMessage({ type: 'tabReady', tab: 'mission' }, '*');
+      },
+      
+      updateUTCClock() {
+        const now = new Date();
+        const hours = String(now.getUTCHours()).padStart(2, '0');
+        const mins = String(now.getUTCMinutes()).padStart(2, '0');
+        const secs = String(now.getUTCSeconds()).padStart(2, '0');
+        document.getElementById('utcClock').textContent = `${hours}:${mins}:${secs}`;
       },
       
 
@@ -597,33 +682,8 @@
         
         const m = this.missionData;
         
-        // Update mission name and patch
-        document.getElementById('missionName').textContent = m.name || 'Mission';
-        
-        // Use local patches with fallback
-        const patchPaths = {
-          'artemis-ii': '/assets/patches/artemis-ii-patch.png',
-          'artemis-iii': '/assets/patches/artemis-iii-patch.png',
-        };
-        
-        const missionKey = (m.id || '').toLowerCase();
-        const patchUrl = patchPaths[missionKey] || patchPaths['artemis-ii'];
-        document.getElementById('missionPatch').src = patchUrl;
-        
-        // Update agency logo - use local logos with transparent backgrounds
-        const localLogos = {
-          'NASA': '/assets/logos/nasa-logo.svg',
-          'ESA': '/assets/logos/esa-logo.svg',
-          'CSA': '/assets/logos/csa-logo.svg',
-          'JAXA': '/assets/logos/jaxa-logo.svg',
-        };
-        const agencies = m.agencies || 'NASA';
-        const primaryAgency = agencies.split(',')[0].trim().toUpperCase();
-        const logoUrl = localLogos[primaryAgency] || localLogos['NASA'];
-        document.getElementById('agencyLogo').src = logoUrl;
-        
-        // Update agency name display
-        document.getElementById('agencyName').textContent = agencies.split(',')[0].trim();
+        // Update header mission name
+        document.getElementById('headerMissionName').textContent = (m.name || 'Mission').toUpperCase();
         
         // Update launch info
         if (m.launch_date) {
@@ -760,17 +820,27 @@
         const label = document.getElementById('countdownLabel');
         const values = document.querySelectorAll('.countdown-value');
         const seps = document.querySelectorAll('.countdown-separator');
+        const headerMetLabel = document.getElementById('headerMetLabel');
+        const headerMetValue = document.getElementById('headerMetValue');
+        
+        // Format header MET value
+        const metStr = `${String(days).padStart(3, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        headerMetValue.textContent = metStr;
         
         if (isPostLaunch) {
           label.textContent = 'T-Plus · Mission Elapsed Time';
           label.classList.add('elapsed');
           values.forEach(v => v.classList.add('elapsed'));
           seps.forEach(s => s.classList.add('elapsed'));
+          headerMetLabel.textContent = 'MET';
+          headerMetValue.classList.add('elapsed');
         } else {
           label.textContent = 'T-Minus · Countdown to Launch';
           label.classList.remove('elapsed');
           values.forEach(v => v.classList.remove('elapsed'));
           seps.forEach(s => s.classList.remove('elapsed'));
+          headerMetLabel.textContent = 'T-MINUS';
+          headerMetValue.classList.remove('elapsed');
         }
         
         // Notify parent of countdown update

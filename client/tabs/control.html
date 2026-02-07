@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-panel: #080c14;
+      --bg-card: #0f1620;
+      --border-subtle: #1a3050;
+      --text-primary: #ffffff;
+      --text-secondary: #7a8a9a;
+      --text-accent: #00d4ff;
+      --success-color: #22c55e;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --accent-blue: #4a9eff;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-y: auto;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .control-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 24px;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .control-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .control-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+    }
+
+    .control-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .server-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success-color);
+      animation: pulse-dot 2s infinite;
+    }
+
+    .server-status.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .server-status.disconnected .dot {
+      background: var(--danger-color);
+      animation: none;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Section cards */
+    .section {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .count {
+      background: rgba(0, 212, 255, 0.15);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+    }
+
+    /* Screen cards */
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .screen-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .screen-card:hover {
+      border-color: rgba(74, 158, 255, 0.4);
+    }
+
+    .screen-card.self {
+      border-color: rgba(0, 212, 255, 0.4);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .screen-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .screen-id {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .screen-self-badge {
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      background: rgba(0, 212, 255, 0.15);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 4px;
+      color: var(--text-accent);
+    }
+
+    .screen-current-page {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .screen-current-page strong {
+      color: var(--text-primary);
+    }
+
+    .screen-nav-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .nav-btn {
+      background: rgba(74, 158, 255, 0.08);
+      border: 1px solid rgba(74, 158, 255, 0.2);
+      border-radius: 6px;
+      padding: 8px 4px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .nav-btn:hover {
+      background: rgba(74, 158, 255, 0.2);
+      border-color: var(--accent-blue);
+      color: var(--text-primary);
+    }
+
+    .nav-btn.active-page {
+      background: rgba(74, 158, 255, 0.2);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .no-screens {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      padding: 20px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Broadcast controls */
+    .broadcast-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .broadcast-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .broadcast-btn {
+      background: rgba(74, 158, 255, 0.1);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 6px;
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .broadcast-btn:hover {
+      background: rgba(74, 158, 255, 0.25);
+      border-color: var(--accent-blue);
+    }
+
+    .broadcast-btn .icon { font-size: 1em; }
+
+    /* Two-column layout for settings */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Settings fields */
+    .field-group {
+      margin-bottom: 12px;
+    }
+
+    .field-group:last-child { margin-bottom: 0; }
+
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .field-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+
+    .field-select {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .field-select option {
+      background: var(--bg-panel);
+    }
+
+    /* Action buttons */
+    .action-btn {
+      background: rgba(74, 158, 255, 0.1);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      border-radius: 6px;
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .action-btn:hover {
+      background: rgba(74, 158, 255, 0.2);
+      border-color: var(--accent-blue);
+    }
+
+    /* Toast messages */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--bg-panel);
+      border: 1px solid var(--accent-blue);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      animation: slideUp 0.3s ease;
+    }
+
+    .toast.success { border-color: var(--success-color); }
+    .toast.error { border-color: var(--danger-color); }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="control-layout">
+
+    <!-- Header -->
+    <header class="control-header">
+      <div>
+        <div class="control-title">⚙ Control Panel</div>
+        <div class="control-subtitle">Multi-Screen Management</div>
+      </div>
+      <div class="server-status" id="serverStatus">
+        <span class="dot"></span>
+        <span id="serverStatusText">Connected</span>
+      </div>
+    </header>
+
+    <!-- Broadcast to All Screens -->
+    <section class="section">
+      <div class="section-title">📡 Broadcast to All Screens</div>
+      <div class="broadcast-row">
+        <span class="broadcast-label">Navigate all to:</span>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(1)"><span class="icon">🚀</span> Mission</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(2)"><span class="icon">🌍</span> Tracking</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(3)"><span class="icon">👨‍🚀</span> Crew</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(4)"><span class="icon">ℹ️</span> Info</button>
+      </div>
+    </section>
+
+    <!-- Connected Screens -->
+    <section class="section">
+      <div class="section-title">
+        🖥️ Connected Screens
+        <span class="count" id="screenCount">0</span>
+      </div>
+      <div class="screens-grid" id="screensGrid">
+        <div class="no-screens">No screens connected. Open ArtemisOps in another window with <code>?id=1&page=1</code></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section class="section">
+      <div class="section-title">🔧 This Screen</div>
+      <div class="settings-grid">
+        <div>
+          <div class="field-group">
+            <div class="field-label">Screen ID</div>
+            <div class="field-value" id="selfScreenId">--</div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Current Page</div>
+            <div class="field-value" id="selfCurrentPage">Control (0)</div>
+          </div>
+        </div>
+        <div>
+          <div class="field-group">
+            <div class="field-label">Mission</div>
+            <select class="field-select" id="missionSelector" onchange="Control.switchMission(this.value)">
+              <option value="artemis-ii">Artemis II</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Display</div>
+            <button class="action-btn" onclick="Control.requestFullscreen()">⛶ Toggle Fullscreen (F)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+
+  <script>
+    const PAGE_NAMES = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info' };
+    const PAGE_ICONS = { 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+
+    const Control = {
+      screenId: null,
+      pollInterval: null,
+      screens: [],
+
+      init() {
+        // Get screen ID from parent
+        window.addEventListener('message', (e) => this.handleMessage(e));
+
+        // Tell parent we're ready
+        window.parent.postMessage({ type: 'tabReady', tab: 'control' }, '*');
+
+        // Request our screen ID
+        window.parent.postMessage({ type: 'requestScreenId' }, '*');
+
+        // Poll screen list every 3 seconds
+        this.refreshScreens();
+        this.pollInterval = setInterval(() => this.refreshScreens(), 3000);
+
+        // Load missions
+        this.loadMissions();
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'f' || e.key === 'F') {
+            if (!e.ctrlKey && !e.metaKey) {
+              this.requestFullscreen();
+              e.preventDefault();
+            }
+          }
+        });
+      },
+
+      handleMessage(event) {
+        const msg = event.data;
+        if (msg.type === 'screenId') {
+          this.screenId = msg.id;
+          document.getElementById('selfScreenId').textContent = msg.id;
+        } else if (msg.type === 'missionData') {
+          // Could use mission data if needed
+        }
+      },
+
+      async refreshScreens() {
+        try {
+          const res = await fetch('/api/screens');
+          const data = await res.json();
+          this.screens = data.screens || [];
+          this.renderScreens();
+
+          // Update server status
+          document.getElementById('serverStatus').classList.remove('disconnected');
+          document.getElementById('serverStatusText').textContent = 'Connected';
+        } catch (e) {
+          document.getElementById('serverStatus').classList.add('disconnected');
+          document.getElementById('serverStatusText').textContent = 'Disconnected';
+        }
+      },
+
+      renderScreens() {
+        const grid = document.getElementById('screensGrid');
+        const count = document.getElementById('screenCount');
+
+        // Filter out self (control page doesn't need to control itself through the card)
+        const otherScreens = this.screens.filter(s => s.id !== this.screenId);
+        count.textContent = this.screens.length;
+
+        if (this.screens.length === 0) {
+          grid.innerHTML = '<div class="no-screens">No screens connected. Open ArtemisOps in another window with <code>?id=1&page=1</code></div>';
+          return;
+        }
+
+        grid.innerHTML = this.screens.map(screen => {
+          const isSelf = screen.id === this.screenId;
+          const pageName = PAGE_NAMES[screen.page] || 'unknown';
+          const pageIcon = PAGE_ICONS[screen.page] || '?';
+
+          return `
+            <div class="screen-card ${isSelf ? 'self' : ''}">
+              <div class="screen-card-header">
+                <span class="screen-id">${screen.id}</span>
+                ${isSelf ? '<span class="screen-self-badge">This Screen</span>' : ''}
+              </div>
+              <div class="screen-current-page">
+                Current: <strong>${pageIcon} ${pageName}</strong> (page ${screen.page})
+              </div>
+              ${!isSelf ? `
+              <div class="screen-nav-buttons">
+                <button class="nav-btn ${screen.page === 1 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 1)">🚀 Mission</button>
+                <button class="nav-btn ${screen.page === 2 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 2)">🌍 Track</button>
+                <button class="nav-btn ${screen.page === 3 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 3)">👨‍🚀 Crew</button>
+                <button class="nav-btn ${screen.page === 4 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 4)">ℹ️ Info</button>
+              </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      },
+
+      async navigateScreen(screenId, page) {
+        try {
+          const res = await fetch(`/api/screens/${screenId}/page?page=${page}`, { method: 'POST' });
+          const data = await res.json();
+          if (data.success) {
+            this.toast(`${screenId} → ${PAGE_NAMES[page]}`, 'success');
+            this.refreshScreens();
+          } else {
+            this.toast(`Failed to navigate ${screenId}`, 'error');
+          }
+        } catch (e) {
+          this.toast(`Error: ${e.message}`, 'error');
+        }
+      },
+
+      async broadcastPage(page) {
+        try {
+          const res = await fetch(`/api/screens/all/page?page=${page}`, { method: 'POST' });
+          const data = await res.json();
+          const success = data.results?.filter(r => r.success).length || 0;
+          const total = data.total_screens || 0;
+          this.toast(`All screens → ${PAGE_NAMES[page]} (${success}/${total})`, 'success');
+          this.refreshScreens();
+        } catch (e) {
+          this.toast(`Broadcast error: ${e.message}`, 'error');
+        }
+      },
+
+      async switchMission(missionId) {
+        // Tell parent to switch mission
+        window.parent.postMessage({ type: 'switchMission', missionId }, '*');
+        this.toast(`Mission: ${missionId}`, 'success');
+      },
+
+      async loadMissions() {
+        try {
+          const res = await fetch('/api/missions');
+          const data = await res.json();
+          const selector = document.getElementById('missionSelector');
+          selector.innerHTML = data.missions.map(m =>
+            `<option value="${m.id}">${m.name}</option>`
+          ).join('');
+        } catch (e) {
+          console.error('Failed to load missions:', e);
+        }
+      },
+
+      requestFullscreen() {
+        window.parent.postMessage({ type: 'requestFullscreen' }, '*');
+      },
+
+      toast(message, type = 'info') {
+        const container = document.getElementById('toasts');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => Control.init());
+  </script>
+</body>
+</html>

@@ -6,7 +6,6 @@
   <title>ArtemisOps - Mission Control</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     :root {
       --bg-primary: #0a0e27;
       --bg-header: rgba(10, 20, 40, 0.95);
@@ -14,8 +13,9 @@
       --text-primary: #e0e6ed;
       --text-secondary: #8ab4f8;
       --accent-blue: #4a9eff;
+      --success-green: #22c55e;
+      --warning-yellow: #f59e0b;
     }
-    
     html, body {
       height: 100%;
       overflow: hidden;
@@ -23,473 +23,537 @@
       background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1128 100%);
       color: var(--text-primary);
     }
+    .app-shell { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+    .tab-content { flex: 1; position: relative; overflow: hidden; }
+    .tab-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .tab-frame.active { opacity: 1; pointer-events: auto; }
     
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-    }
+    /* Settings button (opens page 0) */
+    .settings-btn { position: fixed; bottom: 16px; right: 16px; width: 40px; height: 40px; background: rgba(10, 20, 40, 0.8); border: 1px solid rgba(74, 158, 255, 0.3); border-radius: 50%; color: rgba(255, 255, 255, 0.5); font-size: 1.2em; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; opacity: 0.4; }
+    .settings-btn:hover { opacity: 1; background: rgba(74, 158, 255, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); }
+    .settings-btn.on-control { opacity: 0.15; pointer-events: none; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     
-    /* ===== HEADER ===== */
-    .app-header {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      background: var(--bg-header);
-      border-bottom: 2px solid var(--border-color);
-      box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
-    }
+    /* Keyboard hint */
+    .keyboard-hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(10, 20, 40, 0.7); border: 1px solid rgba(74, 158, 255, 0.2); border-radius: 20px; font-size: 0.75em; color: rgba(255, 255, 255, 0.4); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+    .keyboard-hint.visible { opacity: 1; }
+    .key-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; font-size: 0.9em; }
     
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+    /* Page dots */
+    .page-dots { position: fixed; bottom: 16px; left: 16px; display: flex; gap: 8px; opacity: 0.5; transition: opacity 0.3s ease; }
+    .page-dots:hover { opacity: 1; }
+    .page-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); cursor: pointer; transition: all 0.2s ease; }
+    .page-dot.active { background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue); }
+    .page-dot:hover:not(.active) { background: rgba(255, 255, 255, 0.5); }
     
-    .header-logo {
-      height: 50px;
-      width: 50px;
-      object-fit: contain;
-    }
+    /* Connection status indicator */
+    .connection-status { position: fixed; top: 8px; right: 8px; display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(10, 20, 40, 0.8); border: 1px solid rgba(74, 158, 255, 0.2); border-radius: 4px; font-size: 0.7em; color: var(--text-secondary); opacity: 0.6; transition: opacity 0.3s; z-index: 50; }
+    .connection-status:hover { opacity: 1; }
+    .connection-status .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success-green); }
+    .connection-status.disconnected .status-dot { background: #ef4444; }
+    .connection-status.connecting .status-dot { background: var(--warning-yellow); animation: pulse-dot 1s infinite; }
     
-    .header-title {
-      font-size: 1.8em;
-      letter-spacing: 6px;
-      color: var(--accent-blue);
-      text-transform: uppercase;
-      text-shadow: 0 0 15px rgba(74, 158, 255, 0.8);
-    }
-    
-    .header-subtitle {
-      font-size: 0.75em;
-      color: var(--text-secondary);
-      letter-spacing: 2px;
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .mission-selector {
-      background: rgba(74, 158, 255, 0.1);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 8px 12px;
-      font-family: inherit;
-      font-size: 0.9em;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    
-    .connection-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8em;
-    }
-    
-    .connection-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #4aff9e;
-      box-shadow: 0 0 10px #4aff9e;
-      animation: pulse 2s infinite;
-    }
-    
-    .connection-dot.offline { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
-    .connection-dot.cached { background: #ffa500; box-shadow: 0 0 10px #ffa500; }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    
-    /* ===== TAB NAVIGATION ===== */
-    .tab-nav {
-      flex-shrink: 0;
-      display: flex;
-      background: rgba(10, 20, 40, 0.8);
-      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
-      padding: 0 20px;
-    }
-    
-    .tab-btn {
-      background: none;
-      border: none;
-      color: #6a7f99;
-      padding: 15px 30px;
-      font-family: inherit;
-      font-size: 1em;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-    
-    .tab-btn:hover { color: var(--text-secondary); }
-    
-    .tab-btn.active {
-      color: var(--accent-blue);
-      text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
-    }
-    
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--accent-blue);
-      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
-    }
-    
-    .tab-icon { margin-right: 8px; }
-    
-    /* ===== TAB CONTENT ===== */
-    .tab-content {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .tab-frame {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    
-    .tab-frame.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    
-    /* ===== NOTIFICATION TOAST ===== */
-    .notification-container {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .notification {
-      background: rgba(10, 20, 40, 0.95);
-      border: 1px solid var(--accent-blue);
-      padding: 12px 16px;
-      border-radius: 6px;
-      max-width: 300px;
-      animation: slideIn 0.3s ease;
-    }
-    
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
+    /* Notifications */
+    .notification-container { position: fixed; top: 50px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+    .notification { background: rgba(10, 20, 40, 0.95); border: 1px solid var(--accent-blue); padding: 12px 16px; border-radius: 6px; max-width: 300px; animation: slideIn 0.3s ease; }
+    .notification.success { border-color: var(--success-green); }
+    .notification.error { border-color: #ef4444; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <img id="headerLogo" class="header-logo" src="/assets/logos/nasa-logo.svg" alt="NASA">
-        <div>
-          <div class="header-title" id="missionTitle">ARTEMIS II</div>
-          <div class="header-subtitle" id="missionSubtitle">Loading mission data...</div>
-        </div>
-      </div>
-      <div class="header-right">
-        <select class="mission-selector" id="missionSelector" onchange="App.switchMission(this.value)">
-          <option value="artemis-ii">Artemis II</option>
-        </select>
-        <div class="connection-indicator">
-          <span class="connection-dot" id="connectionDot"></span>
-          <span id="connectionText">Connecting...</span>
-        </div>
-      </div>
-    </header>
+    <!-- Connection status indicator -->
+    <div class="connection-status connecting" id="connectionStatus">
+      <span class="status-dot"></span>
+      <span id="connectionText">Connecting...</span>
+      <span id="screenIdDisplay"></span>
+    </div>
     
-    <!-- Tab Navigation -->
-    <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="mission" onclick="App.switchTab('mission')">
-        <span class="tab-icon">🚀</span>Mission
-      </button>
-      <button class="tab-btn" data-tab="tracking" onclick="App.switchTab('tracking')">
-        <span class="tab-icon">🛰️</span>Tracking
-      </button>
-      <button class="tab-btn" data-tab="crew" onclick="App.switchTab('crew')">
-        <span class="tab-icon">👨‍🚀</span>Crew
-      </button>
-      <button class="tab-btn" data-tab="info" onclick="App.switchTab('info')">
-        <span class="tab-icon">ℹ️</span>Info
-      </button>
-    </nav>
-    
-    <!-- Tab Content (iframes) -->
     <main class="tab-content">
+      <iframe id="frame-control" class="tab-frame" src="tabs/control.html"></iframe>
       <iframe id="frame-mission" class="tab-frame active" src="tabs/mission.html"></iframe>
       <iframe id="frame-tracking" class="tab-frame" src="tabs/tracking.html"></iframe>
       <iframe id="frame-crew" class="tab-frame" src="tabs/crew.html"></iframe>
       <iframe id="frame-info" class="tab-frame" src="tabs/info.html"></iframe>
     </main>
     
+    <!-- Page dots (bottom left) -->
+    <div class="page-dots">
+      <div class="page-dot" data-tab="control" data-page="0" title="Control (0)"></div>
+      <div class="page-dot active" data-tab="mission" data-page="1" title="Mission (1)"></div>
+      <div class="page-dot" data-tab="tracking" data-page="2" title="Tracking (2)"></div>
+      <div class="page-dot" data-tab="crew" data-page="3" title="Crew (3)"></div>
+      <div class="page-dot" data-tab="info" data-page="4" title="Info (4)"></div>
+    </div>
+    
+    <!-- Keyboard hint (bottom center) -->
+    <div class="keyboard-hint" id="keyboardHint">
+      <span class="key-icon">←</span>
+      <span class="key-icon">→</span>
+      <span>Navigate</span>
+    </div>
+    
+    <!-- Settings button (bottom right) - navigates to page 0 -->
+    <button class="settings-btn" id="settingsBtn" title="Control Panel (0)">⚙</button>
+    
     <!-- Notifications -->
     <div class="notification-container" id="notifications"></div>
   </div>
 
   <script>
-    // ===== APPLICATION SHELL =====
+    // Tab/Page configuration (page 0 = control panel)
+    const TABS = ['control', 'mission', 'tracking', 'crew', 'info'];
+    const PAGE_MAP = { control: 0, mission: 1, tracking: 2, crew: 3, info: 4 };
+    const TAB_MAP = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info' };
+    
     const App = {
+      // Screen state
+      screenId: null,
       currentTab: 'mission',
+      currentTabIndex: 1,
       currentMission: 'artemis-ii',
+      
+      // Data
       missionData: null,
       weatherData: null,
+      
+      // WebSocket
       ws: null,
+      wsReconnectAttempts: 0,
+      wsReconnectDelay: 1000,
+      
+      // Tab readiness
       tabsReady: {},
       
+      /**
+       * Initialize the application
+       */
       async init() {
-        console.log('ArtemisOps Shell initializing...');
+        console.log('ArtemisOps Multi-Screen Client initializing...');
         
-        // Listen for messages from child iframes
+        // Parse URL parameters
+        this.parseUrlParams();
+        
+        // Update UI with screen ID
+        this.updateScreenIdDisplay();
+        
+        // Set up event listeners
+        document.addEventListener('keydown', (e) => this.handleKeydown(e));
+        document.querySelectorAll('.page-dot').forEach(dot => {
+          dot.addEventListener('click', () => this.switchTab(dot.dataset.tab));
+        });
+        document.getElementById('settingsBtn').addEventListener('click', () => this.switchTab('control'));
         window.addEventListener('message', (event) => this.handleMessage(event));
         
-        // Connect WebSocket
+        // Show keyboard hint
+        this.showKeyboardHint();
+        
+        // Connect to WebSocket
         this.connectWebSocket();
         
-        // Load initial data
-        await this.loadMissions();
+        // Load initial data via HTTP (fallback)
         await this.loadMissionData();
         await this.loadWeatherData();
         
-        console.log('ArtemisOps Shell ready');
+        console.log(`ArtemisOps Screen '${this.screenId}' ready on page ${this.currentTabIndex}`);
       },
       
-      // ===== MESSAGE HANDLING =====
-      handleMessage(event) {
-        const { type, tab } = event.data;
+      /**
+       * Parse URL parameters (?id=X&page=Y)
+       */
+      parseUrlParams() {
+        const params = new URLSearchParams(window.location.search);
         
-        switch (type) {
-          case 'tabReady':
-            console.log(`Tab ready: ${tab}`);
-            this.tabsReady[tab] = true;
-            this.pushDataToTab(tab);
-            break;
-          case 'countdownUpdate':
-            // Could trigger notifications here
-            break;
-          case 'trackingModeChanged':
-            console.log(`Tracking mode: ${event.data.mode}`);
-            break;
-        }
-      },
-      
-      // ===== TAB SWITCHING =====
-      switchTab(tabId) {
-        this.currentTab = tabId;
+        // Screen ID (default to random if not provided)
+        this.screenId = params.get('id') || this.generateScreenId();
         
-        // Update nav buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tabId);
-        });
-        
-        // Update frames
-        document.querySelectorAll('.tab-frame').forEach(frame => {
-          const frameTab = frame.id.replace('frame-', '');
-          frame.classList.toggle('active', frameTab === tabId);
-        });
-      },
-      
-      // ===== MISSION SWITCHING =====
-      async switchMission(missionId) {
-        this.currentMission = missionId;
-        await this.loadMissionData();
-        await this.loadWeatherData();
-      },
-      
-      // ===== DATA LOADING =====
-      async loadMissions() {
-        try {
-          const response = await fetch('/api/missions');
-          const data = await response.json();
-          
-          const selector = document.getElementById('missionSelector');
-          selector.innerHTML = data.missions.map(m => 
-            `<option value="${m.id}" ${m.id === this.currentMission ? 'selected' : ''}>${m.name}</option>`
-          ).join('');
-        } catch (error) {
-          console.error('Failed to load missions:', error);
-        }
-      },
-      
-      async loadMissionData() {
-        try {
-          const response = await fetch(`/api/missions/${this.currentMission}`);
-          this.missionData = await response.json();
-          
-          // Update header
-          document.getElementById('missionTitle').textContent = this.missionData.name || 'Mission';
-          document.getElementById('missionSubtitle').textContent = 
-            this.missionData.description?.substring(0, 60) + '...' || '';
-          
-          // Use local logos with transparent backgrounds
-          const localLogos = {
-            'NASA': '/assets/logos/nasa-logo.svg',
-            'ESA': '/assets/logos/esa-logo.svg',
-            'CSA': '/assets/logos/csa-logo.svg',
-            'JAXA': '/assets/logos/jaxa-logo.svg',
-          };
-          const agencies = this.missionData.agencies || 'NASA';
-          const primaryAgency = agencies.split(',')[0].trim().toUpperCase();
-          document.getElementById('headerLogo').src = localLogos[primaryAgency] || localLogos['NASA'];
-          
-          document.title = `ArtemisOps - ${this.missionData.name}`;
-          
-          // Push to all ready tabs
-          this.pushDataToAllTabs();
-          
-        } catch (error) {
-          console.error('Failed to load mission:', error);
-          this.setConnectionState('offline');
-        }
-      },
-      
-      async loadWeatherData() {
-        try {
-          const response = await fetch(`/api/missions/${this.currentMission}/weather`);
-          this.weatherData = await response.json();
-          
-          // Push to mission tab
-          if (this.tabsReady.mission) {
-            this.pushDataToTab('mission');
+        // Initial page (0-4 or name)
+        const pageParam = params.get('page');
+        if (pageParam) {
+          const pageNum = parseInt(pageParam);
+          if (pageNum >= 0 && pageNum <= 4) {
+            this.currentTab = TAB_MAP[pageNum];
+            this.currentTabIndex = TABS.indexOf(this.currentTab);
+          } else if (TABS.includes(pageParam)) {
+            this.currentTab = pageParam;
+            this.currentTabIndex = TABS.indexOf(pageParam);
           }
-        } catch (error) {
-          console.error('Failed to load weather:', error);
         }
-      },
-      
-      // ===== DATA PUSHING =====
-      pushDataToAllTabs() {
-        Object.keys(this.tabsReady).forEach(tab => {
-          if (this.tabsReady[tab]) {
-            this.pushDataToTab(tab);
-          }
-        });
-      },
-      
-      pushDataToTab(tabId) {
-        const frame = document.getElementById(`frame-${tabId}`);
-        if (!frame || !frame.contentWindow) return;
         
-        switch (tabId) {
-          case 'mission':
-            frame.contentWindow.postMessage({ type: 'missionData', data: this.missionData }, '*');
-            frame.contentWindow.postMessage({ type: 'weatherData', data: this.weatherData }, '*');
-            break;
-          case 'crew':
-            frame.contentWindow.postMessage({ type: 'setCrewData', crew: this.missionData?.crew }, '*');
-            break;
-          case 'info':
-            frame.contentWindow.postMessage({ type: 'setMissionData', data: this.missionData }, '*');
-            break;
-          // tracking tab manages its own data
-        }
+        // Apply initial page
+        this.switchTab(this.currentTab, false);
+        
+        console.log(`Screen ID: ${this.screenId}, Initial page: ${this.currentTab} (${PAGE_MAP[this.currentTab]})`);
       },
       
-      // ===== WEBSOCKET =====
+      /**
+       * Generate a random screen ID
+       */
+      generateScreenId() {
+        return 'screen-' + Math.random().toString(36).substr(2, 6);
+      },
+      
+      /**
+       * Update screen ID display in UI
+       */
+      updateScreenIdDisplay() {
+        document.getElementById('screenIdDisplay').textContent = `[${this.screenId}]`;
+      },
+      
+      /**
+       * Connect to screen-specific WebSocket
+       */
       connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws/screen/${this.screenId}`;
+        
+        console.log(`Connecting to WebSocket: ${wsUrl}`);
+        this.updateConnectionStatus('connecting');
         
         try {
           this.ws = new WebSocket(wsUrl);
           
           this.ws.onopen = () => {
             console.log('WebSocket connected');
-            this.setConnectionState('live');
+            this.wsReconnectAttempts = 0;
+            this.wsReconnectDelay = 1000;
+            this.updateConnectionStatus('connected');
+            
+            // Report current page to server
+            this.reportPageToServer();
           };
           
           this.ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            if (message.type === 'mission_update' && message.data.id === this.currentMission) {
-              this.missionData = message.data;
-              this.pushDataToAllTabs();
-            } else if (message.type === 'missions_list') {
-              this.loadMissions();
+            try {
+              const msg = JSON.parse(event.data);
+              this.handleWebSocketMessage(msg);
+            } catch (e) {
+              console.error('Failed to parse WebSocket message:', e);
             }
           };
           
           this.ws.onclose = () => {
             console.log('WebSocket disconnected');
-            this.setConnectionState('cached');
-            setTimeout(() => this.connectWebSocket(), 5000);
+            this.updateConnectionStatus('disconnected');
+            this.scheduleReconnect();
           };
           
-          this.ws.onerror = () => {
-            this.setConnectionState('offline');
+          this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            this.updateConnectionStatus('disconnected');
           };
+          
         } catch (e) {
-          console.error('WebSocket error:', e);
-          this.setConnectionState('offline');
+          console.error('Failed to create WebSocket:', e);
+          this.updateConnectionStatus('disconnected');
+          this.scheduleReconnect();
         }
       },
       
-      setConnectionState(state) {
-        const dot = document.getElementById('connectionDot');
+      /**
+       * Schedule WebSocket reconnection with exponential backoff
+       */
+      scheduleReconnect() {
+        this.wsReconnectAttempts++;
+        const delay = Math.min(this.wsReconnectDelay * Math.pow(2, this.wsReconnectAttempts - 1), 30000);
+        console.log(`Reconnecting in ${delay}ms (attempt ${this.wsReconnectAttempts})`);
+        setTimeout(() => this.connectWebSocket(), delay);
+      },
+      
+      /**
+       * Update connection status indicator
+       */
+      updateConnectionStatus(status) {
+        const el = document.getElementById('connectionStatus');
         const text = document.getElementById('connectionText');
         
-        dot.className = 'connection-dot';
+        el.classList.remove('connected', 'disconnected', 'connecting');
+        el.classList.add(status);
         
-        switch (state) {
-          case 'live':
-            text.textContent = 'Live';
+        switch (status) {
+          case 'connected':
+            text.textContent = 'Connected';
             break;
-          case 'cached':
-            dot.classList.add('cached');
-            text.textContent = 'Cached';
+          case 'disconnected':
+            text.textContent = 'Disconnected';
             break;
-          case 'offline':
-            dot.classList.add('offline');
-            text.textContent = 'Offline';
-            break;
-          default:
+          case 'connecting':
             text.textContent = 'Connecting...';
+            break;
         }
       },
       
-      // ===== NOTIFICATIONS =====
-      notify(message, type = 'info') {
+      /**
+       * Handle incoming WebSocket messages
+       */
+      handleWebSocketMessage(msg) {
+        console.log('WebSocket message:', msg.type);
+        
+        switch (msg.type) {
+          case 'registered':
+            console.log(`Registered as screen '${msg.screen_id}'`);
+            break;
+          
+          case 'navigate':
+            // Server commanding this screen to change page
+            console.log(`Server navigation command: page ${msg.page} (${msg.page_name})`);
+            if (msg.page >= 0 && msg.page <= 4 && TAB_MAP[msg.page]) {
+              this.switchTab(TAB_MAP[msg.page], true);
+              this.showNotification(`Switched to ${msg.page_name}`, 'success');
+            }
+            break;
+          
+          case 'missions_list':
+            // Forward to control tab if ready
+            if (this.tabsReady.control) {
+              const frame = document.getElementById('frame-control');
+              if (frame && frame.contentWindow) {
+                frame.contentWindow.postMessage({ type: 'missionsList', data: msg.data }, '*');
+              }
+            }
+            break;
+          
+          case 'mission_update':
+            this.missionData = msg.data;
+            document.title = `ArtemisOps - ${this.missionData.name}`;
+            this.pushDataToAllTabs();
+            break;
+          
+          case 'weather_update':
+            this.weatherData = msg.data;
+            if (this.tabsReady.mission) this.pushDataToTab('mission');
+            break;
+          
+          case 'pong':
+            // Heartbeat response
+            break;
+          
+          case 'error':
+            console.error('Server error:', msg.message);
+            this.showNotification(msg.message, 'error');
+            break;
+        }
+      },
+      
+      /**
+       * Report current page to server
+       */
+      reportPageToServer() {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(`page:${PAGE_MAP[this.currentTab]}`);
+        }
+      },
+      
+      /**
+       * Handle keyboard shortcuts
+       */
+      handleKeydown(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        switch (e.key) {
+          case 'ArrowRight':
+            this.nextTab();
+            e.preventDefault();
+            break;
+          case 'ArrowLeft':
+            this.prevTab();
+            e.preventDefault();
+            break;
+          case '0': case '1': case '2': case '3': case '4':
+            const tab = TAB_MAP[parseInt(e.key)];
+            if (tab) this.switchTab(tab);
+            break;
+          case 'f': case 'F':
+            if (!e.ctrlKey && !e.metaKey) {
+              this.toggleFullscreen();
+              e.preventDefault();
+            }
+            break;
+          case 'F11':
+            this.toggleFullscreen();
+            e.preventDefault();
+            break;
+        }
+      },
+      
+      /**
+       * Switch to next tab
+       */
+      nextTab() {
+        this.currentTabIndex = (this.currentTabIndex + 1) % TABS.length;
+        this.switchTab(TABS[this.currentTabIndex]);
+      },
+      
+      /**
+       * Switch to previous tab
+       */
+      prevTab() {
+        this.currentTabIndex = (this.currentTabIndex - 1 + TABS.length) % TABS.length;
+        this.switchTab(TABS[this.currentTabIndex]);
+      },
+      
+      /**
+       * Switch to a specific tab
+       */
+      switchTab(tabId, reportToServer = true) {
+        this.currentTab = tabId;
+        this.currentTabIndex = TABS.indexOf(tabId);
+        
+        // Update page dots
+        document.querySelectorAll('.page-dot').forEach(dot => {
+          dot.classList.toggle('active', dot.dataset.tab === tabId);
+        });
+        
+        // Switch iframe visibility
+        document.querySelectorAll('.tab-frame').forEach(frame => {
+          frame.classList.toggle('active', frame.id === 'frame-' + tabId);
+        });
+        
+        // Dim settings button when on control page
+        document.getElementById('settingsBtn').classList.toggle('on-control', tabId === 'control');
+        
+        // Report to server
+        if (reportToServer) {
+          this.reportPageToServer();
+        }
+        
+        console.log(`Switched to tab: ${tabId} (page ${PAGE_MAP[tabId]})`);
+      },
+      
+      /**
+       * Show keyboard hint briefly
+       */
+      showKeyboardHint() {
+        const hint = document.getElementById('keyboardHint');
+        hint.classList.add('visible');
+        setTimeout(() => hint.classList.remove('visible'), 4000);
+      },
+      
+      /**
+       * Toggle fullscreen mode
+       */
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.log('Fullscreen error:', err);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      },
+      
+      /**
+       * Handle messages from iframe tabs
+       */
+      handleMessage(event) {
+        const { type, tab } = event.data;
+        
+        if (type === 'tabReady') {
+          this.tabsReady[tab] = true;
+          this.pushDataToTab(tab);
+        } else if (type === 'requestScreenId') {
+          // Control tab requesting our screen ID
+          const frame = document.getElementById('frame-control');
+          if (frame && frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: 'screenId', id: this.screenId }, '*');
+          }
+        } else if (type === 'switchMission') {
+          // Control tab requesting mission switch
+          this.switchMission(event.data.missionId);
+        } else if (type === 'requestFullscreen') {
+          this.toggleFullscreen();
+        }
+      },
+      
+      /**
+       * Switch mission
+       */
+      async switchMission(missionId) {
+        this.currentMission = missionId;
+        
+        // Notify server via WebSocket
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(`mission:${missionId}`);
+          this.ws.send(`weather:${missionId}`);
+        } else {
+          // Fallback to HTTP
+          await this.loadMissionData();
+          await this.loadWeatherData();
+        }
+      },
+      
+      /**
+       * Load mission data (HTTP fallback)
+       */
+      async loadMissionData() {
+        try {
+          const response = await fetch(`/api/missions/${this.currentMission}`);
+          this.missionData = await response.json();
+          document.title = `ArtemisOps - ${this.missionData.name}`;
+          this.pushDataToAllTabs();
+        } catch (e) {
+          console.error('Failed to load mission:', e);
+        }
+      },
+      
+      /**
+       * Load weather data (HTTP fallback)
+       */
+      async loadWeatherData() {
+        try {
+          const response = await fetch(`/api/missions/${this.currentMission}/weather`);
+          this.weatherData = await response.json();
+          if (this.tabsReady.mission) this.pushDataToTab('mission');
+        } catch (e) {
+          console.error('Failed to load weather:', e);
+        }
+      },
+      
+      /**
+       * Push data to all ready tabs
+       */
+      pushDataToAllTabs() {
+        Object.keys(this.tabsReady).forEach(tab => {
+          if (this.tabsReady[tab]) this.pushDataToTab(tab);
+        });
+      },
+      
+      /**
+       * Push data to a specific tab iframe
+       */
+      pushDataToTab(tabId) {
+        const frame = document.getElementById(`frame-${tabId}`);
+        if (!frame || !frame.contentWindow) return;
+        
+        if (tabId === 'mission') {
+          frame.contentWindow.postMessage({ type: 'missionData', data: this.missionData }, '*');
+          frame.contentWindow.postMessage({ type: 'weatherData', data: this.weatherData }, '*');
+        } else if (tabId === 'crew') {
+          frame.contentWindow.postMessage({ type: 'setCrewData', crew: this.missionData?.crew }, '*');
+        } else if (tabId === 'info') {
+          frame.contentWindow.postMessage({ type: 'setMissionData', data: this.missionData }, '*');
+        }
+      },
+      
+      /**
+       * Show a notification
+       */
+      showNotification(message, type = 'info') {
         const container = document.getElementById('notifications');
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
         container.appendChild(notification);
         
-        setTimeout(() => notification.remove(), 5000);
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
       }
     };
     
-    // Initialize on load
-    App.init();
+    // Initialize app when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => App.init());
   </script>
 </body>
 </html>

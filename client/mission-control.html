@@ -123,15 +123,37 @@
       gap: 14px;
     }
 
-    .time-display { text-align: right; }
+    .time-display { text-align: center; }
+    .time-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
     .time-utc {
       font-family: 'Courier New', monospace;
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 700;
+      color: var(--text-accent);
     }
-    .time-local {
-      font-size: 0.65rem;
+    
+    .met-display { text-align: right; }
+    .met-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
       color: var(--text-secondary);
+    }
+    .met-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--countdown-color);
+    }
+    .met-value.t-plus {
+      color: var(--success-color);
     }
 
     /* ===== CENTER - COUNTDOWN WITH FLANKING LOGOS ===== */

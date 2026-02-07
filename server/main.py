@@ -1,4 +1,4 @@
-"""
+﻿"""
 ArtemisOps Server - Mission Control Backend
 Multi-mission support with hourly data sync
 Supports NASA and ESA crewed missions
@@ -28,9 +28,24 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 # In-memory state
 app_state = {
-    "connected_clients": set(),  # WebSocket connections
+    "connected_clients": set(),  # WebSocket connections (legacy)
     "last_sync": None,
     "weather_cache": {},  # Cache weather data per mission
+    "screens": {},  # Screen registry: {screen_id: {"ws": websocket, "page": page_id, "connected_at": datetime}}
+}
+
+# Page mapping
+PAGES = {
+    0: "control",
+    1: "mission",
+    2: "tracking",
+    3: "crew",
+    4: "info",
+    "control": 0,
+    "mission": 1,
+    "tracking": 2,
+    "crew": 3,
+    "info": 4
 }
 
 scheduler = AsyncIOScheduler()
@@ -511,9 +526,130 @@ async def get_status():
         "status": "ok",
         "last_sync": last_sync["synced_at"] if last_sync else None,
         "connected_clients": len(app_state["connected_clients"]),
+        "connected_screens": len(app_state["screens"]),
         "total_missions": len(missions),
         "weather_cache_size": len(app_state["weather_cache"]),
-        "version": "0.5.0"
+        "version": "0.6.0"
+    }
+
+
+# === Multi-Screen Control API ===
+
+@app.get("/api/screens")
+async def list_screens():
+    """
+    List all connected screens with their current state.
+    Used by control panels to see what screens are available.
+    """
+    screens = []
+    for screen_id, data in app_state["screens"].items():
+        screens.append({
+            "id": screen_id,
+            "page": data["page"],
+            "page_name": PAGES.get(data["page"], "unknown"),
+            "connected_at": data["connected_at"].isoformat() if data.get("connected_at") else None,
+            "mission": data.get("mission", "artemis-ii")
+        })
+    return {
+        "screens": screens,
+        "total": len(screens),
+        "pages": {"1": "mission", "2": "tracking", "3": "crew", "4": "info"}
+    }
+
+
+@app.post("/api/screens/{screen_id}/page")
+async def set_screen_page(screen_id: str, page: int = None, page_name: str = None):
+    """
+    Navigate a specific screen to a page.
+    
+    Args:
+        screen_id: The screen identifier (from ?id= parameter)
+        page: Page number (1=mission, 2=tracking, 3=crew, 4=info)
+        page_name: Alternatively, page name ("mission", "tracking", "crew", "info")
+    
+    Example:
+        POST /api/screens/1/page?page=2  (switch screen 1 to tracking)
+        POST /api/screens/1/page?page_name=crew  (switch screen 1 to crew)
+    """
+    # Resolve page number
+    target_page = page
+    if page_name and not page:
+        target_page = PAGES.get(page_name.lower())
+    
+    if target_page is None or target_page not in [0, 1, 2, 3, 4]:
+        raise HTTPException(status_code=400, detail="Invalid page. Use 0-4 or control/mission/tracking/crew/info")
+    
+    screen = app_state["screens"].get(screen_id)
+    if not screen:
+        raise HTTPException(status_code=404, detail=f"Screen '{screen_id}' not connected")
+    
+    # Send navigation command via WebSocket
+    try:
+        await screen["ws"].send_json({
+            "type": "navigate",
+            "page": target_page,
+            "page_name": PAGES.get(target_page)
+        })
+        screen["page"] = target_page
+        return {
+            "success": True,
+            "screen_id": screen_id,
+            "page": target_page,
+            "page_name": PAGES.get(target_page)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send command: {str(e)}")
+
+
+@app.post("/api/screens/all/page")
+async def set_all_screens_page(page: int = None, page_name: str = None):
+    """
+    Navigate ALL connected screens to the same page.
+    
+    Example:
+        POST /api/screens/all/page?page=1  (all screens to mission)
+    """
+    target_page = page
+    if page_name and not page:
+        target_page = PAGES.get(page_name.lower())
+    
+    if target_page is None or target_page not in [0, 1, 2, 3, 4]:
+        raise HTTPException(status_code=400, detail="Invalid page. Use 0-4 or control/mission/tracking/crew/info")
+    
+    results = []
+    for screen_id, screen in app_state["screens"].items():
+        try:
+            await screen["ws"].send_json({
+                "type": "navigate",
+                "page": target_page,
+                "page_name": PAGES.get(target_page)
+            })
+            screen["page"] = target_page
+            results.append({"screen_id": screen_id, "success": True})
+        except Exception as e:
+            results.append({"screen_id": screen_id, "success": False, "error": str(e)})
+    
+    return {
+        "page": target_page,
+        "page_name": PAGES.get(target_page),
+        "results": results,
+        "total_screens": len(app_state["screens"])
+    }
+
+
+@app.get("/api/screens/{screen_id}")
+async def get_screen_status(screen_id: str):
+    """Get status of a specific screen"""
+    screen = app_state["screens"].get(screen_id)
+    if not screen:
+        raise HTTPException(status_code=404, detail=f"Screen '{screen_id}' not connected")
+    
+    return {
+        "id": screen_id,
+        "page": screen["page"],
+        "page_name": PAGES.get(screen["page"], "unknown"),
+        "connected_at": screen["connected_at"].isoformat() if screen.get("connected_at") else None,
+        "mission": screen.get("mission", "artemis-ii")
     }
 
 
@@ -526,6 +662,104 @@ async def trigger_sync():
 
 
 # === WebSocket ===
+
+@app.websocket("/ws/screen/{screen_id}")
+async def screen_websocket(websocket: WebSocket, screen_id: str):
+    """
+    WebSocket connection for a specific screen.
+    Screen registers with ?id=X parameter in the client URL.
+    Server can send navigation commands to specific screens.
+    """
+    await websocket.accept()
+    
+    # Parse initial page from query string if provided
+    initial_page = 1  # Default to mission
+    
+    # Register screen
+    app_state["screens"][screen_id] = {
+        "ws": websocket,
+        "page": initial_page,
+        "connected_at": datetime.now(timezone.utc),
+        "mission": "artemis-ii"
+    }
+    print(f"Screen '{screen_id}' connected. Total screens: {len(app_state['screens'])}")
+    
+    try:
+        # Send initial state to screen
+        await websocket.send_json({
+            "type": "registered",
+            "screen_id": screen_id,
+            "page": initial_page
+        })
+        
+        # Send current mission data
+        missions = await get_all_missions()
+        await websocket.send_json({
+            "type": "missions_list",
+            "data": missions
+        })
+        
+        mission = await get_full_mission("artemis-ii")
+        if mission:
+            await websocket.send_json({
+                "type": "mission_update",
+                "data": await get_mission_detail("artemis-ii")
+            })
+        
+        # Keep connection alive, listen for messages from screen
+        while True:
+            data = await websocket.receive_text()
+            
+            if data == "ping":
+                await websocket.send_json({"type": "pong"})
+            
+            elif data.startswith("page:"):
+                # Screen reporting its current page
+                try:
+                    page_num = int(data.split(":")[1])
+                    app_state["screens"][screen_id]["page"] = page_num
+                except:
+                    pass
+            
+            elif data.startswith("mission:"):
+                # Screen changing mission
+                mission_id = data.split(":")[1]
+                app_state["screens"][screen_id]["mission"] = mission_id
+                try:
+                    mission_data = await get_mission_detail(mission_id)
+                    await websocket.send_json({
+                        "type": "mission_update",
+                        "data": mission_data
+                    })
+                except HTTPException:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Mission {mission_id} not found"
+                    })
+            
+            elif data.startswith("weather:"):
+                # Screen requesting weather
+                mission_id = data.split(":")[1]
+                try:
+                    weather_data = await get_mission_weather_data(mission_id)
+                    await websocket.send_json({
+                        "type": "weather_update",
+                        "data": weather_data
+                    })
+                except HTTPException as e:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": str(e.detail)
+                    })
+    
+    except WebSocketDisconnect:
+        pass
+    finally:
+        # Unregister screen
+        if screen_id in app_state["screens"]:
+            del app_state["screens"][screen_id]
+        print(f"Screen '{screen_id}' disconnected. Total screens: {len(app_state['screens'])}")
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -640,6 +874,14 @@ if CLIENT_DIR.exists():
     async def serve_mission_control_alt():
         return FileResponse(CLIENT_DIR / "mission-control.html")
 
+    @app.get("/kiosk")
+    async def serve_kiosk():
+        """New kiosk mode interface"""
+        return FileResponse(CLIENT_DIR / "index2.html")
+    
+    @app.get("/index2.html")
+    async def serve_index2():
+        return FileResponse(CLIENT_DIR / "index2.html")
 
 # === Run directly ===
 
@@ -648,3 +890,4 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
