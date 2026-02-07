@@ -3,13 +3,18 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** January 25, 2026
+**Last Updated:** February 7, 2026
 
 ---
 
 ## 🎯 Current Sprint - Active Work
 
-### Recently Completed (Jan 25)
+### Recently Completed (Feb 7)
+- [x] Add iframe keyboard forwarding — all tabs and mockups forward navigation keys (←/→, 0-4, F, F11) to parent shell via postMessage
+- [x] Improve shell keydown handler — null-safety on `e.target`, centralized `preventDefault`
+- [x] Remove tracking tab mode selector buttons — simplified header to status indicator only
+
+### Previously Completed (Jan 25)
 - [x] Switch ISS tracker map to EPSG:4326 Equirectangular projection (NASA Mission Control style)
 - [x] Integrate NASA GIBS Blue Marble satellite tiles
 - [x] Add lat/lon grid lines overlay (30° intervals)

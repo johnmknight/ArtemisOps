@@ -349,16 +349,14 @@
        * Handle keyboard shortcuts
        */
       handleKeydown(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
         
         switch (e.key) {
           case 'ArrowRight':
             this.nextTab();
-            e.preventDefault();
             break;
           case 'ArrowLeft':
             this.prevTab();
-            e.preventDefault();
             break;
           case '0': case '1': case '2': case '3': case '4':
             const tab = TAB_MAP[parseInt(e.key)];
@@ -367,14 +365,13 @@
           case 'f': case 'F':
             if (!e.ctrlKey && !e.metaKey) {
               this.toggleFullscreen();
-              e.preventDefault();
             }
             break;
           case 'F11':
             this.toggleFullscreen();
-            e.preventDefault();
             break;
         }
+        if (e.preventDefault) e.preventDefault();
       },
       
       /**
@@ -448,6 +445,12 @@
        */
       handleMessage(event) {
         const { type, tab } = event.data;
+        
+        if (type === 'keydown') {
+          // Forwarded key event from iframe
+          this.handleKeydown(event.data);
+          return;
+        }
         
         if (type === 'tabReady') {
           this.tabsReady[tab] = true;

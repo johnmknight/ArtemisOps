@@ -2655,5 +2655,15 @@
       setInterval(loadISSNews, 15 * 60 * 1000);
     });
   </script>
+  <script>
+    // Forward navigation keys to top-level shell
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (['ArrowLeft', 'ArrowRight'].includes(e.key) || /^[0-4]$/.test(e.key) || e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+        window.top.postMessage({ type: 'keydown', key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey }, '*');
+        e.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>

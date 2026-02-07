@@ -193,6 +193,16 @@ http://localhost:8080?id=crew-tv&page=3  # Screen "crew-tv", Crew page
 | 3 | Crew | Astronaut profiles and bios |
 | 4 | Info | Mission details and description |
 
+### Keyboard Shortcuts
+
+Keyboard navigation works globally, including when focus is inside tab iframes or embedded tracking views:
+
+| Key | Action |
+|-----|--------|
+| `←` / `→` | Previous / next tab |
+| `0`–`4` | Jump to tab by number |
+| `F` / `F11` | Toggle fullscreen |
+
 ### Screen Provisioning
 
 Screens can be pre-configured so they auto-load the correct page on connect. Use the Page 0 Control Panel UI or the API directly:

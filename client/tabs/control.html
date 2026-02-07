@@ -877,6 +877,15 @@
       }
     };
 
+    // Forward navigation keys to parent shell
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      if (['ArrowLeft', 'ArrowRight'].includes(e.key) || /^[0-4]$/.test(e.key) || e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+        window.parent.postMessage({ type: 'keydown', key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey }, '*');
+        e.preventDefault();
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => Control.init());
   </script>
 </body>

@@ -1,6 +1,6 @@
 # ArtemisOps - Feature Planning & Architecture
 
-**Last Updated:** January 21, 2026
+**Last Updated:** February 7, 2026
 
 ## Overview
 
@@ -78,6 +78,8 @@ ArtemisOps is a mission clock and status tracking application for NASA, ESA, and
 - [x] Crew information with photos
 - [x] Mission selector dropdown
 - [x] Notification system with sound
+- [x] Keyboard shortcuts (arrow keys, number keys, fullscreen)
+- [x] Iframe key forwarding (shortcuts work inside embedded tracking views)
 - [x] WebSocket real-time updates
 - [x] ISS live tracking with Leaflet
 - [x] Artemis II/III orbital diagrams
