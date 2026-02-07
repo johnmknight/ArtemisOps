@@ -19,6 +19,7 @@ from database import (
 from fetcher import sync_all_missions, ensure_default_missions
 from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until
 from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
+from crew_enrichment import get_cache_status as get_enrichment_status
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -463,13 +464,20 @@ async def get_iss_position_data(include_location: bool = True):
 @app.get("/api/iss/crew")
 async def get_iss_crew_data():
     """
-    Get current ISS crew roster.
-    Data from Open Notify API.
+    Get current ISS crew roster (two-phase).
+    Phase 1: Open Notify API → crew names
+    Phase 2: NASA ISS Blog → agency affiliations
     """
     try:
         return await get_iss_crew()
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"ISS crew data unavailable: {str(e)}")
+
+
+@app.get("/api/iss/crew/enrichment")
+async def get_crew_enrichment_status():
+    """Diagnostic: view crew agency enrichment cache status."""
+    return get_enrichment_status()
 
 
 @app.get("/api/iss/telemetry")

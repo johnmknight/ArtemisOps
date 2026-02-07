@@ -4,7 +4,8 @@ Server-side proxy for ISS position and crew data.
 
 Data Sources:
 - Where The ISS At API: Position, altitude, velocity, visibility
-- Open Notify API: Crew roster, position fallback
+- Open Notify API: Crew roster (Phase 1: names)
+- NASA ISS Blog: Crew enrichment (Phase 2: agency affiliations)
 
 Note: NASA Lightstreamer telemetry (cabin pressure, temp, O2) is currently
 handled client-side due to complexity of Python Lightstreamer integration.
@@ -15,6 +16,7 @@ import httpx
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import logging
+from crew_enrichment import fetch_crew_agencies, enrich_crew_with_agencies
 
 logger = logging.getLogger(__name__)
 
@@ -138,12 +140,16 @@ async def get_iss_position() -> Dict[str, Any]:
 
 async def get_iss_crew() -> Dict[str, Any]:
     """
-    Get current ISS crew roster from Open Notify API.
-    Returns cached data if within TTL.
+    Get current ISS crew roster using two-phase approach:
+      Phase 1: Open Notify API → crew names and craft (fast, always available)
+      Phase 2: NASA ISS Blog → agency affiliations (scraped, cached 24h)
+    
+    Phase 2 enrichment is non-blocking: if it fails, crew list
+    returns without agency tags and the client handles gracefully.
     """
     cached = _cache["crew"]
     
-    # Return valid cache
+    # Return valid cache (already enriched)
     if _is_cache_valid(cached, CREW_CACHE_TTL):
         return {
             **cached["data"],
@@ -160,18 +166,27 @@ async def get_iss_crew() -> Dict[str, Any]:
             data = response.json()
             
             if data.get("message") == "success":
-                # Filter to ISS crew only
+                # Phase 1: Filter to ISS crew only
                 iss_crew = [
                     {"name": person["name"], "craft": person["craft"]}
                     for person in data.get("people", [])
                     if person.get("craft") == "ISS"
                 ]
                 
+                # Phase 2: Enrich with agency data from NASA blog
+                try:
+                    agency_lookup = await fetch_crew_agencies()
+                    if agency_lookup:
+                        iss_crew = enrich_crew_with_agencies(iss_crew, agency_lookup)
+                        logger.info(f"Crew enriched: {sum(1 for c in iss_crew if c.get('agency'))}/{len(iss_crew)} have agency")
+                except Exception as e:
+                    logger.warning(f"Phase 2 enrichment failed (non-fatal): {e}")
+                
                 result = {
                     "count": len(iss_crew),
                     "crew": iss_crew,
                     "total_in_space": data.get("number", 0),
-                    "source": "open-notify",
+                    "source": "open-notify+nasa-blog",
                     "cached": False,
                 }
                 
