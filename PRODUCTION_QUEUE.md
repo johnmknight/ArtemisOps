@@ -17,6 +17,9 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Add iframe keyboard forwarding — all tabs and mockups forward navigation keys (←/→, 0-4, F, F11) to parent shell via postMessage
 - [x] Improve shell keydown handler — null-safety on `e.target`, centralized `preventDefault`
 - [x] Remove tracking tab mode selector buttons — simplified header to status indicator only
+- [x] Fix crew card portrait aspect ratios (3:4 wrapper) and bio text clamping (5 lines)
+- [x] Fix crew card alignment and hide EVA sidebar when no EVA data present
+- [x] Update crew data source to NASA "Our Artemis Crew" page — bios, names, roles matched to official NASA/CSA astronaut pages, photos use official JSC Artemis II portraits
 
 ### Previously Completed (Jan 25)
 - [x] Switch ISS tracker map to EPSG:4326 Equirectangular projection (NASA Mission Control style)
