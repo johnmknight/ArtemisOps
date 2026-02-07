@@ -80,10 +80,13 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8080
 | `/api/sync` | POST | Force data refresh |
 | `/ws` | WebSocket | Real-time updates (legacy) |
 | `/ws/screen/{id}` | WebSocket | Screen-specific connection for multi-display |
-| `/api/screens` | GET | List all connected screens |
+| `/api/screens` | GET | List all screens (online + provisioned offline) |
 | `/api/screens/{id}` | GET | Get specific screen status |
-| `/api/screens/{id}/page` | POST | Navigate screen to page (1-4) |
+| `/api/screens/{id}/page` | POST | Navigate screen to page (0-4) |
 | `/api/screens/all/page` | POST | Navigate all screens to same page |
+| `/api/screens/config` | GET | List provisioned screen configs |
+| `/api/screens/config` | POST | Add/update screen config (auto-navigates on connect) |
+| `/api/screens/config/{id}` | DELETE | Remove a provisioned screen config |
 
 ## Weather Feature
 
@@ -174,56 +177,74 @@ ArtemisOps supports controlling multiple displays from a single server - perfect
 ### URL Parameters
 
 ```
-http://localhost:8000?id=1        # Screen 1, default page (Mission)
-http://localhost:8000?id=2&page=2 # Screen 2, start on Tracking
-http://localhost:8000?id=3&page=3 # Screen 3, start on Crew
+http://localhost:8080?id=control&page=0  # Control panel
+http://localhost:8080?id=lobby-1&page=1  # Screen "lobby-1", Mission page
+http://localhost:8080?id=main&page=2     # Screen "main", Tracking page
+http://localhost:8080?id=crew-tv&page=3  # Screen "crew-tv", Crew page
 ```
 
 ### Page Numbers
 
 | Page | Name | Content |
 |------|------|--------|
+| 0 | Control | Control panel with screen management and remote navigation |
 | 1 | Mission | Countdown, milestones, launch info |
 | 2 | Tracking | ISS tracker / Artemis trajectory map |
 | 3 | Crew | Astronaut profiles and bios |
 | 4 | Info | Mission details and description |
 
+### Screen Provisioning
+
+Screens can be pre-configured so they auto-load the correct page on connect. Use the Page 0 Control Panel UI or the API directly:
+
+```bash
+# Add a screen config (will auto-navigate when it connects)
+curl -X POST "http://localhost:8080/api/screens/config?screen_id=lobby-1&page=2&label=Lobby+Display"
+
+# List all provisioned configs
+curl http://localhost:8080/api/screens/config
+
+# Remove a screen config
+curl -X DELETE http://localhost:8080/api/screens/config/lobby-1
+```
+
 ### Remote Control API
 
 ```bash
-# List all connected screens
-curl http://localhost:8000/api/screens
+# List all screens (online + provisioned offline)
+curl http://localhost:8080/api/screens
 
-# Switch screen 1 to Tracking page
-curl -X POST "http://localhost:8000/api/screens/1/page?page=2"
+# Switch screen to Tracking page
+curl -X POST "http://localhost:8080/api/screens/lobby-1/page?page=2"
 
 # Switch all screens to Mission page
-curl -X POST "http://localhost:8000/api/screens/all/page?page=1"
+curl -X POST "http://localhost:8080/api/screens/all/page?page=1"
 
 # Switch by page name
-curl -X POST "http://localhost:8000/api/screens/1/page?page_name=crew"
+curl -X POST "http://localhost:8080/api/screens/lobby-1/page?page_name=crew"
 ```
 
 ### Architecture
 
 ```
 ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-│  Screen 1   │   │  Screen 2   │   │  Screen 3   │
-│  ?id=1      │   │  ?id=2      │   │  ?id=3      │
+│  lobby-1    │   │  main       │   │  crew-tv    │
+│  page=1     │   │  page=2     │   │  page=3     │
 └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
        │ WebSocket        │                 │
        └──────────────────┴─────────────────┘
                           │
                   ┌───────▼───────┐
                   │    SERVER     │
-                  │   FastAPI +   │
-                  │  Screen Hub   │
+                  │  Screen Hub + │
+                  │  Config Store │
                   └───────┬───────┘
                           │
-          ┌───────────────┴───────────────┐
-          │                               │
-    Control API                     Claude/Automation
-    POST /api/screens/1/page        (programmatic control)
+          ┌───────────────┼───────────────┐
+          │               │               │
+    Page 0 Control   REST API       Automation
+    (add/remove/     POST /api/     (scripts,
+     navigate)       screens/...    cron, etc.)
 ```
 
 See PLANNING.md for feature roadmap.

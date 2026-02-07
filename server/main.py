@@ -32,6 +32,7 @@ app_state = {
     "last_sync": None,
     "weather_cache": {},  # Cache weather data per mission
     "screens": {},  # Screen registry: {screen_id: {"ws": websocket, "page": page_id, "connected_at": datetime}}
+    "screen_configs": {},  # Pre-provisioned screens: {screen_id: {"page": int, "label": str}}
 }
 
 # Page mapping
@@ -538,22 +539,48 @@ async def get_status():
 @app.get("/api/screens")
 async def list_screens():
     """
-    List all connected screens with their current state.
+    List all screens: connected + provisioned-but-offline.
     Used by control panels to see what screens are available.
     """
     screens = []
+    seen_ids = set()
+    
+    # Connected screens first
     for screen_id, data in app_state["screens"].items():
+        cfg = app_state["screen_configs"].get(screen_id)
         screens.append({
             "id": screen_id,
             "page": data["page"],
             "page_name": PAGES.get(data["page"], "unknown"),
             "connected_at": data["connected_at"].isoformat() if data.get("connected_at") else None,
-            "mission": data.get("mission", "artemis-ii")
+            "mission": data.get("mission", "artemis-ii"),
+            "online": True,
+            "configured": cfg is not None,
+            "config_page": cfg["page"] if cfg else None,
+            "label": cfg.get("label", "") if cfg else "",
         })
+        seen_ids.add(screen_id)
+    
+    # Provisioned-but-offline screens
+    for screen_id, cfg in app_state["screen_configs"].items():
+        if screen_id not in seen_ids:
+            screens.append({
+                "id": screen_id,
+                "page": cfg["page"],
+                "page_name": PAGES.get(cfg["page"], "unknown"),
+                "connected_at": None,
+                "mission": "artemis-ii",
+                "online": False,
+                "configured": True,
+                "config_page": cfg["page"],
+                "label": cfg.get("label", ""),
+            })
+    
     return {
         "screens": screens,
         "total": len(screens),
-        "pages": {"1": "mission", "2": "tracking", "3": "crew", "4": "info"}
+        "online": sum(1 for s in screens if s["online"]),
+        "pages": {"0": "control", "1": "mission", "2": "tracking", "3": "crew", "4": "info"}
     }
 
 
@@ -637,6 +664,85 @@ async def set_all_screens_page(page: int = None, page_name: str = None):
     }
 
 
+# === Screen Configuration (Provisioning) ===
+# NOTE: These must be defined BEFORE /api/screens/{screen_id} to avoid route capture
+
+@app.get("/api/screens/config")
+async def list_screen_configs():
+    """
+    List all provisioned screen configurations.
+    Includes online/offline status by checking live connections.
+    """
+    configs = []
+    for screen_id, cfg in app_state["screen_configs"].items():
+        live = app_state["screens"].get(screen_id)
+        configs.append({
+            "id": screen_id,
+            "page": cfg["page"],
+            "page_name": PAGES.get(cfg["page"], "unknown"),
+            "label": cfg.get("label", ""),
+            "online": live is not None,
+            "current_page": live["page"] if live else None,
+            "current_page_name": PAGES.get(live["page"]) if live else None,
+        })
+    return {"configs": configs, "total": len(configs)}
+
+
+@app.post("/api/screens/config")
+async def add_screen_config(screen_id: str, page: int = 1, label: str = ""):
+    """
+    Add or update a provisioned screen configuration.
+    When a screen with this ID connects, it will auto-navigate to the configured page.
+    
+    Args:
+        screen_id: The screen identifier (used in ?id= URL param)
+        page: Default page (0=control, 1=mission, 2=tracking, 3=crew, 4=info)
+        label: Optional friendly label for this screen
+    """
+    if page not in [0, 1, 2, 3, 4]:
+        raise HTTPException(status_code=400, detail="Invalid page. Use 0-4.")
+    
+    app_state["screen_configs"][screen_id] = {
+        "page": page,
+        "label": label,
+    }
+    print(f"Screen config added: '{screen_id}' -> page {page} ({PAGES.get(page)})")
+    
+    # If screen is already connected, navigate it now
+    live = app_state["screens"].get(screen_id)
+    if live:
+        try:
+            await live["ws"].send_json({
+                "type": "navigate",
+                "page": page,
+                "page_name": PAGES.get(page)
+            })
+            live["page"] = page
+        except:
+            pass
+    
+    return {
+        "success": True,
+        "screen_id": screen_id,
+        "page": page,
+        "page_name": PAGES.get(page),
+        "label": label,
+        "navigated": live is not None
+    }
+
+
+@app.delete("/api/screens/config/{screen_id}")
+async def remove_screen_config(screen_id: str):
+    """Remove a provisioned screen configuration."""
+    if screen_id not in app_state["screen_configs"]:
+        raise HTTPException(status_code=404, detail=f"Screen config '{screen_id}' not found")
+    
+    del app_state["screen_configs"][screen_id]
+    print(f"Screen config removed: '{screen_id}'")
+    
+    return {"success": True, "screen_id": screen_id}
+
+
 @app.get("/api/screens/{screen_id}")
 async def get_screen_status(screen_id: str):
     """Get status of a specific screen"""
@@ -672,8 +778,9 @@ async def screen_websocket(websocket: WebSocket, screen_id: str):
     """
     await websocket.accept()
     
-    # Parse initial page from query string if provided
-    initial_page = 1  # Default to mission
+    # Check if there's a pre-provisioned config for this screen
+    config = app_state["screen_configs"].get(screen_id)
+    initial_page = config["page"] if config else 1  # Default to mission
     
     # Register screen
     app_state["screens"][screen_id] = {
@@ -682,7 +789,7 @@ async def screen_websocket(websocket: WebSocket, screen_id: str):
         "connected_at": datetime.now(timezone.utc),
         "mission": "artemis-ii"
     }
-    print(f"Screen '{screen_id}' connected. Total screens: {len(app_state['screens'])}")
+    print(f"Screen '{screen_id}' connected (config: {'yes, page ' + str(initial_page) if config else 'none'}). Total screens: {len(app_state['screens'])}")
     
     try:
         # Send initial state to screen
@@ -691,6 +798,14 @@ async def screen_websocket(websocket: WebSocket, screen_id: str):
             "screen_id": screen_id,
             "page": initial_page
         })
+        
+        # If config exists, send navigation command to override client's default
+        if config:
+            await websocket.send_json({
+                "type": "navigate",
+                "page": initial_page,
+                "page_name": PAGES.get(initial_page)
+            })
         
         # Send current mission data
         missions = await get_all_missions()

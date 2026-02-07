@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtemisOps - Mission Control</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0a0e27;
+      --bg-header: rgba(10, 20, 40, 0.95);
+      --border-color: #4a9eff;
+      --text-primary: #e0e6ed;
+      --text-secondary: #8ab4f8;
+      --accent-blue: #4a9eff;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1128 100%);
+      color: var(--text-primary);
+    }
+    
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    /* ===== HEADER ===== */
+    .app-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--bg-header);
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .header-logo {
+      height: 50px;
+      width: 50px;
+      object-fit: contain;
+    }
+    
+    .header-title {
+      font-size: 1.8em;
+      letter-spacing: 6px;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      text-shadow: 0 0 15px rgba(74, 158, 255, 0.8);
+    }
+    
+    .header-subtitle {
+      font-size: 0.75em;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .mission-selector {
+      background: rgba(74, 158, 255, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.9em;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .connection-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8em;
+    }
+    
+    .connection-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4aff9e;
+      box-shadow: 0 0 10px #4aff9e;
+      animation: pulse 2s infinite;
+    }
+    
+    .connection-dot.offline { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
+    .connection-dot.cached { background: #ffa500; box-shadow: 0 0 10px #ffa500; }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* ===== TAB NAVIGATION ===== */
+    .tab-nav {
+      flex-shrink: 0;
+      display: flex;
+      background: rgba(10, 20, 40, 0.8);
+      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+      padding: 0 20px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #6a7f99;
+      padding: 15px 30px;
+      font-family: inherit;
+      font-size: 1em;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn:hover { color: var(--text-secondary); }
+    
+    .tab-btn.active {
+      color: var(--accent-blue);
+      text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
+    }
+    
+    .tab-icon { margin-right: 8px; }
+    
+    /* ===== TAB CONTENT ===== */
+    .tab-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tab-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    
+    .tab-frame.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    /* ===== NOTIFICATION TOAST ===== */
+    .notification-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .notification {
+      background: rgba(10, 20, 40, 0.95);
+      border: 1px solid var(--accent-blue);
+      padding: 12px 16px;
+      border-radius: 6px;
+      max-width: 300px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <img id="headerLogo" class="header-logo" src="/assets/logos/nasa-logo.svg" alt="NASA">
+        <div>
+          <div class="header-title" id="missionTitle">ARTEMIS II</div>
+          <div class="header-subtitle" id="missionSubtitle">Loading mission data...</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <select class="mission-selector" id="missionSelector" onchange="App.switchMission(this.value)">
+          <option value="artemis-ii">Artemis II</option>
+        </select>
+        <div class="connection-indicator">
+          <span class="connection-dot" id="connectionDot"></span>
+          <span id="connectionText">Connecting...</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="mission" onclick="App.switchTab('mission')">
+        <span class="tab-icon">🚀</span>Mission
+      </button>
+      <button class="tab-btn" data-tab="tracking" onclick="App.switchTab('tracking')">
+        <span class="tab-icon">🛰️</span>Tracking
+      </button>
+      <button class="tab-btn" data-tab="crew" onclick="App.switchTab('crew')">
+        <span class="tab-icon">👨‍🚀</span>Crew
+      </button>
+      <button class="tab-btn" data-tab="info" onclick="App.switchTab('info')">
+        <span class="tab-icon">ℹ️</span>Info
+      </button>
+    </nav>
+    
+    <!-- Tab Content (iframes) -->
+    <main class="tab-content">
+      <iframe id="frame-mission" class="tab-frame active" src="tabs/mission.html"></iframe>
+      <iframe id="frame-tracking" class="tab-frame" src="tabs/tracking.html"></iframe>
+      <iframe id="frame-crew" class="tab-frame" src="tabs/crew.html"></iframe>
+      <iframe id="frame-info" class="tab-frame" src="tabs/info.html"></iframe>
+    </main>
+    
+    <!-- Notifications -->
+    <div class="notification-container" id="notifications"></div>
+  </div>
+
+  <script>
+    // ===== APPLICATION SHELL =====
+    const App = {
+      currentTab: 'mission',
+      currentMission: 'artemis-ii',
+      missionData: null,
+      weatherData: null,
+      ws: null,
+      tabsReady: {},
+      
+      async init() {
+        console.log('ArtemisOps Shell initializing...');
+        
+        // Listen for messages from child iframes
+        window.addEventListener('message', (event) => this.handleMessage(event));
+        
+        // Connect WebSocket
+        this.connectWebSocket();
+        
+        // Load initial data
+        await this.loadMissions();
+        await this.loadMissionData();
+        await this.loadWeatherData();
+        
+        console.log('ArtemisOps Shell ready');
+      },
+      
+      // ===== MESSAGE HANDLING =====
+      handleMessage(event) {
+        const { type, tab } = event.data;
+        
+        switch (type) {
+          case 'tabReady':
+            console.log(`Tab ready: ${tab}`);
+            this.tabsReady[tab] = true;
+            this.pushDataToTab(tab);
+            break;
+          case 'countdownUpdate':
+            // Could trigger notifications here
+            break;
+          case 'trackingModeChanged':
+            console.log(`Tracking mode: ${event.data.mode}`);
+            break;
+        }
+      },
+      
+      // ===== TAB SWITCHING =====
+      switchTab(tabId) {
+        this.currentTab = tabId;
+        
+        // Update nav buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        
+        // Update frames
+        document.querySelectorAll('.tab-frame').forEach(frame => {
+          const frameTab = frame.id.replace('frame-', '');
+          frame.classList.toggle('active', frameTab === tabId);
+        });
+      },
+      
+      // ===== MISSION SWITCHING =====
+      async switchMission(missionId) {
+        this.currentMission = missionId;
+        await this.loadMissionData();
+        await this.loadWeatherData();
+      },
+      
+      // ===== DATA LOADING =====
+      async loadMissions() {
+        try {
+          const response = await fetch('/api/missions');
+          const data = await response.json();
+          
+          const selector = document.getElementById('missionSelector');
+          selector.innerHTML = data.missions.map(m => 
+            `<option value="${m.id}" ${m.id === this.currentMission ? 'selected' : ''}>${m.name}</option>`
+          ).join('');
+        } catch (error) {
+          console.error('Failed to load missions:', error);
+        }
+      },
+      
+      async loadMissionData() {
+        try {
+          const response = await fetch(`/api/missions/${this.currentMission}`);
+          this.missionData = await response.json();
+          
+          // Update header
+          document.getElementById('missionTitle').textContent = this.missionData.name || 'Mission';
+          document.getElementById('missionSubtitle').textContent = 
+            this.missionData.description?.substring(0, 60) + '...' || '';
+          
+          // Use local logos with transparent backgrounds
+          const localLogos = {
+            'NASA': '/assets/logos/nasa-logo.svg',
+            'ESA': '/assets/logos/esa-logo.svg',
+            'CSA': '/assets/logos/csa-logo.svg',
+            'JAXA': '/assets/logos/jaxa-logo.svg',
+          };
+          const agencies = this.missionData.agencies || 'NASA';
+          const primaryAgency = agencies.split(',')[0].trim().toUpperCase();
+          document.getElementById('headerLogo').src = localLogos[primaryAgency] || localLogos['NASA'];
+          
+          document.title = `ArtemisOps - ${this.missionData.name}`;
+          
+          // Push to all ready tabs
+          this.pushDataToAllTabs();
+          
+        } catch (error) {
+          console.error('Failed to load mission:', error);
+          this.setConnectionState('offline');
+        }
+      },
+      
+      async loadWeatherData() {
+        try {
+          const response = await fetch(`/api/missions/${this.currentMission}/weather`);
+          this.weatherData = await response.json();
+          
+          // Push to mission tab
+          if (this.tabsReady.mission) {
+            this.pushDataToTab('mission');
+          }
+        } catch (error) {
+          console.error('Failed to load weather:', error);
+        }
+      },
+      
+      // ===== DATA PUSHING =====
+      pushDataToAllTabs() {
+        Object.keys(this.tabsReady).forEach(tab => {
+          if (this.tabsReady[tab]) {
+            this.pushDataToTab(tab);
+          }
+        });
+      },
+      
+      pushDataToTab(tabId) {
+        const frame = document.getElementById(`frame-${tabId}`);
+        if (!frame || !frame.contentWindow) return;
+        
+        switch (tabId) {
+          case 'mission':
+            frame.contentWindow.postMessage({ type: 'missionData', data: this.missionData }, '*');
+            frame.contentWindow.postMessage({ type: 'weatherData', data: this.weatherData }, '*');
+            break;
+          case 'crew':
+            frame.contentWindow.postMessage({ type: 'setCrewData', crew: this.missionData?.crew }, '*');
+            break;
+          case 'info':
+            frame.contentWindow.postMessage({ type: 'setMissionData', data: this.missionData }, '*');
+            break;
+          // tracking tab manages its own data
+        }
+      },
+      
+      // ===== WEBSOCKET =====
+      connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        
+        try {
+          this.ws = new WebSocket(wsUrl);
+          
+          this.ws.onopen = () => {
+            console.log('WebSocket connected');
+            this.setConnectionState('live');
+          };
+          
+          this.ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'mission_update' && message.data.id === this.currentMission) {
+              this.missionData = message.data;
+              this.pushDataToAllTabs();
+            } else if (message.type === 'missions_list') {
+              this.loadMissions();
+            }
+          };
+          
+          this.ws.onclose = () => {
+            console.log('WebSocket disconnected');
+            this.setConnectionState('cached');
+            setTimeout(() => this.connectWebSocket(), 5000);
+          };
+          
+          this.ws.onerror = () => {
+            this.setConnectionState('offline');
+          };
+        } catch (e) {
+          console.error('WebSocket error:', e);
+          this.setConnectionState('offline');
+        }
+      },
+      
+      setConnectionState(state) {
+        const dot = document.getElementById('connectionDot');
+        const text = document.getElementById('connectionText');
+        
+        dot.className = 'connection-dot';
+        
+        switch (state) {
+          case 'live':
+            text.textContent = 'Live';
+            break;
+          case 'cached':
+            dot.classList.add('cached');
+            text.textContent = 'Cached';
+            break;
+          case 'offline':
+            dot.classList.add('offline');
+            text.textContent = 'Offline';
+            break;
+          default:
+            text.textContent = 'Connecting...';
+        }
+      },
+      
+      // ===== NOTIFICATIONS =====
+      notify(message, type = 'info') {
+        const container = document.getElementById('notifications');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        container.appendChild(notification);
+        
+        setTimeout(() => notification.remove(), 5000);
+      }
+    };
+    
+    // Initialize on load
+    App.init();
+  </script>
+</body>
+</html>

@@ -125,6 +125,12 @@
       font-size: 0.7rem;
     }
 
+    .section-title .count.online {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: var(--success-color);
+    }
+
     /* Screen cards */
     .screens-grid {
       display: grid;
@@ -138,6 +144,7 @@
       border-radius: 8px;
       padding: 16px;
       transition: all 0.2s ease;
+      position: relative;
     }
 
     .screen-card:hover {
@@ -149,11 +156,20 @@
       background: rgba(0, 212, 255, 0.05);
     }
 
+    .screen-card.offline {
+      opacity: 0.5;
+      border-style: dashed;
+    }
+
+    .screen-card.offline:hover {
+      opacity: 0.8;
+    }
+
     .screen-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .screen-id {
@@ -163,15 +179,50 @@
       color: var(--text-primary);
     }
 
-    .screen-self-badge {
-      font-size: 0.6rem;
+    .screen-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 0.55rem;
       letter-spacing: 1px;
       text-transform: uppercase;
-      padding: 2px 8px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .badge-self {
       background: rgba(0, 212, 255, 0.15);
       border: 1px solid rgba(0, 212, 255, 0.3);
-      border-radius: 4px;
       color: var(--text-accent);
+    }
+
+    .badge-online {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--success-color);
+    }
+
+    .badge-offline {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger-color);
+    }
+
+    .badge-configured {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--warning-color);
+    }
+
+    .screen-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-style: italic;
     }
 
     .screen-current-page {
@@ -217,12 +268,103 @@
       font-weight: 700;
     }
 
+    .remove-btn {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--danger-color);
+      font-family: inherit;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .remove-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--danger-color);
+    }
+
     .no-screens {
       color: var(--text-secondary);
       font-size: 0.85rem;
       padding: 20px;
       text-align: center;
       font-style: italic;
+    }
+
+    /* Add screen form */
+    .add-screen-form {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-field label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .form-field input,
+    .form-field select {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .form-field input::placeholder {
+      color: rgba(122, 138, 154, 0.5);
+    }
+
+    .form-field select option {
+      background: var(--bg-panel);
+    }
+
+    .form-field.id-field input { width: 160px; }
+    .form-field.label-field input { width: 140px; }
+    .form-field.page-field select { width: 140px; }
+
+    .add-btn {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 6px;
+      padding: 8px 18px;
+      color: var(--success-color);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      background: rgba(34, 197, 94, 0.25);
+      border-color: var(--success-color);
     }
 
     /* Broadcast controls */
@@ -261,8 +403,6 @@
       border-color: var(--accent-blue);
     }
 
-    .broadcast-btn .icon { font-size: 1em; }
-
     /* Two-column layout for settings */
     .settings-grid {
       display: grid;
@@ -274,11 +414,7 @@
       .settings-grid { grid-template-columns: 1fr; }
     }
 
-    /* Settings fields */
-    .field-group {
-      margin-bottom: 12px;
-    }
-
+    .field-group { margin-bottom: 12px; }
     .field-group:last-child { margin-bottom: 0; }
 
     .field-label {
@@ -312,11 +448,8 @@
       cursor: pointer;
     }
 
-    .field-select option {
-      background: var(--bg-panel);
-    }
+    .field-select option { background: var(--bg-panel); }
 
-    /* Action buttons */
     .action-btn {
       background: rgba(74, 158, 255, 0.1);
       border: 1px solid rgba(74, 158, 255, 0.3);
@@ -334,6 +467,29 @@
       background: rgba(74, 158, 255, 0.2);
       border-color: var(--accent-blue);
     }
+
+    /* URL hint */
+    .url-hint {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(0, 212, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: none;
+    }
+
+    .url-hint code {
+      color: var(--text-accent);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      user-select: all;
+    }
+
+    .url-hint.visible { display: block; }
 
     /* Toast messages */
     .toast-container {
@@ -379,6 +535,35 @@
       </div>
     </header>
 
+    <!-- Add Screen -->
+    <section class="section">
+      <div class="section-title">➕ Add Screen</div>
+      <div class="add-screen-form" id="addScreenForm">
+        <div class="form-field id-field">
+          <label>Screen ID</label>
+          <input type="text" id="newScreenId" placeholder="e.g. lobby-1" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="form-field page-field">
+          <label>Assigned Page</label>
+          <select id="newScreenPage">
+            <option value="1">🚀 Mission (1)</option>
+            <option value="2">🌍 Tracking (2)</option>
+            <option value="3">👨‍🚀 Crew (3)</option>
+            <option value="4">ℹ️ Info (4)</option>
+            <option value="0">⚙ Control (0)</option>
+          </select>
+        </div>
+        <div class="form-field label-field">
+          <label>Label (optional)</label>
+          <input type="text" id="newScreenLabel" placeholder="e.g. Main Display" autocomplete="off">
+        </div>
+        <button class="add-btn" onclick="Control.addScreen()">+ Add</button>
+      </div>
+      <div class="url-hint" id="urlHint">
+        Open this URL on the new screen: <code id="urlHintCode"></code>
+      </div>
+    </section>
+
     <!-- Broadcast to All Screens -->
     <section class="section">
       <div class="section-title">📡 Broadcast to All Screens</div>
@@ -394,15 +579,16 @@
     <!-- Connected Screens -->
     <section class="section">
       <div class="section-title">
-        🖥️ Connected Screens
+        🖥️ Screens
         <span class="count" id="screenCount">0</span>
+        <span class="count online" id="onlineCount">0 online</span>
       </div>
       <div class="screens-grid" id="screensGrid">
-        <div class="no-screens">No screens connected. Open ArtemisOps in another window with <code>?id=1&page=1</code></div>
+        <div class="no-screens">No screens configured. Add one above, then open the URL on the target display.</div>
       </div>
     </section>
 
-    <!-- Settings -->
+    <!-- This Screen Settings -->
     <section class="section">
       <div class="section-title">🔧 This Screen</div>
       <div class="settings-grid">
@@ -444,29 +630,27 @@
       screens: [],
 
       init() {
-        // Get screen ID from parent
         window.addEventListener('message', (e) => this.handleMessage(e));
-
-        // Tell parent we're ready
         window.parent.postMessage({ type: 'tabReady', tab: 'control' }, '*');
-
-        // Request our screen ID
         window.parent.postMessage({ type: 'requestScreenId' }, '*');
 
         // Poll screen list every 3 seconds
         this.refreshScreens();
         this.pollInterval = setInterval(() => this.refreshScreens(), 3000);
 
-        // Load missions
         this.loadMissions();
+
+        // Enter key in ID field triggers add
+        document.getElementById('newScreenId').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.addScreen();
+        });
 
         // Keyboard
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'f' || e.key === 'F') {
-            if (!e.ctrlKey && !e.metaKey) {
-              this.requestFullscreen();
-              e.preventDefault();
-            }
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+          if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey) {
+            this.requestFullscreen();
+            e.preventDefault();
           }
         });
       },
@@ -476,8 +660,73 @@
         if (msg.type === 'screenId') {
           this.screenId = msg.id;
           document.getElementById('selfScreenId').textContent = msg.id;
-        } else if (msg.type === 'missionData') {
-          // Could use mission data if needed
+        } else if (msg.type === 'missionsList') {
+          if (msg.data && Array.isArray(msg.data)) {
+            const selector = document.getElementById('missionSelector');
+            selector.innerHTML = msg.data.map(m =>
+              `<option value="${m.id}">${m.name}</option>`
+            ).join('');
+          }
+        }
+      },
+
+      async addScreen() {
+        const idInput = document.getElementById('newScreenId');
+        const pageSelect = document.getElementById('newScreenPage');
+        const labelInput = document.getElementById('newScreenLabel');
+
+        const screenId = idInput.value.trim();
+        if (!screenId) {
+          this.toast('Enter a screen ID', 'error');
+          idInput.focus();
+          return;
+        }
+
+        const page = parseInt(pageSelect.value);
+        const label = labelInput.value.trim();
+
+        try {
+          const params = new URLSearchParams({ screen_id: screenId, page, label });
+          const res = await fetch(`/api/screens/config?${params}`, { method: 'POST' });
+          const data = await res.json();
+
+          if (data.success) {
+            const action = data.navigated ? 'configured + navigated' : 'configured';
+            this.toast(`${screenId} ${action} → ${PAGE_NAMES[page]}`, 'success');
+
+            // Show URL hint
+            const baseUrl = window.location.origin;
+            const hint = document.getElementById('urlHint');
+            const code = document.getElementById('urlHintCode');
+            code.textContent = `${baseUrl}?id=${screenId}&page=${page}`;
+            hint.classList.add('visible');
+
+            // Clear form
+            idInput.value = '';
+            labelInput.value = '';
+
+            this.refreshScreens();
+          } else {
+            this.toast('Failed to add screen', 'error');
+          }
+        } catch (e) {
+          this.toast(`Error: ${e.message}`, 'error');
+        }
+      },
+
+      async removeScreen(screenId) {
+        try {
+          const res = await fetch(`/api/screens/config/${screenId}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            this.toast(`Removed ${screenId}`, 'success');
+            document.getElementById('urlHint').classList.remove('visible');
+            this.refreshScreens();
+          } else {
+            this.toast('Failed to remove', 'error');
+          }
+        } catch (e) {
+          this.toast(`Error: ${e.message}`, 'error');
         }
       },
 
@@ -486,9 +735,8 @@
           const res = await fetch('/api/screens');
           const data = await res.json();
           this.screens = data.screens || [];
-          this.renderScreens();
+          this.renderScreens(data);
 
-          // Update server status
           document.getElementById('serverStatus').classList.remove('disconnected');
           document.getElementById('serverStatusText').textContent = 'Connected';
         } catch (e) {
@@ -497,41 +745,73 @@
         }
       },
 
-      renderScreens() {
+      renderScreens(data) {
         const grid = document.getElementById('screensGrid');
-        const count = document.getElementById('screenCount');
+        const countEl = document.getElementById('screenCount');
+        const onlineEl = document.getElementById('onlineCount');
 
-        // Filter out self (control page doesn't need to control itself through the card)
-        const otherScreens = this.screens.filter(s => s.id !== this.screenId);
-        count.textContent = this.screens.length;
+        countEl.textContent = data.total || this.screens.length;
+        onlineEl.textContent = `${data.online || 0} online`;
 
         if (this.screens.length === 0) {
-          grid.innerHTML = '<div class="no-screens">No screens connected. Open ArtemisOps in another window with <code>?id=1&page=1</code></div>';
+          grid.innerHTML = '<div class="no-screens">No screens configured. Add one above, then open the URL on the target display.</div>';
           return;
         }
 
         grid.innerHTML = this.screens.map(screen => {
           const isSelf = screen.id === this.screenId;
+          const isOnline = screen.online;
+          const isConfigured = screen.configured;
           const pageName = PAGE_NAMES[screen.page] || 'unknown';
           const pageIcon = PAGE_ICONS[screen.page] || '?';
 
-          return `
-            <div class="screen-card ${isSelf ? 'self' : ''}">
-              <div class="screen-card-header">
-                <span class="screen-id">${screen.id}</span>
-                ${isSelf ? '<span class="screen-self-badge">This Screen</span>' : ''}
-              </div>
-              <div class="screen-current-page">
-                Current: <strong>${pageIcon} ${pageName}</strong> (page ${screen.page})
-              </div>
-              ${!isSelf ? `
+          // Badges
+          let badges = '';
+          if (isSelf) badges += '<span class="badge badge-self">This</span>';
+          if (isOnline) badges += '<span class="badge badge-online">Online</span>';
+          else badges += '<span class="badge badge-offline">Offline</span>';
+          if (isConfigured) badges += '<span class="badge badge-configured">Saved</span>';
+
+          // Label
+          const labelHtml = screen.label ? `<div class="screen-label">${screen.label}</div>` : '';
+
+          // Config info for offline screens
+          let configNote = '';
+          if (!isOnline && isConfigured) {
+            configNote = `<div class="screen-current-page">Assigned: <strong>${pageIcon} ${pageName}</strong> (page ${screen.page})</div>`;
+          } else {
+            configNote = `<div class="screen-current-page">Current: <strong>${pageIcon} ${pageName}</strong> (page ${screen.page})</div>`;
+          }
+
+          // Nav buttons (only for non-self online screens)
+          let navHtml = '';
+          if (isOnline && !isSelf) {
+            navHtml = `
               <div class="screen-nav-buttons">
                 <button class="nav-btn ${screen.page === 1 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 1)">🚀 Mission</button>
                 <button class="nav-btn ${screen.page === 2 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 2)">🌍 Track</button>
                 <button class="nav-btn ${screen.page === 3 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 3)">👨‍🚀 Crew</button>
                 <button class="nav-btn ${screen.page === 4 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 4)">ℹ️ Info</button>
               </div>
-              ` : ''}
+            `;
+          }
+
+          // Remove button (only for configured screens, not self)
+          let removeHtml = '';
+          if (isConfigured && !isSelf) {
+            removeHtml = `<button class="remove-btn" onclick="Control.removeScreen('${screen.id}')">✕ Remove Configuration</button>`;
+          }
+
+          return `
+            <div class="screen-card ${isSelf ? 'self' : ''} ${!isOnline ? 'offline' : ''}">
+              <div class="screen-card-header">
+                <span class="screen-id">${screen.id}</span>
+                <span class="screen-badges">${badges}</span>
+              </div>
+              ${labelHtml}
+              ${configNote}
+              ${navHtml}
+              ${removeHtml}
             </div>
           `;
         }).join('');
@@ -565,8 +845,7 @@
         }
       },
 
-      async switchMission(missionId) {
-        // Tell parent to switch mission
+      switchMission(missionId) {
         window.parent.postMessage({ type: 'switchMission', missionId }, '*');
         this.toast(`Mission: ${missionId}`, 'success');
       },
