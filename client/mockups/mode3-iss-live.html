@@ -2042,17 +2042,14 @@
         if (crewCountEl) crewCountEl.textContent = data.count || issCrew.length;
         
         const crewHtml = issCrew.map(person => {
-          // Try to determine agency from name (simplified)
-          let agency = 'NASA';
-          if (person.name.includes('Kononenko') || person.name.includes('Chub') || person.name.includes('Grebenkin')) agency = 'RSA';
-          if (person.name.includes('Mogensen')) agency = 'ESA';
-          if (person.name.includes('Furukawa') || person.name.includes('Wakata')) agency = 'JAXA';
+          // Agency comes from API if available, otherwise omit
+          const agency = person.agency || '';
           
           return `
             <div class="crew-member">
               <span class="crew-dot"></span>
               ${person.name}
-              <span class="crew-agency">${agency}</span>
+              ${agency ? `<span class="crew-agency">${agency}</span>` : ''}
             </div>
           `;
         }).join('');

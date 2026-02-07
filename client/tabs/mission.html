@@ -660,20 +660,19 @@
       
 
       handleMessage(event) {
-        const { type, data } = event.data;
+        const msg = event.data;
         
-        switch (type) {
-          case 'missionData':
-            this.missionData = data;
+        switch (msg.type) {
+          case 'setMissionData':
+            this.missionData = msg.mission;
             this.updateMissionDisplay();
             break;
             
-          case 'weatherData':
-            this.weatherData = data;
+          case 'setWeatherData':
+            this.weatherData = msg.weather;
+            this.weatherVisible = msg.visible;
             this.updateWeatherDisplay();
             break;
-            
-
         }
       },
       
@@ -684,6 +683,9 @@
         
         // Update header mission name
         document.getElementById('headerMissionName').textContent = (m.name || 'Mission').toUpperCase();
+        
+        // Update status badge based on launch date
+        this.updateStatusBadge(m);
         
         // Update launch info
         if (m.launch_date) {
@@ -706,41 +708,89 @@
         this.updateCountdown();
       },
       
+      updateStatusBadge(m) {
+        const badge = document.querySelector('.header-status-badge');
+        if (!badge) return;
+        
+        const now = new Date();
+        const launch = m.launch_date ? new Date(m.launch_date) : null;
+        
+        let label, color;
+        if (!launch) {
+          label = 'NO DATE'; color = '#f59e0b';
+        } else if (now < launch) {
+          const daysOut = (launch - now) / (1000 * 60 * 60 * 24);
+          if (daysOut <= 1) {
+            label = 'LAUNCH DAY'; color = '#ff6b35';
+          } else {
+            label = 'PRE-LAUNCH'; color = '#22c55e';
+          }
+        } else {
+          // Post-launch: check if mission is still in progress (assume ~10 day mission)
+          const missionEnd = new Date(launch.getTime() + 10 * 24 * 60 * 60 * 1000);
+          if (now <= missionEnd) {
+            label = 'IN FLIGHT'; color = '#00d4ff';
+          } else {
+            label = 'COMPLETE'; color = '#8b949e';
+          }
+        }
+        
+        badge.innerHTML = `<span class="dot"></span><span>${label}</span>`;
+        badge.style.borderColor = `${color}66`;
+        badge.style.background = `${color}22`;
+        badge.style.color = color;
+        badge.querySelector('.dot').style.background = color;
+      },
+      
       updateMilestones(milestones) {
         // Find completed, active, and upcoming milestones
         const completed = milestones.filter(m => m.status === 'completed');
         const active = milestones.find(m => m.status === 'active');
         const pending = milestones.filter(m => m.status === 'pending');
         
-        // Last completed
+        // Build the 3 timeline slots dynamically
+        const slots = [];
+        
+        // Slot 1: last completed
         if (completed.length > 0) {
           const last = completed[completed.length - 1];
-          document.getElementById('phase1Title').textContent = last.title;
-          document.getElementById('phase1Time').textContent = last.date || 'Completed';
+          slots.push({ label: 'Completed', title: last.title, time: last.date || 'Done', state: 'completed', icon: '✓' });
         }
         
-        // Active/Next milestone
-        const next = active || (pending.length > 0 ? pending[0] : null);
-        if (next) {
-          document.getElementById('phase2Title').textContent = next.title;
-          document.getElementById('phase2Time').textContent = next.date || '';
+        // Slot 2: active or next pending
+        const current = active || (pending.length > 0 ? pending[0] : null);
+        if (current) {
+          slots.push({ label: current.status === 'active' ? 'In Progress' : 'Next', title: current.title, time: current.date || '', state: 'active', icon: '→' });
           
           // Also update the info box
-          document.getElementById('nextMilestoneTitle').textContent = next.title;
-          document.getElementById('nextMilestoneMeta').textContent = next.date ? `${next.date}` : next.description || '';
+          document.getElementById('nextMilestoneTitle').textContent = current.title;
+          document.getElementById('nextMilestoneMeta').textContent = current.date ? `${current.date}` : current.description || '';
         }
         
-        // Launch milestone
-        const launch = milestones.find(m => m.title && m.title.toLowerCase().includes('liftoff'));
-        if (launch) {
-          document.getElementById('phase3Title').textContent = launch.title;
-          document.getElementById('phase3Time').textContent = launch.date || 'T-0:00';
-        } else if (this.missionData?.launch_date) {
-          const launchDate = new Date(this.missionData.launch_date);
-          const now = new Date();
-          const daysUntil = Math.ceil((launchDate - now) / (1000 * 60 * 60 * 24));
-          document.getElementById('phase3Time').textContent = daysUntil > 0 ? `T-${daysUntil}d` : 'T-0';
+        // Slot 3: next upcoming after active
+        const remaining = active ? pending : (pending.length > 1 ? pending.slice(1) : []);
+        if (remaining.length > 0) {
+          const upcoming = remaining[0];
+          const isLiftoff = upcoming.title && upcoming.title.toLowerCase().includes('liftoff');
+          slots.push({ label: 'Upcoming', title: upcoming.title, time: upcoming.date || '', state: 'upcoming', icon: isLiftoff ? '🚀' : '○' });
         }
+        
+        // Render up to 3 slots
+        const phaseEls = [document.getElementById('phase1'), document.getElementById('phase2'), document.getElementById('phase3')];
+        phaseEls.forEach((el, i) => {
+          if (i < slots.length) {
+            const s = slots[i];
+            el.style.display = '';
+            el.className = `phase ${s.state === 'completed' ? 'completed' : s.state === 'active' ? 'active' : ''}`;
+            el.querySelector('.phase-icon').className = `phase-icon ${s.state}`;
+            el.querySelector('.phase-icon').textContent = s.icon;
+            el.querySelector('.phase-label').textContent = s.label;
+            el.querySelector('.phase-title').textContent = s.title;
+            el.querySelector('.phase-time').textContent = s.time;
+          } else {
+            el.style.display = 'none';
+          }
+        });
       },
       
       updateWeatherDisplay() {

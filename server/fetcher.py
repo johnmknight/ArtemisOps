@@ -623,12 +623,17 @@ ARTEMIS_II_CREW_FALLBACK = [
     }
 ]
 
+# Milestones sourced from NASA Artemis Blog & mission press conferences
+# Last verified: Feb 7, 2026
+# https://www.nasa.gov/blogs/missions/2026/02/03/nasa-conducts-artemis-ii-fuel-test-eyes-march-for-launch-opportunity/
 ARTEMIS_II_MILESTONES_FALLBACK = [
     {"date_label": "Dec 2025", "title": "Flight Readiness Review", "description": "Final comprehensive review of all mission systems", "status": "completed"},
-    {"date_label": "Jan 2, 2026", "title": "Crew Quarantine Begins", "description": "Flight crew enters health stabilization program", "status": "completed"},
-    {"date_label": "Jan 17, 2026", "title": "Rollout to Pad 39B", "description": "SLS transported from VAB to launch complex", "status": "active"},
-    {"date_label": "Jan 27, 2026", "title": "Wet Dress Rehearsal", "description": "Full countdown simulation with propellant loading", "status": "pending"},
-    {"date_label": "T-6:40:00", "title": "Cryo Loading", "description": "Begin loading liquid hydrogen and oxygen", "status": "pending"},
+    {"date_label": "Jan 17, 2026", "title": "Rollout to Pad 39B", "description": "SLS transported from VAB to Launch Complex 39B", "status": "completed"},
+    {"date_label": "Feb 2-3, 2026", "title": "Wet Dress Rehearsal", "description": "Cryogenic propellant loaded, terminal countdown reached T-5:15, LH2 leak identified", "status": "completed"},
+    {"date_label": "Feb 2026", "title": "WDR Data Review & Issue Resolution", "description": "Teams reviewing test data, resolving LH2 leak and valve issues before setting launch date", "status": "active"},
+    {"date_label": "TBD", "title": "Launch Readiness Review", "description": "Final go/no-go assessment before committing to launch attempt", "status": "pending"},
+    {"date_label": "~L-14 days", "title": "Crew Quarantine", "description": "Flight crew enters health stabilization at Kennedy Space Center", "status": "pending"},
+    {"date_label": "T-6:40:00", "title": "Cryo Loading", "description": "Begin loading liquid hydrogen and oxygen into SLS tanks", "status": "pending"},
     {"date_label": "T-2:35:00", "title": "Crew Ingress", "description": "Four astronauts board Orion spacecraft", "status": "pending"},
     {"date_label": "T-00:00", "title": "LIFTOFF", "description": "RS-25 engines and SRBs ignite", "status": "pending"},
 ]

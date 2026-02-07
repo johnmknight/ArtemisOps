@@ -450,16 +450,16 @@
         </svg>
         <div class="mission-info">
           <h1>ARTEMIS III</h1>
-          <div class="mission-subtitle">Landing on the Moon</div>
+          <div class="mission-subtitle">First Crewed Lunar Landing · South Pole</div>
         </div>
       </div>
       
       <div class="header-center">
         <div class="met-display">
-          <span class="met-label">MET</span>
-          <span class="met-value" id="met">05:08:22:15</span>
+          <span class="met-label">LAUNCH</span>
+          <span class="met-value" id="met">Mid-2027</span>
         </div>
-        <div class="phase-badge">🌙 LUNAR SURFACE OPS</div>
+        <div class="phase-badge" style="border-color: #f59e0b88; background: rgba(245,158,11,0.15); color: #f59e0b;">📋 IN DEVELOPMENT</div>
       </div>
       
       <div class="header-right">
@@ -639,15 +639,15 @@
             <text class="waypoint-number" fill="#ff9800">11</text>
           </g>
           
-          <!-- 12: Surface - ACTIVE -->
-          <g transform="translate(620, 335)" class="active-spacecraft">
-            <circle r="12" class="waypoint-circle" stroke="#ff9800" fill="#0a1628" stroke-width="3"/>
+          <!-- 12: Surface landing site (planned) -->
+          <g transform="translate(620, 335)">
+            <circle r="12" class="waypoint-circle" stroke="#ff9800" fill="#0a1628" stroke-width="2" stroke-dasharray="4,2"/>
             <text class="waypoint-number" fill="#ff9800" font-size="10">12</text>
           </g>
           
-          <!-- Lander on surface -->
+          <!-- Lander at surface (planned position) -->
           <g transform="translate(620, 335)">
-            <use href="#lander" width="20" height="30" x="8" y="-35" style="color: #ff9800" filter="url(#surface-glow)"/>
+            <use href="#lander" width="20" height="30" x="8" y="-35" style="color: #ff980088"/>
           </g>
           
           <!-- 14: Ascent -->
@@ -694,17 +694,19 @@
           
           <!-- Mission info box -->
           <g transform="translate(30, 30)">
-            <rect width="200" height="60" fill="rgba(10,22,40,0.95)" stroke="#1a3a5c" rx="4"/>
-            <text x="10" y="20" fill="#ff9800" font-size="10" letter-spacing="1">CURRENT PHASE</text>
-            <text x="10" y="38" fill="#fff" font-size="14" font-weight="bold">LUNAR SURFACE OPS</text>
-            <text x="10" y="52" fill="#8b949e" font-size="9">EVA in progress · Day 2 of surface stay</text>
+            <rect width="220" height="60" fill="rgba(10,22,40,0.95)" stroke="#1a3a5c" rx="4"/>
+            <text x="10" y="20" fill="#f59e0b" font-size="10" letter-spacing="1">MISSION STATUS</text>
+            <text x="10" y="38" fill="#fff" font-size="14" font-weight="bold">IN DEVELOPMENT</text>
+            <text x="10" y="52" fill="#8b949e" font-size="9">SLS Block 1 · Crew size: 4 · ~30 day mission</text>
           </g>
           
-          <!-- Surface time box -->
+          <!-- Mission specs box -->
           <g transform="translate(30, 100)">
-            <rect width="140" height="50" fill="rgba(255,152,0,0.15)" stroke="#ff9800" rx="4"/>
-            <text x="10" y="18" fill="#ff9800" font-size="9" letter-spacing="1">SURFACE TIME</text>
-            <text x="10" y="38" fill="#fff" font-family="Courier New" font-size="16" font-weight="bold">01:14:22:08</text>
+            <rect width="220" height="70" fill="rgba(245,158,11,0.1)" stroke="#f59e0b44" rx="4"/>
+            <text x="10" y="18" fill="#f59e0b" font-size="9" letter-spacing="1">MISSION PLAN</text>
+            <text x="10" y="34" fill="#8b949e" font-size="9">Lander: SpaceX Starship HLS</text>
+            <text x="10" y="48" fill="#8b949e" font-size="9">Suits: Axiom Space AxEMU</text>
+            <text x="10" y="62" fill="#8b949e" font-size="9">Surface stay: ~7 days · 2 crew descend</text>
           </g>
           
         </svg>
@@ -714,48 +716,46 @@
       <div class="side-panel">
         <div class="panel-section">
           <div class="section-header">
-            <span class="section-title">Surface Camera</span>
-            <div class="live-indicator">
-              <span class="live-dot"></span>
-              <span>EVA LIVE</span>
-            </div>
+            <span class="section-title">Mission Overview</span>
           </div>
           <div class="section-content">
-            <div class="video-embed">
-              <span class="video-placeholder">🌙 LUNAR SURFACE FEED</span>
+            <div class="video-embed" style="font-size: 11px; color: #8b949e; line-height: 1.6; text-align: left; padding: 12px;">
+              <div style="color: #f59e0b; font-size: 10px; letter-spacing: 1px; margin-bottom: 8px;">ARTEMIS III</div>
+              <div>First crewed lunar landing since Apollo 17 (1972). Two crew descend to the South Pole region via SpaceX Starship HLS for ~7 days of surface science.</div>
+              <div style="margin-top: 8px; color: #5a6a7a; font-size: 10px;">Source: <a href="https://www.nasa.gov/mission/artemis-iii/" style="color: #4a9eff;">nasa.gov/mission/artemis-iii</a></div>
             </div>
           </div>
         </div>
         
         <div class="panel-section">
           <div class="section-header">
-            <span class="section-title">Spacecraft Status</span>
+            <span class="section-title">Mission Specifications</span>
           </div>
           <div class="section-content">
             <div class="telemetry-grid">
               <div class="telemetry-item">
-                <div class="telemetry-value" style="color: #7ed321;">NOMINAL</div>
-                <div class="telemetry-label">Orion</div>
+                <div class="telemetry-value" style="color: #f59e0b;">SLS Block 1</div>
+                <div class="telemetry-label">Rocket</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value" style="color: #ff9800;">SURFACE</div>
-                <div class="telemetry-label">HLS</div>
+                <div class="telemetry-value" style="color: #f59e0b;">Orion</div>
+                <div class="telemetry-label">Spacecraft</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">-180°C</div>
-                <div class="telemetry-label">Surface Temp</div>
+                <div class="telemetry-value">Starship HLS</div>
+                <div class="telemetry-label">Lander</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">94%</div>
-                <div class="telemetry-label">O₂ Supply</div>
+                <div class="telemetry-value">AxEMU</div>
+                <div class="telemetry-label">Spacesuit</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">6.2 hrs</div>
-                <div class="telemetry-label">EVA Time Left</div>
+                <div class="telemetry-value">~30 days</div>
+                <div class="telemetry-label">Duration</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">2.4 km</div>
-                <div class="telemetry-label">From Lander</div>
+                <div class="telemetry-value">South Pole</div>
+                <div class="telemetry-label">Landing Region</div>
               </div>
             </div>
           </div>
@@ -763,93 +763,94 @@
         
         <div class="panel-section">
           <div class="section-header">
-            <span class="section-title">Crew Status</span>
+            <span class="section-title">Crew</span>
           </div>
           <div class="section-content">
             <div class="crew-grid">
-              <div class="crew-member surface">
-                <span class="crew-dot"></span>
-                Reid
-                <span class="crew-location">🌙</span>
-              </div>
-              <div class="crew-member surface">
-                <span class="crew-dot"></span>
-                Victor
-                <span class="crew-location">🌙</span>
+              <div class="crew-member">
+                <span class="crew-dot" style="background: #5a6a7a;"></span>
+                Commander
+                <span class="crew-location" style="color: #5a6a7a;">TBD</span>
               </div>
               <div class="crew-member">
-                <span class="crew-dot"></span>
-                Hague
-                <span class="crew-location">NRHO</span>
+                <span class="crew-dot" style="background: #5a6a7a;"></span>
+                Pilot
+                <span class="crew-location" style="color: #5a6a7a;">TBD</span>
               </div>
               <div class="crew-member">
-                <span class="crew-dot"></span>
-                Dominick
-                <span class="crew-location">NRHO</span>
+                <span class="crew-dot" style="background: #5a6a7a;"></span>
+                Mission Spec. 1
+                <span class="crew-location" style="color: #5a6a7a;">TBD</span>
+              </div>
+              <div class="crew-member">
+                <span class="crew-dot" style="background: #5a6a7a;"></span>
+                Mission Spec. 2
+                <span class="crew-location" style="color: #5a6a7a;">TBD</span>
               </div>
             </div>
+            <div style="text-align: center; font-size: 10px; color: #5a6a7a; margin-top: 8px;">Crew not yet announced by NASA</div>
           </div>
         </div>
       </div>
     </main>
     
-    <!-- Timeline -->
+    <!-- Timeline - Planned mission phases -->
     <div class="timeline-bar">
       <div class="timeline-phases">
-        <div class="phase completed">
+        <div class="phase upcoming">
           <div class="phase-marker">1</div>
           <div class="phase-info">
             <div class="phase-name">Launch</div>
             <div class="phase-time">Day 1</div>
           </div>
         </div>
-        <div class="phase completed">
+        <div class="phase upcoming">
           <div class="phase-marker">5</div>
           <div class="phase-info">
             <div class="phase-name">TLI</div>
             <div class="phase-time">Day 1</div>
           </div>
         </div>
-        <div class="phase completed">
+        <div class="phase upcoming">
           <div class="phase-marker">8</div>
           <div class="phase-info">
             <div class="phase-name">NRHO Insert</div>
-            <div class="phase-time">Day 4</div>
+            <div class="phase-time">~Day 4</div>
           </div>
         </div>
-        <div class="phase completed">
+        <div class="phase upcoming">
           <div class="phase-marker">10</div>
           <div class="phase-info">
-            <div class="phase-name">Undock</div>
-            <div class="phase-time">Day 5</div>
+            <div class="phase-name">HLS Undock</div>
+            <div class="phase-time">~Day 5</div>
           </div>
         </div>
-        <div class="phase active">
+        <div class="phase upcoming">
           <div class="phase-marker">12</div>
           <div class="phase-info">
             <div class="phase-name">Surface Ops</div>
-            <div class="phase-time">Day 6-12</div>
+            <div class="phase-time">~7 days</div>
           </div>
         </div>
         <div class="phase upcoming">
           <div class="phase-marker">14</div>
           <div class="phase-info">
             <div class="phase-name">Ascent</div>
-            <div class="phase-time">Day 13</div>
+            <div class="phase-time">~Day 13</div>
           </div>
         </div>
         <div class="phase upcoming">
           <div class="phase-marker">17</div>
           <div class="phase-info">
             <div class="phase-name">Return</div>
-            <div class="phase-time">Day 14-20</div>
+            <div class="phase-time">~Day 14-28</div>
           </div>
         </div>
         <div class="phase upcoming">
-          <div class="phase-marker">21</div>
+          <div class="phase-marker">🌎</div>
           <div class="phase-info">
             <div class="phase-name">Splashdown</div>
-            <div class="phase-time">Day 21</div>
+            <div class="phase-time">~Day 30</div>
           </div>
         </div>
       </div>
@@ -858,31 +859,31 @@
     <!-- News Ticker -->
     <div class="news-ticker">
       <div class="ticker-content">
-        <div class="ticker-label">🌙 SURFACE</div>
+        <div class="ticker-label">📋 PLANNING</div>
         <div class="ticker-item">
-          <span class="ticker-time">09:15 UTC</span>
-          Crew begins EVA 3 · Focus on collecting samples from permanently shadowed region
+          <span class="ticker-time">Aug 2025</span>
+          NASA begins processing Artemis III SLS rocket at Kennedy Space Center
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">06:30 UTC</span>
-          Water ice confirmed in sample analysis · Historic discovery at lunar south pole
+          <span class="ticker-time">2027</span>
+          Target launch: mid-2027 · ~30-day mission to lunar South Pole
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">Yesterday</span>
-          Orion systems nominal in NRHO · Crew in orbit monitoring surface operations
+          <span class="ticker-time">KEY</span>
+          9 candidate landing regions identified near lunar South Pole · Crew not yet announced
         </div>
-        <div class="ticker-label">🌙 SURFACE</div>
+        <div class="ticker-label">📋 PLANNING</div>
         <div class="ticker-item">
-          <span class="ticker-time">09:15 UTC</span>
-          Crew begins EVA 3 · Focus on collecting samples from permanently shadowed region
-        </div>
-        <div class="ticker-item">
-          <span class="ticker-time">06:30 UTC</span>
-          Water ice confirmed in sample analysis · Historic discovery at lunar south pole
+          <span class="ticker-time">Aug 2025</span>
+          NASA begins processing Artemis III SLS rocket at Kennedy Space Center
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">Yesterday</span>
-          Orion systems nominal in NRHO · Crew in orbit monitoring surface operations
+          <span class="ticker-time">2027</span>
+          Target launch: mid-2027 · ~30-day mission to lunar South Pole
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">KEY</span>
+          9 candidate landing regions identified near lunar South Pole · Crew not yet announced
         </div>
       </div>
     </div>
@@ -895,17 +896,7 @@
       document.getElementById('utc').textContent = now.toUTCString().split(' ')[4] + ' UTC';
     }
     setInterval(updateTime, 1000);
-    
-    let met = { d: 5, h: 8, m: 22, s: 15 };
-    function updateMET() {
-      met.s++;
-      if (met.s >= 60) { met.s = 0; met.m++; }
-      if (met.m >= 60) { met.m = 0; met.h++; }
-      if (met.h >= 24) { met.h = 0; met.d++; }
-      document.getElementById('met').textContent = 
-        `${String(met.d).padStart(2,'0')}:${String(met.h).padStart(2,'0')}:${String(met.m).padStart(2,'0')}:${String(met.s).padStart(2,'0')}`;
-    }
-    setInterval(updateMET, 1000);
+    updateTime();
   </script>
   <script>
     // Forward navigation keys to top-level shell

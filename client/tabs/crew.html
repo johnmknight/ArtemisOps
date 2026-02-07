@@ -391,14 +391,6 @@
       evaData: null,
       timerInterval: null,
       
-      mockEvaData: {
-        evas: [
-          { id: "eva-1", title: "Lunar Surface EVA", scheduled_start: new Date(Date.now() + 2*60*60*1000).toISOString(), status: "scheduled", crew: ["Christina Koch", "Jeremy Hansen"] },
-          { id: "eva-2", title: "Sample Collection", scheduled_start: new Date(Date.now() + 48*60*60*1000).toISOString(), status: "scheduled", crew: ["TBD"] },
-          { id: "eva-3", title: "Equipment Deploy", scheduled_start: new Date(Date.now() + 96*60*60*1000).toISOString(), status: "scheduled", crew: ["TBD"] }
-        ]
-      },
-      
       init() {
         window.addEventListener('message', e => {
           if (e.data.type === 'setCrewData') {

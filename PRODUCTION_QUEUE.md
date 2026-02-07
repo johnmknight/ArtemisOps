@@ -298,6 +298,15 @@ server/
 | Where The ISS At | ISS position | `api.wheretheiss.at/v1/` |
 | Open Notify | ISS crew roster | `api.open-notify.org/` |
 
+## 📚 Reference Sources
+
+| Source | Description | URL |
+|--------|-------------|-----|
+| NASA Crew Page | Official Artemis crew bios & portraits | https://www.nasa.gov/feature/our-artemis-crew/ |
+| NASA Artemis I Tracker | Real-time mission tracking reference (trajectory, telemetry display patterns) | https://www.nasa.gov/missions/artemis/orion/track-nasas-artemis-i-mission-in-real-time/ |
+| NAIF/SPICE Frames & Coordinates | JPL tutorial on reference frames and coordinate systems for trajectory work | https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/Tutorials/pdf/individual_docs/17_frames_and_coordinate_systems.pdf |
+| NASA Shuttle GNC Calculations | Guidance, navigation & control math reference (state vectors, coordinate transforms) | https://www.nasa.gov/pdf/466741main_AP_ST_Calc_ShuttleGNC.pdf |
+
 ---
 
 ## 📅 Development Timeline

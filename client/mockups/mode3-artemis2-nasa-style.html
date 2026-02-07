@@ -782,10 +782,10 @@
       
       <div class="header-center">
         <div class="met-display">
-          <span class="met-label">MET</span>
-          <span class="met-value" id="met">02:18:45:32</span>
+          <span class="met-label">COUNTDOWN</span>
+          <span class="met-value" id="met">T-...</span>
         </div>
-        <div class="phase-badge" id="phaseBadge">OUTBOUND TRANSIT</div>
+        <div class="phase-badge" id="phaseBadge" style="border-color: #f59e0b88; background: rgba(245,158,11,0.15); color: #f59e0b;">PRE-LAUNCH</div>
       </div>
       
       <div class="header-right">
@@ -939,32 +939,32 @@
         
         <div class="panel-section">
           <div class="section-header">
-            <span class="section-title">Spacecraft Status</span>
+            <span class="section-title" id="telemetryTitle">Spacecraft Status</span>
           </div>
           <div class="section-content">
             <div class="telemetry-grid">
               <div class="telemetry-item">
-                <div class="telemetry-value" style="color: #7ed321;">NOMINAL</div>
+                <div class="telemetry-value" id="systemsStatus" style="color: #f59e0b;">STANDBY</div>
                 <div class="telemetry-label">Systems</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">97%</div>
+                <div class="telemetry-value" id="powerStatus">—</div>
                 <div class="telemetry-label">Power</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">21.2°C</div>
+                <div class="telemetry-value" id="cabinTemp">—</div>
                 <div class="telemetry-label">Cabin Temp</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value">14.7 psi</div>
+                <div class="telemetry-value" id="cabinPressure">—</div>
                 <div class="telemetry-label">Pressure</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value" id="velocityPanel">3,850</div>
+                <div class="telemetry-value" id="velocityPanel">—</div>
                 <div class="telemetry-label">Velocity km/h</div>
               </div>
               <div class="telemetry-item">
-                <div class="telemetry-value" id="altitudePanel">185K</div>
+                <div class="telemetry-value" id="altitudePanel">—</div>
                 <div class="telemetry-label">Alt. km</div>
               </div>
             </div>
@@ -987,28 +987,28 @@
       </div>
     </main>
     
-    <!-- Timeline -->
+    <!-- Timeline — phases update dynamically via JS -->
     <div class="timeline-bar">
       <div class="timeline-phases">
-        <div class="phase completed">
-          <div class="phase-marker">✓</div>
+        <div class="phase upcoming">
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Launch</div>
-            <div class="phase-time">Feb 8</div>
+            <div class="phase-time">T+0</div>
           </div>
         </div>
-        <div class="phase completed">
-          <div class="phase-marker">✓</div>
+        <div class="phase upcoming">
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">TLI Burn</div>
             <div class="phase-time">T+2:00</div>
           </div>
         </div>
-        <div class="phase active">
-          <div class="phase-marker">●</div>
+        <div class="phase upcoming">
+          <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Outbound</div>
-            <div class="phase-time">Day 3</div>
+            <div class="phase-time">Day 2–4</div>
           </div>
         </div>
         <div class="phase upcoming">
@@ -1022,7 +1022,7 @@
           <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Return</div>
-            <div class="phase-time">Day 5-8</div>
+            <div class="phase-time">Day 5–8</div>
           </div>
         </div>
         <div class="phase upcoming">
@@ -1036,40 +1036,40 @@
           <div class="phase-marker"></div>
           <div class="phase-info">
             <div class="phase-name">Splashdown</div>
-            <div class="phase-time">Feb 18</div>
+            <div class="phase-time">Day 10</div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- News Ticker -->
+    <!-- News Ticker — updated dynamically based on mission state -->
     <div class="news-ticker">
-      <div class="ticker-content">
-        <div class="ticker-label">UPDATE</div>
+      <div class="ticker-content" id="tickerContent">
+        <div class="ticker-label">🚀 STATUS</div>
         <div class="ticker-item">
-          <span class="ticker-time">15:30 UTC</span>
-          Crew completes mid-course correction burn · Trajectory nominal for lunar flyby
+          <span class="ticker-time">Feb 2026</span>
+          WDR completed Feb 2-3 · LH2 leak identified · Teams reviewing data
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">12:00 UTC</span>
-          Live broadcast: Crew speaks with students from International Space Station
+          <span class="ticker-time">NET Mar 6</span>
+          Launch window opens March 6 · Crew: Wiseman, Glover, Koch, Hansen
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">08:45 UTC</span>
-          All spacecraft systems nominal · Solar arrays exceeding power expectations
+          <span class="ticker-time">MISSION</span>
+          10-day lunar flyby · First crewed flight beyond low Earth orbit since Apollo 17
         </div>
-        <div class="ticker-label">UPDATE</div>
+        <div class="ticker-label">🚀 STATUS</div>
         <div class="ticker-item">
-          <span class="ticker-time">15:30 UTC</span>
-          Crew completes mid-course correction burn · Trajectory nominal for lunar flyby
-        </div>
-        <div class="ticker-item">
-          <span class="ticker-time">12:00 UTC</span>
-          Live broadcast: Crew speaks with students from International Space Station
+          <span class="ticker-time">Feb 2026</span>
+          WDR completed Feb 2-3 · LH2 leak identified · Teams reviewing data
         </div>
         <div class="ticker-item">
-          <span class="ticker-time">08:45 UTC</span>
-          All spacecraft systems nominal · Solar arrays exceeding power expectations
+          <span class="ticker-time">NET Mar 6</span>
+          Launch window opens March 6 · Crew: Wiseman, Glover, Koch, Hansen
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-time">MISSION</span>
+          10-day lunar flyby · First crewed flight beyond low Earth orbit since Apollo 17
         </div>
       </div>
     </div>
@@ -1292,74 +1292,230 @@
       });
     }
 
-    // State
-    let met = { d: 2, h: 18, m: 45, s: 32 };
+    // ============================================================================
+    // LAUNCH-DATE-AWARE MISSION STATE
+    // Pre-launch: shows countdown, hides spacecraft, all waypoints upcoming
+    // In-flight: computes real MET, tracks spacecraft position
+    // Post-mission: shows completed state
+    // ============================================================================
+    
+    // NET launch date — update when NASA sets official date
+    // This gets overridden by parent shell's mission data if available
+    const LAUNCH_DATE = new Date('2026-03-06T12:00:00Z');
+    const MISSION_DURATION_HOURS = 240; // ~10 days
+    
+    let missionState = 'PRE_LAUNCH'; // PRE_LAUNCH | IN_FLIGHT | COMPLETED
+    
+    function getMETSeconds() {
+      const now = new Date();
+      return (now - LAUNCH_DATE) / 1000;
+    }
+    
+    function formatMET(totalSeconds) {
+      const neg = totalSeconds < 0;
+      const abs = Math.abs(totalSeconds);
+      const d = Math.floor(abs / 86400);
+      const h = Math.floor((abs % 86400) / 3600);
+      const m = Math.floor((abs % 3600) / 60);
+      const s = Math.floor(abs % 60);
+      const str = `${String(d).padStart(2,'0')}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      return neg ? `T-${str}` : str;
+    }
+    
+    function formatCountdown(totalSeconds) {
+      const abs = Math.abs(totalSeconds);
+      const d = Math.floor(abs / 86400);
+      const h = Math.floor((abs % 86400) / 3600);
+      const m = Math.floor((abs % 3600) / 60);
+      const s = Math.floor(abs % 60);
+      if (d > 0) return `T-${d}d ${h}h ${m}m`;
+      if (h > 0) return `T-${h}h ${m}m ${s}s`;
+      return `T-${m}m ${s}s`;
+    }
     
     function updateTime() {
       const now = new Date();
       document.getElementById('utc').textContent = now.toUTCString().split(' ')[4] + ' UTC';
     }
 
-    function updateMET() {
-      met.s++;
-      if (met.s >= 60) { met.s = 0; met.m++; }
-      if (met.m >= 60) { met.m = 0; met.h++; }
-      if (met.h >= 24) { met.h = 0; met.d++; }
+    function updateMission() {
+      const metSeconds = getMETSeconds();
+      const metHours = metSeconds / 3600;
+      const metEl = document.getElementById('met');
+      const metLabel = document.querySelector('.met-label');
+      const phaseBadge = document.getElementById('phaseBadge');
+      const marker = document.getElementById('spacecraftMarker');
       
-      document.getElementById('met').textContent = 
-        `${String(met.d).padStart(2,'0')}:${String(met.h).padStart(2,'0')}:${String(met.m).padStart(2,'0')}:${String(met.s).padStart(2,'0')}`;
-      
-      // Update position and stats
-      const metHours = met.d * 24 + met.h + met.m / 60;
-      updateSpacecraftPosition(metHours);
-      updateWaypointHighlights(metHours);
+      if (metSeconds < 0) {
+        // ---- PRE-LAUNCH MODE ----
+        missionState = 'PRE_LAUNCH';
+        metLabel.textContent = 'COUNTDOWN';
+        metEl.textContent = formatCountdown(metSeconds);
+        phaseBadge.textContent = 'PRE-LAUNCH';
+        phaseBadge.style.borderColor = '#f59e0b88';
+        phaseBadge.style.background = 'rgba(245,158,11,0.15)';
+        phaseBadge.style.color = '#f59e0b';
+        
+        // Hide spacecraft marker, show at pad
+        marker.style.left = '13.96%';
+        marker.style.top = '8.86%';
+        marker.querySelector('.spacecraft-label').textContent = 'ORION (PAD 39B)';
+        
+        // Static overlays for pre-launch
+        document.getElementById('currentPhase').textContent = 'PRE-LAUNCH';
+        document.getElementById('distanceValue').textContent = '384,400';
+        document.getElementById('velocity').textContent = '—';
+        document.getElementById('velocityPanel').textContent = '—';
+        document.getElementById('altitude').textContent = '—';
+        document.getElementById('altitudePanel').textContent = '—';
+        document.getElementById('missionDay').textContent = 'Waiting';
+        document.getElementById('progress').textContent = '0%';
+        
+        // All waypoints upcoming
+        document.querySelectorAll('.waypoint-marker').forEach(el => {
+          el.classList.remove('wp-completed', 'wp-active');
+        });
+        // Highlight pad waypoint
+        const padWP = document.querySelector('.waypoint-marker[data-wp="14"]');
+        if (padWP) padWP.classList.add('wp-active');
+        
+        // Telemetry: pre-launch standby values
+        document.getElementById('systemsStatus').textContent = 'STANDBY';
+        document.getElementById('systemsStatus').style.color = '#f59e0b';
+        document.getElementById('powerStatus').textContent = '—';
+        document.getElementById('cabinTemp').textContent = '—';
+        document.getElementById('cabinPressure').textContent = '—';
+        
+        updateTimelinePreLaunch();
+        
+      } else if (metHours <= MISSION_DURATION_HOURS) {
+        // ---- IN-FLIGHT MODE ----
+        missionState = 'IN_FLIGHT';
+        metLabel.textContent = 'MET';
+        metEl.textContent = formatMET(metSeconds);
+        phaseBadge.style.borderColor = '';
+        phaseBadge.style.background = '';
+        phaseBadge.style.color = '';
+        marker.querySelector('.spacecraft-label').textContent = 'ORION';
+        
+        updateSpacecraftPosition(metHours);
+        updateWaypointHighlights(metHours);
+        updateTimelineInFlight(metHours);
+        
+      } else {
+        // ---- MISSION COMPLETE ----
+        missionState = 'COMPLETED';
+        metLabel.textContent = 'MET';
+        metEl.textContent = formatMET(MISSION_DURATION_HOURS * 3600);
+        phaseBadge.textContent = 'MISSION COMPLETE';
+        phaseBadge.style.borderColor = '#7ed32188';
+        phaseBadge.style.background = 'rgba(126,211,33,0.15)';
+        phaseBadge.style.color = '#7ed321';
+        
+        // Park at splashdown
+        marker.style.left = '12.12%';
+        marker.style.top = '17.14%';
+        marker.querySelector('.spacecraft-label').textContent = 'SPLASHDOWN';
+        
+        document.getElementById('currentPhase').textContent = 'MISSION COMPLETE';
+        document.getElementById('missionDay').textContent = 'Done';
+        document.getElementById('progress').textContent = '100%';
+        
+        updateWaypointHighlights(MISSION_DURATION_HOURS);
+      }
     }
 
     function updateSpacecraftPosition(metHours) {
       const pos = interpolatePosition(metHours);
       const marker = document.getElementById('spacecraftMarker');
       
-      // Update marker position
       marker.style.left = pos.x + '%';
       marker.style.top = pos.y + '%';
       
-      // Update phase display
       document.getElementById('currentPhase').textContent = pos.phase;
       document.getElementById('phaseBadge').textContent = pos.phase;
       
-      // Update distance
       const distance = calculateMoonDistance(pos.x);
       document.getElementById('distanceValue').textContent = distance.toLocaleString();
       
-      // Update mission day
       const missionDay = Math.floor(metHours / 24) + 1;
       document.getElementById('missionDay').textContent = `Day ${missionDay}`;
       
-      // Update progress
       const progress = Math.round((metHours / missionData.totalDuration) * 100);
       document.getElementById('progress').textContent = progress + '%';
       
-      // Update velocity (varies with distance - faster near Earth/Moon)
       const baseVelocity = 3500;
       const velocityVariation = Math.sin(((pos.x - 8) / 80) * Math.PI) * 1500;
       const velocity = Math.round(baseVelocity + velocityVariation);
       document.getElementById('velocity').textContent = velocity.toLocaleString();
       document.getElementById('velocityPanel').textContent = velocity.toLocaleString();
       
-      // Update altitude (Earth-relative distance)
       const altitude = Math.round(185000 + (pos.x - 8) * 4700);
       const altitudeStr = altitude >= 1000 ? Math.round(altitude / 1000) + 'K' : altitude.toString();
       document.getElementById('altitude').textContent = altitudeStr;
       document.getElementById('altitudePanel').textContent = altitudeStr;
+      
+      // Update telemetry panel for in-flight
+      document.getElementById('systemsStatus').textContent = 'NOMINAL';
+      document.getElementById('systemsStatus').style.color = '#7ed321';
+      document.getElementById('powerStatus').textContent = '97%';
+      document.getElementById('cabinTemp').textContent = '21.2°C';
+      document.getElementById('cabinPressure').textContent = '14.7 psi';
+    }
+    
+    // ============================================================================
+    // DYNAMIC TIMELINE — dates computed from launch date
+    // ============================================================================
+    function formatTimelineDate(date) {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    
+    function updateTimelinePreLaunch() {
+      const phases = document.querySelectorAll('.timeline-bar .phase');
+      phases.forEach(p => {
+        p.classList.remove('completed', 'active');
+        p.classList.add('upcoming');
+        const marker = p.querySelector('.phase-marker');
+        if (marker) marker.textContent = '';
+      });
+      // Highlight first phase as next
+      if (phases[0]) {
+        phases[0].classList.remove('upcoming');
+        phases[0].classList.add('active');
+        phases[0].querySelector('.phase-marker').textContent = '●';
+      }
+    }
+    
+    function updateTimelineInFlight(metHours) {
+      // Timeline phase MET boundaries (hours)
+      const phaseBoundaries = [0, 4, 48, 96, 120, 235, 240];
+      const phases = document.querySelectorAll('.timeline-bar .phase');
+      
+      phases.forEach((p, i) => {
+        p.classList.remove('completed', 'active', 'upcoming');
+        const marker = p.querySelector('.phase-marker');
+        if (i < phaseBoundaries.length && metHours >= phaseBoundaries[i]) {
+          if (i + 1 < phaseBoundaries.length && metHours < phaseBoundaries[i + 1]) {
+            p.classList.add('active');
+            if (marker) marker.textContent = '●';
+          } else if (i + 1 >= phaseBoundaries.length || metHours >= phaseBoundaries[i + 1]) {
+            p.classList.add('completed');
+            if (marker) marker.textContent = '✓';
+          }
+        } else {
+          p.classList.add('upcoming');
+          if (marker) marker.textContent = '';
+        }
+      });
     }
 
     // Initialize
     setInterval(updateTime, 1000);
-    setInterval(updateMET, 1000);
+    setInterval(updateMission, 1000);
     updateTime();
+    updateMission();
     
     // Overlay initialization happens via onload on the image
-    // Fallback in case image is already cached
     const img = document.getElementById('trajectoryImage');
     if (img.complete && img.naturalWidth > 0) {
       initializeOverlay();
