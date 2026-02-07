@@ -10,6 +10,10 @@ This document tracks development progress and the integration plan for the Artem
 ## 🎯 Current Sprint - Active Work
 
 ### Recently Completed (Feb 7)
+- [x] ISS nadir view lighting improvements — brighter ambient, directional light from below, blue fill light
+- [x] World map zoom adjustment — width+height fit to show full globe
+- [x] Add keyboard navigation to index-shell.html — arrow keys, number keys, fullscreen toggle
+- [x] Remove redundant tracking header — stripped CSS, HTML, and JS status text from tracking.html
 - [x] Add iframe keyboard forwarding — all tabs and mockups forward navigation keys (←/→, 0-4, F, F11) to parent shell via postMessage
 - [x] Improve shell keydown handler — null-safety on `e.target`, centralized `preventDefault`
 - [x] Remove tracking tab mode selector buttons — simplified header to status indicator only

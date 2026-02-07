@@ -254,47 +254,6 @@
   </div>
 
   <div class="app-shell">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <img src="https://www.nasa.gov/wp-content/uploads/2023/04/nasa-logo-web-rgb.png" 
-             alt="NASA" class="header-logo" id="agencyLogo">
-        <div>
-          <div class="header-title" id="missionTitle">ARTEMIS II</div>
-          <div class="header-subtitle" id="missionSubtitle">First crewed lunar mission since Apollo</div>
-        </div>
-      </div>
-      <div class="header-right">
-        <select class="mission-selector" id="missionSelector">
-          <option value="artemis-ii">Artemis II</option>
-        </select>
-        <button class="notification-btn" id="notificationBtn" title="Notifications">
-          🔔
-          <span class="notification-badge hidden" id="notificationBadge"></span>
-        </button>
-      </div>
-    </header>
-    
-    <!-- Tab Navigation -->
-    <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="mission" onclick="AppShell.switchTab('mission')">
-        <span class="tab-icon">🚀</span>
-        <span>Mission</span>
-      </button>
-      <button class="tab-btn" data-tab="tracking" onclick="AppShell.switchTab('tracking')">
-        <span class="tab-icon">🛰️</span>
-        <span>Tracking</span>
-      </button>
-      <button class="tab-btn" data-tab="crew" onclick="AppShell.switchTab('crew')">
-        <span class="tab-icon">👨‍🚀</span>
-        <span>Crew</span>
-      </button>
-      <button class="tab-btn" data-tab="info" onclick="AppShell.switchTab('info')">
-        <span class="tab-icon">ℹ️</span>
-        <span>Info</span>
-      </button>
-    </nav>
-    
     <!-- Tab Content (iframes) -->
     <main class="tab-content">
       <iframe class="tab-frame active" id="frame-mission" src="/tabs/mission.html"></iframe>
@@ -333,6 +292,7 @@
         
         // Listen for messages from child iframes
         window.addEventListener('message', (event) => this.handleChildMessage(event));
+        document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
         // Connect WebSocket
         this.connectWebSocket();
@@ -471,9 +431,64 @@
         await this.loadWeather(missionId);
       },
       
+      // === Keyboard Navigation ===
+      tabOrder: ['mission', 'tracking', 'crew', 'info'],
+      
+      handleKeydown(e) {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        
+        switch (e.key) {
+          case 'ArrowRight':
+            this.nextTab();
+            break;
+          case 'ArrowLeft':
+            this.prevTab();
+            break;
+          case '0': case '1': case '2': case '3':
+            const tab = this.tabOrder[parseInt(e.key)];
+            if (tab) this.switchTab(tab);
+            break;
+          case 'f': case 'F':
+            if (!e.ctrlKey && !e.metaKey) {
+              this.toggleFullscreen();
+            }
+            break;
+          case 'F11':
+            this.toggleFullscreen();
+            break;
+        }
+        if (e.preventDefault) e.preventDefault();
+      },
+      
+      nextTab() {
+        const idx = this.tabOrder.indexOf(this.currentTab);
+        const next = this.tabOrder[(idx + 1) % this.tabOrder.length];
+        this.switchTab(next);
+      },
+      
+      prevTab() {
+        const idx = this.tabOrder.indexOf(this.currentTab);
+        const prev = this.tabOrder[(idx - 1 + this.tabOrder.length) % this.tabOrder.length];
+        this.switchTab(prev);
+      },
+      
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      },
+      
       // === Child Iframe Communication ===
       handleChildMessage(event) {
         const { type, tab } = event.data;
+        
+        if (type === 'keydown') {
+          // Forwarded key event from iframe
+          this.handleKeydown(event.data);
+          return;
+        }
         
         switch (type) {
           case 'tabReady':

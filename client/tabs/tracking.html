@@ -29,38 +29,6 @@
       height: 100%;
     }
     
-    /* Status header */
-    .tracking-header {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 12px 20px;
-      background: rgba(10, 20, 40, 0.9);
-      border-bottom: 2px solid rgba(74, 158, 255, 0.3);
-      flex-shrink: 0;
-    }
-    
-    .tracking-status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.85em;
-    }
-    
-    .live-indicator {
-      width: 10px;
-      height: 10px;
-      background: var(--accent-blue);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-      box-shadow: 0 0 10px rgba(74, 158, 255, 0.8);
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    
     /* Content area */
     .tracking-content {
       flex: 1;
@@ -87,14 +55,6 @@
 </head>
 <body>
   <div class="tracking-layout">
-    <!-- Mode Selector Header -->
-    <div class="tracking-header">
-      <div class="tracking-status">
-        <span class="live-indicator"></span>
-        <span id="statusText">ISS Live Tracking</span>
-      </div>
-    </div>
-    
     <!-- Tracking Views -->
     <div class="tracking-content">
       <!-- ISS Live View -->
@@ -142,20 +102,6 @@
         document.querySelectorAll('.tracking-view').forEach(view => {
           view.classList.toggle('active', view.id === `view-${mode}`);
         });
-        
-        // Update status text
-        const statusText = document.getElementById('statusText');
-        switch (mode) {
-          case 'iss':
-            statusText.textContent = 'ISS Live Tracking';
-            break;
-          case 'artemis-ii':
-            statusText.textContent = 'Artemis II - Lunar Flyby';
-            break;
-          case 'artemis-iii':
-            statusText.textContent = 'Artemis III - Lunar Landing';
-            break;
-        }
         
         // Notify parent of mode change
         window.parent.postMessage({

@@ -40,7 +40,7 @@
     }
     .mission-control {
       display: grid;
-      grid-template-rows: auto 1fr auto auto;
+      grid-template-rows: auto 1fr auto;
       height: 100vh;
     }
     
@@ -75,31 +75,29 @@
     /* Main Content */
     .main-content {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      padding: 12px 16px;
+      grid-template-columns: 3fr 1fr;
+      padding: 0;
       min-height: 0;
-      gap: 12px;
+      gap: 0;
     }
     
     /* Map Container */
     .map-container {
       background: var(--bg-panel);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
+      border: none;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-    .map-header {
+    .map-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      background: rgba(0, 188, 212, 0.1);
-      border-bottom: 1px solid var(--border-color);
+      gap: 8px;
+      z-index: 1000;
     }
-    .map-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--iss-color); }
-    .map-controls { display: flex; gap: 8px; }
     .map-btn {
       background: rgba(0, 188, 212, 0.2);
       border: 1px solid var(--iss-color);
@@ -118,17 +116,22 @@
     /* Data Overlay */
     .data-overlay {
       position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(10, 22, 40, 0.95);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 12px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 22, 40, 0.9);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 16px;
       z-index: 1000;
-      min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
     }
-    .data-row { display: flex; gap: 16px; margin-bottom: 6px; }
-    .data-row:last-child { margin-bottom: 0; }
+    .data-section {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
     .data-item label { 
       font-size: 0.5rem; 
       color: var(--text-secondary); 
@@ -138,8 +141,49 @@
     }
     .data-item span { 
       font-family: 'Courier New', monospace; 
-      font-size: 0.9rem; 
+      font-size: 0.85rem; 
       color: var(--text-primary);
+    }
+    .data-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--border-color);
+    }
+    .data-location label {
+      font-size: 0.5rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .data-location .location-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--iss-color);
+      display: block;
+      margin-top: 1px;
+    }
+    .data-location .location-country {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+    }
+    .data-stats {
+      display: flex;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .data-stats .stat-item {
+      text-align: center;
+    }
+    .data-stats .stat-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+    .data-stats .stat-label {
+      font-size: 0.45rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     /* Side Panel - ISS Telemetry */
@@ -779,36 +823,7 @@
       font-size: 0.5rem; 
     }
     
-    /* Timeline */
-    .timeline-bar {
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border-color);
-      padding: 10px 16px;
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-    }
-    .next-pass label { 
-      font-size: 0.6rem; 
-      color: var(--text-secondary); 
-      letter-spacing: 1px; 
-    }
-    .next-pass .time { 
-      font-family: 'Courier New', monospace; 
-      font-size: 1rem; 
-      color: var(--iss-color); 
-    }
-    .next-pass .location { font-size: 0.7rem; }
-    .orbit-stats { display: flex; gap: 24px; }
-    .stat-item { text-align: center; }
-    .stat-value { 
-      font-family: 'Courier New', monospace; 
-      font-size: 0.95rem; 
-    }
-    .stat-label { 
-      font-size: 0.55rem; 
-      color: var(--text-secondary); 
-    }
+
     
     /* News Ticker */
     .news-ticker {
@@ -876,31 +891,36 @@
       height: 48px;
     }
     .iss-marker-backdrop {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 70px;
-      height: 44px;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 8px;
-      border: 2px solid rgba(255, 255, 255, 0.4);
+      display: none;
     }
     .iss-marker-glow {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 120px;
-      height: 120px;
-      background: radial-gradient(circle at center, 
-        rgba(255, 214, 10, 0.8) 0%, 
-        rgba(0, 188, 212, 0.6) 25%, 
-        rgba(0, 188, 212, 0.3) 45%, 
-        transparent 70%);
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(0, 188, 212, 0.8);
       border-radius: 50%;
-      filter: blur(8px);
-      animation: iss-glow-pulse 2s ease-in-out infinite;
+      background: rgba(0, 188, 212, 0.15);
+      box-shadow: 0 0 12px rgba(0, 188, 212, 0.6), 0 0 24px rgba(0, 188, 212, 0.3);
+      animation: iss-ring-glow 1.5s ease-in-out infinite;
+    }
+    .iss-marker-glow::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border: 2px solid #00bcd4;
+      border-radius: 50%;
+      animation: iss-pulse-ring 2s ease-out infinite;
+    }
+    .iss-marker-glow::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border: 2px solid #00bcd4;
+      border-radius: 50%;
+      animation: iss-pulse-ring 2s ease-out infinite 0.7s;
     }
     .iss-marker-icon {
       position: absolute;
@@ -915,9 +935,19 @@
         drop-shadow(0 0 8px rgba(0, 188, 212, 1)) 
         drop-shadow(0 0 16px rgba(255, 214, 10, 0.7));
     }
-    @keyframes iss-glow-pulse {
-      0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    @keyframes iss-ring-glow {
+      0%, 100% { 
+        box-shadow: 0 0 12px rgba(0, 188, 212, 0.6), 0 0 24px rgba(0, 188, 212, 0.3);
+        border-color: rgba(0, 188, 212, 0.8);
+      }
+      50% { 
+        box-shadow: 0 0 20px rgba(0, 188, 212, 0.9), 0 0 40px rgba(0, 188, 212, 0.5);
+        border-color: rgba(0, 212, 255, 1);
+      }
+    }
+    @keyframes iss-pulse-ring {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
     }
     
     /* Live update flash animation */
@@ -980,11 +1010,11 @@
       background: #000;
     }
     
-    /* Container for the two 3D views side by side */
+    /* Container for the two 3D views stacked vertically */
     .dual-view-container {
       flex: 1;
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       min-height: 0;
     }
     
@@ -998,7 +1028,7 @@
       min-width: 0;
     }
     .iss-view:first-child {
-      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
     }
     
     /* View label overlay */
@@ -1045,11 +1075,11 @@
     
     /* Telemetry Grid Panel */
     .telemetry-grid-panel {
-      height: 140px;
-      min-height: 140px;
+      height: 160px;
+      min-height: 160px;
       background: rgba(13, 26, 45, 0.95);
       border-top: 1px solid var(--border-color);
-      padding: 8px 12px;
+      padding: 8px 12px 14px 12px;
       display: flex;
       flex-direction: column;
     }
@@ -1158,9 +1188,7 @@
           <div class="mission-subtitle">International Space Station · Low Earth Orbit</div>
         </div>
       </div>
-      <div class="header-center">
-        <div class="orbit-badge" id="orbitBadge">🛰️ ORBIT ---</div>
-      </div>
+
       <div class="header-right">
         <div class="current-time" id="utc">--:--:-- UTC</div>
       </div>
@@ -1168,18 +1196,15 @@
 
     <main class="main-content">
       <div class="map-container" style="position: relative;">
-        <div class="map-header">
-          <span class="map-title">🌍 REAL-TIME ISS TRACKER</span>
-          <div class="map-controls">
-            <button class="map-btn" id="btnFootprint" onclick="toggleFootprint()">Footprint</button>
-            <button class="map-btn" id="btnTrack" onclick="toggleTrack()">Track</button>
-            <button class="map-btn" onclick="centerOnISS()">Center ISS</button>
-          </div>
+        <div class="map-controls">
+          <button class="map-btn" id="btnFootprint" onclick="toggleFootprint()">Footprint</button>
+          <button class="map-btn" id="btnTrack" onclick="toggleTrack()">Track</button>
+          <button class="map-btn" onclick="centerOnISS()">Center ISS</button>
         </div>
         <div id="iss-map"></div>
         
         <div class="data-overlay">
-          <div class="data-row">
+          <div class="data-section">
             <div class="data-item">
               <label>Latitude</label>
               <span id="dataLat">--°</span>
@@ -1188,8 +1213,6 @@
               <label>Longitude</label>
               <span id="dataLng">--°</span>
             </div>
-          </div>
-          <div class="data-row">
             <div class="data-item">
               <label>Altitude</label>
               <span id="dataAlt">-- km</span>
@@ -1197,6 +1220,31 @@
             <div class="data-item">
               <label>Velocity</label>
               <span id="dataVel">-- km/h</span>
+            </div>
+          </div>
+          <div class="data-divider"></div>
+          <div class="data-location">
+            <label>Position Over</label>
+            <span class="location-name" id="overLocation">--</span>
+            <span class="location-country" id="overCountry">Calculating...</span>
+          </div>
+          <div class="data-divider"></div>
+          <div class="data-item">
+            <label>Orbit</label>
+            <span id="statOrbit">---</span>
+          </div>
+          <div class="data-stats">
+            <div class="stat-item">
+              <div class="stat-value">16</div>
+              <div class="stat-label">Orbits/Day</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="statVel">--</div>
+              <div class="stat-label">km/h</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="statYears">-- yrs</div>
+              <div class="stat-label">In Orbit</div>
             </div>
           </div>
         </div>
@@ -1293,31 +1341,7 @@
       </div>
     </main>
     
-    <div class="timeline-bar">
-      <div class="next-pass">
-        <label>CURRENT POSITION OVER</label>
-        <div class="time" id="overLocation">--</div>
-        <div class="location" id="overCountry">Calculating...</div>
-      </div>
-      <div class="orbit-stats">
-        <div class="stat-item">
-          <div class="stat-value">16</div>
-          <div class="stat-label">Orbits/Day</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statVel">--</div>
-          <div class="stat-label">km/h</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statOrbit">---</div>
-          <div class="stat-label">Total Orbits</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statYears">-- yrs</div>
-          <div class="stat-label">In Orbit</div>
-        </div>
-      </div>
-    </div>
+
     
     <div class="news-ticker">
       <div class="ticker-content" id="tickerContent">
@@ -1335,7 +1359,7 @@
   
   <script>
     // Global variables
-    let map, issMarker, footprintCircle, groundTrack;
+    let map, issMarker, footprintCircle, groundTrack, predictedTrack;
     let positionHistory = [];
     let showFootprint = true;
     let showTrack = true;
@@ -1746,13 +1770,20 @@
         maxZoom: 5,
         zoomSnap: 0,  // Allow fractional zoom for perfect fit
         zoomDelta: 0.5,
-        maxBounds: [[-90, -180], [90, 180]],
+        maxBounds: [[-120, -180], [120, 180]],
         maxBoundsViscosity: 1.0,
         worldCopyJump: false
       });
       
-      // Fit to container - fractional zoom allows perfect fill
-      map.fitBounds([[-90, -180], [90, 180]]);
+      // Zoom to fit entire world map in view
+      const mapEl = document.getElementById('iss-map');
+      const mapWidth = mapEl.clientWidth;
+      const mapHeight = mapEl.clientHeight;
+      // EPSG:4326: at zoom 0, world is 512px wide x 256px tall
+      const zoomForWidth = Math.log2(mapWidth / 512);
+      const zoomForHeight = Math.log2(mapHeight / 256);
+      const zoom = Math.min(zoomForWidth, zoomForHeight);
+      map.setView([0, 0], Math.max(zoom, 0.5));
       
       // NASA GIBS Blue Marble tiles in EPSG:4326 (WMS)
       L.tileLayer.wms('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi', {
@@ -1795,12 +1826,19 @@
         dashArray: '8, 4'
       }).addTo(map);
       
-      // Ground track
+      // Ground track (historical trail)
       groundTrack = L.polyline([], {
         color: '#ffd60a',
         weight: 2,
-        opacity: 0.5,
-        dashArray: '10, 6'
+        opacity: 0.7
+      }).addTo(map);
+      
+      // Predicted orbit track (future path)
+      predictedTrack = L.polyline([], {
+        color: '#ffd60a',
+        weight: 1.5,
+        opacity: 0.35,
+        dashArray: '6, 4'
       }).addTo(map);
       
       // Update button states
@@ -1827,6 +1865,62 @@
           dashArray: '4,4'
         }).addTo(map);
       }
+    }
+    
+    // Calculate predicted orbit ground track from current position
+    function calculatePredictedOrbit(lat, lng) {
+      const INCLINATION = 51.6; // degrees
+      const ORBIT_PERIOD = 92.68; // minutes
+      const EARTH_ROTATION = 360 / (24 * 60); // degrees per minute
+      const incRad = INCLINATION * Math.PI / 180;
+      
+      // Determine current orbital phase from latitude
+      // lat = INCLINATION * sin(phase)
+      const sinPhase = lat / INCLINATION;
+      const clampedSin = Math.max(-1, Math.min(1, sinPhase));
+      // Determine if ascending or descending based on recent positions
+      let phase = Math.asin(clampedSin);
+      // Use position history to determine ascending/descending
+      if (positionHistory.length >= 2) {
+        const prevLat = positionHistory[positionHistory.length - 2][0];
+        if (lat < prevLat) {
+          // Descending — phase is in [PI/2, 3PI/2]
+          phase = Math.PI - phase;
+        }
+      }
+      
+      const segments = [];
+      let currentSegment = [];
+      const STEPS = 200;
+      const ORBITS = 1.5; // Show 1.5 orbits ahead
+      const totalMinutes = ORBIT_PERIOD * ORBITS;
+      
+      for (let i = 0; i <= STEPS; i++) {
+        const minutesAhead = (i / STEPS) * totalMinutes;
+        const futurePhase = phase + (minutesAhead / ORBIT_PERIOD) * 2 * Math.PI;
+        const futureLat = INCLINATION * Math.sin(futurePhase);
+        // Longitude shifts west due to Earth rotation
+        let futureLng = lng - (EARTH_ROTATION * minutesAhead);
+        // Also account for orbital motion (longitude component)
+        futureLng += (360 / ORBIT_PERIOD) * minutesAhead * Math.cos(incRad) * (1 - EARTH_ROTATION * ORBIT_PERIOD / 360);
+        
+        // Normalize longitude to [-180, 180]
+        while (futureLng > 180) futureLng -= 360;
+        while (futureLng < -180) futureLng += 360;
+        
+        // Check for dateline crossing — split into segments
+        if (currentSegment.length > 0) {
+          const prevLng = currentSegment[currentSegment.length - 1][1];
+          if (Math.abs(futureLng - prevLng) > 180) {
+            segments.push(currentSegment);
+            currentSegment = [];
+          }
+        }
+        currentSegment.push([futureLat, futureLng]);
+      }
+      if (currentSegment.length > 0) segments.push(currentSegment);
+      
+      return segments;
     }
     
     // Fetch ISS position from our server (proxied API)
@@ -1857,6 +1951,12 @@
         positionHistory.push([lat, lng]);
         if (positionHistory.length > 200) positionHistory.shift();
         if (groundTrack) groundTrack.setLatLngs(positionHistory);
+        
+        // Update predicted orbit track
+        if (predictedTrack) {
+          const segments = calculatePredictedOrbit(lat, lng);
+          predictedTrack.setLatLngs(segments);
+        }
         
         // Update popup
         issMarker.bindPopup(`
@@ -2450,11 +2550,22 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-      scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-      directionalLight.position.set(50, 30, 50);
-      scene.add(directionalLight);
+      if (viewName === 'nadir') {
+        const ambientLight = new THREE.AmbientLight(0x606060, 1.2);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        directionalLight.position.set(0, -80, 40);
+        scene.add(directionalLight);
+        const fillLight = new THREE.DirectionalLight(0x88ccff, 0.8);
+        fillLight.position.set(50, -50, -30);
+        scene.add(fillLight);
+      } else {
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        directionalLight.position.set(50, 30, 50);
+        scene.add(directionalLight);
+      }
       
       // Store references
       if (viewName === 'nadir') {
