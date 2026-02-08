@@ -17,7 +17,7 @@ from database import (
     get_last_sync
 )
 from fetcher import sync_all_missions, ensure_default_missions
-from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until, fetch_current_and_forecast, build_site_weather, find_site_coordinates, DEFAULT_RECOVERY_SITE
+from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until, fetch_current_and_forecast, build_site_weather, find_site_coordinates, DEFAULT_RECOVERY_SITE, _get_client
 from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
 from crew_enrichment import get_cache_status as get_enrichment_status
 from trajectories import get_trajectory, get_available_trajectories
@@ -480,6 +480,62 @@ async def get_weather_operations(mission_id: str):
     app_state["weather_cache"][cache_key] = (datetime.now(timezone.utc), result)
 
     return result
+
+
+# === SWPC Space Weather Proxy ===
+# Proxies NOAA Space Weather Prediction Center APIs to avoid CORS issues
+
+SWPC_BASE = "https://services.swpc.noaa.gov"
+SWPC_ENDPOINTS = {
+    "kp": "/products/noaa-planetary-k-index.json",
+    "solar-wind-plasma": "/products/solar-wind/plasma-5-minute.json",
+    "solar-wind-mag": "/products/solar-wind/mag-5-minute.json",
+    "xray": "/json/goes/primary/xrays-6-hour.json",
+    "alerts": "/products/alerts.json",
+    "sunspots": "/json/solar-cycle/sunspots.json",
+    "solar-flux": "/products/summary/solar-radio-flux.json",
+    "geomag-forecast": "/products/noaa-planetary-k-index-forecast.json",
+    "proton": "/json/goes/primary/integral-protons-1-day.json",
+    "electron": "/json/goes/primary/integral-electrons-1-day.json",
+    "aurora": "/products/animations/ovation_north_24h.json",
+    "aurora-image": "/images/animations/ovation/north/latest.jpg",
+    "enlil": "/products/animations/enlil.json",
+    "solar-regions": "/json/solar_regions.json",
+    "mag-1day": "/products/solar-wind/mag-1-day.json",
+    "plasma-1day": "/products/solar-wind/plasma-1-day.json",
+    "kp-1min": "/json/planetary_k_index_1m.json",
+}
+
+_swpc_cache: dict = {}  # key -> (timestamp, data)
+SWPC_CACHE_TTL = 120  # seconds
+
+
+@app.get("/api/swpc/{endpoint}")
+async def proxy_swpc(endpoint: str):
+    """Proxy SWPC API endpoints with caching."""
+    if endpoint not in SWPC_ENDPOINTS:
+        raise HTTPException(status_code=404, detail=f"Unknown SWPC endpoint: {endpoint}")
+
+    # Check cache
+    now = datetime.now(timezone.utc)
+    if endpoint in _swpc_cache:
+        ts, data = _swpc_cache[endpoint]
+        if (now - ts).total_seconds() < SWPC_CACHE_TTL:
+            return data
+
+    try:
+        client = _get_client()
+        url = SWPC_BASE + SWPC_ENDPOINTS[endpoint]
+        resp = await client.get(url, timeout=10.0)
+        resp.raise_for_status()
+        data = resp.json()
+        _swpc_cache[endpoint] = (now, data)
+        return data
+    except Exception as e:
+        # Return cached even if stale
+        if endpoint in _swpc_cache:
+            return _swpc_cache[endpoint][1]
+        raise HTTPException(status_code=502, detail=f"SWPC API error: {str(e)}")
 
 
 # === ISS Data Endpoints ===

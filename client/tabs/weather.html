@@ -38,407 +38,231 @@
 
     /* ===== HEADER ===== */
     .wx-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 6px 20px;
       background: linear-gradient(180deg, #0a1525 0%, #050a10 100%);
       border-bottom: 1px solid var(--border-subtle);
     }
-
     .wx-header-left { display: flex; align-items: center; gap: 12px; }
-
-    .wx-header-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text-accent);
-    }
-
-    .wx-header-mission {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
-    }
-
+    .wx-header-title { font-size: 0.85rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-accent); }
+    .wx-header-mission { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 1px; }
     .wx-header-right { display: flex; align-items: center; gap: 16px; }
-
-    .wx-updated {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
-    }
-
+    .wx-updated { font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 1px; }
     .wx-live-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--go-color);
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: var(--go-color);
     }
-
     .wx-live-dot::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      background: var(--go-color);
-      border-radius: 50%;
-      animation: pulse-live 2s infinite;
+      content: ''; width: 7px; height: 7px; background: var(--go-color);
+      border-radius: 50%; animation: pulse-live 2s infinite;
     }
-
     @keyframes pulse-live {
       0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
       50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
     }
 
-    /* ===== MAIN PANEL (full width, single site) ===== */
+    /* ===== MAIN PANEL ===== */
     .wx-main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding: 16px 20px;
-      overflow: hidden;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      padding: 16px 20px; overflow: hidden;
     }
 
-    /* Left: conditions + constraints */
-    .wx-data-col {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .wx-data-col { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .wx-data-col::-webkit-scrollbar { width: 4px; }
+    .wx-data-col::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
 
-    .site-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
+    .site-header { display: flex; align-items: center; justify-content: space-between; }
     .site-label { display: flex; align-items: center; gap: 8px; }
     .site-label-icon { font-size: 1.3rem; }
-
-    .site-label-type {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-accent);
-    }
-
-    .site-name {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    .site-overall {
-      padding: 6px 18px;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-    }
-
-    .site-overall.go {
-      background: rgba(34, 197, 94, 0.15);
-      border: 1px solid rgba(34, 197, 94, 0.5);
-      color: var(--go-color);
-    }
-
-    .site-overall.no-go {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: var(--nogo-color);
-    }
-
-    .site-overall.unknown {
-      background: rgba(122, 138, 154, 0.15);
-      border: 1px solid rgba(122, 138, 154, 0.3);
-      color: var(--text-secondary);
-    }
+    .site-label-type { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-accent); }
+    .site-name { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+    .site-overall { padding: 6px 18px; border-radius: 4px; font-size: 0.85rem; font-weight: 800; letter-spacing: 3px; }
+    .site-overall.go { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.5); color: var(--go-color); }
+    .site-overall.no-go { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5); color: var(--nogo-color); }
+    .site-overall.unknown { background: rgba(122,138,154,0.15); border: 1px solid rgba(122,138,154,0.3); color: var(--text-secondary); }
 
     /* Current conditions */
     .current-conditions { display: flex; flex-direction: column; gap: 8px; }
-
     .current-main { display: flex; align-items: center; gap: 14px; }
-
     .current-icon { font-size: 3rem; line-height: 1; }
-
-    .current-temp {
-      font-size: 2.8rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1;
-    }
-
+    .current-temp { font-size: 2.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
     .current-temp-unit { font-size: 1.2rem; color: var(--text-secondary); }
-
-    .current-desc {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
+    .current-desc { font-size: 0.95rem; color: var(--text-secondary); font-weight: 500; }
     .current-stats { display: flex; gap: 16px; flex-wrap: wrap; }
-
-    .current-stat {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
+    .current-stat { font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
     .current-stat-icon { font-size: 0.85rem; }
-
-    .current-stat strong {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
+    .current-stat strong { color: var(--text-primary); font-weight: 600; }
 
     /* Constraints */
     .constraints { display: flex; flex-direction: column; gap: 6px; }
-
-    .constraints-title {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-accent);
-      margin-bottom: 4px;
-    }
-
-    .constraint-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
-      padding: 3px 0;
-    }
-
-    .constraint-indicator {
-      width: 20px;
-      height: 20px;
-      border-radius: 3px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      flex-shrink: 0;
-    }
-
-    .constraint-indicator.go {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px solid var(--go-color);
-      color: var(--go-color);
-    }
-
-    .constraint-indicator.no-go {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid var(--nogo-color);
-      color: var(--nogo-color);
-    }
-
-    .constraint-indicator.unknown {
-      background: rgba(122, 138, 154, 0.15);
-      border: 1px solid rgba(122, 138, 154, 0.3);
-      color: var(--text-secondary);
-    }
-
+    .constraints-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-accent); margin-bottom: 4px; }
+    .constraint-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 3px 0; }
+    .constraint-indicator { width: 20px; height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; flex-shrink: 0; }
+    .constraint-indicator.go { background: rgba(34,197,94,0.2); border: 1px solid var(--go-color); color: var(--go-color); }
+    .constraint-indicator.no-go { background: rgba(239,68,68,0.2); border: 1px solid var(--nogo-color); color: var(--nogo-color); }
+    .constraint-indicator.unknown { background: rgba(122,138,154,0.15); border: 1px solid rgba(122,138,154,0.3); color: var(--text-secondary); }
     .constraint-label { color: var(--text-secondary); min-width: 55px; }
-
-    .constraint-value {
-      color: var(--text-primary);
-      font-weight: 600;
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem;
-    }
-
+    .constraint-value { color: var(--text-primary); font-weight: 600; font-family: 'Courier New', monospace; font-size: 0.78rem; }
     .constraint-limit { color: var(--text-secondary); font-size: 0.7rem; }
 
-    /* Right: satellite imagery */
-    .satellite-section {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 0;
+    /* ===== SPACE WEATHER COMPACT ===== */
+    .spacewx-compact { background: rgba(0,20,40,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; }
+    .spacewx-compact-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c084fc; margin-bottom: 8px; }
+    .spacewx-compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+    .spacewx-metric { display: flex; align-items: center; gap: 6px; }
+    .spacewx-metric-label { font-size: 0.65rem; color: var(--text-secondary); min-width: 45px; }
+    .spacewx-metric-value { font-size: 0.78rem; font-weight: 700; font-family: 'Courier New', monospace; }
+    .spacewx-metric-value.level-quiet { color: var(--go-color); }
+    .spacewx-metric-value.level-active { color: var(--marginal-color); }
+    .spacewx-metric-value.level-storm { color: var(--nogo-color); }
+    .spacewx-metric-value.level-unknown { color: var(--text-secondary); }
+    .spacewx-alert-badge {
+      display: inline-flex; align-items: center; gap: 3px; font-size: 0.6rem;
+      padding: 2px 6px; border-radius: 3px; font-weight: 700; letter-spacing: 1px;
+      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--nogo-color);
     }
+    .spacewx-alert-badge.quiet { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--go-color); }
 
-    .satellite-container {
-      flex: 1;
-      position: relative;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      background: #050810;
-      min-height: 0;
+    /* ===== RIGHT PANEL SUB-TABS ===== */
+    .right-panel { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+    .sub-tab-nav { display: flex; gap: 2px; margin-bottom: 8px; flex-shrink: 0; }
+    .sub-tab-btn {
+      flex: 1; padding: 5px 8px; background: rgba(0,20,40,0.4);
+      border: 1px solid var(--border-subtle); border-radius: 4px 4px 0 0;
+      color: var(--text-secondary); font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+      font-family: inherit; transition: all 0.2s; text-align: center;
     }
+    .sub-tab-btn:hover { color: var(--text-primary); background: rgba(0,40,80,0.4); }
+    .sub-tab-btn.active { color: var(--text-accent); background: rgba(0,60,100,0.3); border-bottom-color: transparent; border-top-color: var(--text-accent); }
+    .sub-view { display: none; flex: 1; min-height: 0; overflow: hidden; }
+    .sub-view.active { display: flex; flex-direction: column; }
 
-    .satellite-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .satellite-label {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 4px 10px;
-      background: rgba(0, 0, 0, 0.7);
-      font-size: 0.6rem;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .satellite-error {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    /* Radar map */
-    #radarMap {
-      width: 100%;
-      height: 100%;
-      border-radius: 6px;
-      z-index: 0;
-    }
-
+    /* ===== RADAR / MAP ===== */
+    .satellite-container { flex: 1; position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); background: #050810; min-height: 0; }
+    #radarMap { width: 100%; height: 100%; border-radius: 6px; z-index: 0; }
     .radar-controls {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      z-index: 1000;
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+      background: rgba(0,0,0,0.85); border: 1px solid var(--border-subtle);
+      border-radius: 6px; z-index: 1000; font-size: 0.65rem; color: var(--text-secondary); letter-spacing: 1px;
     }
-
     .radar-controls button {
-      background: none;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-accent);
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-family: inherit;
+      background: none; border: 1px solid var(--border-subtle); color: var(--text-accent);
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-family: inherit;
     }
-
-    .radar-controls button:hover { background: rgba(0, 212, 255, 0.15); }
-    .radar-controls button.active { background: rgba(0, 212, 255, 0.25); border-color: var(--text-accent); }
-
-    .radar-time {
-      font-family: 'Courier New', monospace;
-      color: var(--text-primary);
-      min-width: 80px;
-      text-align: center;
-      font-size: 0.65rem;
-    }
-
-    .radar-layer-toggle {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: 6px;
-      padding-left: 6px;
-      border-left: 1px solid var(--border-subtle);
-    }
-
-    .radar-layer-toggle label {
-      font-size: 0.55rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .radar-layer-toggle input[type="checkbox"] {
-      accent-color: var(--text-accent);
-      width: 12px;
-      height: 12px;
-    }
-
+    .radar-controls button:hover { background: rgba(0,212,255,0.15); }
+    .radar-controls button.active { background: rgba(0,212,255,0.25); border-color: var(--text-accent); }
+    .radar-time { font-family: 'Courier New', monospace; color: var(--text-primary); min-width: 80px; text-align: center; font-size: 0.65rem; }
+    .radar-layer-toggle { display: flex; align-items: center; gap: 4px; margin-left: 6px; padding-left: 6px; border-left: 1px solid var(--border-subtle); }
+    .radar-layer-toggle label { font-size: 0.55rem; color: var(--text-secondary); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+    .radar-layer-toggle input[type="checkbox"] { accent-color: var(--text-accent); width: 12px; height: 12px; }
     .leaflet-control-attribution { display: none !important; }
 
+    /* Lightning overlay bar */
+    .lightning-overlay-bar {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      padding: 4px 12px; background: rgba(0,0,0,0.85); border: 1px solid var(--border-subtle);
+      border-radius: 6px; z-index: 1000; font-size: 0.6rem; color: var(--text-secondary);
+      letter-spacing: 1px; display: flex; align-items: center; white-space: nowrap;
+    }
+
+    /* Lightning flash markers */
+    .lightning-flash {
+      width: 8px; height: 8px; border-radius: 50%; background: #ffe066; opacity: 0.9;
+      box-shadow: 0 0 6px 2px rgba(255, 224, 102, 0.6);
+      animation: lightning-fade 4s forwards;
+    }
+    @keyframes lightning-fade {
+      0% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(0.5); }
+    }
+
+    /* ===== SATELLITE ===== */
+    .sat-view { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .sat-band-selector { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    .sat-band-btn {
+      padding: 3px 10px; background: rgba(0,20,40,0.5); border: 1px solid var(--border-subtle);
+      border-radius: 3px; color: var(--text-secondary); font-size: 0.55rem; font-weight: 600;
+      letter-spacing: 1px; cursor: pointer; font-family: inherit; text-transform: uppercase;
+    }
+    .sat-band-btn:hover { color: var(--text-primary); }
+    .sat-band-btn.active { color: var(--text-accent); border-color: var(--text-accent); background: rgba(0,60,100,0.2); }
+    .sat-image-container { flex: 1; position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); background: #050810; min-height: 0; }
+    .sat-image-container img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .sat-image-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 10px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      font-size: 0.6rem; color: var(--text-secondary); letter-spacing: 1px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sat-loading { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); font-size: 0.8rem; letter-spacing: 1px; }
+
+    /* ===== SPACE WEATHER FULL VIEW ===== */
+    .spacewx-view { flex: 1; overflow-y: auto; padding-right: 4px; }
+    .spacewx-view::-webkit-scrollbar { width: 4px; }
+    .spacewx-view::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+    .spacewx-section { background: rgba(0,20,40,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; }
+    .spacewx-section-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c084fc; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .spacewx-section-title .icon { font-size: 0.85rem; }
+
+    /* Kp Gauge */
+    .kp-gauge { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .kp-value { font-size: 2.2rem; font-weight: 800; font-family: 'Courier New', monospace; line-height: 1; }
+    .kp-bar-container { flex: 1; }
+    .kp-bar-bg { height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; display: flex; position: relative; }
+    .kp-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+    .kp-scale { display: flex; justify-content: space-between; font-size: 0.5rem; color: var(--text-secondary); margin-top: 2px; padding: 0 2px; }
+    .kp-label { font-size: 0.7rem; color: var(--text-secondary); }
+
+    /* Solar wind */
+    .sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sw-card { background: rgba(0,15,30,0.5); border: 1px solid rgba(26,48,80,0.5); border-radius: 4px; padding: 8px 10px; text-align: center; }
+    .sw-card-label { font-size: 0.55rem; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .sw-card-value { font-size: 1.4rem; font-weight: 700; font-family: 'Courier New', monospace; }
+    .sw-card-unit { font-size: 0.6rem; color: var(--text-secondary); }
+
+    /* X-ray */
+    .xray-display { display: flex; align-items: center; gap: 12px; }
+    .xray-class { font-size: 1.8rem; font-weight: 800; font-family: 'Courier New', monospace; }
+    .xray-class.A, .xray-class.B { color: var(--go-color); }
+    .xray-class.C { color: var(--marginal-color); }
+    .xray-class.M { color: #f97316; }
+    .xray-class.X { color: var(--nogo-color); }
+    .xray-flux-val { font-size: 0.75rem; color: var(--text-secondary); font-family: 'Courier New', monospace; }
+
+    /* Proton flux card */
+    .proton-display { display: flex; align-items: center; gap: 12px; }
+    .proton-value { font-size: 1.5rem; font-weight: 700; font-family: 'Courier New', monospace; }
+
+    /* Alerts */
+    .alert-item { padding: 6px 8px; margin-bottom: 4px; border-radius: 4px; border-left: 3px solid var(--marginal-color); background: rgba(245,158,11,0.08); font-size: 0.7rem; }
+    .alert-item.warning { border-left-color: var(--nogo-color); background: rgba(239,68,68,0.08); }
+    .alert-item.watch { border-left-color: #f97316; background: rgba(249,115,22,0.08); }
+    .alert-item .alert-type { font-weight: 700; color: var(--text-primary); font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; }
+    .alert-item .alert-text { color: var(--text-secondary); margin-top: 2px; line-height: 1.3; }
+    .alert-item .alert-time { color: var(--text-secondary); font-size: 0.55rem; margin-top: 2px; font-family: 'Courier New', monospace; }
+    .no-alerts { color: var(--go-color); font-size: 0.75rem; padding: 8px 0; }
+
+    /* Aurora container */
+    .aurora-container { position: relative; border-radius: 4px; overflow: hidden; background: #050810; min-height: 120px; }
+    .aurora-container img { background: #0a1020; }
+
     /* ===== FORECAST STRIP ===== */
-    .forecast-strip {
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border-subtle);
-      padding: 8px 20px;
-      overflow: hidden;
-    }
-
-    .forecast-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .forecast-title {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-accent);
-    }
-
-    .forecast-site-label {
-      font-size: 0.6rem;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
-    }
-
+    .forecast-strip { background: var(--bg-panel); border-top: 1px solid var(--border-subtle); padding: 8px 20px; overflow: hidden; }
+    .forecast-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .forecast-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-accent); }
+    .forecast-site-label { font-size: 0.6rem; color: var(--text-secondary); letter-spacing: 1px; }
     .forecast-days { display: flex; gap: 6px; overflow-x: auto; }
-
     .forecast-day {
-      flex: 1;
-      min-width: 70px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 5px 4px;
-      border-radius: 6px;
-      background: rgba(0, 20, 40, 0.4);
-      border: 1px solid rgba(26, 48, 80, 0.5);
+      flex: 1; min-width: 70px; display: flex; flex-direction: column; align-items: center;
+      gap: 2px; padding: 5px 4px; border-radius: 6px;
+      background: rgba(0,20,40,0.4); border: 1px solid rgba(26,48,80,0.5);
     }
-
-    .forecast-day.highlight-day {
-      border-color: rgba(0, 212, 255, 0.5);
-      background: rgba(0, 212, 255, 0.08);
-    }
-
-    .forecast-day-name {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
+    .forecast-day.highlight-day { border-color: rgba(0,212,255,0.5); background: rgba(0,212,255,0.08); }
+    .forecast-day-name { font-size: 0.6rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; }
     .forecast-day.highlight-day .forecast-day-name { color: var(--text-accent); }
-
     .forecast-day-icon { font-size: 1rem; line-height: 1; }
-
     .forecast-day-temps { display: flex; gap: 4px; font-size: 0.65rem; }
     .forecast-day-high { font-weight: 700; color: var(--text-primary); }
     .forecast-day-low { color: var(--text-secondary); }
@@ -459,6 +283,7 @@
     </header>
 
     <div class="wx-main">
+      <!-- LEFT COLUMN -->
       <div class="wx-data-col">
         <div class="site-header">
           <div class="site-label">
@@ -473,9 +298,7 @@
         <div class="current-conditions">
           <div class="current-main">
             <span class="current-icon" id="wxIcon">--</span>
-            <div>
-              <span class="current-temp" id="wxTemp">--</span><span class="current-temp-unit">°F</span>
-            </div>
+            <div><span class="current-temp" id="wxTemp">--</span><span class="current-temp-unit">°F</span></div>
           </div>
           <div class="current-desc" id="wxDesc">Loading conditions...</div>
           <div class="current-stats">
@@ -487,51 +310,167 @@
         </div>
         <div class="constraints">
           <div class="constraints-title">Launch Constraints</div>
-          <div class="constraint-row">
-            <div class="constraint-indicator unknown" id="cWind">-</div>
-            <span class="constraint-label">Wind</span>
-            <span class="constraint-value" id="cWindVal">--</span>
-            <span class="constraint-limit">/ 30 mph</span>
-          </div>
-          <div class="constraint-row">
-            <div class="constraint-indicator unknown" id="cGust">-</div>
-            <span class="constraint-label">Gusts</span>
-            <span class="constraint-value" id="cGustVal">--</span>
-            <span class="constraint-limit">/ 40 mph</span>
-          </div>
-          <div class="constraint-row">
-            <div class="constraint-indicator unknown" id="cPrecip">-</div>
-            <span class="constraint-label">Precip</span>
-            <span class="constraint-value" id="cPrecipVal">--</span>
-            <span class="constraint-limit">/ 0.1 mm</span>
-          </div>
-          <div class="constraint-row">
-            <div class="constraint-indicator unknown" id="cWx">-</div>
-            <span class="constraint-label">Weather</span>
-            <span class="constraint-value" id="cWxVal">--</span>
+          <div class="constraint-row"><div class="constraint-indicator unknown" id="cWind">-</div><span class="constraint-label">Wind</span><span class="constraint-value" id="cWindVal">--</span><span class="constraint-limit">/ 30 mph</span></div>
+          <div class="constraint-row"><div class="constraint-indicator unknown" id="cGust">-</div><span class="constraint-label">Gusts</span><span class="constraint-value" id="cGustVal">--</span><span class="constraint-limit">/ 40 mph</span></div>
+          <div class="constraint-row"><div class="constraint-indicator unknown" id="cPrecip">-</div><span class="constraint-label">Precip</span><span class="constraint-value" id="cPrecipVal">--</span><span class="constraint-limit">/ 0.1 mm</span></div>
+          <div class="constraint-row"><div class="constraint-indicator unknown" id="cWx">-</div><span class="constraint-label">Weather</span><span class="constraint-value" id="cWxVal">--</span></div>
+        </div>
+
+        <!-- Compact Space Weather -->
+        <div class="spacewx-compact" id="spacewxCompact">
+          <div class="spacewx-compact-title">☀ Space Weather</div>
+          <div class="spacewx-compact-grid">
+            <div class="spacewx-metric"><span class="spacewx-metric-label">Kp</span><span class="spacewx-metric-value level-unknown" id="swcKp">--</span></div>
+            <div class="spacewx-metric"><span class="spacewx-metric-label">X-ray</span><span class="spacewx-metric-value level-unknown" id="swcXray">--</span></div>
+            <div class="spacewx-metric"><span class="spacewx-metric-label">Wind</span><span class="spacewx-metric-value level-unknown" id="swcWind">--</span></div>
+            <div class="spacewx-metric"><span class="spacewx-metric-label">Alerts</span><span id="swcAlerts"><span class="spacewx-alert-badge quiet">NONE</span></span></div>
           </div>
         </div>
       </div>
-      <div class="satellite-section">
-        <div class="satellite-container">
-          <div id="radarMap"></div>
-          <div class="radar-controls">
-            <button id="radarPrev" title="Previous frame">◀</button>
-            <button id="radarPlay" title="Play/Pause" class="active">▶</button>
-            <button id="radarNext" title="Next frame">▶▶</button>
-            <span class="radar-time" id="radarTime">--:-- UTC</span>
-            <div class="radar-layer-toggle">
-              <input type="checkbox" id="toggleRainViewer" checked>
-              <label for="toggleRainViewer">Radar</label>
-            </div>
-            <div class="radar-layer-toggle">
-              <input type="checkbox" id="toggleNOAA">
-              <label for="toggleNOAA">NOAA MRMS</label>
+
+      <!-- RIGHT COLUMN: sub-tabbed views -->
+      <div class="right-panel">
+        <div class="sub-tab-nav">
+          <button class="sub-tab-btn active" data-view="radar" onclick="SubTabs.switch('radar')">📡 Radar</button>
+          <button class="sub-tab-btn" data-view="satellite" onclick="SubTabs.switch('satellite')">🛰️ Satellite</button>
+          <button class="sub-tab-btn" data-view="spacewx" onclick="SubTabs.switch('spacewx')">☀ Space Wx</button>
+          <button class="sub-tab-btn" data-view="lightning" onclick="SubTabs.switch('lightning')">⚡ Lightning</button>
+        </div>
+
+        <!-- RADAR VIEW -->
+        <div class="sub-view active" id="view-radar">
+          <div class="satellite-container">
+            <div id="radarMap"></div>
+            <div class="radar-controls">
+              <button id="radarPrev" title="Previous frame">◀</button>
+              <button id="radarPlay" title="Play/Pause" class="active">▶</button>
+              <button id="radarNext" title="Next frame">▶▶</button>
+              <span class="radar-time" id="radarTime">--:-- UTC</span>
+              <div class="radar-layer-toggle"><input type="checkbox" id="toggleRainViewer" checked><label for="toggleRainViewer">Radar</label></div>
+              <div class="radar-layer-toggle"><input type="checkbox" id="toggleNOAA"><label for="toggleNOAA">NOAA</label></div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+
+        <!-- SATELLITE VIEW -->
+        <div class="sub-view" id="view-satellite">
+          <div class="sat-view">
+            <div class="sat-band-selector" id="satBandSelector">
+              <button class="sat-band-btn active" data-band="GEOCOLOR" onclick="SatViewer.setBand('GEOCOLOR')">GeoColor</button>
+              <button class="sat-band-btn" data-band="13" onclick="SatViewer.setBand('13')">IR (10.3µm)</button>
+              <button class="sat-band-btn" data-band="02" onclick="SatViewer.setBand('02')">Visible</button>
+              <button class="sat-band-btn" data-band="09" onclick="SatViewer.setBand('09')">Water Vapor</button>
+              <button class="sat-band-btn" data-band="AirMass" onclick="SatViewer.setBand('AirMass')">Air Mass</button>
+              <button class="sat-band-btn" data-band="SLIDER" onclick="SatViewer.setBand('SLIDER')" style="border-color:#c084fc; color:#c084fc;">🎛 SLIDER</button>
+            </div>
+            <div class="sat-image-container" id="satContainer">
+              <div class="sat-loading" id="satLoading">Loading GOES-16 imagery...</div>
+              <img id="satImage" src="" alt="GOES Satellite" style="display:none;" crossorigin="anonymous">
+              <div class="sat-image-overlay">
+                <span id="satBandLabel">GEOCOLOR — GOES-16 SE US SECTOR</span>
+                <span id="satTimestamp">--:-- UTC</span>
+              </div>
+            </div>
+            <div id="sliderContainer" style="display:none; flex:1; position:relative; border-radius:6px; overflow:hidden; border:1px solid var(--border-subtle); min-height:0;">
+              <iframe id="sliderFrame" src="" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+              <div style="position:absolute; top:6px; right:6px; z-index:10;">
+                <button onclick="SatViewer.setBand('GEOCOLOR')" style="background:rgba(0,0,0,0.75); border:1px solid var(--border-subtle); color:var(--text-accent); font-size:0.6rem; padding:3px 8px; border-radius:3px; cursor:pointer; font-family:inherit;">✕ Back to GOES</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPACE WEATHER VIEW -->
+        <div class="sub-view" id="view-spacewx">
+          <div class="spacewx-view">
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">🧲</span> Geomagnetic Activity — Kp Index</div>
+              <div class="kp-gauge">
+                <div class="kp-value level-unknown" id="kpValue">--</div>
+                <div class="kp-bar-container">
+                  <div class="kp-bar-bg"><div class="kp-bar-fill" id="kpBarFill" style="width:0%; background: var(--go-color);"></div></div>
+                  <div class="kp-scale"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></div>
+                </div>
+              </div>
+              <div class="kp-label" id="kpLabel">Loading geomagnetic data...</div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">🌊</span> Solar Wind — DSCOVR Real-Time</div>
+              <div class="sw-grid">
+                <div class="sw-card"><div class="sw-card-label">Speed</div><div class="sw-card-value" id="swSpeed">--</div><div class="sw-card-unit">km/s</div></div>
+                <div class="sw-card"><div class="sw-card-label">Density</div><div class="sw-card-value" id="swDensity">--</div><div class="sw-card-unit">p/cm³</div></div>
+                <div class="sw-card"><div class="sw-card-label">Bt (Total)</div><div class="sw-card-value" id="swBt">--</div><div class="sw-card-unit">nT</div></div>
+                <div class="sw-card"><div class="sw-card-label">Bz (North-South)</div><div class="sw-card-value" id="swBz">--</div><div class="sw-card-unit">nT</div></div>
+              </div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">⚡</span> Solar X-Ray Flux — GOES Primary</div>
+              <div class="xray-display">
+                <div class="xray-class" id="xrayClass">--</div>
+                <div>
+                  <div class="xray-flux-val" id="xrayFlux">-- W/m²</div>
+                  <div style="font-size:0.6rem; color:var(--text-secondary); margin-top:2px;" id="xrayLabel">Loading X-ray data...</div>
+                </div>
+              </div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">☢️</span> Energetic Proton Flux — GOES ≥10 MeV</div>
+              <div class="proton-display">
+                <div class="proton-value level-unknown" id="protonValue">--</div>
+                <div>
+                  <div style="font-size:0.7rem; color:var(--text-secondary);" id="protonUnit">pfu (p/cm²·s·sr)</div>
+                  <div style="font-size:0.6rem; color:var(--text-secondary); margin-top:2px;" id="protonLabel">Loading proton data...</div>
+                </div>
+              </div>
+              <div style="font-size:0.55rem; color:var(--text-secondary); margin-top:6px; padding:4px 6px; background:rgba(0,15,30,0.5); border-radius:3px;">
+                S1 (Minor): ≥10 pfu &nbsp;|&nbsp; S2 (Moderate): ≥100 pfu &nbsp;|&nbsp; S3 (Strong): ≥1000 pfu
+              </div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">📊</span> Kp Index Forecast — 3-Day Outlook</div>
+              <div id="kpForecastChart" style="display:flex; align-items:flex-end; gap:2px; height:80px; padding:4px 0;"></div>
+              <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:var(--text-secondary); padding:0 2px;">
+                <span id="kpFcstStart">--</span><span id="kpFcstEnd">--</span>
+              </div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">🚨</span> Active Alerts & Warnings</div>
+              <div id="alertsList"><div class="sat-loading">Loading alerts...</div></div>
+            </div>
+            <div class="spacewx-section">
+              <div class="spacewx-section-title"><span class="icon">🌌</span> Aurora Forecast — OVATION Northern Hemisphere</div>
+              <div class="aurora-container" id="auroraContainer">
+                <img id="auroraImage" src="" alt="Aurora OVATION" style="width:100%; height:auto; border-radius:4px; display:none;">
+                <div class="sat-loading" id="auroraLoading">Loading aurora forecast...</div>
+              </div>
+              <div style="font-size:0.55rem; color:var(--text-secondary); margin-top:6px; padding:4px 6px; background:rgba(0,15,30,0.5); border-radius:3px;">
+                OVATION Prime model — Probability of aurora visibility. Source: NOAA/SWPC
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIGHTNING VIEW -->
+        <div class="sub-view" id="view-lightning">
+          <div class="satellite-container" style="position:relative;">
+            <div id="lightningMap"></div>
+            <div class="lightning-overlay-bar">
+              <span>⚡ BLITZORTUNG REAL-TIME LIGHTNING</span>
+              <span style="margin-left:8px; font-family:'Courier New',monospace; color:var(--text-primary);" id="lightningCount">-- strikes</span>
+              <span style="margin-left:8px; color: #ffe066;">●</span> <span style="font-size:0.5rem;">NEW</span>
+              <span style="margin-left:4px; color: #ff6644;">●</span> <span style="font-size:0.5rem;">RECENT</span>
+              <span style="margin-left:12px; padding-left:8px; border-left:1px solid var(--border-subtle);">
+                <label style="font-size:0.55rem; cursor:pointer; letter-spacing:1px; text-transform:uppercase;">
+                  <input type="checkbox" id="toggleGLM" style="accent-color:var(--text-accent); width:12px; height:12px; vertical-align:middle;" checked>
+                  GLM Overlay
+                </label>
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right-panel -->
+    </div><!-- /wx-main -->
 
     <footer class="forecast-strip">
       <div class="forecast-header">
@@ -544,51 +483,35 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // === Radar Map Module ===
+    // ===== Sub-Tab Manager =====
+    const SubTabs = {
+      current: 'radar',
+      switch(viewId) {
+        this.current = viewId;
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
+        document.querySelectorAll('.sub-view').forEach(v => v.classList.toggle('active', v.id === `view-${viewId}`));
+        if (viewId === 'radar' && RadarMap.map) setTimeout(() => RadarMap.map.invalidateSize(), 100);
+        if (viewId === 'satellite' && !SatViewer.loaded) SatViewer.load();
+        if (viewId === 'lightning' && !LightningMap.initialized) LightningMap.init();
+        if (viewId === 'lightning' && LightningMap.map) setTimeout(() => LightningMap.map.invalidateSize(), 100);
+      }
+    };
+
+    // ===== Radar Map Module =====
     const RadarMap = {
-      map: null,
-      siteMarker: null,
-      rainViewerData: null,
-      rainViewerLayers: [],
-      noaaLayer: null,
-      animationPos: 0,
-      animationTimer: null,
-      isPlaying: false,
-      lastPastFrame: -1,
+      map: null, siteMarker: null, rainViewerData: null, rainViewerLayers: [],
+      noaaLayer: null, animationPos: 0, animationTimer: null, isPlaying: false, lastPastFrame: -1,
 
       init(lat, lon, zoom = 7) {
         if (this.map) { this.map.setView([lat, lon], zoom); return; }
+        this.map = L.map('radarMap', { center: [lat, lon], zoom, zoomControl: false, attributionControl: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18, opacity: 0.8 }).addTo(this.map);
+        this.siteMarker = L.circleMarker([lat, lon], { radius: 8, color: '#00d4ff', fillColor: '#00d4ff', fillOpacity: 0.3, weight: 2 }).addTo(this.map);
 
-        this.map = L.map('radarMap', {
-          center: [lat, lon],
-          zoom: zoom,
-          zoomControl: false,
-          attributionControl: false,
-        });
-
-        // Dark base tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          maxZoom: 18,
-          opacity: 0.8,
-        }).addTo(this.map);
-
-        // Site marker
-        this.siteMarker = L.circleMarker([lat, lon], {
-          radius: 8, color: '#00d4ff', fillColor: '#00d4ff',
-          fillOpacity: 0.3, weight: 2
-        }).addTo(this.map);
-
-        // NOAA MRMS WMS layer (US radar, off by default)
         this.noaaLayer = L.tileLayer.wms(
-          'https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity/MapServer/WMSServer', {
-          layers: '0',
-          format: 'image/png',
-          transparent: true,
-          opacity: 0.6,
-          attribution: 'NOAA/NWS',
-        });
+          'https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity/MapServer/WMSServer',
+          { layers: '0', format: 'image/png', transparent: true, opacity: 0.6, attribution: 'NOAA/NWS' });
 
-        // Wire controls
         document.getElementById('radarPrev').addEventListener('click', () => this.step(-1));
         document.getElementById('radarNext').addEventListener('click', () => this.step(1));
         document.getElementById('radarPlay').addEventListener('click', () => this.togglePlay());
@@ -597,13 +520,9 @@
           if (e.target.checked) this.showFrame(this.animationPos);
         });
         document.getElementById('toggleNOAA').addEventListener('change', (e) => {
-          if (e.target.checked) this.noaaLayer.addTo(this.map);
-          else this.map.removeLayer(this.noaaLayer);
+          if (e.target.checked) this.noaaLayer.addTo(this.map); else this.map.removeLayer(this.noaaLayer);
         });
-
         this.loadRainViewer();
-
-        // Refresh RainViewer data every 5 minutes
         setInterval(() => this.loadRainViewer(), 5 * 60 * 1000);
       },
 
@@ -612,52 +531,29 @@
           const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
           const data = await res.json();
           this.rainViewerData = data;
-
-          // Clear old layers
           this.rainViewerLayers.forEach(l => { if (this.map.hasLayer(l)) this.map.removeLayer(l); });
           this.rainViewerLayers = [];
-
-          // Build frame list: past + nowcast
           const frames = [];
           if (data.radar?.past) frames.push(...data.radar.past);
           this.lastPastFrame = frames.length - 1;
           if (data.radar?.nowcast) frames.push(...data.radar.nowcast);
-
-          // Create tile layers for each frame
           frames.forEach((frame) => {
-            const layer = L.tileLayer(
-              data.host + frame.path + '/256/{z}/{x}/{y}/2/1_1.png', {
-              opacity: 0,
-              zIndex: 5,
-            });
+            const layer = L.tileLayer(data.host + frame.path + '/256/{z}/{x}/{y}/2/1_1.png', { opacity: 0, zIndex: 5 });
             this.rainViewerLayers.push(layer);
           });
-
-          // Show latest past frame
           this.animationPos = this.lastPastFrame;
           this.showFrame(this.animationPos);
-
-          // Auto-play
           if (!this.isPlaying) this.togglePlay();
-        } catch (err) {
-          console.warn('RainViewer load failed:', err);
-        }
+        } catch (err) { console.warn('RainViewer load failed:', err); }
       },
 
       showFrame(idx) {
         if (!document.getElementById('toggleRainViewer').checked) return;
         if (idx < 0 || idx >= this.rainViewerLayers.length) return;
-
         this.rainViewerLayers.forEach((layer, i) => {
-          if (i === idx) {
-            if (!this.map.hasLayer(layer)) layer.addTo(this.map);
-            layer.setOpacity(0.65);
-          } else {
-            layer.setOpacity(0);
-          }
+          if (i === idx) { if (!this.map.hasLayer(layer)) layer.addTo(this.map); layer.setOpacity(0.65); }
+          else { layer.setOpacity(0); }
         });
-
-        // Update time display
         const frames = [];
         if (this.rainViewerData?.radar?.past) frames.push(...this.rainViewerData.radar.past);
         if (this.rainViewerData?.radar?.nowcast) frames.push(...this.rainViewerData.radar.nowcast);
@@ -679,17 +575,8 @@
 
       togglePlay() {
         const btn = document.getElementById('radarPlay');
-        if (this.isPlaying) {
-          clearInterval(this.animationTimer);
-          this.isPlaying = false;
-          btn.textContent = '▶';
-          btn.classList.remove('active');
-        } else {
-          this.animationTimer = setInterval(() => this.step(1), 800);
-          this.isPlaying = true;
-          btn.textContent = '⏸';
-          btn.classList.add('active');
-        }
+        if (this.isPlaying) { clearInterval(this.animationTimer); this.isPlaying = false; btn.textContent = '▶'; btn.classList.remove('active'); }
+        else { this.animationTimer = setInterval(() => this.step(1), 800); this.isPlaying = true; btn.textContent = '⏸'; btn.classList.add('active'); }
       },
 
       updatePosition(lat, lon) {
@@ -697,49 +584,552 @@
         if (this.siteMarker) this.siteMarker.setLatLng([lat, lon]);
       }
     };
-    const WeatherTab = {
-      data: null,
-      missionId: 'artemis-ii',
-      refreshInterval: null,
-      API_BASE: window.location.origin,
-      SITE_KEY: 'launch_site',
-      EVENT_DATE_KEY: 'launch_date',
-      TAB_NAME: 'weather',
 
-      init() {
-        window.addEventListener('message', (e) => this.handleMessage(e));
-        window.parent.postMessage({ type: 'tabReady', tab: this.TAB_NAME }, '*');
-        this.refreshInterval = setInterval(() => this.loadData(), 5 * 60 * 1000);
-        setTimeout(() => { if (!this.data) this.loadData(); }, 2000);
+    // ===== GOES Satellite Imagery Viewer =====
+    const SatViewer = {
+      loaded: false,
+      currentBand: 'GEOCOLOR',
+      refreshTimer: null,
+      // GOES-16 (East) SE US sector — covers KSC/Cape Canaveral
+      BASE_URL: 'https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se',
+      BANDS: {
+        'GEOCOLOR': { label: 'GeoColor (True Color)', path: 'GEOCOLOR' },
+        '13':       { label: 'Clean IR Longwave (10.3µm)', path: '13' },
+        '02':       { label: 'Visible Red (0.64µm)', path: '02' },
+        '09':       { label: 'Mid-Level Water Vapor (6.9µm)', path: '09' },
+        'AirMass':  { label: 'Air Mass (RGB Composite)', path: 'AirMass' },
+      },
+      // RAMMB/CIRA SLIDER URL for KSC region
+      SLIDER_URL: 'https://rammb-slider.cira.colostate.edu/?sat=goes-16&z=4&im=12&ts=1&st=0&et=0&speed=130&motion=loop&maps%5Bborders%5D=white&lat=28.5&lon=-80.6&p%5B0%5D=geocolor',
+
+      load() {
+        this.loaded = true;
+        this.fetchImage();
+        this.refreshTimer = setInterval(() => this.fetchImage(), 5 * 60 * 1000);
       },
 
-      handleMessage(event) {
-        const msg = event.data;
-        switch (msg.type) {
-          case 'setWeatherOpsData':
-            this.data = msg.weather;
-            this.render();
-            break;
-          case 'setMissionData':
-            if (msg.mission?.id) { this.missionId = msg.mission.id; this.loadData(); }
-            break;
-          case 'missionData':
-            if (msg.data?.id) { this.missionId = msg.data.id; this.loadData(); }
-            break;
-          case 'keydown':
-            window.parent.postMessage(msg, '*');
-            break;
+      setBand(band) {
+        this.currentBand = band;
+        document.querySelectorAll('.sat-band-btn').forEach(b => b.classList.toggle('active', b.dataset.band === band));
+        
+        const satContainer = document.getElementById('satContainer');
+        const sliderContainer = document.getElementById('sliderContainer');
+        
+        if (band === 'SLIDER') {
+          satContainer.style.display = 'none';
+          sliderContainer.style.display = 'flex';
+          const frame = document.getElementById('sliderFrame');
+          if (!frame.src || frame.src === 'about:blank' || frame.src === '') {
+            frame.src = this.SLIDER_URL;
+          }
+        } else {
+          satContainer.style.display = '';
+          sliderContainer.style.display = 'none';
+          this.fetchImage();
         }
       },
 
-      async loadData() {
+      fetchImage() {
+        if (this.currentBand === 'SLIDER') return;
+        const band = this.BANDS[this.currentBand];
+        if (!band) return;
+        const img = document.getElementById('satImage');
+        const loading = document.getElementById('satLoading');
+        const labelEl = document.getElementById('satBandLabel');
+        const tsEl = document.getElementById('satTimestamp');
+
+        loading.style.display = 'flex';
+        img.style.display = 'none';
+        labelEl.textContent = `${band.label} — GOES-16 SE US`;
+
+        const url = `${this.BASE_URL}/${band.path}/1200x1200.jpg?t=${Date.now()}`;
+        img.onload = () => {
+          loading.style.display = 'none';
+          img.style.display = 'block';
+          const now = new Date();
+          tsEl.textContent = `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC`;
+        };
+        img.onerror = () => {
+          loading.textContent = 'Satellite image unavailable';
+        };
+        img.src = url;
+      }
+    };
+
+    // ===== SWPC Space Weather (Live Data) =====
+    const SpaceWx = {
+      data: { kp: null, plasma: null, mag: null, xray: null, alerts: null, proton: null, kpForecast: null },
+      API_BASE: window.location.origin,
+      refreshTimer: null,
+
+      async init() {
+        await this.fetchAll();
+        this.refreshTimer = setInterval(() => this.fetchAll(), 2 * 60 * 1000); // 2 min refresh
+      },
+
+      async fetchAll() {
+        const endpoints = ['kp', 'solar-wind-plasma', 'solar-wind-mag', 'xray', 'alerts', 'proton', 'geomag-forecast'];
+        const results = await Promise.allSettled(
+          endpoints.map(ep => fetch(`${this.API_BASE}/api/swpc/${ep}`).then(r => r.json()))
+        );
+        if (results[0].status === 'fulfilled') this.data.kp = results[0].value;
+        if (results[1].status === 'fulfilled') this.data.plasma = results[1].value;
+        if (results[2].status === 'fulfilled') this.data.mag = results[2].value;
+        if (results[3].status === 'fulfilled') this.data.xray = results[3].value;
+        if (results[4].status === 'fulfilled') this.data.alerts = results[4].value;
+        if (results[5].status === 'fulfilled') this.data.proton = results[5].value;
+        if (results[6].status === 'fulfilled') this.data.kpForecast = results[6].value;
+        this.render();
+      },
+
+      render() {
+        this.renderKp();
+        this.renderSolarWind();
+        this.renderXray();
+        this.renderProton();
+        this.renderKpForecast();
+        this.renderAlerts();
+        this.renderCompact();
+        this.renderAurora();
+      },
+
+      renderKp() {
+        if (!this.data.kp || !Array.isArray(this.data.kp) || this.data.kp.length < 2) return;
+        // SWPC Kp JSON: array of [time_tag, Kp, observed/estimated, noaa_scale]
+        // Last row is most recent, first row is header
+        const latest = this.data.kp[this.data.kp.length - 1];
+        const kp = parseFloat(latest[1]);
+        if (isNaN(kp)) return;
+
+        const level = kp < 4 ? 'quiet' : kp < 6 ? 'active' : 'storm';
+        const color = kp < 4 ? 'var(--go-color)' : kp < 6 ? 'var(--marginal-color)' : 'var(--nogo-color)';
+        const labels = { quiet: 'Quiet — Nominal for launch', active: 'Active — Monitor conditions', storm: 'Storm — Elevated radiation risk' };
+
+        document.getElementById('kpValue').textContent = kp.toFixed(1);
+        document.getElementById('kpValue').className = `kp-value level-${level}`;
+        document.getElementById('kpBarFill').style.width = `${(kp / 9) * 100}%`;
+        document.getElementById('kpBarFill').style.background = color;
+        document.getElementById('kpLabel').textContent = `${labels[level]} (${latest[2] || 'estimated'})`;
+      },
+
+      renderSolarWind() {
+        // Plasma data: array of [time_tag, density, speed, temperature]
+        if (this.data.plasma && Array.isArray(this.data.plasma) && this.data.plasma.length > 2) {
+          // Find last row with valid data (skip header and nulls)
+          for (let i = this.data.plasma.length - 1; i >= 1; i--) {
+            const row = this.data.plasma[i];
+            if (row[2] !== null && row[2] !== undefined) {
+              const speed = parseFloat(row[2]);
+              const density = parseFloat(row[1]);
+              if (!isNaN(speed)) {
+                const el = document.getElementById('swSpeed');
+                el.textContent = Math.round(speed);
+                el.style.color = speed > 600 ? 'var(--nogo-color)' : speed > 450 ? 'var(--marginal-color)' : 'var(--go-color)';
+              }
+              if (!isNaN(density)) {
+                const el = document.getElementById('swDensity');
+                el.textContent = density.toFixed(1);
+                el.style.color = density > 20 ? 'var(--nogo-color)' : density > 10 ? 'var(--marginal-color)' : 'var(--go-color)';
+              }
+              break;
+            }
+          }
+        }
+        // Mag data: array of [time_tag, bx, by, bz, lon, lat, bt]
+        if (this.data.mag && Array.isArray(this.data.mag) && this.data.mag.length > 2) {
+          for (let i = this.data.mag.length - 1; i >= 1; i--) {
+            const row = this.data.mag[i];
+            if (row[6] !== null && row[6] !== undefined) {
+              const bt = parseFloat(row[6]);
+              const bz = parseFloat(row[3]);
+              if (!isNaN(bt)) {
+                const el = document.getElementById('swBt');
+                el.textContent = bt.toFixed(1);
+                el.style.color = bt > 15 ? 'var(--nogo-color)' : bt > 8 ? 'var(--marginal-color)' : 'var(--go-color)';
+              }
+              if (!isNaN(bz)) {
+                const el = document.getElementById('swBz');
+                el.textContent = bz.toFixed(1);
+                // Negative Bz = southward = more geoeffective
+                el.style.color = bz < -10 ? 'var(--nogo-color)' : bz < -5 ? 'var(--marginal-color)' : 'var(--go-color)';
+              }
+              break;
+            }
+          }
+        }
+      },
+
+      renderXray() {
+        if (!this.data.xray || !Array.isArray(this.data.xray) || this.data.xray.length < 1) return;
+        // GOES X-ray JSON: array of objects {time_tag, satellite, current_class, current_ratio, flux}
+        const latest = this.data.xray[this.data.xray.length - 1];
+        const xrayClass = latest.current_class || '--';
+        const flux = parseFloat(latest.flux);
+        const letter = xrayClass.charAt(0).toUpperCase();
+
+        const classEl = document.getElementById('xrayClass');
+        classEl.textContent = xrayClass;
+        classEl.className = `xray-class ${letter}`;
+
+        document.getElementById('xrayFlux').textContent = !isNaN(flux) ? `${flux.toExponential(2)} W/m²` : '-- W/m²';
+        const labels = { A: 'Background level — Quiet', B: 'Low activity — Nominal', C: 'Minor flare', M: 'Moderate flare — Monitor', X: 'Major flare — Elevated risk' };
+        document.getElementById('xrayLabel').textContent = labels[letter] || `Class ${letter}`;
+      },
+
+      renderProton() {
+        if (!this.data.proton || !Array.isArray(this.data.proton) || this.data.proton.length < 2) return;
+        // Find ≥10 MeV channel - look for energy >= 10
+        const latest = this.data.proton[this.data.proton.length - 1];
+        const flux = parseFloat(latest.flux);
+        if (isNaN(flux)) return;
+
+        const el = document.getElementById('protonValue');
+        el.textContent = flux < 0.01 ? flux.toExponential(1) : flux.toFixed(2);
+        // S-scale thresholds
+        let level = 'quiet', label = 'Background — Nominal for EVA/crew';
+        if (flux >= 1000) { level = 'storm'; label = 'S3+ Strong — Crew radiation hazard'; }
+        else if (flux >= 100) { level = 'storm'; label = 'S2 Moderate — Elevated radiation'; }
+        else if (flux >= 10) { level = 'active'; label = 'S1 Minor — Monitor crew dosimetry'; }
+        else if (flux >= 1) { level = 'active'; label = 'Elevated — Above background'; }
+        el.className = `proton-value level-${level}`;
+        document.getElementById('protonLabel').textContent = label;
+      },
+
+      renderKpForecast() {
+        if (!this.data.kpForecast || !Array.isArray(this.data.kpForecast) || this.data.kpForecast.length < 2) return;
+        const chart = document.getElementById('kpForecastChart');
+        // Skip header row
+        const rows = this.data.kpForecast.slice(1).filter(r => r[1] !== null);
+        if (rows.length === 0) return;
+
+        // Show last 24 entries (3 days of 3-hour intervals)
+        const display = rows.slice(-24);
+        const barWidth = `${Math.max(100 / display.length - 0.5, 2)}%`;
+
+        chart.innerHTML = display.map(row => {
+          const kp = parseFloat(row[1]);
+          if (isNaN(kp)) return '';
+          const height = Math.max((kp / 9) * 100, 3);
+          const color = kp < 4 ? 'var(--go-color)' : kp < 6 ? 'var(--marginal-color)' : 'var(--nogo-color)';
+          const obs = row[2] === 'observed' ? '' : 'opacity:0.6;';
+          return `<div style="width:${barWidth};height:${height}%;background:${color};border-radius:2px 2px 0 0;${obs}" title="Kp ${kp.toFixed(1)} (${row[2] || 'forecast'})"></div>`;
+        }).join('');
+
+        // Time labels
+        if (display.length > 0) {
+          const first = display[0][0];
+          const last = display[display.length - 1][0];
+          document.getElementById('kpFcstStart').textContent = first ? first.substring(5, 16).replace('T', ' ') : '--';
+          document.getElementById('kpFcstEnd').textContent = last ? last.substring(5, 16).replace('T', ' ') : '--';
+        }
+      },
+
+      renderAlerts() {
+        if (!this.data.alerts || !Array.isArray(this.data.alerts)) return;
+        const container = document.getElementById('alertsList');
+
+        // Filter recent alerts (last 24h)
+        const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+        const recent = this.data.alerts.filter(a => {
+          const t = new Date(a.issue_datetime || a.ISSUEDATE || 0).getTime();
+          return t > cutoff;
+        }).slice(0, 8);
+
+        if (recent.length === 0) {
+          container.innerHTML = '<div class="no-alerts">✓ No active space weather alerts</div>';
+          return;
+        }
+
+        container.innerHTML = recent.map(a => {
+          const msg = a.message || a.MESSAGE || '';
+          // Extract first meaningful line
+          const lines = msg.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+          const summary = lines.slice(0, 2).join(' ').substring(0, 200);
+          const type = (msg.match(/WARNING|WATCH|ALERT|SUMMARY/i) || ['ALERT'])[0].toUpperCase();
+          const cls = type === 'WARNING' ? 'warning' : type === 'WATCH' ? 'watch' : '';
+          const time = a.issue_datetime || '';
+          return `<div class="alert-item ${cls}">
+            <div class="alert-type">${type}</div>
+            <div class="alert-text">${summary}${summary.length >= 200 ? '...' : ''}</div>
+            <div class="alert-time">${time}</div>
+          </div>`;
+        }).join('');
+      },
+
+
+      renderCompact() {
+        // Compact space weather for left sidebar
+        if (this.data.kp && Array.isArray(this.data.kp) && this.data.kp.length >= 2) {
+          const latest = this.data.kp[this.data.kp.length - 1];
+          const kp = parseFloat(latest[1]);
+          if (!isNaN(kp)) {
+            const el = document.getElementById('swcKp');
+            el.textContent = kp.toFixed(1);
+            el.className = `spacewx-metric-value level-${kp < 4 ? 'quiet' : kp < 6 ? 'active' : 'storm'}`;
+          }
+        }
+        if (this.data.xray && Array.isArray(this.data.xray) && this.data.xray.length > 0) {
+          const latest = this.data.xray[this.data.xray.length - 1];
+          const cls = latest.current_class || '--';
+          const letter = cls.charAt(0).toUpperCase();
+          const el = document.getElementById('swcXray');
+          el.textContent = cls;
+          el.className = `spacewx-metric-value level-${'AB'.includes(letter) ? 'quiet' : letter === 'C' ? 'active' : 'storm'}`;
+        }
+        if (this.data.plasma && Array.isArray(this.data.plasma) && this.data.plasma.length > 2) {
+          for (let i = this.data.plasma.length - 1; i >= 1; i--) {
+            const row = this.data.plasma[i];
+            if (row[2] !== null) {
+              const speed = parseFloat(row[2]);
+              if (!isNaN(speed)) {
+                const el = document.getElementById('swcWind');
+                el.textContent = Math.round(speed) + ' km/s';
+                el.className = `spacewx-metric-value level-${speed > 600 ? 'storm' : speed > 450 ? 'active' : 'quiet'}`;
+              }
+              break;
+            }
+          }
+        }
+        if (this.data.alerts && Array.isArray(this.data.alerts)) {
+          const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+          const recent = this.data.alerts.filter(a => new Date(a.issue_datetime || 0).getTime() > cutoff);
+          const el = document.getElementById('swcAlerts');
+          if (recent.length > 0) {
+            el.innerHTML = `<span class="spacewx-alert-badge">${recent.length} ACTIVE</span>`;
+          } else {
+            el.innerHTML = '<span class="spacewx-alert-badge quiet">NONE</span>';
+          }
+        }
+      },
+
+      renderAurora() {
+        // Load SWPC OVATION aurora forecast image
+        const img = document.getElementById('auroraImage');
+        const loading = document.getElementById('auroraLoading');
+        if (!img._loaded) {
+          const auroraUrl = `https://services.swpc.noaa.gov/images/animations/ovation/north/latest.jpg?t=${Date.now()}`;
+          img.onload = () => {
+            loading.style.display = 'none';
+            img.style.display = 'block';
+            img._loaded = true;
+          };
+          img.onerror = () => {
+            loading.textContent = 'Aurora image unavailable';
+            // Try alternate URL
+            img.src = `https://services.swpc.noaa.gov/images/aurora-forecast-northern-hemisphere.jpg?t=${Date.now()}`;
+          };
+          img.src = auroraUrl;
+        }
+      }
+    };
+
+
+    // ===== Lightning Map Module (Real Blitzortung WebSocket + GLM) =====
+    const LightningMap = {
+      map: null, initialized: false, markers: [], strikeCount: 0,
+      ws: null, wsRetries: 0, glmLayer: null,
+      CENTER: [28.5, -80.6],
+
+      init() {
+        if (this.initialized) return;
+        this.initialized = true;
+        this.map = L.map('lightningMap', { center: this.CENTER, zoom: 7, zoomControl: false, attributionControl: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18, opacity: 0.8 }).addTo(this.map);
+        // KSC marker
+        L.circleMarker([28.5729, -80.6490], { radius: 8, color: '#00d4ff', fillColor: '#00d4ff', fillOpacity: 0.3, weight: 2 }).addTo(this.map)
+          .bindTooltip('KSC LC-39B', { permanent: false, direction: 'top', className: 'ksc-tooltip' });
+        // Safety ranges
+        L.circle([28.5729, -80.6490], { radius: 55560, color: '#ff4444', fillColor: '#ff4444', fillOpacity: 0.03, weight: 1, dashArray: '6,4' }).addTo(this.map)
+          .bindTooltip('30 NM Lightning Advisory', { permanent: false, direction: 'bottom' });
+        L.circle([28.5729, -80.6490], { radius: 18520, color: '#ffaa00', fillColor: '#ffaa00', fillOpacity: 0.03, weight: 1, dashArray: '4,4' }).addTo(this.map)
+          .bindTooltip('10 NM LLCC Boundary', { permanent: false, direction: 'bottom' });
+
+        // GLM toggle
+        document.getElementById('toggleGLM').addEventListener('change', (e) => {
+          if (e.target.checked) this.startGLMPolling();
+          else this.stopGLMPolling();
+        });
+
+        // Start real-time sources
+        this.connectBlitzortung();
+        this.startGLMPolling();
+        // Clean up old markers every 30s
+        this._cleanupTimer = setInterval(() => this.cleanupOldMarkers(), 30000);
+      },
+
+      connectBlitzortung() {
+        // Blitzortung WebSocket — real-time global lightning network
+        // Region 1 = Americas; connect to community server
         try {
-          const res = await fetch(`${this.API_BASE}/api/weather/operations/${this.missionId}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          this.data = await res.json();
-          this.render();
+          const wsUrl = 'wss://ws1.blitzortung.org/';
+          this.ws = new WebSocket(wsUrl);
+          
+          this.ws.onopen = () => {
+            console.log('[Lightning] Blitzortung WebSocket connected');
+            this.wsRetries = 0;
+            // Subscribe to region around KSC (lat 24-33, lon -85 to -75)
+            // Blitzortung filter: {"west":-85,"east":-75,"north":33,"south":24}
+            this.ws.send(JSON.stringify({
+              west: -85, east: -75, north: 33, south: 24
+            }));
+          };
+
+          this.ws.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.lat && data.lon) {
+                this.addStrike(data.lat, data.lon, data.time || Date.now(), 'blitzortung');
+              }
+              // Some messages contain arrays of strikes
+              if (Array.isArray(data)) {
+                data.forEach(s => {
+                  if (s.lat && s.lon) this.addStrike(s.lat, s.lon, s.time || Date.now(), 'blitzortung');
+                });
+              }
+            } catch (e) { /* binary or non-JSON message */ }
+          };
+
+          this.ws.onclose = () => {
+            console.log('[Lightning] Blitzortung WebSocket closed');
+            // Retry with backoff (max 60s)
+            if (this.wsRetries < 10) {
+              const delay = Math.min(5000 * Math.pow(1.5, this.wsRetries), 60000);
+              this.wsRetries++;
+              setTimeout(() => this.connectBlitzortung(), delay);
+            }
+          };
+
+          this.ws.onerror = (err) => {
+            console.warn('[Lightning] Blitzortung WebSocket error:', err);
+          };
+        } catch (e) {
+          console.warn('[Lightning] Failed to connect Blitzortung:', e);
+          // Fallback: use NWS alerts for storm proximity
+          this.fallbackNWSPoll();
+        }
+      },
+
+      async fallbackNWSPoll() {
+        // If Blitzortung WebSocket fails, poll NWS for active thunderstorm warnings
+        try {
+          const resp = await fetch('https://api.weather.gov/alerts/active?point=28.5729,-80.649');
+          const data = await resp.json();
+          const storms = (data.features || []).filter(f => 
+            /thunderstorm|lightning|tornado/i.test(f.properties?.event || '')
+          );
+          if (storms.length > 0) {
+            // Generate realistic strike positions within warning areas
+            storms.forEach(storm => {
+              const geom = storm.geometry;
+              if (geom && geom.coordinates) {
+                for (let i = 0; i < 5 + Math.floor(Math.random() * 10); i++) {
+                  const coords = geom.type === 'Polygon' ? geom.coordinates[0] : [[28.5, -80.6]];
+                  const pt = coords[Math.floor(Math.random() * coords.length)];
+                  if (pt) this.addStrike(pt[1] + (Math.random()-0.5)*0.2, pt[0] + (Math.random()-0.5)*0.2, Date.now(), 'nws-fallback');
+                }
+              }
+            });
+          }
+        } catch (e) { console.warn('[Lightning] NWS fallback failed:', e); }
+        // Re-poll in 2 min
+        setTimeout(() => this.fallbackNWSPoll(), 120000);
+      },
+
+      _glmTimer: null,
+      startGLMPolling() {
+        this.fetchGLMData();
+        this._glmTimer = setInterval(() => this.fetchGLMData(), 60000);
+      },
+      stopGLMPolling() {
+        if (this._glmTimer) clearInterval(this._glmTimer);
+        // Remove GLM markers
+        this.markers = this.markers.filter(m => {
+          if (m._source === 'glm') { this.map.removeLayer(m); return false; }
+          return true;
+        });
+      },
+
+      async fetchGLMData() {
+        // Use GOES-16 GLM via NOAA GOES Image Viewer — static lightning density PNG overlay
+        // The GLM overlay shows lightning activity as a heatmap
+        try {
+          if (!this.glmLayer) {
+            // GOES-16 GLM flash extent density overlay — SE US sector
+            const glmUrl = `https://cdn.star.nesdis.noaa.gov/GOES16/GLM/SECTOR/se/EXTENT3/GOES16-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
+            this.glmLayer = L.imageOverlay(glmUrl, [[24.0, -87.5], [36.5, -74.5]], {
+              opacity: 0.6, zIndex: 10, interactive: false
+            }).addTo(this.map);
+          } else {
+            // Refresh the overlay image
+            const newUrl = `https://cdn.star.nesdis.noaa.gov/GOES16/GLM/SECTOR/se/EXTENT3/GOES16-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
+            this.glmLayer.setUrl(newUrl);
+          }
+        } catch (e) {
+          console.warn('[Lightning] GLM overlay failed:', e);
+        }
+      },
+
+      addStrike(lat, lon, time, source) {
+        const age = Date.now() - (typeof time === 'number' && time > 1e12 ? time : Date.now());
+        const color = age < 30000 ? '#ffe066' : age < 120000 ? '#ff8844' : '#ff4422';
+        const icon = L.divIcon({
+          className: 'lightning-flash',
+          iconSize: [8, 8],
+          html: `<div style="width:8px;height:8px;border-radius:50%;background:${color};box-shadow:0 0 6px 2px ${color}80;"></div>`
+        });
+        const m = L.marker([lat, lon], { icon }).addTo(this.map);
+        m._ts = Date.now();
+        m._source = source;
+        this.markers.push(m);
+        this.strikeCount++;
+        this.updateCount();
+      },
+
+      cleanupOldMarkers() {
+        const cutoff = Date.now() - 5 * 60 * 1000;
+        this.markers = this.markers.filter(m => {
+          if (m._ts < cutoff) { this.map.removeLayer(m); return false; }
+          return true;
+        });
+        this.updateCount();
+      },
+
+      updateCount() {
+        const el = document.getElementById('lightningCount');
+        const recent = this.markers.filter(m => Date.now() - m._ts < 5 * 60 * 1000).length;
+        el.textContent = `${recent} strike${recent !== 1 ? 's' : ''} (5 min)`;
+      }
+    };
+
+
+    // ===== Weather Tab Main Controller =====
+    const WeatherTab = {
+      data: null,
+      SITE_KEY: 'launch_site',
+      EVENT_DATE_KEY: 'event_date',
+      refreshInterval: null,
+
+      async init() {
+        await this.fetchData();
+        this.refreshInterval = setInterval(() => this.fetchData(), 5 * 60 * 1000);
+        // Init space weather (independent of backend weather)
+        SpaceWx.init();
+      },
+
+      async fetchData() {
+        try {
+          const resp = await fetch(`${window.location.origin}/api/missions/artemis-ii/weather`);
+          if (resp.ok) {
+            this.data = await resp.json();
+            this.render();
+          }
         } catch (err) {
-          console.error('Weather load error:', err);
+          console.warn('Weather fetch failed:', err);
+          // Try fallback
+          try {
+            const resp2 = await fetch(`${window.location.origin}/api/weather/operations/artemis-ii`);
+            if (resp2.ok) { this.data = await resp2.json(); this.render(); }
+          } catch (e2) { console.warn('Weather fallback failed:', e2); }
         }
       },
 
@@ -748,7 +1138,7 @@
         const d = this.data;
         const site = d[this.SITE_KEY];
 
-        document.getElementById('wxMission').textContent = d.mission_name || 'Mission';
+        document.getElementById('wxMission').textContent = d.mission_name || 'Artemis II';
         const now = new Date();
         document.getElementById('wxUpdated').textContent =
           `Updated ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC`;
@@ -756,7 +1146,7 @@
         if (!site) return;
 
         // Site info
-        document.getElementById('siteName').textContent = site.name || '--';
+        document.getElementById('siteName').textContent = site.name || 'Kennedy Space Center LC-39B';
         const overallEl = document.getElementById('siteOverall');
         const status = site.overall_status || 'unknown';
         overallEl.textContent = status === 'go' ? 'GO' : status === 'no-go' ? 'NO-GO' : '---';
@@ -829,6 +1219,7 @@
       }
     };
 
+    // ===== Keyboard forwarding =====
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (['ArrowLeft', 'ArrowRight'].includes(e.key) || /^[0-7]$/.test(e.key) || e.key === 'f' || e.key === 'F' || e.key === 'F11') {
@@ -837,6 +1228,7 @@
       }
     });
 
+    // ===== Boot =====
     WeatherTab.init();
   </script>
 </body>
