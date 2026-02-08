@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** February 7, 2026
+**Last Updated:** February 8, 2026
 
 ---
 
@@ -29,8 +29,14 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
 
+### Recently Completed (Feb 8)
+- [x] ISS map icon updated to icon gallery style
+- [x] Mission tab message types fixed (missionData/weatherData)
+- [x] Control panel mission selector for Add Screen form
+- [x] 3D trajectory tab, Artemis II 3D mockups, earth/moon textures, Orion model
+- [x] Fallback solar joint discovery in ISS 3D view
+
 ### In Progress
-- [ ] **Update ISS map icon** - Replace current icon with icon gallery style
 - [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
 - [ ] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
 
