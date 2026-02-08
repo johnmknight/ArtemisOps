@@ -663,14 +663,13 @@
         const msg = event.data;
         
         switch (msg.type) {
-          case 'setMissionData':
-            this.missionData = msg.mission;
+          case 'missionData':
+            this.missionData = msg.data;
             this.updateMissionDisplay();
             break;
             
-          case 'setWeatherData':
-            this.weatherData = msg.weather;
-            this.weatherVisible = msg.visible;
+          case 'weatherData':
+            this.weatherData = msg.data;
             this.updateWeatherDisplay();
             break;
         }

@@ -346,6 +346,7 @@
     .form-field.id-field input { width: 160px; }
     .form-field.label-field input { width: 140px; }
     .form-field.page-field select { width: 140px; }
+    .form-field.mission-field select { width: 180px; }
 
     .add-btn {
       background: rgba(34, 197, 94, 0.12);
@@ -553,6 +554,12 @@
             <option value="0">⚙ Control (0)</option>
           </select>
         </div>
+        <div class="form-field mission-field">
+          <label>Mission</label>
+          <select id="newScreenMission">
+            <option value="">— Default —</option>
+          </select>
+        </div>
         <div class="form-field label-field">
           <label>Label (optional)</label>
           <input type="text" id="newScreenLabel" placeholder="e.g. Main Display" autocomplete="off">
@@ -683,10 +690,13 @@
         }
 
         const page = parseInt(pageSelect.value);
+        const missionSelect = document.getElementById('newScreenMission');
+        const mission = missionSelect.value;
         const label = labelInput.value.trim();
 
         try {
           const params = new URLSearchParams({ screen_id: screenId, page, label });
+          if (mission) params.set('mission', mission);
           const res = await fetch(`/api/screens/config?${params}`, { method: 'POST' });
           const data = await res.json();
 
@@ -698,7 +708,8 @@
             const baseUrl = window.location.origin;
             const hint = document.getElementById('urlHint');
             const code = document.getElementById('urlHintCode');
-            code.textContent = `${baseUrl}?id=${screenId}&page=${page}`;
+            const missionParam = mission ? `&mission=${mission}` : '';
+            code.textContent = `${baseUrl}?id=${screenId}&page=${page}${missionParam}`;
             hint.classList.add('visible');
 
             // Clear form
@@ -854,10 +865,20 @@
         try {
           const res = await fetch('/api/missions');
           const data = await res.json();
+          const missions = data.missions || [];
+
+          // Populate "This Screen" mission selector
           const selector = document.getElementById('missionSelector');
-          selector.innerHTML = data.missions.map(m =>
+          selector.innerHTML = missions.map(m =>
             `<option value="${m.id}">${m.name}</option>`
           ).join('');
+
+          // Populate "Add Screen" mission selector
+          const addSelector = document.getElementById('newScreenMission');
+          addSelector.innerHTML = '<option value="">— Default —</option>' +
+            missions.map(m =>
+              `<option value="${m.id}">${m.name}</option>`
+            ).join('');
         } catch (e) {
           console.error('Failed to load missions:', e);
         }

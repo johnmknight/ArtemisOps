@@ -2399,6 +2399,14 @@
               issModel.scale.setScalar(scale);
               issModel.position.sub(center.multiplyScalar(scale));
               scene.add(issModel);
+              
+              // Discover solar joints in fallback model too
+              const discovered = discoverSolarJoints(issModel, 'fallback');
+              solarJoints.portSARJ = discovered.portSARJ;
+              solarJoints.stbdSARJ = discovered.stbdSARJ;
+              solarJoints.portBGA = discovered.portBGA;
+              solarJoints.stbdBGA = discovered.stbdBGA;
+              
               if (loadingEl) loadingEl.classList.add('hidden');
             },
             null,
