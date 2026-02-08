@@ -378,11 +378,118 @@
       height: 100%;
       color: var(--text-muted);
     }
+
+    /* Agency badge */
+    .crew-agency {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7em;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent-cyan);
+      margin-bottom: 2px;
+    }
+    .crew-agency .agency-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .agency-NASA .agency-dot { background: #4a9eff; }
+    .agency-CSA .agency-dot { background: #e63946; }
+    .agency-ESA .agency-dot { background: #3399ff; }
+    .agency-JAXA .agency-dot { background: #ff6b6b; }
+    .agency-Roscosmos .agency-dot { background: #c41e3a; }
+    .agency-SpaceX .agency-dot { background: #a0a0a0; }
+
+    /* Bio link */
+    .crew-bio-link {
+      display: inline-block;
+      font-size: 0.7em;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      margin-top: 4px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .crew-bio-link:hover { opacity: 1; text-decoration: underline; }
+
+    /* Loading skeleton */
+    .skeleton-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 0;
+      height: 100%;
+    }
+    .skeleton-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 1fr auto;
+    }
+    .skeleton-photo {
+      background: linear-gradient(110deg, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 70%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    .skeleton-info {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .skeleton-line {
+      height: 12px;
+      border-radius: 4px;
+      background: linear-gradient(110deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 70%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    .skeleton-line.short { width: 60%; }
+    .skeleton-line.medium { width: 80%; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Error state */
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      gap: 12px;
+    }
+    .error-state .error-icon {
+      font-size: 2.5em;
+      opacity: 0.4;
+    }
+    .error-state .error-msg {
+      font-size: 0.9em;
+      opacity: 0.7;
+    }
+    .error-state .error-hint {
+      font-size: 0.75em;
+      opacity: 0.4;
+    }
   </style>
 </head>
 <body>
   <div class="crew-layout" id="crewLayout">
-    <div class="loading">Loading crew...</div>
+    <div class="skeleton-grid">
+      <div class="skeleton-card"><div class="skeleton-photo"></div><div class="skeleton-info"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-photo"></div><div class="skeleton-info"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-photo"></div><div class="skeleton-info"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-photo"></div><div class="skeleton-info"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div></div>
+    </div>
   </div>
 
   <script>
@@ -462,12 +569,14 @@
             ${this.crew.map(m => `
               <div class="crew-card">
                 <div class="crew-photo-wrapper">
-                  <img src="${m.photo || ''}" alt="${m.name}" class="crew-photo">
+                  <img src="${m.photo_url || m.photo || ''}" alt="${m.name}" class="crew-photo">
                 </div>
                 <div class="crew-info">
+                  ${m.agency ? `<div class="crew-agency agency-${m.agency}"><span class="agency-dot"></span>${m.agency}</div>` : ''}
                   <div class="crew-name">${m.name}</div>
                   <div class="crew-role">${m.role}</div>
                   ${m.bio ? `<div class="crew-bio">${m.bio}</div>` : ''}
+                  ${m.bio_url ? `<a class="crew-bio-link" href="${m.bio_url}" target="_blank" rel="noopener">Full bio ↗</a>` : ''}
                 </div>
               </div>
             `).join('')}
@@ -506,7 +615,7 @@
             <div class="iva-crew-grid">
               ${ivaCrew.map(m => `
                 <div class="iva-card">
-                  <img src="${m.photo || ''}" alt="${m.name}">
+                  <img src="${m.photo_url || m.photo || ''}" alt="${m.name}">
                   <div class="iva-card-name">${m.name.split(' ').pop()}</div>
                 </div>
               `).join('')}
@@ -534,7 +643,7 @@
               <div class="eva-crew-list">
                 ${evaCrew.map((m, i) => `
                   <div class="eva-card">
-                    <img src="${m.photo || ''}" alt="${m.name}">
+                    <img src="${m.photo_url || m.photo || ''}" alt="${m.name}">
                     <div class="eva-card-info">
                       <div class="eva-card-name">${m.name.split(' ').pop()}</div>
                       <div class="eva-card-role">EV-${i + 1}</div>
@@ -565,7 +674,7 @@
         const layout = document.getElementById('crewLayout');
         
         if (!this.crew?.length) {
-          layout.innerHTML = '<div class="loading">No crew data</div>';
+          layout.innerHTML = '<div class="error-state"><div class="error-icon">👨‍🚀</div><div class="error-msg">No crew data available</div><div class="error-hint">Waiting for mission data from server</div></div>';
           return;
         }
         

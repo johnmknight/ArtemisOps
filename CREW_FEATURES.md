@@ -38,10 +38,11 @@
 ## 🔲 Backlog
 
 ### Polish
-- [ ] **Agency badges** — Display NASA/CSA flag or logo on each card (data exists, not rendered)
-- [ ] **Bio link** — Clickable link to astronaut's official NASA/CSA bio page (data exists, not rendered)
-- [ ] **Loading skeleton** — Replace plain "Loading crew..." text with animated placeholder cards
-- [ ] **Error state** — Better handling when crew data fails to load
+- [x] **Agency badges** — Colored dot + agency name (NASA/CSA/ESA/JAXA/etc) above crew name
+- [x] **Bio link** — Clickable "Full bio ↗" link to official NASA/CSA bio page
+- [x] **Loading skeleton** — Animated shimmer placeholder cards (4-column grid)
+- [x] **Error state** — Astronaut emoji + message + hint when crew data unavailable
+- [x] **Photo URL fix** — Cards now use `photo_url` field (was incorrectly using `photo`)
 
 ### Features
 - [ ] **Card hover/click detail** — Expand card or show modal with full bio, flight history, social links
