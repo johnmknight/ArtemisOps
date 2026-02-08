@@ -111,6 +111,28 @@
     .map-btn:hover { background: rgba(0, 188, 212, 0.3); }
     .map-btn.active { background: var(--iss-color); color: #000; }
     
+    /* Ground Station Styles */
+    .station-tooltip {
+      background: rgba(13, 26, 45, 0.95) !important;
+      border: 1px solid #1a3a5c !important;
+      border-radius: 4px !important;
+      color: #fff !important;
+      font-family: 'Inter', sans-serif !important;
+      font-size: 11px !important;
+      padding: 6px 10px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+    }
+    .station-label {
+      background: transparent !important;
+      border: none !important;
+      font-size: 9px !important;
+      font-family: 'Courier New', monospace !important;
+      text-align: center;
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    
     #iss-map { flex: 1; min-height: 300px; background: #0a1628; }
     
     /* Data Overlay */
@@ -1200,6 +1222,8 @@
           <button class="map-btn" id="btnFootprint" onclick="toggleFootprint()">Footprint</button>
           <button class="map-btn" id="btnTrack" onclick="toggleTrack()">Track</button>
           <button class="map-btn" onclick="centerOnISS()">Center ISS</button>
+          <button class="map-btn active" id="btnTerminator" onclick="toggleTerminator()">Day/Night</button>
+          <button class="map-btn" id="btnStations" onclick="toggleStations()">Stations</button>
         </div>
         <div id="iss-map"></div>
         
@@ -1363,6 +1387,10 @@
     let positionHistory = [];
     let showFootprint = true;
     let showTrack = true;
+    let terminatorLayer = null;
+    let showTerminatorOverlay = true;
+    let stationLayerGroup = null;
+    let showStations = false;
     
     // ISS Launch Date: November 20, 1998 (Zarya module)
     const ISS_LAUNCH_DATE = new Date('1998-11-20T06:40:00Z');
@@ -2216,6 +2244,164 @@
       map.setView(pos, 3, { animate: true });
     }
     
+    // ============================================================
+    // DAY/NIGHT TERMINATOR OVERLAY
+    // ============================================================
+    
+    function calculateSolarPosition() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 1);
+      const dayOfYear = Math.floor((now - start) / 86400000) + 1;
+      
+      // Solar declination (degrees)
+      const declination = -23.44 * Math.cos(2 * Math.PI * (dayOfYear + 10) / 365.25);
+      
+      // Equation of time correction (minutes)
+      const B = 2 * Math.PI * (dayOfYear - 81) / 365.25;
+      const eqTime = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+      
+      // Subsolar longitude
+      const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
+      const subsolarLng = -15 * (utcHours - 12 + eqTime / 60);
+      
+      return { declination, subsolarLng };
+    }
+    
+    function updateTerminator() {
+      if (!map) return;
+      
+      const { declination, subsolarLng } = calculateSolarPosition();
+      const decRad = declination * Math.PI / 180;
+      
+      // Calculate terminator latitude at each longitude
+      const terminatorPoints = [];
+      for (let lng = -180; lng <= 180; lng += 2) {
+        const ha = (lng - subsolarLng) * Math.PI / 180;
+        const lat = Math.atan(-Math.cos(ha) / Math.tan(decRad)) * 180 / Math.PI;
+        terminatorPoints.push([lat, lng]);
+      }
+      
+      // Build night polygon
+      // dec >= 0 (sun in north): night is south of terminator
+      // dec < 0 (sun in south): night is north of terminator
+      const nightPoly = [];
+      const darkPole = declination >= 0 ? -90 : 90;
+      
+      nightPoly.push([darkPole, -180]);
+      nightPoly.push([darkPole, 180]);
+      for (let i = terminatorPoints.length - 1; i >= 0; i--) {
+        nightPoly.push(terminatorPoints[i]);
+      }
+      
+      if (terminatorLayer) map.removeLayer(terminatorLayer);
+      
+      terminatorLayer = L.polygon(nightPoly, {
+        color: '#ff8c00',
+        weight: 1.5,
+        opacity: 0.6,
+        fillColor: '#000',
+        fillOpacity: 0.35,
+        interactive: false,
+        dashArray: '4, 4'
+      }).addTo(map);
+    }
+    
+    function toggleTerminator() {
+      showTerminatorOverlay = !showTerminatorOverlay;
+      if (showTerminatorOverlay) {
+        updateTerminator();
+        document.getElementById('btnTerminator').classList.add('active');
+      } else {
+        if (terminatorLayer) map.removeLayer(terminatorLayer);
+        document.getElementById('btnTerminator').classList.remove('active');
+      }
+    }
+    
+    // ============================================================
+    // GROUND STATION VISIBILITY OVERLAYS
+    // ============================================================
+    
+    const GROUND_STATIONS = [
+      { name: 'MCC-H', full: 'Mission Control Center Houston', lat: 29.5602, lng: -95.0931, agency: 'NASA', type: 'mcc', color: '#4a9eff' },
+      { name: 'TsUP', full: 'Mission Control Center Moscow', lat: 55.7558, lng: 37.6173, agency: 'RSA', type: 'mcc', color: '#c41e3a' },
+      { name: 'White Sands', full: 'TDRS Ground Terminal', lat: 32.5007, lng: -106.6086, agency: 'NASA', type: 'tdrs', color: '#ffd60a' },
+      { name: 'Guam', full: 'TDRS Ground Terminal', lat: 13.4443, lng: 144.7937, agency: 'NASA', type: 'tdrs', color: '#ffd60a' },
+      { name: 'Canberra', full: 'Deep Space Network', lat: -35.4016, lng: 148.9817, agency: 'NASA', type: 'dsn', color: '#00d4ff' },
+      { name: 'Goldstone', full: 'Deep Space Network', lat: 35.4267, lng: -116.8900, agency: 'NASA', type: 'dsn', color: '#00d4ff' },
+      { name: 'Madrid', full: 'Deep Space Network', lat: 40.4314, lng: -3.9528, agency: 'ESA', type: 'dsn', color: '#00d4ff' },
+      { name: 'Tsukuba', full: 'JAXA Space Center', lat: 36.0604, lng: 140.1335, agency: 'JAXA', type: 'ground', color: '#ff6b6b' },
+      { name: 'Col-CC', full: 'Columbus Control Centre', lat: 49.8694, lng: 8.6246, agency: 'ESA', type: 'ground', color: '#3399ff' },
+      { name: 'Saint-Hubert', full: 'CSA Headquarters', lat: 45.5175, lng: -73.4157, agency: 'CSA', type: 'ground', color: '#1e88e5' },
+      { name: 'Wallops', full: 'NASA Wallops Flight Facility', lat: 37.9402, lng: -75.4664, agency: 'NASA', type: 'ground', color: '#4a9eff' },
+      { name: 'McMurdo', full: 'Antarctic TDRS Relay', lat: -77.8460, lng: 166.6689, agency: 'NASA', type: 'ground', color: '#ffd60a' },
+    ];
+    
+    function initGroundStations() {
+      const layers = [];
+      
+      GROUND_STATIONS.forEach(station => {
+        const size = station.type === 'mcc' ? 8 : station.type === 'tdrs' ? 7 : 5;
+        
+        // Station dot
+        const marker = L.circleMarker([station.lat, station.lng], {
+          radius: size,
+          color: station.color,
+          fillColor: station.color,
+          fillOpacity: 0.8,
+          weight: 2,
+        });
+        
+        marker.bindTooltip(
+          `<strong style="color:${station.color}">${station.name}</strong><br>` +
+          `<span style="color:#ccc;font-size:10px">${station.full}</span><br>` +
+          `<span style="color:#8b949e;font-size:10px">${station.agency} · ${station.type.toUpperCase()}</span>`,
+          { className: 'station-tooltip', direction: 'top', offset: [0, -8] }
+        );
+        layers.push(marker);
+        
+        // Comm range circle (radio horizon ~2200km from ISS altitude)
+        if (station.type !== 'mcc') {
+          const range = L.circle([station.lat, station.lng], {
+            radius: 2200000,
+            color: station.color,
+            fillColor: station.color,
+            fillOpacity: 0.04,
+            weight: 0.5,
+            opacity: 0.3,
+            dashArray: '3, 6',
+            interactive: false,
+          });
+          layers.push(range);
+        }
+        
+        // Name label
+        const label = L.marker([station.lat, station.lng], {
+          icon: L.divIcon({
+            className: 'station-label',
+            html: `<span style="color:${station.color}">${station.name}</span>`,
+            iconSize: [80, 16],
+            iconAnchor: [40, -6],
+          }),
+          interactive: false,
+        });
+        layers.push(label);
+      });
+      
+      stationLayerGroup = L.layerGroup(layers);
+    }
+    
+    function toggleStations() {
+      showStations = !showStations;
+      if (showStations) {
+        if (!stationLayerGroup) initGroundStations();
+        stationLayerGroup.addTo(map);
+        document.getElementById('btnStations').classList.add('active');
+      } else {
+        if (stationLayerGroup) map.removeLayer(stationLayerGroup);
+        document.getElementById('btnStations').classList.remove('active');
+      }
+    }
+    
     // Update UTC time
     function updateTime() {
       document.getElementById('utc').textContent = new Date().toUTCString().split(' ')[4] + ' UTC';
@@ -2884,6 +3070,8 @@
       updateISSStats();
       
       initMap();
+      updateTerminator();
+      setInterval(() => { if (showTerminatorOverlay) updateTerminator(); }, 60000);
       initDual3DISS(); // Initialize dual 3D views
       updateISSPosition();
       loadCrew();
