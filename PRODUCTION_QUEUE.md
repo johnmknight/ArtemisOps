@@ -48,7 +48,7 @@ This document tracks development progress and the integration plan for the Artem
 | Phase 1 | ISS Tracker + Icons + Backend | ✅ Complete |
 | Phase 2 | Main App Integration | ✅ Complete |
 | Phase 3 | Component Architecture | ✅ Complete |
-| Phase 4 | Backend API Enhancements | 🔲 Not Started |
+| Phase 4 | Backend API Enhancements | ✅ Complete |
 | Phase 5 | Mission Control Mode | 🔄 **IN PROGRESS** |
 | Phase 6 | Mobile UI Mode | 🔲 Not Started |
 | Phase 7 | Offline Support / PWA | 🔲 Not Started |
@@ -198,15 +198,28 @@ client/js/components/
 
 ---
 
-## 🔲 Phase 4: Backend API Enhancements - NOT STARTED
+## ✅ Phase 4: Backend API Enhancements - COMPLETE
 
-### Planned Endpoints
-| Endpoint | Purpose | Effort |
+### Implemented Endpoints
+| Endpoint | Purpose | Status |
 |----------|---------|--------|
-| `GET /api/iss/position` | Proxy ISS API to avoid CORS | 2 hrs |
-| `GET /api/iss/crew` | Cached ISS crew roster | 2 hrs |
-| `GET /api/missions/{id}/trajectory` | Waypoint/path data for maps | 4 hrs |
-| `GET /api/news` | NASA RSS feed aggregation | 4 hrs |
+| `GET /api/iss` | Combined ISS data (position + crew + telemetry) | ✅ Complete |
+| `GET /api/iss/position` | Proxy ISS API (Where The ISS At + Open Notify fallback) | ✅ Complete |
+| `GET /api/iss/crew` | Two-phase crew roster (Open Notify + NASA blog enrichment) | ✅ Complete |
+| `GET /api/iss/telemetry` | NASA telemetry placeholder (client-side Lightstreamer) | ✅ Complete |
+| `GET /api/iss/news` | ISS-specific news (Spaceflight Now + NASA ISS Blog RSS) | ✅ Complete |
+| `GET /api/iss/location/{lat},{lng}` | Reverse geocoding via Where The ISS At | ✅ Complete |
+| `GET /api/iss/crew/enrichment` | Crew enrichment cache diagnostics | ✅ Complete |
+| `GET /api/missions/{id}/trajectory` | Waypoint/path data for trajectory maps | ✅ Complete |
+| `GET /api/trajectories` | List all missions with trajectory data | ✅ Complete |
+| `GET /api/news` | Aggregated NASA + industry RSS news feeds | ✅ Complete |
+
+### Implementation Details
+- **ISS Position**: 3-second cache, auto-fallback to Open Notify if primary fails, stale cache on total failure
+- **ISS Crew**: 1-hour cache, Phase 1 (names) + Phase 2 (agency enrichment from NASA blog)
+- **Trajectory**: Supports 10 mission IDs via direct match + alias fallback (e.g. crew-dragon → iss profile)
+- **General News**: 4 RSS feeds (NASA Breaking, Artemis Blog, ISS Blog, Spaceflight Now), 15-min cache, deduplication, source filtering
+- **Server files**: `iss.py`, `crew_enrichment.py`, `trajectories.py`, `news.py`
 
 ---
 
@@ -279,10 +292,14 @@ client/
 ### Server Files
 ```
 server/
-├── main.py                       # FastAPI backend (v0.5.0)
+├── main.py                       # FastAPI backend (v0.7.0)
 ├── database.py                   # SQLite operations
 ├── fetcher.py                    # NASA/ESA API sync
 ├── weather.py                    # Weather integration
+├── iss.py                        # ISS data proxy (position, crew, news)
+├── crew_enrichment.py            # ISS crew agency enrichment
+├── trajectories.py               # Trajectory waypoint/path data
+├── news.py                       # General NASA RSS news aggregation
 ├── requirements.txt              # Python dependencies
 └── artemisops.db                 # SQLite database
 ```

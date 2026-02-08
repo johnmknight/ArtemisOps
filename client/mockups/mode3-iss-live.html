@@ -1406,6 +1406,29 @@
     // Solar array references and angles
     let solarArrays = { port: [], starboard: [] };
     let solarArrayAngles = { port: 0, starboard: 0 };
+    
+    // Solar joint rotation nodes from IGOAL model (exposed on window for test scripts)
+    let solarJoints = window.solarJoints = {
+      // SARJ (Solar Alpha Rotary Joint) - rotates entire truss segments
+      portSARJ: null,   // PORT_ALPHA_ROT node
+      stbdSARJ: null,   // STBD_ALPHA_ROT node
+      // BGA (Beta Gimbal Assembly) - rotates individual array wings
+      portBGA: [],      // PORT_BETA_ROT_2A, 4A, 2B, 4B
+      stbdBGA: [],      // STBD_BETA_ROT_1A, 3A, 1B, 3B
+    };
+    // Separate telemetry targets for smooth interpolation
+    let solarTargets = {
+      portSARJ: 0,
+      stbdSARJ: 0,
+      portBGA: 0,
+      stbdBGA: 0
+    };
+    let solarCurrent = {
+      portSARJ: 0,
+      stbdSARJ: 0,
+      portBGA: 0,
+      stbdBGA: 0
+    };
     // Sun and lighting
     let sunLight = null;
     let sunIndicator = null;
@@ -1422,7 +1445,8 @@
       o2Level: null,
       co2Level: null,
       crewSleeping: null,
-      solarArrayAngle: null,
+      portSARJAngle: null,
+      stbdSARJAngle: null,
       // Quaternion for LVLH attitude (w, x, y, z)
       quaternion: { w: 1, x: 0, y: 0, z: 0 },
       betaAngle: null,
@@ -1516,10 +1540,14 @@
           nasaTelemetry.co2Level = numValue;
           updateTelemetryDisplay('telCO2', numValue.toFixed(2), 'mmHg');
           break;
-        case 'P1000004': // Port Solar Array
-        case 'S1000004': // Starboard Solar Array
-          nasaTelemetry.solarArrayAngle = numValue;
+        case 'P1000004': // Port SARJ angle
+          nasaTelemetry.portSARJAngle = numValue;
+          solarTargets.portSARJ = numValue;
           updateTelemetryDisplay('telSolar', Math.abs(numValue).toFixed(1), '°');
+          break;
+        case 'S1000004': // Starboard SARJ angle
+          nasaTelemetry.stbdSARJAngle = numValue;
+          solarTargets.stbdSARJ = numValue;
           break;
         // Quaternion components (LVLH attitude)
         case 'USLAB000018': // Quaternion w (scalar)
@@ -1554,7 +1582,7 @@
       const press = nasaTelemetry.cabinPressure ? nasaTelemetry.cabinPressure.toFixed(1) : '--';
       const o2 = nasaTelemetry.o2Level ? nasaTelemetry.o2Level.toFixed(0) : '--';
       const co2 = nasaTelemetry.co2Level ? nasaTelemetry.co2Level.toFixed(1) : '--';
-      const solarAngle = nasaTelemetry.solarArrayAngle ? Math.abs(nasaTelemetry.solarArrayAngle).toFixed(0) : '--';
+      const solarAngle = nasaTelemetry.portSARJAngle ? Math.abs(nasaTelemetry.portSARJAngle).toFixed(0) : '--';
       
       // US Segment - Left column
       updateTelemEl('destiny-temp', tempC + '°C');
@@ -1594,20 +1622,116 @@
       if (el) el.textContent = value;
     }
     
-    // Update solar array rotation from telemetry
+    // Discover SARJ and BGA rotation nodes from IGOAL model hierarchy
+    function discoverSolarJoints(model, label) {
+      const joints = {
+        portSARJ: null,
+        stbdSARJ: null,
+        portBGA: [],
+        stbdBGA: []
+      };
+      
+      const JOINT_MAP = {
+        'PORT_ALPHA_ROT':   'portSARJ',
+        'STBD_ALPHA_ROT':   'stbdSARJ',
+        'PORT_BETA_ROT_2A': 'portBGA',
+        'PORT_BETA_ROT_4A': 'portBGA',
+        'PORT_BETA_ROT_2B': 'portBGA',
+        'PORT_BETA_ROT_4B': 'portBGA',
+        'STBD_BETA_ROT_1A': 'stbdBGA',
+        'STBD_BETA_ROT_3A': 'stbdBGA',
+        'STBD_BETA_ROT_1B': 'stbdBGA',
+        'STBD_BETA_ROT_3B': 'stbdBGA'
+      };
+      
+      model.traverse((node) => {
+        const key = JOINT_MAP[node.name];
+        if (!key) return;
+        
+        if (key === 'portBGA' || key === 'stbdBGA') {
+          joints[key].push(node);
+        } else {
+          joints[key] = node;
+        }
+        console.log(`[Solar] ${label}: Found ${node.name} → ${key}`);
+      });
+      
+      const sarjOk = joints.portSARJ && joints.stbdSARJ;
+      const bgaCount = joints.portBGA.length + joints.stbdBGA.length;
+      console.log(`[Solar] ${label}: SARJ ${sarjOk ? '✓' : '✗'}, BGA ${bgaCount}/8 joints`);
+      
+      return joints;
+    }
+    
+    // Update solar array rotations from live telemetry
+    // SARJ (alpha): driven by P1000004/S1000004 Lightstreamer telemetry
+    // BGA (beta): computed from beta angle + orbital position (sun tracking)
+    window.updateSolarArrays = updateSolarArrays;
     function updateSolarArrays() {
-      if (!issModel || !window.THREE) return;
+      if (!window.THREE) return;
       
-      // Smooth interpolation toward target angles
-      solarArrayAngles.port += (nasaTelemetry.solarArrayAngle - solarArrayAngles.port) * 0.1;
+      const LERP = 0.08; // Smooth interpolation factor
+      const degToRad = window.THREE.MathUtils.degToRad;
       
-      // Apply rotation to solar array meshes (if found)
-      solarArrays.port.forEach(mesh => {
-        if (mesh) mesh.rotation.y = window.THREE.MathUtils.degToRad(solarArrayAngles.port);
-      });
-      solarArrays.starboard.forEach(mesh => {
-        if (mesh) mesh.rotation.y = window.THREE.MathUtils.degToRad(-solarArrayAngles.port); // Mirror
-      });
+      // --- SARJ: smooth toward telemetry targets ---
+      solarCurrent.portSARJ += (solarTargets.portSARJ - solarCurrent.portSARJ) * LERP;
+      solarCurrent.stbdSARJ += (solarTargets.stbdSARJ - solarCurrent.stbdSARJ) * LERP;
+      
+      // Apply SARJ rotation (alpha joints rotate around local Z in IGOAL convention)
+      if (solarJoints.portSARJ) {
+        solarJoints.portSARJ.rotation.z = degToRad(solarCurrent.portSARJ);
+      }
+      if (solarJoints.stbdSARJ) {
+        solarJoints.stbdSARJ.rotation.z = degToRad(solarCurrent.stbdSARJ);
+      }
+      
+      // Also apply to dual view joints if present
+      if (solarJoints.nadir) {
+        if (solarJoints.nadir.portSARJ) solarJoints.nadir.portSARJ.rotation.z = degToRad(solarCurrent.portSARJ);
+        if (solarJoints.nadir.stbdSARJ) solarJoints.nadir.stbdSARJ.rotation.z = degToRad(solarCurrent.stbdSARJ);
+      }
+      if (solarJoints.velocity) {
+        if (solarJoints.velocity.portSARJ) solarJoints.velocity.portSARJ.rotation.z = degToRad(solarCurrent.portSARJ);
+        if (solarJoints.velocity.stbdSARJ) solarJoints.velocity.stbdSARJ.rotation.z = degToRad(solarCurrent.stbdSARJ);
+      }
+      
+      // --- BGA: compute sun-tracking angle from beta angle + orbital position ---
+      const beta = nasaTelemetry.betaAngle || 0;
+      const orbitPeriodMs = 92 * 60 * 1000; // ~92 min orbit
+      const orbitalPhase = (Date.now() % orbitPeriodMs) / orbitPeriodMs * 2 * Math.PI;
+      
+      // BGA angle = arctan(tan(beta) / sin(orbital_phase)) simplified
+      // In practice, BGAs continuously rotate to keep panels sun-normal
+      // Simplified: BGA ≈ orbital_phase (tracks sun around the orbit)
+      const bgaAngle = orbitalPhase + degToRad(beta) * 0.5;
+      
+      // Apply BGA rotation (beta joints rotate around local Z in IGOAL convention)
+      const applyBGA = (joints) => {
+        if (!joints) return;
+        const arr = Array.isArray(joints) ? joints : [joints];
+        arr.forEach(node => {
+          if (node) node.rotation.z = bgaAngle;
+        });
+      };
+      
+      applyBGA(solarJoints.portBGA);
+      applyBGA(solarJoints.stbdBGA);
+      
+      // Dual views
+      if (solarJoints.nadir) {
+        applyBGA(solarJoints.nadir.portBGA);
+        applyBGA(solarJoints.nadir.stbdBGA);
+      }
+      if (solarJoints.velocity) {
+        applyBGA(solarJoints.velocity.portBGA);
+        applyBGA(solarJoints.velocity.stbdBGA);
+      }
+      
+      // Update display with both SARJ angles
+      const portAngle = nasaTelemetry.portSARJAngle !== null ? Math.abs(nasaTelemetry.portSARJAngle).toFixed(0) : '--';
+      const stbdAngle = nasaTelemetry.stbdSARJAngle !== null ? Math.abs(nasaTelemetry.stbdSARJAngle).toFixed(0) : '--';
+      const solarDisplay = document.getElementById('solarAngles');
+      if (solarDisplay) solarDisplay.textContent = `P:${portAngle}° S:${stbdAngle}°`;
     }
     
     // Update sun position based on beta angle and orbital position
@@ -2243,12 +2367,12 @@
           scene.add(issModel);
           console.log('ISS HD model loaded successfully');
           
-          // Log all mesh names for debugging module identification
-          issModel.traverse((child) => {
-            if (child.isMesh) {
-              console.log('Mesh found:', child.name);
-            }
-          });
+          // Discover solar array rotation joints from IGOAL hierarchy
+          const discovered = discoverSolarJoints(issModel, 'single-view');
+          solarJoints.portSARJ = discovered.portSARJ;
+          solarJoints.stbdSARJ = discovered.stbdSARJ;
+          solarJoints.portBGA = discovered.portBGA;
+          solarJoints.stbdBGA = discovered.stbdBGA;
           
           // Hide loading indicator
           if (loadingEl) loadingEl.classList.add('hidden');
@@ -2334,6 +2458,9 @@
       
       // Update sun position animation
       updateSunPosition();
+      
+      // Update solar array rotations from telemetry
+      updateSolarArrays();
       
       if (renderer && scene && camera) renderer.render(scene, camera);
     }
@@ -2434,8 +2561,11 @@
       
       // Solar Array specific
       if (moduleInfo.tag === 'SAW') {
-        if (nasaTelemetry.solarArrayAngle !== null) {
-          html += `<div class="popup-row"><span class="popup-label">Angle</span><span class="popup-value nominal">${Math.abs(nasaTelemetry.solarArrayAngle).toFixed(1)}°</span></div>`;
+        if (nasaTelemetry.portSARJAngle !== null) {
+          html += `<div class="popup-row"><span class="popup-label">Port SARJ</span><span class="popup-value nominal">${Math.abs(nasaTelemetry.portSARJAngle).toFixed(1)}°</span></div>`;
+        }
+        if (nasaTelemetry.stbdSARJAngle !== null) {
+          html += `<div class="popup-row"><span class="popup-label">Stbd SARJ</span><span class="popup-value nominal">${Math.abs(nasaTelemetry.stbdSARJAngle).toFixed(1)}°</span></div>`;
         }
         html += `<div class="popup-row"><span class="popup-label">Power</span><span class="popup-value nominal">~30kW</span></div>`;
       }
@@ -2600,6 +2730,10 @@
             if (nadirScene) nadirScene.add(issModelNadir);
             if (velocityScene) velocityScene.add(issModelVelocity);
             
+            // Discover solar joints in both model instances
+            solarJoints.nadir = discoverSolarJoints(issModelNadir, 'nadir');
+            solarJoints.velocity = discoverSolarJoints(issModelVelocity, 'velocity');
+            
             document.getElementById('nadirLoading')?.classList.add('hidden');
             document.getElementById('velocityLoading')?.classList.add('hidden');
             resolve();
@@ -2639,6 +2773,9 @@
         if (attDisp) attDisp.textContent = `R:${targetAttitude.roll?.toFixed(1) || '--'}° P:${targetAttitude.pitch?.toFixed(1) || '--'}°`;
         if (attYaw) attYaw.textContent = `Y: ${targetAttitude.yaw?.toFixed(1) || '--'}°`;
       }
+      
+      // Update solar array rotations from telemetry
+      updateSolarArrays();
       
       // Render both views
       if (nadirRenderer && nadirScene && nadirCamera) nadirRenderer.render(nadirScene, nadirCamera);

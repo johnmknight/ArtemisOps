@@ -206,13 +206,19 @@ Ambient, always-on display for:
 | `/api/sync` | POST | Manual data refresh |
 | `/ws` | WebSocket | Real-time updates |
 
-### Planned
-| Endpoint | Method | Description | Priority |
-|----------|--------|-------------|----------|
-| `/api/iss/position` | GET | ISS position proxy (CORS) | Medium |
-| `/api/iss/crew` | GET | Cached ISS crew roster | Medium |
-| `/api/missions/{id}/trajectory` | GET | Trajectory waypoints | Low |
-| `/api/news` | GET | NASA RSS aggregation | Low |
+### Added in v0.7.0
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/iss` | GET | Combined ISS data (position + crew + telemetry) |
+| `/api/iss/position` | GET | ISS position proxy (Where The ISS At + fallback) |
+| `/api/iss/crew` | GET | Two-phase crew roster with agency enrichment |
+| `/api/iss/telemetry` | GET | NASA telemetry (client-side Lightstreamer) |
+| `/api/iss/news` | GET | ISS-specific RSS news (Spaceflight Now + NASA) |
+| `/api/iss/location/{lat},{lng}` | GET | Reverse geocoding |
+| `/api/iss/crew/enrichment` | GET | Crew enrichment diagnostics |
+| `/api/missions/{id}/trajectory` | GET | Trajectory waypoints & path data |
+| `/api/trajectories` | GET | List all available trajectory profiles |
+| `/api/news` | GET | Aggregated NASA + industry RSS feeds |
 
 ---
 

@@ -87,6 +87,15 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8080
 | `/api/screens/config` | GET | List provisioned screen configs |
 | `/api/screens/config` | POST | Add/update screen config (auto-navigates on connect) |
 | `/api/screens/config/{id}` | DELETE | Remove a provisioned screen config |
+| `/api/iss` | GET | Combined ISS data (position + crew + telemetry) |
+| `/api/iss/position` | GET | ISS position (Where The ISS At + fallback) |
+| `/api/iss/crew` | GET | ISS crew roster with agency enrichment |
+| `/api/iss/telemetry` | GET | NASA telemetry (client-side Lightstreamer) |
+| `/api/iss/news` | GET | ISS-specific RSS news |
+| `/api/iss/location/{lat},{lng}` | GET | Reverse geocoding from coordinates |
+| `/api/missions/{id}/trajectory` | GET | Trajectory waypoints & path data |
+| `/api/trajectories` | GET | List available trajectory profiles |
+| `/api/news` | GET | Aggregated NASA + industry RSS news feeds |
 
 ## Weather Feature
 

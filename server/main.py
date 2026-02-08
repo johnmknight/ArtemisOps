@@ -20,6 +20,8 @@ from fetcher import sync_all_missions, ensure_default_missions
 from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until
 from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
 from crew_enrichment import get_cache_status as get_enrichment_status
+from trajectories import get_trajectory, get_available_trajectories
+from news import get_news
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -136,7 +138,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ArtemisOps API",
     description="Mission Control Backend for NASA and ESA Crewed Missions",
-    version="0.5.0",
+    version="0.7.0",
     lifespan=lifespan
 )
 
@@ -514,16 +516,64 @@ async def get_iss_location_name(lat: float, lng: float):
         raise HTTPException(status_code=503, detail=f"Location lookup unavailable: {str(e)}")
 
 
-@app.get("/api/iss/news")
-async def get_iss_news_data(limit: int = 10):
+# === Trajectory Data ===
+
+@app.get("/api/missions/{mission_id}/trajectory")
+async def get_mission_trajectory(mission_id: str):
     """
-    Get latest ISS news from NASA ISS Blog and Spaceflight Now.
-    Data is cached for 15 minutes.
+    Get trajectory waypoints and path data for a mission.
+    
+    Returns SVG-coordinate waypoints, path segments, phase definitions,
+    and orbital parameters. Used by client map components to render
+    mission trajectories without hardcoded data.
+    
+    Supports: artemis-ii, artemis-iii, iss, and aliases (artemis-i,
+    artemis-iv, artemis-v, crew-dragon, starliner, etc.)
+    """
+    trajectory = get_trajectory(mission_id)
+    if not trajectory:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No trajectory data for mission '{mission_id}'. "
+                   f"Available: {[t['mission_id'] for t in get_available_trajectories()]}"
+        )
+    
+    return {
+        "mission_id": mission_id,
+        **trajectory
+    }
+
+
+@app.get("/api/trajectories")
+async def list_trajectories():
+    """List all missions with trajectory data available."""
+    return {
+        "trajectories": get_available_trajectories(),
+        "count": len(get_available_trajectories()),
+    }
+
+
+# === General News ===
+
+@app.get("/api/news")
+async def get_news_feed(limit: int = 20, source: str = None):
+    """
+    Aggregated space news from NASA and industry RSS feeds.
+    
+    Sources: NASA Breaking News, NASA Artemis Blog, NASA ISS Blog,
+    Spaceflight Now.
+    
+    Query params:
+        limit: Max items (default 20)
+        source: Filter by feed ID (nasa-breaking, nasa-artemis,
+                nasa-iss, spaceflight-now)
+    
+    Cached for 15 minutes.
     """
     try:
-        return await get_iss_news(limit)
+        return await get_news(limit=limit, source=source)
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"ISS news unavailable: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"News unavailable: {str(e)}")
 
 
 @app.get("/api/status")
@@ -538,7 +588,7 @@ async def get_status():
         "connected_screens": len(app_state["screens"]),
         "total_missions": len(missions),
         "weather_cache_size": len(app_state["weather_cache"]),
-        "version": "0.6.0"
+        "version": "0.7.0"
     }
 
 
