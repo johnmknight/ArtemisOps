@@ -35,15 +35,17 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Control panel mission selector for Add Screen form
 - [x] 3D trajectory tab, Artemis II 3D mockups, earth/moon textures, Orion model
 - [x] Fallback solar joint discovery in ISS 3D view
+- [x] Day/night terminator overlay on ISS 2D map (solar position calc, night polygon, toggleable)
+- [x] Ground station visibility overlays (12 stations, comm range circles, tooltips, toggleable)
 
 ### In Progress
 - [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
 - [ ] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
 
 ### Up Next
-- [ ] Add orbit track rendering (sinusoidal curves in equirectangular projection)
-- [ ] Implement ground station visibility overlays
-- [ ] Add day/night terminator line to map
+- [x] ~~Add orbit track rendering~~ — Already implemented (`calculatePredictedOrbit` with 51.6° inclination, Earth rotation, dateline wrapping)
+- [x] ~~Implement ground station visibility overlays~~ — 12 stations (MCC-H, TsUP, TDRS, DSN, JAXA, ESA, CSA) with comm range circles
+- [x] ~~Add day/night terminator line to map~~ — Solar declination + equation of time, polygon overlay, 60s refresh
 
 ---
 
