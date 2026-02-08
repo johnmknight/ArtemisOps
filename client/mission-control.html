@@ -431,21 +431,113 @@
 
     .weather-stat strong { color: var(--text-primary); }
 
+    .time-local {
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== STATUS INDICATORS (GO/NO-GO) ===== */
+    .status-panel {
+      display: flex;
+      gap: clamp(6px, 1vw, 14px);
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: clamp(8px, 1.2vh, 14px);
+    }
+
+    .status-light {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(0, 20, 40, 0.6);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      font-size: clamp(0.6rem, 0.9vh, 0.75rem);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .status-light .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-light.go .dot { background: var(--success-color); box-shadow: 0 0 8px var(--success-color); }
+    .status-light.go { color: var(--success-color); border-color: rgba(34, 197, 94, 0.3); }
+    .status-light.caution .dot { background: var(--warning-color); box-shadow: 0 0 8px var(--warning-color); }
+    .status-light.caution { color: var(--warning-color); border-color: rgba(245, 158, 11, 0.3); }
+    .status-light.nogo .dot { background: var(--danger-color); box-shadow: 0 0 8px var(--danger-color); }
+    .status-light.nogo { color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3); }
+    .status-light.tbd .dot { background: var(--text-secondary); }
+    .status-light.tbd { color: var(--text-secondary); }
+
+    /* ===== CREW STRIP ===== */
+    .crew-strip {
+      display: flex;
+      gap: clamp(6px, 1vw, 14px);
+      justify-content: center;
+      margin-top: clamp(6px, 1vh, 12px);
+    }
+
+    .crew-strip-member {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px 5px 5px;
+      background: rgba(0, 20, 40, 0.6);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .crew-strip-photo {
+      width: clamp(32px, 5vh, 48px);
+      height: clamp(32px, 5vh, 48px);
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center 20%;
+      border: 2px solid var(--border-subtle);
+    }
+
+    .crew-strip-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .crew-strip-name {
+      font-size: clamp(0.7rem, 1.1vh, 0.9rem);
+      font-weight: 700;
+    }
+
+    .crew-strip-role {
+      font-size: clamp(0.55rem, 0.8vh, 0.7rem);
+      color: var(--text-accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
     /* ===== TIMELINE ===== */
     .timeline-strip {
       grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      display: flex;
+      overflow-x: auto;
       background: var(--bg-panel);
       border-top: 2px solid var(--border-subtle);
     }
+    .timeline-strip::-webkit-scrollbar { display: none; }
 
     .phase {
       display: flex;
       align-items: center;
-      padding: 0 18px;
-      gap: 10px;
+      padding: 0 14px;
+      gap: 8px;
       border-right: 1px solid var(--border-subtle);
+      flex: 1;
+      min-width: 0;
     }
     .phase:last-child { border-right: none; }
 
@@ -457,13 +549,13 @@
     }
 
     .phase-icon {
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 0.8rem;
       flex-shrink: 0;
     }
 
@@ -491,7 +583,7 @@
       50% { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
     }
 
-    .phase-content { flex: 1; }
+    .phase-content { flex: 1; min-width: 0; overflow: hidden; }
 
     .phase-label {
       font-size: 0.65rem;
@@ -502,13 +594,19 @@
     }
 
     .phase-title {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .phase-time {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* ===== FULLSCREEN BUTTON ===== */
@@ -555,6 +653,10 @@
         <div class="staleness"><span class="ok" id="stalenessIcon">✓</span> Updated <span id="staleness">-</span>s ago</div>
       </div>
       <div class="header-right">
+        <div class="met-display">
+          <div class="met-label">MET</div>
+          <div class="met-value" id="metValue">---:--:--:--</div>
+        </div>
         <div class="time-display">
           <div class="time-utc" id="timeUTC">--:--:-- UTC</div>
           <div class="time-local" id="timeLocal">--:--:-- ET</div>
@@ -631,6 +733,15 @@
             </div>
           </div>
           
+          <div class="info-box" id="statusBox">
+            <span class="info-box-icon">🔄</span>
+            <div class="info-box-content">
+              <div class="info-box-label">Mission Status</div>
+              <div class="info-box-title" id="missionStatusTitle">---</div>
+              <div class="info-box-meta" id="missionStatusMeta">---</div>
+            </div>
+          </div>
+          
           <div class="info-box weather-box" id="weatherBox">
             <span class="info-box-icon" id="weatherIcon">☀️</span>
             <div class="info-box-content">
@@ -646,6 +757,18 @@
             </div>
           </div>
         </div>
+        
+        <!-- Status Indicators -->
+        <div class="status-panel" id="statusPanel">
+          <div class="status-light tbd"><span class="dot"></span>Vehicle</div>
+          <div class="status-light tbd"><span class="dot"></span>Weather</div>
+          <div class="status-light tbd"><span class="dot"></span>Range</div>
+          <div class="status-light tbd"><span class="dot"></span>Crew</div>
+          <div class="status-light tbd"><span class="dot"></span>Ground</div>
+        </div>
+        
+        <!-- Crew Strip -->
+        <div class="crew-strip" id="crewStrip"></div>
       </div>
     </section>
     
@@ -758,6 +881,13 @@
       document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
       document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
 
+      // MET header display
+      const prefix = isPostLaunch ? 'T+' : 'T-';
+      const metStr = `${prefix}${String(days).padStart(3,'0')}:${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+      const metEl = document.getElementById('metValue');
+      metEl.textContent = metStr;
+      metEl.classList.toggle('t-plus', isPostLaunch);
+
       const label = document.getElementById('countdownLabel');
       const values = document.querySelectorAll('.countdown-value');
       const seps = document.querySelectorAll('.countdown-separator');
@@ -806,19 +936,21 @@
       // Agency logo
       const agencyName = data.agencies ? data.agencies.split(',')[0].trim() : 'NASA';
       document.getElementById('agencyName').textContent = agencyName;
-      if (data.agency_logo) {
-        document.getElementById('agencyLogo').src = data.agency_logo;
-      } else if (AGENCY_LOGOS[agencyName]) {
-        document.getElementById('agencyLogo').src = AGENCY_LOGOS[agencyName];
-      }
+      const logoUrl = data.agency_logo_url || AGENCY_LOGOS[agencyName];
+      if (logoUrl) document.getElementById('agencyLogo').src = logoUrl;
 
       // Mission patch
       document.getElementById('missionName').textContent = data.name || '---';
-      if (data.mission_patch || data.image) {
+      const patchUrl = data.patch_url || data.image_url;
+      if (patchUrl) {
         const patchEl = document.getElementById('missionPatch');
-        patchEl.src = data.mission_patch || data.image;
+        patchEl.src = patchUrl;
         patchEl.style.display = 'block';
       }
+
+      // Mission status box
+      document.getElementById('missionStatusTitle').textContent = data.status || 'Unknown';
+      document.getElementById('missionStatusMeta').textContent = data.status_description ? truncate(data.status_description, 45) : (data.rocket || '---');
 
       // Launch info
       if (appState.launchDate) {
@@ -837,7 +969,11 @@
       // Timeline
       updateTimeline(data.milestones || []);
 
+      // Crew strip
+      updateCrewStrip(data.crew || []);
 
+      // Status indicators
+      updateStatusPanel(data);
     }
 
 
@@ -850,6 +986,8 @@
         const data = await response.json();
         appState.weather = data;
         updateWeatherUI(data);
+        // Re-render status panel with weather data
+        if (appState.mission) updateStatusPanel(appState.mission);
       } catch (error) {
         console.error('Failed to fetch weather:', error);
       }
@@ -897,110 +1035,110 @@
       document.getElementById('weatherLabel').textContent = `Weather at ${launch.site || 'KSC'}`;
     }
 
-    // ===== UPDATE TIMELINE =====
+    // ===== UPDATE TIMELINE (all milestones) =====
     function updateTimeline(milestones) {
       const strip = document.getElementById('timelineStrip');
-      
-      if (!milestones || milestones.length === 0) {
-        // Keep default placeholder
+      if (!milestones || milestones.length === 0) return;
+
+      // Update next milestone info box
+      const active = milestones.find(m => m.status === 'active');
+      const upcoming = milestones.filter(m => m.status === 'upcoming' || m.status === 'pending');
+      const nextUpcoming = upcoming[0];
+
+      if (active) {
+        document.getElementById('nextMilestoneTitle').textContent = active.title;
+        document.getElementById('nextMilestoneMeta').textContent = active.date_label || 'In progress';
+      } else if (nextUpcoming) {
+        document.getElementById('nextMilestoneTitle').textContent = nextUpcoming.title;
+        document.getElementById('nextMilestoneMeta').textContent = nextUpcoming.date_label || 'Upcoming';
+      }
+
+      // Show ALL milestones in the timeline strip
+      const icons = { completed: '✓', active: '→', pending: '○', upcoming: '○' };
+
+      strip.innerHTML = milestones.map(m => {
+        const status = m.status || 'pending';
+        const isLaunch = m.title.toLowerCase().includes('liftoff') || m.title.toLowerCase().includes('launch');
+        const icon = isLaunch ? '🚀' : (icons[status] || '○');
+        const label = status === 'completed' ? 'Done' : (status === 'active' ? 'Current' : (m.date_label || 'Pending'));
+
+        return `
+          <div class="phase ${status}">
+            <div class="phase-icon ${status}">${icon}</div>
+            <div class="phase-content">
+              <div class="phase-label">${label}</div>
+              <div class="phase-title">${m.title}</div>
+              <div class="phase-time">${m.date_label || ''}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===== CREW STRIP =====
+    function updateCrewStrip(crew) {
+      const strip = document.getElementById('crewStrip');
+      if (!crew || crew.length === 0) {
+        strip.innerHTML = '';
         return;
       }
 
-      // Find completed, active, and upcoming milestones
-      const completed = milestones.filter(m => m.status === 'completed');
-      const active = milestones.find(m => m.status === 'active');
-      const upcoming = milestones.filter(m => m.status === 'upcoming' || m.status === 'pending');
-
-      // Get the most recent completed, active, and next upcoming
-      const lastCompleted = completed[completed.length - 1];
-      const nextUpcoming = upcoming[0];
-
-      // Update next milestone info box
-      if (active) {
-        document.getElementById('nextMilestoneTitle').textContent = active.title;
-        document.getElementById('nextMilestoneMeta').textContent = active.date || 'In progress';
-      } else if (nextUpcoming) {
-        document.getElementById('nextMilestoneTitle').textContent = nextUpcoming.title;
-        document.getElementById('nextMilestoneMeta').textContent = nextUpcoming.date || 'Upcoming';
-      }
-
-      // Build timeline phases (show 3: completed, active/next, launch)
-      const phases = [];
-
-      if (lastCompleted) {
-        phases.push({
-          label: 'Completed',
-          title: lastCompleted.title,
-          time: lastCompleted.date || 'Done',
-          status: 'completed',
-          icon: '✓'
-        });
-      } else {
-        phases.push({
-          label: 'Prep',
-          title: 'Pre-Launch',
-          time: 'In Progress',
-          status: 'active',
-          icon: '→'
-        });
-      }
-
-      if (active) {
-        phases.push({
-          label: 'Current',
-          title: active.title,
-          time: active.date || 'Now',
-          status: 'active',
-          icon: '→'
-        });
-      } else if (nextUpcoming) {
-        phases.push({
-          label: 'Next',
-          title: nextUpcoming.title,
-          time: nextUpcoming.date || 'Upcoming',
-          status: 'upcoming',
-          icon: '○'
-        });
-      }
-
-      // Always show launch as final phase
-      const launchPhase = milestones.find(m => 
-        m.title.toLowerCase().includes('launch') || 
-        m.title.toLowerCase().includes('liftoff')
-      );
-
-      if (launchPhase) {
-        phases.push({
-          label: 'Liftoff',
-          title: launchPhase.title,
-          time: launchPhase.date || 'T-0',
-          status: launchPhase.status === 'completed' ? 'completed' : 'upcoming',
-          icon: '🚀'
-        });
-      } else {
-        // Use countdown-derived launch time
-        const launchTime = appState.launchDate ? 
-          `T-${Math.ceil((appState.launchDate - new Date()) / 86400000)}d` : 'TBD';
-        phases.push({
-          label: 'Liftoff',
-          title: 'Launch Window',
-          time: launchTime,
-          status: 'upcoming',
-          icon: '🚀'
-        });
-      }
-
-      // Render phases
-      strip.innerHTML = phases.map(phase => `
-        <div class="phase ${phase.status}">
-          <div class="phase-icon ${phase.status}">${phase.icon}</div>
-          <div class="phase-content">
-            <div class="phase-label">${phase.label}</div>
-            <div class="phase-title">${truncate(phase.title, 20)}</div>
-            <div class="phase-time">${phase.time}</div>
+      strip.innerHTML = crew.map(m => `
+        <div class="crew-strip-member">
+          ${(m.photo_url || m.photo) ? `<img src="${m.photo_url || m.photo}" alt="${m.name}" class="crew-strip-photo">` : ''}
+          <div class="crew-strip-info">
+            <span class="crew-strip-name">${m.name.split(' ').pop()}</span>
+            <span class="crew-strip-role">${m.role || ''}</span>
           </div>
         </div>
       `).join('');
+    }
+
+    // ===== STATUS INDICATORS =====
+    function updateStatusPanel(data) {
+      const panel = document.getElementById('statusPanel');
+      const status = (data.status || '').toLowerCase();
+      const milestones = data.milestones || [];
+      const hasWeather = appState.weather && appState.weather.launch;
+
+      // Derive statuses from available data
+      const vehicleStatus = deriveVehicleStatus(status, milestones);
+      const weatherStatus = hasWeather ? deriveWeatherStatus(appState.weather) : 'tbd';
+      const rangeStatus = status === 'go' ? 'go' : (status === 'hold' ? 'caution' : 'tbd');
+      const crewStatus = (data.crew && data.crew.length > 0) ? (status === 'go' ? 'go' : 'tbd') : 'tbd';
+      const groundStatus = status === 'go' ? 'go' : 'tbd';
+
+      const lights = [
+        { name: 'Vehicle', status: vehicleStatus },
+        { name: 'Weather', status: weatherStatus },
+        { name: 'Range', status: rangeStatus },
+        { name: 'Crew', status: crewStatus },
+        { name: 'Ground', status: groundStatus },
+      ];
+
+      panel.innerHTML = lights.map(l => 
+        `<div class="status-light ${l.status}"><span class="dot"></span>${l.name}</div>`
+      ).join('');
+    }
+
+    function deriveVehicleStatus(status, milestones) {
+      // If WDR is completed, vehicle is at least partially ready
+      const wdrDone = milestones.some(m => m.title.toLowerCase().includes('dress rehearsal') && m.status === 'completed');
+      const hasIssue = milestones.some(m => m.title.toLowerCase().includes('issue') && m.status === 'active');
+      if (status === 'go') return 'go';
+      if (hasIssue) return 'caution';
+      if (wdrDone) return 'caution';
+      return 'tbd';
+    }
+
+    function deriveWeatherStatus(weather) {
+      if (!weather || !weather.launch) return 'tbd';
+      const analysis = weather.launch.analysis;
+      if (!analysis) return 'tbd';
+      if (analysis.status === 'go') return 'go';
+      if (analysis.status === 'marginal') return 'caution';
+      if (analysis.status === 'no-go') return 'nogo';
+      return 'tbd';
     }
 
     // ===== UTILITIES =====

@@ -37,6 +37,13 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fallback solar joint discovery in ISS 3D view
 - [x] Day/night terminator overlay on ISS 2D map (solar position calc, night polygon, toggleable)
 - [x] Ground station visibility overlays (12 stations, comm range circles, tooltips, toggleable)
+- [x] Crew tab: agency badges, bio links, loading skeleton, error state, photo_url bug fix
+- [x] Mission Control: fix agency_logo_url, patch_url, date_label field mismatches
+- [x] Mission Control: GO/NO-GO status indicators (Vehicle, Weather, Range, Crew, Ground)
+- [x] Mission Control: crew photo strip with portraits and roles
+- [x] Mission Control: full horizontal timeline (all milestones, not just 3)
+- [x] Mission Control: MET header display (T-minus/T-plus)
+- [x] Mission Control: mission status info box
 
 ### In Progress
 - [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
@@ -180,20 +187,21 @@ client/js/components/
 
 #### Implementation Tasks
 
-| Task | Description | Effort | Priority |
-|------|-------------|--------|----------|
-| Create `mission-control.html` | New standalone page for kiosk mode | 4 hrs | High |
-| Full-screen API | Toggle full-screen with F11 or button | 1 hr | High |
-| Auto-refresh | Continuous data updates without interaction | 2 hrs | High |
-| Large countdown display | Oversized timer for visibility | 2 hrs | High |
-| Status indicators | GO/NO-GO lights for all systems | 2 hrs | High |
-| Crew photo strip | Horizontal crew display with roles | 2 hrs | Medium |
-| Compact weather panel | Weather summary with GO/NO-GO | 1 hr | Medium |
-| Horizontal timeline | Full-width milestone progress | 2 hrs | Medium |
-| Live stream embed | NASA TV / YouTube embed | 4 hrs | Medium |
-| Auto-rotate views | Cycle countdown → tracking → crew | 3 hrs | Low |
-| News ticker | Scrolling news at bottom | 2 hrs | Low |
-| Clock/date display | Current UTC time in header | 1 hr | Low |
+| Task | Description | Effort | Priority | Status |
+|------|-------------|--------|----------|--------|
+| Create `mission-control.html` | New standalone page for kiosk mode | 4 hrs | High | ✅ Done |
+| Full-screen API | Toggle full-screen with F11 or button | 1 hr | High | ✅ Done |
+| Auto-refresh | Continuous data updates without interaction | 2 hrs | High | ✅ Done |
+| Large countdown display | Oversized timer for visibility | 2 hrs | High | ✅ Done |
+| Status indicators | GO/NO-GO lights for all systems | 2 hrs | High | ✅ Done |
+| Crew photo strip | Horizontal crew display with roles | 2 hrs | Medium | ✅ Done |
+| Compact weather panel | Weather summary with GO/NO-GO | 1 hr | Medium | ✅ Done |
+| Horizontal timeline | Full-width milestone progress (all milestones) | 2 hrs | Medium | ✅ Done |
+| Clock/date display | UTC + ET time, MET in header | 1 hr | Low | ✅ Done |
+| Mission status box | Status + description info box | 1 hr | Medium | ✅ Done |
+| Live stream embed | NASA TV / YouTube embed | 4 hrs | Medium | 🔲 Open |
+| Auto-rotate views | Cycle countdown → tracking → crew | 3 hrs | Low | 🔲 Open |
+| News ticker | Scrolling news at bottom | 2 hrs | Low | 🔲 Open |
 
 #### Technical Requirements
 - Standalone HTML file (can run independently)
@@ -275,7 +283,7 @@ client/js/components/
 ```
 client/
 ├── index.html                    # Main desktop app
-├── mission-control.html          # 🔄 NEW: Kiosk/signage mode
+├── mission-control.html          # ✅ Kiosk/signage mode (standalone)
 ├── data/
 │   └── spacecraft-manifest.json  # Spacecraft registry for icons/tracking
 ├── js/
