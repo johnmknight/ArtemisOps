@@ -373,6 +373,132 @@ async def get_mission_weather(
     return result
 
 
+# === Weather Operations (for Weather Tab) ===
+
+# GOES satellite imagery sectors by site
+GOES_SECTORS = {
+    "kennedy space center": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "ksc": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "cape canaveral": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "atlantic": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/taw/GEOCOLOR/600x600.jpg", "label": "GOES-East Tropical Atlantic"},
+    "pacific": {"url": "https://cdn.star.nesdis.noaa.gov/GOES17/ABI/SECTOR/np/GEOCOLOR/600x600.jpg", "label": "GOES-West N Pacific"},
+    "vandenberg": {"url": "https://cdn.star.nesdis.noaa.gov/GOES17/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW"},
+    "kourou": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/car/GEOCOLOR/600x600.jpg", "label": "GOES-East Caribbean"},
+}
+
+DEFAULT_RECOVERY_SITE = {"lat": 30.0, "lon": -75.0, "name": "Atlantic Recovery Zone"}
+
+
+async def fetch_current_and_forecast(lat: float, lon: float, days: int = 7) -> Optional[dict]:
+    """Fetch current conditions AND multi-day forecast from Open-Meteo"""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                OPEN_METEO_BASE,
+                params={
+                    "latitude": lat,
+                    "longitude": lon,
+                    "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover",
+                    "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max",
+                    "timezone": "UTC",
+                    "forecast_days": min(days + 1, 16),
+                }
+            )
+            response.raise_for_status()
+            return response.json()
+    except Exception as e:
+        print(f"Weather current+forecast fetch error: {e}")
+        return None
+
+
+def evaluate_constraints(current_raw: dict) -> dict:
+    """Evaluate GO/NO-GO launch constraints against current conditions"""
+    wind_kmh = current_raw.get("wind_speed_10m", 0) or 0
+    gust_kmh = current_raw.get("wind_gusts_10m", 0) or 0
+    precip = current_raw.get("precipitation", 0) or 0
+    code = current_raw.get("weather_code", 0)
+
+    wind_mph = round(wind_kmh * 0.621371, 1)
+    gust_mph = round(gust_kmh * 0.621371, 1)
+    weather_info = WEATHER_CODES.get(code, {"desc": "Unknown", "icon": "\u2753", "severity": "unknown"})
+
+    def status(val, limit):
+        return "go" if val <= limit else "no-go"
+
+    items = {
+        "wind": {"value": wind_mph, "limit": 30, "unit": "mph", "status": status(wind_mph, 30)},
+        "gusts": {"value": gust_mph, "limit": 40, "unit": "mph", "status": status(gust_mph, 40)},
+        "precipitation": {"value": round(precip, 2), "limit": 0.1, "unit": "mm", "status": status(precip, 0.1)},
+        "weather": {
+            "code": code, "description": weather_info["desc"],
+            "icon": weather_info["icon"],
+            "status": "no-go" if code in LAUNCH_CONSTRAINTS["bad_weather_codes"] else "go"
+        }
+    }
+
+    statuses = [v["status"] for v in items.values()]
+    overall = "no-go" if "no-go" in statuses else "go"
+
+    return {"items": items, "overall": overall}
+
+
+def build_site_weather(raw: dict, site_info: dict) -> dict:
+    """Build a clean weather response object for a single site"""
+    result = {
+        "name": site_info["name"],
+        "lat": site_info["lat"],
+        "lon": site_info["lon"],
+        "current": None,
+        "constraints": None,
+        "overall_status": "unknown",
+        "forecast": [],
+        "satellite_url": None,
+        "satellite_label": None
+    }
+
+    if not raw:
+        return result
+
+    # Current conditions
+    current_raw = raw.get("current", {})
+    if current_raw:
+        code = current_raw.get("weather_code", 0)
+        weather_info = WEATHER_CODES.get(code, {"desc": "Unknown", "icon": "\u2753", "severity": "unknown"})
+        temp_c = current_raw.get("temperature_2m")
+
+        result["current"] = {
+            "temperature_c": temp_c,
+            "temperature_f": round(temp_c * 9/5 + 32, 1) if temp_c is not None else None,
+            "humidity": current_raw.get("relative_humidity_2m"),
+            "cloud_cover": current_raw.get("cloud_cover"),
+            "precipitation_mm": current_raw.get("precipitation", 0),
+            "wind_speed_mph": round((current_raw.get("wind_speed_10m", 0) or 0) * 0.621371, 1),
+            "wind_gust_mph": round((current_raw.get("wind_gusts_10m", 0) or 0) * 0.621371, 1),
+            "weather_code": code,
+            "description": weather_info["desc"],
+            "icon": weather_info["icon"],
+            "severity": weather_info["severity"]
+        }
+
+        # Evaluate constraints
+        constraint_result = evaluate_constraints(current_raw)
+        result["constraints"] = constraint_result["items"]
+        result["overall_status"] = constraint_result["overall"]
+
+    # Multi-day forecast
+    result["forecast"] = get_forecast_summary(raw, days=7)
+
+    # Satellite imagery URL
+    site_lower = site_info["name"].lower()
+    for key, sector in GOES_SECTORS.items():
+        if key in site_lower:
+            result["satellite_url"] = sector["url"]
+            result["satellite_label"] = sector["label"]
+            break
+
+    return result
+
+
 # Convenience function for testing
 async def test_weather():
     """Test weather fetching"""

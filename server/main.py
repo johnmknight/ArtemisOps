@@ -17,7 +17,7 @@ from database import (
     get_last_sync
 )
 from fetcher import sync_all_missions, ensure_default_missions
-from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until
+from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until, fetch_current_and_forecast, build_site_weather, find_site_coordinates, DEFAULT_RECOVERY_SITE
 from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
 from crew_enrichment import get_cache_status as get_enrichment_status
 from trajectories import get_trajectory, get_available_trajectories
@@ -45,11 +45,13 @@ PAGES = {
     2: "tracking",
     3: "crew",
     4: "info",
+    5: "weather",
     "control": 0,
     "mission": 1,
     "tracking": 2,
     "crew": 3,
-    "info": 4
+    "info": 4,
+    "weather": 5
 }
 
 scheduler = AsyncIOScheduler()
@@ -423,6 +425,61 @@ async def get_site_weather(site_name: str, days: int = 5):
         "coordinates": {"lat": coords["lat"], "lon": coords["lon"]},
         "forecast": get_forecast_summary(forecast, days=days)
     }
+
+
+@app.get("/api/weather/operations/{mission_id}")
+async def get_weather_operations(mission_id: str):
+    """
+    Get comprehensive weather for launch and recovery sites.
+    Always returns current conditions regardless of launch date.
+    Used by the Weather tab.
+    """
+    mission = await get_full_mission(mission_id)
+    if not mission:
+        raise HTTPException(status_code=404, detail="Mission not found")
+
+    # Check cache (10 min expiry for operations data)
+    cache_key = f"ops_{mission_id}"
+    cached = app_state["weather_cache"].get(cache_key)
+    if cached:
+        cache_time, cache_data = cached
+        age_minutes = (datetime.now(timezone.utc) - cache_time).total_seconds() / 60
+        if age_minutes < 10:
+            return {**cache_data, "cached": True, "cache_age_minutes": round(age_minutes, 1)}
+
+    # Resolve launch site
+    launch_site_name = mission.get("site", "")
+    launch_coords = find_site_coordinates(launch_site_name)
+
+    # Default recovery site
+    recovery_coords = DEFAULT_RECOVERY_SITE
+
+    launch_weather = None
+    recovery_weather = None
+
+    # Fetch launch site weather (current + forecast)
+    if launch_coords:
+        raw = await fetch_current_and_forecast(launch_coords["lat"], launch_coords["lon"])
+        launch_weather = build_site_weather(raw, launch_coords)
+
+    # Fetch recovery site weather
+    raw = await fetch_current_and_forecast(recovery_coords["lat"], recovery_coords["lon"])
+    recovery_weather = build_site_weather(raw, recovery_coords)
+
+    result = {
+        "mission_id": mission_id,
+        "mission_name": mission["name"],
+        "launch_date": mission.get("launch_date"),
+        "cached": False,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "launch_site": launch_weather,
+        "recovery_site": recovery_weather
+    }
+
+    # Cache the result
+    app_state["weather_cache"][cache_key] = (datetime.now(timezone.utc), result)
+
+    return result
 
 
 # === ISS Data Endpoints ===

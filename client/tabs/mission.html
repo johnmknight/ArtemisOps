@@ -582,7 +582,7 @@
           <div class="info-box weather-box" id="weatherBox">
             <span class="info-box-icon" id="weatherIcon">☀️</span>
             <div class="info-box-content">
-              <div class="info-box-label">Weather at KSC</div>
+              <div class="info-box-label">Forecast Weather at Launch Site</div>
               <div class="info-box-title" id="weatherCondition">Loading...</div>
               <div class="weather-stats">
                 <span class="weather-stat">Wind: <strong id="weatherWind">--</strong></span>
@@ -670,6 +670,11 @@
             
           case 'weatherData':
             this.weatherData = msg.data;
+            this.updateWeatherDisplay();
+            break;
+          
+          case 'setWeatherData':
+            this.weatherData = msg.weather;
             this.updateWeatherDisplay();
             break;
         }
@@ -798,10 +803,21 @@
         const statusValue = document.getElementById('weatherStatusValue');
         
         if (!w || !w.should_fetch || !w.launch) {
-          document.getElementById('weatherCondition').textContent = 'Not available';
+          // Show reason if available (e.g. "Launch is 23 days away")
+          const reason = w?.reason;
+          if (reason && reason.includes('days away')) {
+            const daysMatch = reason.match(/(\d+) days away/);
+            const days = daysMatch ? daysMatch[1] : '?';
+            document.getElementById('weatherCondition').textContent = `Available in ${Math.max(0, days - 7)}d`;
+            document.getElementById('weatherIcon').textContent = '📡';
+            statusValue.textContent = 'PENDING';
+            statusValue.classList.remove('marginal', 'no-go');
+          } else {
+            document.getElementById('weatherCondition').textContent = 'Not available';
+            statusValue.textContent = '--';
+          }
           document.getElementById('weatherWind').textContent = '--';
           document.getElementById('weatherCloud').textContent = '--';
-          statusValue.textContent = '--';
           return;
         }
         

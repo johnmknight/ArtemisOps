@@ -260,6 +260,7 @@
       <iframe class="tab-frame" id="frame-tracking" src="/tabs/tracking.html"></iframe>
       <iframe class="tab-frame" id="frame-crew" src="/tabs/crew.html"></iframe>
       <iframe class="tab-frame" id="frame-info" src="/tabs/info.html"></iframe>
+      <iframe class="tab-frame" id="frame-weather" src="/tabs/weather.html"></iframe>
     </main>
   </div>
 
@@ -279,7 +280,8 @@
         mission: false,
         tracking: false,
         crew: false,
-        info: false
+        info: false,
+        weather: false
       },
       
       // API config
@@ -432,7 +434,7 @@
       },
       
       // === Keyboard Navigation ===
-      tabOrder: ['mission', 'tracking', 'crew', 'info'],
+      tabOrder: ['mission', 'tracking', 'crew', 'info', 'weather'],
       
       handleKeydown(e) {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -444,7 +446,7 @@
           case 'ArrowLeft':
             this.prevTab();
             break;
-          case '0': case '1': case '2': case '3':
+          case '0': case '1': case '2': case '3': case '4':
             const tab = this.tabOrder[parseInt(e.key)];
             if (tab) this.switchTab(tab);
             break;
@@ -556,6 +558,15 @@
             break;
             
           case 'info':
+            if (this.missionData) {
+              frame.contentWindow.postMessage({
+                type: 'setMissionData',
+                mission: this.missionData
+              }, '*');
+            }
+            break;
+
+          case 'weather':
             if (this.missionData) {
               frame.contentWindow.postMessage({
                 type: 'setMissionData',

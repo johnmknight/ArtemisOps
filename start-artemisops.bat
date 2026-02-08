@@ -11,7 +11,7 @@ if %errorlevel%==0 (
     echo [OK] Server already running on port 8080
 ) else (
     echo [..] Starting ArtemisOps server...
-    cd /d C:\Users\john_\ArtemisOps\server
+    cd /d C:\Users\john_\dev\ArtemisOps\server
     start "ArtemisOps Server" cmd /c ".\venv\Scripts\python.exe main.py"
     echo [OK] Server starting...
     :: Wait a moment for server to initialize

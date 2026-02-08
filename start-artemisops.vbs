@@ -7,7 +7,7 @@ strOutput = objExec.StdOut.ReadAll()
 
 If Len(Trim(strOutput)) = 0 Then
     ' Server not running - start it
-    WshShell.CurrentDirectory = "C:\Users\john_\ArtemisOps\server"
+    WshShell.CurrentDirectory = "C:\Users\john_\dev\ArtemisOps\server"
     WshShell.Run "cmd /c .\venv\Scripts\python.exe main.py", 0, False
     WScript.Sleep 3000
 End If

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Weather</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-panel: #080c14;
+      --bg-card: #0f1620;
+      --border-subtle: #1a3050;
+      --text-primary: #ffffff;
+      --text-secondary: #7a8a9a;
+      --text-accent: #00d4ff;
+      --go-color: #22c55e;
+      --nogo-color: #ef4444;
+      --marginal-color: #f59e0b;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .weather-layout {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .wx-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 20px;
+      background: linear-gradient(180deg, #0a1525 0%, #050a10 100%);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .wx-header-left { display: flex; align-items: center; gap: 12px; }
+
+    .wx-header-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+    }
+
+    .wx-header-mission {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .wx-header-right { display: flex; align-items: center; gap: 16px; }
+
+    .wx-updated {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .wx-live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--go-color);
+    }
+
+    .wx-live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--go-color);
+      border-radius: 50%;
+      animation: pulse-live 2s infinite;
+    }
+
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+    }
+
+    /* ===== MAIN PANEL (full width, single site) ===== */
+    .wx-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px 20px;
+      overflow: hidden;
+    }
+
+    /* Left: conditions + constraints */
+    .wx-data-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .site-label { display: flex; align-items: center; gap: 8px; }
+    .site-label-icon { font-size: 1.3rem; }
+
+    .site-label-type {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+    }
+
+    .site-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .site-overall {
+      padding: 6px 18px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .site-overall.go {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: var(--go-color);
+    }
+
+    .site-overall.no-go {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: var(--nogo-color);
+    }
+
+    .site-overall.unknown {
+      background: rgba(122, 138, 154, 0.15);
+      border: 1px solid rgba(122, 138, 154, 0.3);
+      color: var(--text-secondary);
+    }
+
+    /* Current conditions */
+    .current-conditions { display: flex; flex-direction: column; gap: 8px; }
+
+    .current-main { display: flex; align-items: center; gap: 14px; }
+
+    .current-icon { font-size: 3rem; line-height: 1; }
+
+    .current-temp {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .current-temp-unit { font-size: 1.2rem; color: var(--text-secondary); }
+
+    .current-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .current-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .current-stat {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .current-stat-icon { font-size: 0.85rem; }
+
+    .current-stat strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Constraints */
+    .constraints { display: flex; flex-direction: column; gap: 6px; }
+
+    .constraints-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+      margin-bottom: 4px;
+    }
+
+    .constraint-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      padding: 3px 0;
+    }
+
+    .constraint-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .constraint-indicator.go {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid var(--go-color);
+      color: var(--go-color);
+    }
+
+    .constraint-indicator.no-go {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--nogo-color);
+      color: var(--nogo-color);
+    }
+
+    .constraint-indicator.unknown {
+      background: rgba(122, 138, 154, 0.15);
+      border: 1px solid rgba(122, 138, 154, 0.3);
+      color: var(--text-secondary);
+    }
+
+    .constraint-label { color: var(--text-secondary); min-width: 55px; }
+
+    .constraint-value {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+    }
+
+    .constraint-limit { color: var(--text-secondary); font-size: 0.7rem; }
+
+    /* Right: satellite imagery */
+    .satellite-section {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .satellite-container {
+      flex: 1;
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: #050810;
+      min-height: 0;
+    }
+
+    .satellite-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .satellite-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 4px 10px;
+      background: rgba(0, 0, 0, 0.7);
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .satellite-error {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    /* ===== FORECAST STRIP ===== */
+    .forecast-strip {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+      padding: 8px 20px;
+      overflow: hidden;
+    }
+
+    .forecast-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .forecast-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+    }
+
+    .forecast-site-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .forecast-days { display: flex; gap: 6px; overflow-x: auto; }
+
+    .forecast-day {
+      flex: 1;
+      min-width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 5px 4px;
+      border-radius: 6px;
+      background: rgba(0, 20, 40, 0.4);
+      border: 1px solid rgba(26, 48, 80, 0.5);
+    }
+
+    .forecast-day.highlight-day {
+      border-color: rgba(0, 212, 255, 0.5);
+      background: rgba(0, 212, 255, 0.08);
+    }
+
+    .forecast-day-name {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .forecast-day.highlight-day .forecast-day-name { color: var(--text-accent); }
+
+    .forecast-day-icon { font-size: 1rem; line-height: 1; }
+
+    .forecast-day-temps { display: flex; gap: 4px; font-size: 0.65rem; }
+    .forecast-day-high { font-weight: 700; color: var(--text-primary); }
+    .forecast-day-low { color: var(--text-secondary); }
+    .forecast-day-wind { font-size: 0.55rem; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="weather-layout">
+    <header class="wx-header">
+      <div class="wx-header-left">
+        <span class="wx-header-title">🚀 Launch Weather</span>
+        <span class="wx-header-mission" id="wxMission">Loading...</span>
+      </div>
+      <div class="wx-header-right">
+        <span class="wx-updated" id="wxUpdated">Updated --:-- UTC</span>
+        <span class="wx-live-dot">LIVE</span>
+      </div>
+    </header>
+
+    <div class="wx-main">
+      <div class="wx-data-col">
+        <div class="site-header">
+          <div class="site-label">
+            <span class="site-label-icon">🚀</span>
+            <div>
+              <div class="site-label-type">Launch Site</div>
+              <div class="site-name" id="siteName">Loading...</div>
+            </div>
+          </div>
+          <div class="site-overall unknown" id="siteOverall">---</div>
+        </div>
+        <div class="current-conditions">
+          <div class="current-main">
+            <span class="current-icon" id="wxIcon">--</span>
+            <div>
+              <span class="current-temp" id="wxTemp">--</span><span class="current-temp-unit">°F</span>
+            </div>
+          </div>
+          <div class="current-desc" id="wxDesc">Loading conditions...</div>
+          <div class="current-stats">
+            <span class="current-stat"><span class="current-stat-icon">💨</span> <strong id="wxWind">--</strong> mph</span>
+            <span class="current-stat"><span class="current-stat-icon">☁️</span> <strong id="wxCloud">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon">💧</span> <strong id="wxHumidity">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon">🌧️</span> <strong id="wxPrecip">--</strong> mm</span>
+          </div>
+        </div>
+        <div class="constraints">
+          <div class="constraints-title">Launch Constraints</div>
+          <div class="constraint-row">
+            <div class="constraint-indicator unknown" id="cWind">-</div>
+            <span class="constraint-label">Wind</span>
+            <span class="constraint-value" id="cWindVal">--</span>
+            <span class="constraint-limit">/ 30 mph</span>
+          </div>
+          <div class="constraint-row">
+            <div class="constraint-indicator unknown" id="cGust">-</div>
+            <span class="constraint-label">Gusts</span>
+            <span class="constraint-value" id="cGustVal">--</span>
+            <span class="constraint-limit">/ 40 mph</span>
+          </div>
+          <div class="constraint-row">
+            <div class="constraint-indicator unknown" id="cPrecip">-</div>
+            <span class="constraint-label">Precip</span>
+            <span class="constraint-value" id="cPrecipVal">--</span>
+            <span class="constraint-limit">/ 0.1 mm</span>
+          </div>
+          <div class="constraint-row">
+            <div class="constraint-indicator unknown" id="cWx">-</div>
+            <span class="constraint-label">Weather</span>
+            <span class="constraint-value" id="cWxVal">--</span>
+          </div>
+        </div>
+      </div>
+      <div class="satellite-section">
+        <div class="satellite-container">
+          <img id="satImg" src="" alt="Satellite" style="display:none;">
+          <div class="satellite-label" id="satLabel">GOES Satellite</div>
+          <div class="satellite-error" id="satError">Satellite imagery loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="forecast-strip">
+      <div class="forecast-header">
+        <span class="forecast-title">7-Day Forecast</span>
+        <span class="forecast-site-label" id="forecastSiteLabel">Launch Site</span>
+      </div>
+      <div class="forecast-days" id="forecastDays"></div>
+    </footer>
+  </div>
+
+  <script>
+    const WeatherTab = {
+      data: null,
+      missionId: 'artemis-ii',
+      refreshInterval: null,
+      API_BASE: window.location.origin,
+      SITE_KEY: 'launch_site',
+      EVENT_DATE_KEY: 'launch_date',
+      TAB_NAME: 'weather',
+
+      init() {
+        window.addEventListener('message', (e) => this.handleMessage(e));
+        window.parent.postMessage({ type: 'tabReady', tab: this.TAB_NAME }, '*');
+        this.refreshInterval = setInterval(() => this.loadData(), 5 * 60 * 1000);
+        setTimeout(() => { if (!this.data) this.loadData(); }, 2000);
+      },
+
+      handleMessage(event) {
+        const msg = event.data;
+        switch (msg.type) {
+          case 'setWeatherOpsData':
+            this.data = msg.weather;
+            this.render();
+            break;
+          case 'setMissionData':
+            if (msg.mission?.id) { this.missionId = msg.mission.id; this.loadData(); }
+            break;
+          case 'missionData':
+            if (msg.data?.id) { this.missionId = msg.data.id; this.loadData(); }
+            break;
+          case 'keydown':
+            window.parent.postMessage(msg, '*');
+            break;
+        }
+      },
+
+      async loadData() {
+        try {
+          const res = await fetch(`${this.API_BASE}/api/weather/operations/${this.missionId}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          this.data = await res.json();
+          this.render();
+        } catch (err) {
+          console.error('Weather load error:', err);
+        }
+      },
+
+      render() {
+        if (!this.data) return;
+        const d = this.data;
+        const site = d[this.SITE_KEY];
+
+        document.getElementById('wxMission').textContent = d.mission_name || 'Mission';
+        const now = new Date();
+        document.getElementById('wxUpdated').textContent =
+          `Updated ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC`;
+
+        if (!site) return;
+
+        // Site info
+        document.getElementById('siteName').textContent = site.name || '--';
+        const overallEl = document.getElementById('siteOverall');
+        const status = site.overall_status || 'unknown';
+        overallEl.textContent = status === 'go' ? 'GO' : status === 'no-go' ? 'NO-GO' : '---';
+        overallEl.className = `site-overall ${status}`;
+
+        // Current conditions
+        if (site.current) {
+          const c = site.current;
+          document.getElementById('wxIcon').textContent = c.icon || '❓';
+          document.getElementById('wxTemp').textContent = c.temperature_f != null ? Math.round(c.temperature_f) : '--';
+          document.getElementById('wxDesc').textContent = c.description || '--';
+          document.getElementById('wxWind').textContent = c.wind_speed_mph != null ? Math.round(c.wind_speed_mph) : '--';
+          document.getElementById('wxCloud').textContent = c.cloud_cover != null ? Math.round(c.cloud_cover) : '--';
+          document.getElementById('wxHumidity').textContent = c.humidity != null ? Math.round(c.humidity) : '--';
+          document.getElementById('wxPrecip').textContent = c.precipitation_mm != null ? c.precipitation_mm.toFixed(1) : '--';
+        }
+
+        // Constraints
+        if (site.constraints) {
+          this.renderConstraint('cWind', 'cWindVal', site.constraints.wind);
+          this.renderConstraint('cGust', 'cGustVal', site.constraints.gusts);
+          this.renderConstraint('cPrecip', 'cPrecipVal', site.constraints.precipitation);
+          this.renderConstraintWx('cWx', 'cWxVal', site.constraints.weather);
+        }
+
+        // Satellite
+        if (site.satellite_url) {
+          const img = document.getElementById('satImg');
+          const err = document.getElementById('satError');
+          img.src = site.satellite_url + '?t=' + Date.now();
+          img.style.display = 'block';
+          img.onerror = () => { img.style.display = 'none'; err.textContent = 'Satellite unavailable'; };
+          img.onload = () => { err.style.display = 'none'; };
+          document.getElementById('satLabel').textContent = site.satellite_label || 'GOES Satellite';
+        }
+
+        // Forecast
+        document.getElementById('forecastSiteLabel').textContent = site.name || 'Launch Site';
+        this.renderForecast(site, d[this.EVENT_DATE_KEY]);
+      },
+
+      renderConstraint(indId, valId, constraint) {
+        if (!constraint) return;
+        document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
+        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(valId).textContent = `${constraint.value} ${constraint.unit}`;
+      },
+
+      renderConstraintWx(indId, valId, constraint) {
+        if (!constraint) return;
+        document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
+        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(valId).textContent = constraint.description || '--';
+      },
+
+      renderForecast(site, eventDateStr) {
+        const container = document.getElementById('forecastDays');
+        if (!site?.forecast?.length) {
+          container.innerHTML = '<div style="color:var(--text-secondary);font-size:0.75rem;">No forecast data</div>';
+          return;
+        }
+        const eventDate = eventDateStr ? new Date(eventDateStr).toISOString().split('T')[0] : null;
+        container.innerHTML = site.forecast.map(day => {
+          const isEvent = eventDate && day.date === eventDate;
+          return `
+            <div class="forecast-day ${isEvent ? 'highlight-day' : ''}">
+              <div class="forecast-day-name">${isEvent ? '🚀 ' + day.day_name : day.day_name}</div>
+              <div class="forecast-day-icon">${day.icon || '❓'}</div>
+              <div class="forecast-day-temps">
+                <span class="forecast-day-high">${day.temp_high_f != null ? Math.round(day.temp_high_f) : '--'}°</span>
+                <span class="forecast-day-low">${day.temp_low_f != null ? Math.round(day.temp_low_f) : '--'}°</span>
+              </div>
+              <div class="forecast-day-wind">💨 ${day.wind_kmh != null ? Math.round(day.wind_kmh * 0.621371) : '--'} mph</div>
+            </div>`;
+        }).join('');
+      }
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (['ArrowLeft', 'ArrowRight'].includes(e.key) || /^[0-7]$/.test(e.key) || e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+        window.parent.postMessage({ type: 'keydown', key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey }, '*');
+        e.preventDefault();
+      }
+    });
+
+    WeatherTab.init();
+  </script>
+</body>
+</html>

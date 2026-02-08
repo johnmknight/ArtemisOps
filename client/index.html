@@ -77,6 +77,8 @@
       <iframe id="frame-crew" class="tab-frame" src="tabs/crew.html"></iframe>
       <iframe id="frame-info" class="tab-frame" src="tabs/info.html"></iframe>
       <iframe id="frame-trajectory3d" class="tab-frame" src="tabs/trajectory3d.html"></iframe>
+      <iframe id="frame-weather" class="tab-frame" src="tabs/weather.html"></iframe>
+      <iframe id="frame-recovery" class="tab-frame" src="tabs/recovery.html"></iframe>
     </main>
     
     <!-- Page dots (bottom left) -->
@@ -87,6 +89,8 @@
       <div class="page-dot" data-tab="crew" data-page="3" title="Crew (3)"></div>
       <div class="page-dot" data-tab="info" data-page="4" title="Info (4)"></div>
       <div class="page-dot" data-tab="trajectory3d" data-page="5" title="3D Trajectory (5)"></div>
+      <div class="page-dot" data-tab="weather" data-page="6" title="Weather (6)"></div>
+      <div class="page-dot" data-tab="recovery" data-page="7" title="Recovery (7)"></div>
     </div>
     
     <!-- Keyboard hint (bottom center) -->
@@ -105,9 +109,9 @@
 
   <script>
     // Tab/Page configuration (page 0 = control panel)
-    const TABS = ['control', 'mission', 'tracking', 'crew', 'info', 'trajectory3d'];
-    const PAGE_MAP = { control: 0, mission: 1, tracking: 2, crew: 3, info: 4, trajectory3d: 5 };
-    const TAB_MAP = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info', 5: 'trajectory3d' };
+    const TABS = ['control', 'mission', 'tracking', 'crew', 'info', 'trajectory3d', 'weather', 'recovery'];
+    const PAGE_MAP = { control: 0, mission: 1, tracking: 2, crew: 3, info: 4, trajectory3d: 5, weather: 6, recovery: 7 };
+    const TAB_MAP = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info', 5: 'trajectory3d', 6: 'weather', 7: 'recovery' };
     
     const App = {
       // Screen state
@@ -360,7 +364,7 @@
           case 'ArrowLeft':
             this.prevTab();
             break;
-          case '0': case '1': case '2': case '3': case '4': case '5':
+          case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7':
             const tab = TAB_MAP[parseInt(e.key)];
             if (tab) this.switchTab(tab);
             break;
@@ -538,6 +542,8 @@
           frame.contentWindow.postMessage({ type: 'setCrewData', crew: this.missionData?.crew }, '*');
         } else if (tabId === 'info') {
           frame.contentWindow.postMessage({ type: 'setMissionData', data: this.missionData }, '*');
+        } else if (tabId === 'weather' || tabId === 'recovery') {
+          frame.contentWindow.postMessage({ type: 'setMissionData', mission: this.missionData }, '*');
         }
       },
       
