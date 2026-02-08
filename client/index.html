@@ -76,6 +76,7 @@
       <iframe id="frame-tracking" class="tab-frame" src="tabs/tracking.html"></iframe>
       <iframe id="frame-crew" class="tab-frame" src="tabs/crew.html"></iframe>
       <iframe id="frame-info" class="tab-frame" src="tabs/info.html"></iframe>
+      <iframe id="frame-trajectory3d" class="tab-frame" src="tabs/trajectory3d.html"></iframe>
     </main>
     
     <!-- Page dots (bottom left) -->
@@ -85,6 +86,7 @@
       <div class="page-dot" data-tab="tracking" data-page="2" title="Tracking (2)"></div>
       <div class="page-dot" data-tab="crew" data-page="3" title="Crew (3)"></div>
       <div class="page-dot" data-tab="info" data-page="4" title="Info (4)"></div>
+      <div class="page-dot" data-tab="trajectory3d" data-page="5" title="3D Trajectory (5)"></div>
     </div>
     
     <!-- Keyboard hint (bottom center) -->
@@ -103,9 +105,9 @@
 
   <script>
     // Tab/Page configuration (page 0 = control panel)
-    const TABS = ['control', 'mission', 'tracking', 'crew', 'info'];
-    const PAGE_MAP = { control: 0, mission: 1, tracking: 2, crew: 3, info: 4 };
-    const TAB_MAP = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info' };
+    const TABS = ['control', 'mission', 'tracking', 'crew', 'info', 'trajectory3d'];
+    const PAGE_MAP = { control: 0, mission: 1, tracking: 2, crew: 3, info: 4, trajectory3d: 5 };
+    const TAB_MAP = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info', 5: 'trajectory3d' };
     
     const App = {
       // Screen state
@@ -172,7 +174,7 @@
         const pageParam = params.get('page');
         if (pageParam) {
           const pageNum = parseInt(pageParam);
-          if (pageNum >= 0 && pageNum <= 4) {
+          if (pageNum >= 0 && pageNum <= 5) {
             this.currentTab = TAB_MAP[pageNum];
             this.currentTabIndex = TABS.indexOf(this.currentTab);
           } else if (TABS.includes(pageParam)) {
@@ -298,7 +300,7 @@
           case 'navigate':
             // Server commanding this screen to change page
             console.log(`Server navigation command: page ${msg.page} (${msg.page_name})`);
-            if (msg.page >= 0 && msg.page <= 4 && TAB_MAP[msg.page]) {
+            if (msg.page >= 0 && msg.page <= 5 && TAB_MAP[msg.page]) {
               this.switchTab(TAB_MAP[msg.page], true);
               this.showNotification(`Switched to ${msg.page_name}`, 'success');
             }
@@ -358,7 +360,7 @@
           case 'ArrowLeft':
             this.prevTab();
             break;
-          case '0': case '1': case '2': case '3': case '4':
+          case '0': case '1': case '2': case '3': case '4': case '5':
             const tab = TAB_MAP[parseInt(e.key)];
             if (tab) this.switchTab(tab);
             break;

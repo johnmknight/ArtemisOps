@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artemis II – 3D Trajectory</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #020408;
+      --panel: rgba(6, 12, 24, 0.88);
+      --border: rgba(60, 130, 200, 0.2);
+      --accent: #00d4ff;
+      --accent-dim: rgba(0, 212, 255, 0.25);
+      --traj-out: #00bcd4;
+      --traj-ret: #8bc34a;
+      --wp-color: #ffd60a;
+      --orion-red: #ff2020;
+      --text: #d8e2ec;
+      --text-dim: #556878;
+    }
+
+    html, body {
+      height: 100%; width: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'Courier New', monospace;
+      color: var(--text);
+    }
+
+    #canvas-container { position: absolute; inset: 0; }
+    canvas { display: block; }
+
+    /* ── Loading ── */
+    #loading {
+      position: absolute; inset: 0; z-index: 100;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 1s;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+    .load-title {
+      font-size: 1.3rem; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 24px; font-weight: 300;
+    }
+    .load-bar { width: 280px; height: 2px; background: rgba(255,255,255,0.06); border-radius: 1px; overflow: hidden; }
+    .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #8be9fd); transition: width 0.3s; }
+    #load-status { margin-top: 14px; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 2px; }
+
+    /* ── Top HUD ── */
+    #hud-top {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: linear-gradient(180deg, rgba(2,4,8,0.92) 0%, rgba(2,4,8,0.4) 70%, transparent 100%);
+      pointer-events: none;
+    }
+    #hud-top > * { pointer-events: auto; }
+
+    .hud-left { display: flex; align-items: center; gap: 10px; }
+    .hud-left h1 {
+      font-size: 0.78rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--accent); font-weight: 400;
+    }
+    .badge {
+      background: rgba(0,212,255,0.08); border: 1px solid var(--accent-dim);
+      padding: 2px 9px; border-radius: 3px;
+      font-size: 0.58rem; letter-spacing: 2px; color: var(--accent);
+    }
+
+    .cam-group { display: flex; gap: 5px; }
+    .cam-btn {
+      background: var(--panel); border: 1px solid var(--border);
+      color: var(--text-dim); padding: 5px 11px;
+      font-family: inherit; font-size: 0.55rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; border-radius: 3px; transition: all 0.25s;
+    }
+    .cam-btn:hover, .cam-btn.active {
+      color: var(--accent); border-color: var(--accent-dim);
+      background: rgba(0,212,255,0.06);
+    }
+
+    /* ── Bottom HUD ── */
+    #hud-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      padding: 0 16px 12px;
+      background: linear-gradient(0deg, rgba(2,4,8,0.92) 0%, rgba(2,4,8,0.4) 70%, transparent 100%);
+      pointer-events: none;
+    }
+    #hud-bottom > * { pointer-events: auto; }
+
+    .wp-bar { position: relative; height: 24px; margin: 0 44px 2px; }
+    .wp-tick {
+      position: absolute; top: 50%; transform: translate(-50%, -50%);
+      width: 7px; height: 7px;
+      background: rgba(255,214,10,0.2); border: 1px solid rgba(255,214,10,0.35);
+      border-radius: 50%; cursor: pointer; transition: all 0.3s;
+    }
+    .wp-tick.active {
+      background: var(--wp-color); border-color: var(--wp-color);
+      box-shadow: 0 0 10px rgba(255,214,10,0.5);
+      width: 9px; height: 9px;
+    }
+    .wp-tick .wp-lbl {
+      position: absolute; bottom: 13px; left: 50%; transform: translateX(-50%);
+      font-size: 0.45rem; letter-spacing: 1px; color: var(--wp-color);
+      white-space: nowrap; opacity: 0; transition: opacity 0.25s; text-transform: uppercase;
+    }
+    .wp-tick:hover .wp-lbl, .wp-tick.active .wp-lbl { opacity: 1; }
+
+    .timeline-row { display: flex; align-items: center; gap: 10px; }
+
+    .play-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--accent); width: 30px; height: 30px;
+      border-radius: 50%; cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .play-btn:hover { background: rgba(0,212,255,0.1); }
+
+    .spd-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-dim); padding: 3px 7px;
+      font-family: inherit; font-size: 0.5rem;
+      letter-spacing: 1px; cursor: pointer; border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .spd-btn:hover, .spd-btn.active {
+      color: var(--accent); border-color: var(--accent-dim);
+    }
+
+    #slider {
+      flex: 1; height: 3px;
+      -webkit-appearance: none; appearance: none;
+      background: rgba(255,255,255,0.06); border-radius: 2px;
+      cursor: pointer; outline: none;
+    }
+    #slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 13px; height: 13px;
+      background: var(--accent); border-radius: 50%;
+      border: 2px solid var(--bg); cursor: pointer;
+    }
+    .met-display {
+      font-size: 0.62rem; letter-spacing: 1.5px;
+      color: var(--text-dim); white-space: nowrap; min-width: 95px; text-align: right;
+    }
+
+    /* ── Info panel ── */
+    #info-panel {
+      position: absolute; top: 54px; right: 14px; z-index: 10;
+      width: 210px; background: var(--panel);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 10px 12px; font-size: 0.58rem;
+      backdrop-filter: blur(10px);
+    }
+    .info-hdr {
+      font-size: 0.5rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 7px; padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 2.5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-lbl { color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+    .info-val { color: var(--text); text-align: right; }
+    .info-val.hi { color: var(--accent); }
+
+    /* ── Cinematic overlay ── */
+    #cinematic-banner {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; z-index: 15; pointer-events: none;
+      opacity: 0; transition: opacity 1.2s;
+    }
+    #cinematic-banner.show { opacity: 1; }
+    #cinematic-banner h2 {
+      font-size: 1.6rem; letter-spacing: 6px; text-transform: uppercase;
+      color: var(--accent); font-weight: 300; margin-bottom: 8px;
+    }
+    #cinematic-banner p {
+      font-size: 0.7rem; letter-spacing: 3px; color: var(--text-dim);
+    }
+
+    /* ── Help tooltip ── */
+    #help-tip {
+      position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%);
+      font-size: 0.5rem; color: var(--text-dim); letter-spacing: 1.5px;
+      opacity: 0.5; pointer-events: none; z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading -->
+  <div id="loading">
+    <div class="load-title">Artemis II</div>
+    <div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
+    <div id="load-status">initializing</div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <!-- Cinematic phase banner -->
+  <div id="cinematic-banner">
+    <h2 id="cin-title"></h2>
+    <p id="cin-sub"></p>
+  </div>
+
+  <!-- Top HUD -->
+  <div id="hud-top">
+    <div class="hud-left">
+      <h1>Artemis II Trajectory</h1>
+      <span class="badge">3D</span>
+    </div>
+    <div class="cam-group">
+      <button class="cam-btn active" data-cam="overview">Overview</button>
+      <button class="cam-btn" data-cam="earth">Earth</button>
+      <button class="cam-btn" data-cam="transit">Transit</button>
+      <button class="cam-btn" data-cam="moon">Moon Flyby</button>
+      <button class="cam-btn" data-cam="profile">Profile</button>
+      <button class="cam-btn" data-cam="follow">Follow</button>
+    </div>
+  </div>
+
+  <!-- Bottom HUD -->
+  <div id="hud-bottom">
+    <div class="wp-bar" id="wp-bar"></div>
+    <div class="timeline-row">
+      <button class="play-btn" id="play-btn" title="Play / Pause (Space)">&#9654;</button>
+      <input type="range" id="slider" min="0" max="10000" value="0" step="1">
+      <div class="met-display" id="met-display">T+00d 00:00</div>
+      <button class="spd-btn" data-speed="0.5">½×</button>
+      <button class="spd-btn active" data-speed="1">1×</button>
+      <button class="spd-btn" data-speed="5">5×</button>
+      <button class="spd-btn" data-speed="20">20×</button>
+    </div>
+  </div>
+
+  <!-- Info panel -->
+  <div id="info-panel">
+    <div class="info-hdr">Mission Data</div>
+    <div class="info-row"><span class="info-lbl">Phase</span><span class="info-val hi" id="d-phase">Pre-Launch</span></div>
+    <div class="info-row"><span class="info-lbl">MET</span><span class="info-val" id="d-met">T-00:00:00</span></div>
+    <div class="info-row"><span class="info-lbl">Alt</span><span class="info-val" id="d-alt">0 km</span></div>
+    <div class="info-row"><span class="info-lbl">Vel</span><span class="info-val" id="d-vel">0 km/s</span></div>
+    <div class="info-row"><span class="info-lbl">Dist Earth</span><span class="info-val" id="d-de">0 km</span></div>
+    <div class="info-row"><span class="info-lbl">Dist Moon</span><span class="info-val" id="d-dm">384,400 km</span></div>
+  </div>
+
+  <div id="help-tip">Scroll to zoom · Drag to orbit · 1-5 camera presets</div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // ═══════════════════════════════════════════════════════
+    //  CONSTANTS & SCALE
+    //  1 scene unit = 1 Earth radius (6,371 km)
+    // ═══════════════════════════════════════════════════════
+    const RE = 6371;          // Earth radius km
+    const RM = 1737.4;        // Moon radius km
+    const EM = 384400;        // Earth-Moon distance km
+    const S  = km => km / RE; // km → scene units
+
+    const EARTH_R = 1.0;
+    const MOON_R  = S(RM);        // ~0.273
+    const EM_DIST = S(EM);        // ~60.3
+
+    const MISSION_HOURS = 240;    // ~10 days
+
+    // ═══════════════════════════════════════════════════════
+    //  WAYPOINTS — 15 mission phases
+    // ═══════════════════════════════════════════════════════
+    const WAYPOINTS = [
+      { id:1,  t:0.000, label:'Launch',           phase:'Ascent',              alt:0,      vel:0    },
+      { id:2,  t:0.006, label:'Orbit Insertion',   phase:'LEO',                 alt:185,    vel:7.8  },
+      { id:3,  t:0.012, label:'First Orbit',       phase:'LEO Checkout',        alt:185,    vel:7.8  },
+      { id:4,  t:0.035, label:'Apogee Raise',      phase:'HEO Transfer',        alt:1800,   vel:7.4  },
+      { id:5,  t:0.065, label:'ICPS Sep',           phase:'HEO Apogee',          alt:68000,  vel:1.2  },
+      { id:6,  t:0.100, label:'Prox Ops',          phase:'HEO Operations',      alt:35000,  vel:2.5  },
+      { id:7,  t:0.175, label:'Perigee Raise',     phase:'HEO Return',          alt:378,    vel:10.2 },
+      { id:8,  t:0.185, label:'TLI Burn',          phase:'Trans-Lunar Inject',  alt:378,    vel:10.8 },
+      { id:9,  t:0.350, label:'Outbound Coast',    phase:'Outbound Transit',    alt:180000, vel:1.5  },
+      { id:10, t:0.500, label:'Lunar Flyby',       phase:'Lunar Flyby',         alt:6513,   vel:1.8  },
+      { id:11, t:0.520, label:'Closest Approach',  phase:'Pericynthion',        alt:4047,   vel:2.1  },
+      { id:12, t:0.650, label:'Return Coast',      phase:'Trans-Earth Return',  alt:200000, vel:1.2  },
+      { id:13, t:0.850, label:'Mid-Return',        phase:'Trans-Earth Coast',   alt:100000, vel:2.5  },
+      { id:14, t:0.970, label:'Entry Interface',   phase:'Re-Entry',            alt:120,    vel:11.1 },
+      { id:15, t:1.000, label:'Splashdown',        phase:'Recovery',            alt:0,      vel:0    },
+    ];
+
+    // ═══════════════════════════════════════════════════════
+    //  TRAJECTORY CONTROL POINTS
+    //  Earth at origin. Moon at +X.
+    //  Y = "up" from ecliptic. Z = out-of-plane depth.
+    //  Figure-eight free-return with HEO checkout loop.
+    // ═══════════════════════════════════════════════════════
+    function buildTrajectoryPoints() {
+      const p = [];
+
+      // ── Phase 1: Launch & LEO (2 orbits near Earth) ──
+      p.push(new THREE.Vector3(0,    EARTH_R + S(30),   0.15));
+      p.push(new THREE.Vector3(0.12, EARTH_R + S(185),  0.08));
+      p.push(new THREE.Vector3(0.05, EARTH_R + S(200), -0.1));
+
+      // ── Phase 2: High Earth Orbit checkout loop ──
+      // Orbit 1: 115×1,800 mi (~185×2,900 km)
+      // Orbit 2: 235×68,000 mi (~378×109,400 km) — sweeps out to ~17 Earth radii
+      p.push(new THREE.Vector3(-1.2,  S(2900),   0.6));
+      p.push(new THREE.Vector3(-2.5,  S(68000),  2.0));   // HEO apogee (~10.7 ER)
+      p.push(new THREE.Vector3(-1.5,  S(35000), -1.2));   // descending
+      p.push(new THREE.Vector3( 0.2,  S(600),    0.1));   // perigee raise
+
+      // ── Phase 3: TLI burn & outbound transit ──
+      p.push(new THREE.Vector3(0.4,       S(500),    0.25));
+      p.push(new THREE.Vector3(S(40000),  3.0,       1.8));
+      p.push(new THREE.Vector3(S(150000), 5.0,       1.0));
+      p.push(new THREE.Vector3(S(280000), 3.5,      -0.3));
+
+      // ── Phase 4: Approach & lunar flyby (far side, ~6,513 km altitude) ──
+      const flyR = MOON_R + S(6513);
+      p.push(new THREE.Vector3(EM_DIST - S(30000),  2.0,  -0.8));
+      // Arc behind the Moon (far side)
+      p.push(new THREE.Vector3(EM_DIST + flyR * 0.4,  flyR * 0.9,  -1.5));
+      p.push(new THREE.Vector3(EM_DIST + flyR,        0,            -1.0));  // pericynthion
+      p.push(new THREE.Vector3(EM_DIST + flyR * 0.4, -flyR * 0.9,  -0.5));
+      p.push(new THREE.Vector3(EM_DIST - S(30000),   -2.0,          0.8));
+
+      // ── Phase 5: Return transit ──
+      p.push(new THREE.Vector3(S(280000), -4.0,   1.2));
+      p.push(new THREE.Vector3(S(150000), -5.5,   0.4));
+      p.push(new THREE.Vector3(S(40000),  -3.0,  -0.5));
+      p.push(new THREE.Vector3(S(5000),   -1.2,   0.15));
+
+      // ── Phase 6: Re-entry & splashdown ──
+      p.push(new THREE.Vector3(0.08, -(EARTH_R + S(120)), -0.12));
+      p.push(new THREE.Vector3(0,    -(EARTH_R + S(8)),   -0.15));
+
+      return p;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  APP STATE
+    // ═══════════════════════════════════════════════════════
+    const state = {
+      playing: false,
+      t: 0,
+      speed: 1,
+      tick: 0.00012,       // base animation rate
+      camMode: 'overview',
+      followLerp: 0.04,
+      lastPhase: '',
+    };
+
+    // ═══════════════════════════════════════════════════════
+    //  GLOBALS
+    // ═══════════════════════════════════════════════════════
+    let scene, camera, renderer, controls;
+    let earth, moon, clouds, orion, trajLine, trailLine;
+    let trajCurve;
+    let trailPts = [];
+    const MAX_TRAIL = 800;
+    const wpMeshes = [];
+
+    const loader = new THREE.TextureLoader();
+    let loadN = 0, loadTotal = 6;
+    const tex = {};
+
+    function loadProgress(label) {
+      loadN++;
+      document.getElementById('load-fill').style.width = ((loadN / loadTotal) * 100) + '%';
+      document.getElementById('load-status').textContent = label;
+    }
+
+    function loadTex(key, path, label) {
+      return new Promise(r => {
+        loader.load(path, t => { tex[key] = t; loadProgress(label); r(t); },
+          undefined, () => { console.warn('Texture fail:', path); loadProgress(label + ' ✗'); r(null); });
+      });
+    }
+
+    async function loadTextures() {
+      const b = '/assets/textures/';
+      await Promise.all([
+        loadTex('earthDay',    b + 'earth_daymap_2k.jpg',       'earth surface'),
+        loadTex('earthNight',  b + 'earth_nightmap_2k.jpg',     'city lights'),
+        loadTex('earthClouds', b + 'earth_clouds_2k.jpg',       'earth clouds'),
+        loadTex('moonColor',   b + 'moon_color_2k.jpg',         'lunar surface'),
+        loadTex('moonDisp',    b + 'moon_displacement_1k.jpg',  'lunar terrain'),
+        loadTex('stars',       b + 'stars_milkyway_2k.jpg',     'star field'),
+      ]);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  LABEL SPRITES
+    // ═══════════════════════════════════════════════════════
+    function makeLabel(text, color = '#4a9eff', fontSize = 48) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = `${fontSize}px 'Courier New', monospace`;
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 256, 64);
+
+      const t = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.7 });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(3, 0.75, 1);
+      return sprite;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  BUILD EARTH
+    // ═══════════════════════════════════════════════════════
+    function buildEarth() {
+      const geo = new THREE.SphereGeometry(EARTH_R, 64, 64);
+      const mat = new THREE.MeshPhongMaterial({
+        map: tex.earthDay,
+        specular: new THREE.Color(0x222244),
+        shininess: 15,
+      });
+      if (tex.earthNight) {
+        mat.emissiveMap = tex.earthNight;
+        mat.emissive = new THREE.Color(0xffcc66);
+        mat.emissiveIntensity = 0.35;
+      }
+      earth = new THREE.Mesh(geo, mat);
+      earth.rotation.y = -Math.PI / 2;
+      scene.add(earth);
+
+      // Clouds
+      if (tex.earthClouds) {
+        const cg = new THREE.SphereGeometry(EARTH_R * 1.004, 48, 48);
+        const cm = new THREE.MeshPhongMaterial({
+          map: tex.earthClouds, transparent: true, opacity: 0.3, depthWrite: false,
+        });
+        clouds = new THREE.Mesh(cg, cm);
+        earth.add(clouds);
+      }
+
+      // Atmosphere rim glow
+      const ag = new THREE.SphereGeometry(EARTH_R * 1.025, 48, 48);
+      const am = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPos.xyz);
+            gl_Position = projectionMatrix * mvPos;
+          }`,
+        fragmentShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            float rim = 1.0 - max(dot(vNormal, vViewDir), 0.0);
+            float intensity = pow(rim, 3.0) * 1.5;
+            gl_FragColor = vec4(0.3, 0.6, 1.0, intensity * 0.7);
+          }`,
+        transparent: true, side: THREE.BackSide, depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      earth.add(new THREE.Mesh(ag, am));
+
+      // Label
+      const lbl = makeLabel('Earth');
+      lbl.position.set(0, EARTH_R + 0.35, 0);
+      earth.add(lbl);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  BUILD MOON (with displacement)
+    // ═══════════════════════════════════════════════════════
+    function buildMoon() {
+      const seg = 96;
+      const geo = new THREE.SphereGeometry(MOON_R, seg, seg);
+      const mat = new THREE.MeshPhongMaterial({
+        map: tex.moonColor,
+        shininess: 2,
+      });
+
+      // Apply displacement if we have the map
+      if (tex.moonDisp) {
+        mat.displacementMap = tex.moonDisp;
+        mat.displacementScale = MOON_R * 0.02;
+        mat.bumpMap = tex.moonDisp;
+        mat.bumpScale = 0.005;
+      }
+
+      moon = new THREE.Mesh(geo, mat);
+      moon.position.set(EM_DIST, 0, 0);
+      scene.add(moon);
+
+      const lbl = makeLabel('Moon', '#aabbcc');
+      lbl.position.set(0, MOON_R + 0.12, 0);
+      moon.add(lbl);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  STARFIELD
+    // ═══════════════════════════════════════════════════════
+    function buildStars() {
+      if (tex.stars) {
+        tex.stars.mapping = THREE.EquirectangularReflectionMapping;
+        const sg = new THREE.SphereGeometry(300, 32, 32);
+        const sm = new THREE.MeshBasicMaterial({ map: tex.stars, side: THREE.BackSide });
+        scene.add(new THREE.Mesh(sg, sm));
+      }
+      // Particle stars for depth
+      const count = 4000;
+      const positions = new Float32Array(count * 3);
+      const sizes = new Float32Array(count);
+      for (let i = 0; i < count; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi   = Math.acos(2 * Math.random() - 1);
+        const r     = 200 + Math.random() * 80;
+        positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+        positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i*3+2] = r * Math.cos(phi);
+        sizes[i] = 0.3 + Math.random() * 1.2;
+      }
+      const sg = new THREE.BufferGeometry();
+      sg.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      sg.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      const sm = new THREE.PointsMaterial({
+        color: 0xffffff, sizeAttenuation: true, size: 0.15,
+        transparent: true, opacity: 0.6,
+      });
+      scene.add(new THREE.Points(sg, sm));
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  TRAJECTORY CURVE & TRAIL
+    // ═══════════════════════════════════════════════════════
+    function buildTrajectory() {
+      const pts = buildTrajectoryPoints();
+      trajCurve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.25);
+
+      // Ghost line (full trajectory, faint gradient)
+      const N = 1200;
+      const samples = trajCurve.getPoints(N);
+      const geo = new THREE.BufferGeometry().setFromPoints(samples);
+
+      const colors = new Float32Array(samples.length * 3);
+      const cOut = new THREE.Color(0x00bcd4);
+      const cMid = new THREE.Color(0xffffff);
+      const cRet = new THREE.Color(0x8bc34a);
+      for (let i = 0; i < samples.length; i++) {
+        const f = i / (samples.length - 1);
+        const c = f < 0.5
+          ? cOut.clone().lerp(cMid, f * 2)
+          : cMid.clone().lerp(cRet, (f - 0.5) * 2);
+        colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
+      }
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      trajLine = new THREE.Line(geo, new THREE.LineBasicMaterial({
+        vertexColors: true, transparent: true, opacity: 0.25,
+      }));
+      scene.add(trajLine);
+
+      // Bright trail behind Orion
+      const tGeo = new THREE.BufferGeometry();
+      tGeo.setAttribute('position',
+        new THREE.Float32BufferAttribute(new Float32Array(MAX_TRAIL * 3), 3));
+      // Trail fades from bright red → dim
+      const tColors = new Float32Array(MAX_TRAIL * 3);
+      for (let i = 0; i < MAX_TRAIL; i++) {
+        const a = i / MAX_TRAIL;
+        tColors[i*3]   = 1.0;
+        tColors[i*3+1] = 0.12 * a;
+        tColors[i*3+2] = 0.12 * a;
+      }
+      tGeo.setAttribute('color', new THREE.BufferAttribute(tColors, 3));
+      trailLine = new THREE.Line(tGeo, new THREE.LineBasicMaterial({
+        vertexColors: true, transparent: true, opacity: 0.85,
+      }));
+      scene.add(trailLine);
+
+      // Subtle Earth-Moon reference line
+      const rGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(EM_DIST, 0, 0),
+      ]);
+      scene.add(new THREE.Line(rGeo, new THREE.LineBasicMaterial({
+        color: 0x1a3a5c, transparent: true, opacity: 0.06,
+      })));
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  ORION MARKER
+    // ═══════════════════════════════════════════════════════
+    function buildOrion() {
+      const g = new THREE.Group();
+
+      // Red core sphere (like NASA SVS red dot)
+      g.add(new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xff2020 })
+      ));
+
+      // Outer glow ring
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.18, 0.34, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0xff4444, transparent: true, opacity: 0.3,
+          side: THREE.DoubleSide, depthWrite: false,
+        })
+      );
+      ring.name = 'ring';
+      g.add(ring);
+
+      // Local point light for red illumination on nearby trajectory
+      g.add(new THREE.PointLight(0xff3333, 0.4, 4));
+
+      orion = g;
+      orion.position.copy(trajCurve.getPointAt(0));
+      scene.add(orion);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  WAYPOINT 3D MARKERS (octahedron diamonds)
+    // ═══════════════════════════════════════════════════════
+    function buildWaypoints() {
+      WAYPOINTS.forEach(wp => {
+        const pos = trajCurve.getPointAt(Math.min(wp.t, 0.9999));
+        const m = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.08, 0),
+          new THREE.MeshBasicMaterial({
+            color: 0xffd60a, transparent: true, opacity: 0.3, wireframe: true,
+          })
+        );
+        m.position.copy(pos);
+        m.userData = { id: wp.id, t: wp.t, label: wp.label };
+        scene.add(m);
+        wpMeshes.push(m);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  CAMERA PRESETS
+    //  Handle the 60:1 Earth-Moon ratio via camera position
+    // ═══════════════════════════════════════════════════════
+    const PRESETS = {
+      overview: { pos: [-5, 8, 55],              target: [EM_DIST * 0.40, 0, 0] },
+      earth:    { pos: [-2, 1.2, 3.5],           target: [0, 0, 0] },
+      transit:  { pos: [EM_DIST * 0.35, 5, 25],  target: [EM_DIST * 0.45, 0, 0] },
+      moon:     { pos: [EM_DIST + 1.5, 0.6, 3],  target: [EM_DIST, 0, 0] },
+      profile:  { pos: [EM_DIST * 0.4, 2, 38],   target: [EM_DIST * 0.4, 0, 0] },
+    };
+
+    let camTween = null;
+
+    function flyTo(mode) {
+      state.camMode = mode;
+      document.querySelectorAll('.cam-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.cam === mode));
+      if (mode === 'follow') return;
+      const p = PRESETS[mode];
+      if (!p) return;
+      camTween = {
+        fP: camera.position.clone(),
+        fT: controls.target.clone(),
+        tP: new THREE.Vector3(...p.pos),
+        tT: new THREE.Vector3(...p.target),
+        p: 0,
+      };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  CINEMATIC PHASE BANNER
+    // ═══════════════════════════════════════════════════════
+    let cinTimer = 0;
+    function showPhaseBanner(phase, subtitle) {
+      const el = document.getElementById('cinematic-banner');
+      document.getElementById('cin-title').textContent = phase;
+      document.getElementById('cin-sub').textContent = subtitle || '';
+      el.classList.add('show');
+      clearTimeout(cinTimer);
+      cinTimer = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  UI WIRING
+    // ═══════════════════════════════════════════════════════
+    function initUI() {
+      // Camera buttons
+      document.querySelectorAll('.cam-btn').forEach(b =>
+        b.addEventListener('click', () => flyTo(b.dataset.cam)));
+
+      // Play/pause
+      const pb = document.getElementById('play-btn');
+      pb.addEventListener('click', () => {
+        state.playing = !state.playing;
+        pb.innerHTML = state.playing ? '&#9646;&#9646;' : '&#9654;';
+      });
+
+      // Speed buttons
+      document.querySelectorAll('.spd-btn').forEach(b =>
+        b.addEventListener('click', () => {
+          state.speed = parseFloat(b.dataset.speed);
+          document.querySelectorAll('.spd-btn').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        }));
+
+      // Timeline slider
+      const sl = document.getElementById('slider');
+      sl.addEventListener('input', () => {
+        state.t = sl.value / 10000;
+        trailPts = [];
+      });
+
+      // Waypoint ticks on timeline bar
+      const bar = document.getElementById('wp-bar');
+      WAYPOINTS.forEach(wp => {
+        const d = document.createElement('div');
+        d.className = 'wp-tick';
+        d.style.left = (wp.t * 100) + '%';
+        d.dataset.id = wp.id;
+        d.innerHTML = `<span class="wp-lbl">${wp.label}</span>`;
+        d.addEventListener('click', () => {
+          state.t = wp.t;
+          sl.value = wp.t * 10000;
+          trailPts = [];
+        });
+        bar.appendChild(d);
+      });
+
+      // Keyboard shortcuts
+      window.addEventListener('keydown', e => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          state.playing = !state.playing;
+          pb.innerHTML = state.playing ? '&#9646;&#9646;' : '&#9654;';
+        }
+        const n = parseInt(e.key);
+        if (n >= 1 && n <= 6) {
+          flyTo(['overview','earth','transit','moon','profile','follow'][n-1]);
+        }
+        // Forward nav keys to parent
+        if (['ArrowLeft','ArrowRight','f','F','F11'].includes(e.key)) {
+          window.parent.postMessage({ type: 'keydown', key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey }, '*');
+        }
+      });
+
+      // Resize
+      window.addEventListener('resize', onResize);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  HELPERS
+    // ═══════════════════════════════════════════════════════
+    function fmtKm(km) {
+      if (km >= 1e6) return (km / 1e6).toFixed(1) + 'M km';
+      if (km >= 1000) return Math.round(km / 1000).toLocaleString() + 'k km';
+      return Math.round(km).toLocaleString() + ' km';
+    }
+
+    function getCurrentWP(t) {
+      let cur = WAYPOINTS[0];
+      for (let i = WAYPOINTS.length - 1; i >= 0; i--) {
+        if (t >= WAYPOINTS[i].t) { cur = WAYPOINTS[i]; break; }
+      }
+      return cur;
+    }
+
+    function lerpWP(t) {
+      const cur = getCurrentWP(t);
+      const idx = WAYPOINTS.indexOf(cur);
+      const nxt = idx < WAYPOINTS.length - 1 ? WAYPOINTS[idx + 1] : cur;
+      const f = (nxt.t === cur.t) ? 0 : (t - cur.t) / (nxt.t - cur.t);
+      return {
+        phase: cur.phase,
+        alt: cur.alt + (nxt.alt - cur.alt) * f,
+        vel: cur.vel + (nxt.vel - cur.vel) * f,
+        id: cur.id,
+      };
+    }
+
+    function updateHUD(t, pos) {
+      const wp = lerpWP(t);
+      const distE = pos.length() / S(1);          // back to km
+      const distM = pos.distanceTo(moon.position) / S(1);
+      const totalH = t * MISSION_HOURS;
+      const d = Math.floor(totalH / 24);
+      const h = Math.floor(totalH % 24);
+      const m = Math.floor((totalH * 60) % 60);
+      const met = `T+${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+
+      document.getElementById('d-phase').textContent = wp.phase;
+      document.getElementById('d-met').textContent   = met;
+      document.getElementById('d-alt').textContent   = fmtKm(wp.alt);
+      document.getElementById('d-vel').textContent   = wp.vel.toFixed(1) + ' km/s';
+      document.getElementById('d-de').textContent    = fmtKm(distE);
+      document.getElementById('d-dm').textContent    = fmtKm(distM);
+      document.getElementById('met-display').textContent = met;
+
+      // Waypoint ticks highlight
+      document.querySelectorAll('.wp-tick').forEach(el =>
+        el.classList.toggle('active', parseInt(el.dataset.id) === wp.id));
+
+      // Phase change banner
+      if (wp.phase !== state.lastPhase && state.playing) {
+        state.lastPhase = wp.phase;
+        const cur = getCurrentWP(t);
+        showPhaseBanner(cur.label, wp.phase);
+      }
+    }
+
+    function updateTrail(pos) {
+      trailPts.push(pos.clone());
+      if (trailPts.length > MAX_TRAIL) trailPts.shift();
+      const attr = trailLine.geometry.getAttribute('position');
+      for (let i = 0; i < MAX_TRAIL; i++) {
+        const p = i < trailPts.length ? trailPts[i] : pos;
+        attr.setXYZ(i, p.x, p.y, p.z);
+      }
+      attr.needsUpdate = true;
+      trailLine.geometry.setDrawRange(0, trailPts.length);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  ANIMATION LOOP
+    // ═══════════════════════════════════════════════════════
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // ── Time advance ──
+      if (state.playing) {
+        state.t += state.tick * state.speed;
+        if (state.t >= 1) {
+          state.t = 1; state.playing = false;
+          document.getElementById('play-btn').innerHTML = '&#9654;';
+        }
+        document.getElementById('slider').value = state.t * 10000;
+      }
+
+      // ── Orion position ──
+      const ct = Math.max(0, Math.min(state.t, 0.9999));
+      const pos = trajCurve.getPointAt(ct);
+      orion.position.copy(pos);
+
+      // Ring faces camera
+      const ring = orion.getObjectByName('ring');
+      if (ring) ring.lookAt(camera.position);
+
+      // Scale marker relative to camera distance (always visible)
+      const d2c = camera.position.distanceTo(pos);
+      const s = Math.max(0.25, Math.min(2.5, d2c * 0.035));
+      orion.scale.setScalar(s);
+
+      updateTrail(pos);
+
+      // ── Celestial rotation ──
+      if (earth)  earth.rotation.y  += 0.0003;
+      if (clouds) clouds.rotation.y += 0.00012;
+      if (moon)   moon.rotation.y   += 0.00008;
+
+      // ── Camera tweening (preset fly-to) ──
+      if (camTween) {
+        camTween.p += 0.016;
+        if (camTween.p >= 1) camTween.p = 1;
+        const e = 1 - Math.pow(1 - camTween.p, 3);   // ease-out cubic
+        camera.position.lerpVectors(camTween.fP, camTween.tP, e);
+        controls.target.lerpVectors(camTween.fT, camTween.tT, e);
+        if (camTween.p >= 1) camTween = null;
+      }
+
+      // ── Follow mode (camera tracks Orion) ──
+      if (state.camMode === 'follow' && !camTween) {
+        const aheadT = Math.min(ct + 0.006, 0.9999);
+        const ahead  = trajCurve.getPointAt(aheadT);
+        const dir    = ahead.clone().sub(pos).normalize();
+        const offset = dir.clone().multiplyScalar(-3).add(new THREE.Vector3(0, 1.2, 1.8));
+        camera.position.lerp(pos.clone().add(offset), state.followLerp);
+        controls.target.lerp(pos, state.followLerp);
+      }
+
+      // ── HUD ──
+      updateHUD(state.t, pos);
+
+      // ── Waypoint diamonds spin & highlight ──
+      const now = Date.now() * 0.001;
+      wpMeshes.forEach(m => {
+        m.rotation.y = now * 0.5;
+        m.rotation.x = now * 0.3;
+        const dt = Math.abs(state.t - m.userData.t);
+        m.material.opacity = dt < 0.015 ? 0.85 : 0.25;
+        const sc = dt < 0.015 ? 1.4 : 0.7;
+        // Scale also adapts to camera distance
+        const md = camera.position.distanceTo(m.position);
+        m.scale.setScalar(sc * Math.max(0.3, Math.min(2, md * 0.03)));
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════════
+    async function init() {
+      const container = document.getElementById('canvas-container');
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      container.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x020408);
+
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.005, 600);
+      camera.position.set(-5, 8, 55);
+      camera.lookAt(EM_DIST * 0.40, 0, 0);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.minDistance = 0.3;
+      controls.maxDistance = 250;
+      controls.target.set(EM_DIST * 0.40, 0, 0);
+
+      // Lighting — Sun from behind-left
+      const sun = new THREE.DirectionalLight(0xffffff, 2.8);
+      sun.position.set(-80, 25, 40);
+      scene.add(sun);
+      scene.add(new THREE.AmbientLight(0x0a1420, 0.5));
+      scene.add(new THREE.DirectionalLight(0x182840, 0.12).position.set(80, -10, -30));
+
+      await loadTextures();
+      buildEarth();
+      buildMoon();
+      buildStars();
+      buildTrajectory();
+      buildOrion();
+      buildWaypoints();
+      initUI();
+
+      // Parent comms
+      window.addEventListener('message', e => {
+        if (e.data?.type === 'setTrackingMode') { /* active */ }
+      });
+      window.parent.postMessage({ type: 'tabReady', tab: 'trajectory3d' }, '*');
+
+      // Fade out loader
+      document.getElementById('loading').classList.add('hidden');
+      animate();
+    }
+
+    init();
+  </script>
+</body>
+</html>
