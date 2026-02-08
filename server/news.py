@@ -52,6 +52,13 @@ FEEDS = [
         "source_label": "Spaceflight Now",
         "priority": 2,
     },
+    {
+        "id": "spaceflight-now-iss",
+        "name": "Spaceflight Now ISS",
+        "url": "https://spaceflightnow.com/category/iss/feed/",
+        "source_label": "Spaceflight Now",
+        "priority": 2,
+    },
 ]
 
 # === Cache ===

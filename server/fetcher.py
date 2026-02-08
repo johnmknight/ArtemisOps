@@ -504,12 +504,13 @@ async def parse_launch_to_mission(launch: dict, client: httpx.AsyncClient) -> Op
         if mission_id in LOCAL_PATCHES:
             patch_url = LOCAL_PATCHES[mission_id]
             print(f"Using LOCAL patch for: {name}")
+        elif patch_url and is_valid_patch_url(patch_url):
+            # DB already has a valid patch — skip all API calls
+            print(f"Using cached patch for: {name}")
         elif not patch_url or not is_valid_patch_url(patch_url):
             # Fetch if no patch or cached patch is invalid (e.g., a photo URL)
             print(f"Fetching patch for: {name}")
             patch_url = await get_mission_patch(name, image_url, client)
-        else:
-            print(f"Using cached patch for: {name}")
         
         if not agency_logo_url:
             print(f"Fetching logo for: {name}")

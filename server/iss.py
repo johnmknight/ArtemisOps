@@ -27,14 +27,25 @@ OPEN_NOTIFY_POSITION_API = "http://api.open-notify.org/iss-now.json"
 OPEN_NOTIFY_CREW_API = "http://api.open-notify.org/astros.json"
 
 # Cache settings (seconds)
-POSITION_CACHE_TTL = 3   # Position updates frequently
-CREW_CACHE_TTL = 3600    # Crew changes rarely (1 hour)
+POSITION_CACHE_TTL = 10   # ~77km drift at ISS speed, fine for world map
+CREW_CACHE_TTL = 3600     # Crew changes rarely (1 hour)
 
 # In-memory cache
 _cache = {
     "position": {"data": None, "timestamp": None},
     "crew": {"data": None, "timestamp": None},
 }
+
+# Shared HTTP client (connection pooling)
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+def _get_client() -> httpx.AsyncClient:
+    """Get or create shared HTTP client for connection pooling."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(timeout=15.0, follow_redirects=True)
+    return _http_client
 
 
 # === Helper Functions ===
@@ -74,55 +85,56 @@ async def get_iss_position() -> Dict[str, Any]:
     
     now = datetime.now(timezone.utc)
     
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        # Try primary API: Where The ISS At
-        try:
-            response = await client.get(WHERETHEISS_API)
-            response.raise_for_status()
-            data = response.json()
-            
+    client = _get_client()
+    
+    # Try primary API: Where The ISS At
+    try:
+        response = await client.get(WHERETHEISS_API)
+        response.raise_for_status()
+        data = response.json()
+        
+        result = {
+            "latitude": round(data["latitude"], 4),
+            "longitude": round(data["longitude"], 4),
+            "altitude_km": round(data["altitude"], 1),
+            "velocity_kmh": round(data["velocity"], 0),
+            "visibility": data["visibility"],
+            "footprint_km": round(data["footprint"], 1),
+            "timestamp": data["timestamp"],
+            "source": "wheretheiss",
+            "cached": False,
+        }
+        
+        _cache["position"] = {"data": result, "timestamp": now}
+        return result
+        
+    except Exception as e:
+        logger.warning(f"Where The ISS At API failed: {e}")
+    
+    # Try fallback API: Open Notify
+    try:
+        response = await client.get(OPEN_NOTIFY_POSITION_API)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("message") == "success":
             result = {
-                "latitude": round(data["latitude"], 4),
-                "longitude": round(data["longitude"], 4),
-                "altitude_km": round(data["altitude"], 1),
-                "velocity_kmh": round(data["velocity"], 0),
-                "visibility": data["visibility"],
-                "footprint_km": round(data["footprint"], 1),
+                "latitude": round(float(data["iss_position"]["latitude"]), 4),
+                "longitude": round(float(data["iss_position"]["longitude"]), 4),
+                "altitude_km": None,
+                "velocity_kmh": None,
+                "visibility": None,
+                "footprint_km": None,
                 "timestamp": data["timestamp"],
-                "source": "wheretheiss",
+                "source": "open-notify",
                 "cached": False,
             }
             
             _cache["position"] = {"data": result, "timestamp": now}
             return result
             
-        except Exception as e:
-            logger.warning(f"Where The ISS At API failed: {e}")
-        
-        # Try fallback API: Open Notify
-        try:
-            response = await client.get(OPEN_NOTIFY_POSITION_API)
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get("message") == "success":
-                result = {
-                    "latitude": round(float(data["iss_position"]["latitude"]), 4),
-                    "longitude": round(float(data["iss_position"]["longitude"]), 4),
-                    "altitude_km": None,
-                    "velocity_kmh": None,
-                    "visibility": None,
-                    "footprint_km": None,
-                    "timestamp": data["timestamp"],
-                    "source": "open-notify",
-                    "cached": False,
-                }
-                
-                _cache["position"] = {"data": result, "timestamp": now}
-                return result
-                
-        except Exception as e:
-            logger.error(f"Fallback API also failed: {e}")
+    except Exception as e:
+        logger.error(f"Fallback API also failed: {e}")
     
     # Return stale cache if available
     if cached["data"]:
@@ -159,42 +171,43 @@ async def get_iss_crew() -> Dict[str, Any]:
     
     now = datetime.now(timezone.utc)
     
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        try:
-            response = await client.get(OPEN_NOTIFY_CREW_API)
-            response.raise_for_status()
-            data = response.json()
+    client = _get_client()
+    
+    try:
+        response = await client.get(OPEN_NOTIFY_CREW_API)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("message") == "success":
+            # Phase 1: Filter to ISS crew only
+            iss_crew = [
+                {"name": person["name"], "craft": person["craft"]}
+                for person in data.get("people", [])
+                if person.get("craft") == "ISS"
+            ]
             
-            if data.get("message") == "success":
-                # Phase 1: Filter to ISS crew only
-                iss_crew = [
-                    {"name": person["name"], "craft": person["craft"]}
-                    for person in data.get("people", [])
-                    if person.get("craft") == "ISS"
-                ]
-                
-                # Phase 2: Enrich with agency data from NASA blog
-                try:
-                    agency_lookup = await fetch_crew_agencies()
-                    if agency_lookup:
-                        iss_crew = enrich_crew_with_agencies(iss_crew, agency_lookup)
-                        logger.info(f"Crew enriched: {sum(1 for c in iss_crew if c.get('agency'))}/{len(iss_crew)} have agency")
-                except Exception as e:
-                    logger.warning(f"Phase 2 enrichment failed (non-fatal): {e}")
-                
-                result = {
-                    "count": len(iss_crew),
-                    "crew": iss_crew,
-                    "total_in_space": data.get("number", 0),
-                    "source": "open-notify+nasa-blog",
-                    "cached": False,
-                }
-                
-                _cache["crew"] = {"data": result, "timestamp": now}
-                return result
-                
-        except Exception as e:
-            logger.error(f"Failed to fetch ISS crew: {e}")
+            # Phase 2: Enrich with agency data from NASA blog
+            try:
+                agency_lookup = await fetch_crew_agencies()
+                if agency_lookup:
+                    iss_crew = enrich_crew_with_agencies(iss_crew, agency_lookup)
+                    logger.info(f"Crew enriched: {sum(1 for c in iss_crew if c.get('agency'))}/{len(iss_crew)} have agency")
+            except Exception as e:
+                logger.warning(f"Phase 2 enrichment failed (non-fatal): {e}")
+            
+            result = {
+                "count": len(iss_crew),
+                "crew": iss_crew,
+                "total_in_space": data.get("number", 0),
+                "source": "open-notify+nasa-blog",
+                "cached": False,
+            }
+            
+            _cache["crew"] = {"data": result, "timestamp": now}
+            return result
+            
+    except Exception as e:
+        logger.error(f"Failed to fetch ISS crew: {e}")
     
     # Return stale cache if available
     if cached["data"]:
@@ -270,7 +283,7 @@ async def get_iss_combined() -> Dict[str, Any]:
 
 # === Reverse Geocoding ===
 
-GEOCODE_CACHE_TTL = 30  # Cache location names for 30 seconds
+GEOCODE_CACHE_TTL = 120  # Location names are cosmetic, 2 min staleness is fine
 
 _geocode_cache = {}
 
@@ -289,201 +302,71 @@ async def get_location_name(lat: float, lng: float) -> Dict[str, Any]:
         if age < GEOCODE_CACHE_TTL:
             return {**cached["data"], "cached": True, "cache_age_seconds": round(age, 1)}
     
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        try:
-            url = f"https://api.wheretheiss.at/v1/coordinates/{lat},{lng}"
-            response = await client.get(url)
-            response.raise_for_status()
-            data = response.json()
-            
-            location = "Ocean"
-            country = "International Waters"
-            
-            if data.get("timezone_id"):
-                parts = data["timezone_id"].split("/")
-                location = parts[-1].replace("_", " ")
-                country = data.get("country_code", "")
-            
-            result = {
-                "location": location,
-                "country_code": country,
-                "timezone_id": data.get("timezone_id"),
-                "source": "wheretheiss",
-                "cached": False,
-            }
-            
-            _geocode_cache[cache_key] = {"data": result, "timestamp": now}
-            return result
-            
-        except Exception as e:
-            logger.warning(f"Geocode lookup failed: {e}")
-            return {
-                "location": f"{abs(lat):.1f}°{'N' if lat >= 0 else 'S'}",
-                "country_code": f"{abs(lng):.1f}°{'E' if lng >= 0 else 'W'}",
-                "timezone_id": None,
-                "source": "coordinates",
-                "cached": False,
-            }
-
-
-# === ISS News ===
-
-# Spaceflight Now ISS News (most reliable for ISS-specific news)
-SPACEFLIGHT_NOW_ISS_RSS = "https://spaceflightnow.com/category/iss/feed/"
-# NASA Space Station Blog
-NASA_ISS_BLOG_RSS = "https://blogs.nasa.gov/spacestation/feed/"
-
-NEWS_CACHE_TTL = 900  # 15 minutes
-
-_news_cache = {
-    "news": {"data": None, "timestamp": None}
-}
-
-
-def _parse_rss_date(date_str: str) -> Optional[datetime]:
-    """Parse RSS date formats"""
-    if not date_str:
-        return None
-    formats = [
-        "%a, %d %b %Y %H:%M:%S %z",
-        "%a, %d %b %Y %H:%M:%S %Z",
-        "%a, %d %b %Y %H:%M:%S GMT",
-        "%a, %d %b %Y %H:%M:%S +0000",
-        "%Y-%m-%dT%H:%M:%S%z",
-        "%Y-%m-%dT%H:%M:%SZ",
-    ]
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(date_str.strip(), fmt)
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
-            return dt
-        except:
-            continue
-    return None
-
-
-def _format_time_ago(dt: datetime) -> str:
-    """Format datetime as relative time"""
-    if not dt:
-        return ""
+    client = _get_client()
     
-    now = datetime.now(timezone.utc)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    
-    diff = now - dt
-    hours = diff.total_seconds() / 3600
-    days = diff.days
-    
-    if hours < 1:
-        return f"{int(diff.total_seconds() / 60)} min ago"
-    elif hours < 24:
-        return f"{int(hours)}h ago"
-    elif days == 1:
-        return "Yesterday"
-    elif days < 7:
-        return f"{days} days ago"
-    else:
-        return dt.strftime("%b %d")
+    try:
+        url = f"https://api.wheretheiss.at/v1/coordinates/{lat},{lng}"
+        response = await client.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        location = "Ocean"
+        country = "International Waters"
+        
+        if data.get("timezone_id"):
+            parts = data["timezone_id"].split("/")
+            location = parts[-1].replace("_", " ")
+            country = data.get("country_code", "")
+        
+        result = {
+            "location": location,
+            "country_code": country,
+            "timezone_id": data.get("timezone_id"),
+            "source": "wheretheiss",
+            "cached": False,
+        }
+        
+        _geocode_cache[cache_key] = {"data": result, "timestamp": now}
+        return result
+        
+    except Exception as e:
+        logger.warning(f"Geocode lookup failed: {e}")
+        return {
+            "location": f"{abs(lat):.1f}°{'N' if lat >= 0 else 'S'}",
+            "country_code": f"{abs(lng):.1f}°{'E' if lng >= 0 else 'W'}",
+            "timezone_id": None,
+            "source": "coordinates",
+            "cached": False,
+        }
+
+
+# === ISS News (delegates to shared news service) ===
+
+# ISS-relevant feed IDs from news.py
+ISS_NEWS_FEED_IDS = {"nasa-iss", "spaceflight-now-iss"}
 
 
 async def get_iss_news(limit: int = 10) -> Dict[str, Any]:
     """
-    Fetch latest ISS news from Spaceflight Now and NASA ISS Blog RSS feeds.
-    Returns cached data if within TTL.
+    Get ISS-specific news. Delegates to the shared news service
+    (news.py) which caches all RSS feeds for 15 minutes, avoiding
+    duplicate fetches when both /api/news and /api/iss/news are called.
     """
-    import xml.etree.ElementTree as ET
+    from news import get_news
     
-    cached = _news_cache["news"]
+    # get_news() returns cached results — no extra HTTP calls
+    all_news = await get_news(limit=100)  # Get all, then filter
     
-    # Return valid cache
-    if _is_cache_valid(cached, NEWS_CACHE_TTL):
-        return {
-            **cached["data"],
-            "cached": True,
-            "cache_age_seconds": round(_get_cache_age(cached), 1)
-        }
-    
-    now = datetime.now(timezone.utc)
-    news_items = []
-    
-    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-        # Try Spaceflight Now ISS feed FIRST (most reliable for ISS-specific news)
-        try:
-            response = await client.get(SPACEFLIGHT_NOW_ISS_RSS)
-            response.raise_for_status()
-            
-            root = ET.fromstring(response.text)
-            channel = root.find("channel")
-            
-            if channel:
-                for item in channel.findall("item")[:limit]:
-                    title = item.find("title")
-                    pub_date = item.find("pubDate")
-                    link = item.find("link")
-                    
-                    pub_dt = _parse_rss_date(pub_date.text if pub_date is not None else None)
-                    
-                    news_items.append({
-                        "title": title.text if title is not None else "ISS News",
-                        "time": pub_dt.isoformat() if pub_dt else None,
-                        "time_ago": _format_time_ago(pub_dt),
-                        "link": link.text if link is not None else None,
-                        "source": "Spaceflight Now",
-                        "summary": None
-                    })
-                    
-            logger.info(f"Fetched {len(news_items)} news items from Spaceflight Now ISS feed")
-            
-        except Exception as e:
-            logger.warning(f"Spaceflight Now ISS feed fetch failed: {e}")
-        
-        # Try NASA ISS Blog as supplement
-        if len(news_items) < limit:
-            try:
-                response = await client.get(NASA_ISS_BLOG_RSS)
-                response.raise_for_status()
-                
-                root = ET.fromstring(response.text)
-                channel = root.find("channel")
-                
-                if channel:
-                    remaining = limit - len(news_items)
-                    for item in channel.findall("item")[:remaining]:
-                        title = item.find("title")
-                        pub_date = item.find("pubDate")
-                        link = item.find("link")
-                        description = item.find("description")
-                        
-                        pub_dt = _parse_rss_date(pub_date.text if pub_date is not None else None)
-                        
-                        news_items.append({
-                            "title": title.text if title is not None else "NASA ISS Update",
-                            "time": pub_dt.isoformat() if pub_dt else None,
-                            "time_ago": _format_time_ago(pub_dt),
-                            "link": link.text if link is not None else None,
-                            "source": "NASA ISS Blog",
-                            "summary": (description.text[:150] + "...") if description is not None and description.text else None
-                        })
-                        
-                logger.info(f"Added NASA ISS Blog items, total: {len(news_items)}")
-                
-            except Exception as e:
-                logger.warning(f"Spaceflight Now fetch failed: {e}")
-    
-    # Sort by date (newest first)
-    news_items.sort(key=lambda x: x["time"] or "", reverse=True)
-    
-    result = {
-        "news": news_items[:limit],
-        "count": len(news_items),
-        "timestamp": now.isoformat(),
-    }
-    
-    _news_cache["news"] = {"data": result, "timestamp": now}
+    # Filter to ISS-relevant feeds
+    iss_items = [
+        item for item in all_news.get("news", [])
+        if item.get("feed_id") in ISS_NEWS_FEED_IDS
+    ][:limit]
     
     return {
-        **result,
-        "cached": False
+        "news": iss_items,
+        "count": len(iss_items),
+        "timestamp": all_news.get("timestamp"),
+        "cached": all_news.get("cached", False),
+        "cache_age_seconds": all_news.get("cache_age_seconds"),
     }

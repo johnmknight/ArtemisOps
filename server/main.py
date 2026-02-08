@@ -123,10 +123,10 @@ async def lifespan(app: FastAPI):
     await sync_all_missions()
     app_state["last_sync"] = datetime.now(timezone.utc)
     
-    # Schedule sync every 12 hours (upcoming missions don't change often)
-    scheduler.add_job(scheduled_sync, 'interval', hours=12, id='mission_sync')
+    # Schedule sync every 24 hours (mission data changes rarely; use /api/sync for manual refresh)
+    scheduler.add_job(scheduled_sync, 'interval', hours=24, id='mission_sync')
     scheduler.start()
-    print("Scheduler started - syncing every 12 hours")
+    print("Scheduler started - syncing every 24 hours")
     
     yield
     

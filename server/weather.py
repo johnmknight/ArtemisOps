@@ -12,6 +12,17 @@ import asyncio
 # Open-Meteo API endpoint
 OPEN_METEO_BASE = "https://api.open-meteo.com/v1/forecast"
 
+# Shared HTTP client (connection pooling)
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+def _get_client() -> httpx.AsyncClient:
+    """Get or create shared HTTP client for connection pooling."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(timeout=15.0)
+    return _http_client
+
 # Known launch site coordinates
 LAUNCH_SITES = {
     # NASA sites
@@ -160,20 +171,20 @@ def get_days_until(event_date: datetime) -> int:
 async def fetch_weather_forecast(lat: float, lon: float, days: int = 7) -> Optional[dict]:
     """Fetch weather forecast from Open-Meteo API"""
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(
-                OPEN_METEO_BASE,
-                params={
-                    "latitude": lat,
-                    "longitude": lon,
-                    "hourly": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover",
-                    "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max",
-                    "timezone": "UTC",
-                    "forecast_days": min(days + 1, 16),  # API max is 16 days
-                }
-            )
-            response.raise_for_status()
-            return response.json()
+        client = _get_client()
+        response = await client.get(
+            OPEN_METEO_BASE,
+            params={
+                "latitude": lat,
+                "longitude": lon,
+                "hourly": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover",
+                "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max",
+                "timezone": "UTC",
+                "forecast_days": min(days + 1, 16),  # API max is 16 days
+            }
+        )
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         print(f"Weather fetch error: {e}")
         return None
@@ -392,20 +403,20 @@ DEFAULT_RECOVERY_SITE = {"lat": 30.0, "lon": -75.0, "name": "Atlantic Recovery Z
 async def fetch_current_and_forecast(lat: float, lon: float, days: int = 7) -> Optional[dict]:
     """Fetch current conditions AND multi-day forecast from Open-Meteo"""
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(
-                OPEN_METEO_BASE,
-                params={
-                    "latitude": lat,
-                    "longitude": lon,
-                    "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover",
-                    "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max",
-                    "timezone": "UTC",
-                    "forecast_days": min(days + 1, 16),
-                }
-            )
-            response.raise_for_status()
-            return response.json()
+        client = _get_client()
+        response = await client.get(
+            OPEN_METEO_BASE,
+            params={
+                "latitude": lat,
+                "longitude": lon,
+                "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover",
+                "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max",
+                "timezone": "UTC",
+                "forecast_days": min(days + 1, 16),
+            }
+        )
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         print(f"Weather current+forecast fetch error: {e}")
         return None
