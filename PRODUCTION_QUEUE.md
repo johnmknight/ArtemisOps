@@ -44,6 +44,14 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Mission Control: full horizontal timeline (all milestones, not just 3)
 - [x] Mission Control: MET header display (T-minus/T-plus)
 - [x] Mission Control: mission status info box
+- [x] Weather tab: RainViewer + NOAA MRMS radar overlays
+- [x] Weather tab: SWPC Space Weather proxy (Kp, solar wind, X-ray, proton, alerts, forecast)
+- [x] Weather tab: GOES-16 satellite imagery (5 bands + ABI sectors)
+- [x] Weather tab: Real Blitzortung WebSocket lightning + NWS fallback
+- [x] Weather tab: GOES-16 GLM flash extent density overlay
+- [x] Weather tab: RAMMB/CIRA SLIDER interactive satellite viewer
+- [x] Weather tab: Aurora OVATION forecast image in Space Weather view
+- [x] Weather tab: Additional SWPC endpoints (solar-regions, enlil, kp-1min)
 
 ### In Progress
 - [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
@@ -360,3 +368,5 @@ server/
 - Tracking tab fully functional with live ISS data
 - Mission Control mode is next priority
 - Consider Raspberry Pi deployment for kiosk displays
+
+**Last Updated:** February 8, 2026
