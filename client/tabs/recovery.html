@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recovery Weather</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -303,6 +304,79 @@
       font-size: 0.8rem;
     }
 
+    /* Radar map */
+    #radarMap {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      z-index: 0;
+    }
+
+    .radar-controls {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      z-index: 1000;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .radar-controls button {
+      background: none;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-accent);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .radar-controls button:hover { background: rgba(0, 212, 255, 0.15); }
+    .radar-controls button.active { background: rgba(0, 212, 255, 0.25); border-color: var(--text-accent); }
+
+    .radar-time {
+      font-family: 'Courier New', monospace;
+      color: var(--text-primary);
+      min-width: 80px;
+      text-align: center;
+      font-size: 0.65rem;
+    }
+
+    .radar-layer-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      padding-left: 6px;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .radar-layer-toggle label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .radar-layer-toggle input[type="checkbox"] {
+      accent-color: var(--text-accent);
+      width: 12px;
+      height: 12px;
+    }
+
+    .leaflet-control-attribution { display: none !important; }
+
     /* ===== FORECAST STRIP ===== */
     .forecast-strip {
       background: var(--bg-panel);
@@ -439,9 +513,17 @@
       </div>
       <div class="satellite-section">
         <div class="satellite-container">
-          <img id="satImg" src="" alt="Satellite" style="display:none;">
-          <div class="satellite-label" id="satLabel">GOES Satellite</div>
-          <div class="satellite-error" id="satError">Satellite imagery loading...</div>
+          <div id="radarMap"></div>
+          <div class="radar-controls">
+            <button id="radarPrev" title="Previous frame">◀</button>
+            <button id="radarPlay" title="Play/Pause" class="active">▶</button>
+            <button id="radarNext" title="Next frame">▶▶</button>
+            <span class="radar-time" id="radarTime">--:-- UTC</span>
+            <div class="radar-layer-toggle">
+              <input type="checkbox" id="toggleRainViewer" checked>
+              <label for="toggleRainViewer">Radar</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -455,7 +537,133 @@
     </footer>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // === Radar Map Module ===
+    const RadarMap = {
+      map: null,
+      siteMarker: null,
+      rainViewerData: null,
+      rainViewerLayers: [],
+      animationPos: 0,
+      animationTimer: null,
+      isPlaying: false,
+      lastPastFrame: -1,
+
+      init(lat, lon, zoom = 6) {
+        if (this.map) { this.map.setView([lat, lon], zoom); return; }
+
+        this.map = L.map('radarMap', {
+          center: [lat, lon],
+          zoom: zoom,
+          zoomControl: false,
+          attributionControl: false,
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          opacity: 0.8,
+        }).addTo(this.map);
+
+        this.siteMarker = L.circleMarker([lat, lon], {
+          radius: 8, color: '#00d4ff', fillColor: '#00d4ff',
+          fillOpacity: 0.3, weight: 2
+        }).addTo(this.map);
+
+        document.getElementById('radarPrev').addEventListener('click', () => this.step(-1));
+        document.getElementById('radarNext').addEventListener('click', () => this.step(1));
+        document.getElementById('radarPlay').addEventListener('click', () => this.togglePlay());
+        document.getElementById('toggleRainViewer').addEventListener('change', (e) => {
+          this.rainViewerLayers.forEach(l => { if (this.map.hasLayer(l)) this.map.removeLayer(l); });
+          if (e.target.checked) this.showFrame(this.animationPos);
+        });
+
+        this.loadRainViewer();
+        setInterval(() => this.loadRainViewer(), 5 * 60 * 1000);
+      },
+
+      async loadRainViewer() {
+        try {
+          const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+          const data = await res.json();
+          this.rainViewerData = data;
+
+          this.rainViewerLayers.forEach(l => { if (this.map.hasLayer(l)) this.map.removeLayer(l); });
+          this.rainViewerLayers = [];
+
+          const frames = [];
+          if (data.radar?.past) frames.push(...data.radar.past);
+          this.lastPastFrame = frames.length - 1;
+          if (data.radar?.nowcast) frames.push(...data.radar.nowcast);
+
+          frames.forEach((frame) => {
+            const layer = L.tileLayer(
+              data.host + frame.path + '/256/{z}/{x}/{y}/2/1_1.png', {
+              opacity: 0, zIndex: 5,
+            });
+            this.rainViewerLayers.push(layer);
+          });
+
+          this.animationPos = this.lastPastFrame;
+          this.showFrame(this.animationPos);
+          if (!this.isPlaying) this.togglePlay();
+        } catch (err) {
+          console.warn('RainViewer load failed:', err);
+        }
+      },
+
+      showFrame(idx) {
+        if (!document.getElementById('toggleRainViewer').checked) return;
+        if (idx < 0 || idx >= this.rainViewerLayers.length) return;
+
+        this.rainViewerLayers.forEach((layer, i) => {
+          if (i === idx) {
+            if (!this.map.hasLayer(layer)) layer.addTo(this.map);
+            layer.setOpacity(0.65);
+          } else {
+            layer.setOpacity(0);
+          }
+        });
+
+        const frames = [];
+        if (this.rainViewerData?.radar?.past) frames.push(...this.rainViewerData.radar.past);
+        if (this.rainViewerData?.radar?.nowcast) frames.push(...this.rainViewerData.radar.nowcast);
+        if (frames[idx]) {
+          const dt = new Date(frames[idx].time * 1000);
+          const hh = String(dt.getUTCHours()).padStart(2, '0');
+          const mm = String(dt.getUTCMinutes()).padStart(2, '0');
+          const prefix = idx > this.lastPastFrame ? '⟩ ' : '';
+          document.getElementById('radarTime').textContent = `${prefix}${hh}:${mm} UTC`;
+        }
+      },
+
+      step(dir) {
+        const total = this.rainViewerLayers.length;
+        if (total === 0) return;
+        this.animationPos = (this.animationPos + dir + total) % total;
+        this.showFrame(this.animationPos);
+      },
+
+      togglePlay() {
+        const btn = document.getElementById('radarPlay');
+        if (this.isPlaying) {
+          clearInterval(this.animationTimer);
+          this.isPlaying = false;
+          btn.textContent = '▶';
+          btn.classList.remove('active');
+        } else {
+          this.animationTimer = setInterval(() => this.step(1), 800);
+          this.isPlaying = true;
+          btn.textContent = '⏸';
+          btn.classList.add('active');
+        }
+      },
+
+      updatePosition(lat, lon) {
+        if (this.map) this.map.setView([lat, lon]);
+        if (this.siteMarker) this.siteMarker.setLatLng([lat, lon]);
+      }
+    };
     const WeatherTab = {
       data: null,
       missionId: 'artemis-ii',
@@ -541,16 +749,10 @@
           this.renderConstraintWx('cWx', 'cWxVal', site.constraints.weather);
         }
 
-        // Satellite
-        if (site.satellite_url) {
-          const img = document.getElementById('satImg');
-          const err = document.getElementById('satError');
-          img.src = site.satellite_url + '?t=' + Date.now();
-          img.style.display = 'block';
-          img.onerror = () => { img.style.display = 'none'; err.textContent = 'Satellite unavailable'; };
-          img.onload = () => { err.style.display = 'none'; };
-          document.getElementById('satLabel').textContent = site.satellite_label || 'GOES Satellite';
-        }
+        // Radar map
+        const lat = site.lat || 30.0;
+        const lon = site.lon || -75.0;
+        RadarMap.init(lat, lon, 6);
 
         // Forecast
         document.getElementById('forecastSiteLabel').textContent = site.name || 'Recovery Zone';
