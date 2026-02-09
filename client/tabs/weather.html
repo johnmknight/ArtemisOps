@@ -761,17 +761,38 @@
 
       renderXray() {
         if (!this.data.xray || !Array.isArray(this.data.xray) || this.data.xray.length < 1) return;
-        // GOES X-ray JSON: array of objects {time_tag, satellite, current_class, current_ratio, flux}
-        const latest = this.data.xray[this.data.xray.length - 1];
-        const xrayClass = latest.current_class || '--';
+        // SWPC X-ray JSON: array of {time_tag, satellite, flux, energy, ...}
+        // Use 0.1-0.8nm band (standard for flare classification)
+        // Find latest entry for the 0.1-0.8nm band
+        let latest = null;
+        for (let i = this.data.xray.length - 1; i >= 0; i--) {
+          const row = this.data.xray[i];
+          if (row.energy === '0.1-0.8nm' && row.flux != null) { latest = row; break; }
+        }
+        if (!latest) {
+          // Fallback: just use last entry
+          latest = this.data.xray[this.data.xray.length - 1];
+        }
         const flux = parseFloat(latest.flux);
+        if (isNaN(flux)) return;
+
+        // Calculate X-ray class from flux (W/m²)
+        let xrayClass = '--';
+        if (flux >= 1e-4) { const n = flux / 1e-4; xrayClass = 'X' + n.toFixed(1); }
+        else if (flux >= 1e-5) { const n = flux / 1e-5; xrayClass = 'M' + n.toFixed(1); }
+        else if (flux >= 1e-6) { const n = flux / 1e-6; xrayClass = 'C' + n.toFixed(1); }
+        else if (flux >= 1e-7) { const n = flux / 1e-7; xrayClass = 'B' + n.toFixed(1); }
+        else { const n = flux / 1e-8; xrayClass = 'A' + n.toFixed(1); }
+
+        // If current_class exists, prefer it
+        if (latest.current_class) xrayClass = latest.current_class;
         const letter = xrayClass.charAt(0).toUpperCase();
 
         const classEl = document.getElementById('xrayClass');
         classEl.textContent = xrayClass;
         classEl.className = `xray-class ${letter}`;
 
-        document.getElementById('xrayFlux').textContent = !isNaN(flux) ? `${flux.toExponential(2)} W/m²` : '-- W/m²';
+        document.getElementById('xrayFlux').textContent = `${flux.toExponential(2)} W/m²`;
         const labels = { A: 'Background level — Quiet', B: 'Low activity — Nominal', C: 'Minor flare', M: 'Moderate flare — Monitor', X: 'Major flare — Elevated risk' };
         document.getElementById('xrayLabel').textContent = labels[letter] || `Class ${letter}`;
       },
@@ -869,12 +890,26 @@
           }
         }
         if (this.data.xray && Array.isArray(this.data.xray) && this.data.xray.length > 0) {
-          const latest = this.data.xray[this.data.xray.length - 1];
-          const cls = latest.current_class || '--';
-          const letter = cls.charAt(0).toUpperCase();
-          const el = document.getElementById('swcXray');
-          el.textContent = cls;
-          el.className = `spacewx-metric-value level-${'AB'.includes(letter) ? 'quiet' : letter === 'C' ? 'active' : 'storm'}`;
+          // Find latest 0.1-0.8nm entry
+          let latest = null;
+          for (let i = this.data.xray.length - 1; i >= 0; i--) {
+            if (this.data.xray[i].energy === '0.1-0.8nm' && this.data.xray[i].flux != null) { latest = this.data.xray[i]; break; }
+          }
+          if (!latest) latest = this.data.xray[this.data.xray.length - 1];
+          const flux = parseFloat(latest.flux);
+          if (!isNaN(flux)) {
+            let cls;
+            if (flux >= 1e-4) cls = 'X' + (flux/1e-4).toFixed(1);
+            else if (flux >= 1e-5) cls = 'M' + (flux/1e-5).toFixed(1);
+            else if (flux >= 1e-6) cls = 'C' + (flux/1e-6).toFixed(1);
+            else if (flux >= 1e-7) cls = 'B' + (flux/1e-7).toFixed(1);
+            else cls = 'A' + (flux/1e-8).toFixed(1);
+            if (latest.current_class) cls = latest.current_class;
+            const letter = cls.charAt(0).toUpperCase();
+            const el = document.getElementById('swcXray');
+            el.textContent = cls;
+            el.className = `spacewx-metric-value level-${'AB'.includes(letter) ? 'quiet' : letter === 'C' ? 'active' : 'storm'}`;
+          }
         }
         if (this.data.plasma && Array.isArray(this.data.plasma) && this.data.plasma.length > 2) {
           for (let i = this.data.plasma.length - 1; i >= 1; i--) {
@@ -1106,7 +1141,7 @@
     const WeatherTab = {
       data: null,
       SITE_KEY: 'launch_site',
-      EVENT_DATE_KEY: 'event_date',
+      EVENT_DATE_KEY: 'launch_date',
       refreshInterval: null,
 
       async init() {
@@ -1118,18 +1153,14 @@
 
       async fetchData() {
         try {
-          const resp = await fetch(`${window.location.origin}/api/missions/artemis-ii/weather`);
+          // Use operations endpoint — always returns live weather regardless of launch date
+          const resp = await fetch(`${window.location.origin}/api/weather/operations/artemis-ii`);
           if (resp.ok) {
             this.data = await resp.json();
             this.render();
           }
         } catch (err) {
-          console.warn('Weather fetch failed:', err);
-          // Try fallback
-          try {
-            const resp2 = await fetch(`${window.location.origin}/api/weather/operations/artemis-ii`);
-            if (resp2.ok) { this.data = await resp2.json(); this.render(); }
-          } catch (e2) { console.warn('Weather fallback failed:', e2); }
+          console.warn('Weather operations fetch failed:', err);
         }
       },
 
@@ -1143,7 +1174,21 @@
         document.getElementById('wxUpdated').textContent =
           `Updated ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC`;
 
-        if (!site) return;
+        // Always init radar map for KSC even without weather data
+        const defaultLat = 28.5729, defaultLon = -80.6490;
+        if (!site) {
+          // No weather data yet — show reason and defaults
+          document.getElementById('siteName').textContent = 'Kennedy Space Center LC-39B';
+          document.getElementById('wxDesc').textContent = d.reason || 'Weather data not yet available';
+          document.getElementById('wxIcon').textContent = '🕐';
+          const overallEl = document.getElementById('siteOverall');
+          overallEl.textContent = 'PENDING';
+          overallEl.className = 'site-overall unknown';
+          RadarMap.init(defaultLat, defaultLon, 7);
+          document.getElementById('forecastSiteLabel').textContent = 'Kennedy Space Center LC-39B';
+          document.getElementById('forecastDays').innerHTML = `<div style="color:var(--text-secondary);font-size:0.75rem;">${d.reason || 'Forecast not yet available'}</div>`;
+          return;
+        }
 
         // Site info
         document.getElementById('siteName').textContent = site.name || 'Kennedy Space Center LC-39B';
