@@ -1,0 +1,119 @@
+@font-face {
+    font-family: "spaceicons";
+    src: url("./spaceicons.woff2?b42b47aa48c957e084df41b648a804ac") format("woff2"),
+url("./spaceicons.ttf?b42b47aa48c957e084df41b648a804ac") format("truetype");
+}
+
+i[class^="si-"]:before, i[class*=" si-"]:before {
+    font-family: spaceicons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.si-storage-organic-foodstuffs:before {
+    content: "\f101";
+}
+.si-storage-non-organic:before {
+    content: "\f102";
+}
+.si-refrigeration:before {
+    content: "\f103";
+}
+.si-radiation-hazard:before {
+    content: "\f104";
+}
+.si-pressurised-with-artificial-gravity:before {
+    content: "\f105";
+}
+.si-pressurised-area:before {
+    content: "\f106";
+}
+.si-pressure-suit-locker:before {
+    content: "\f107";
+}
+.si-photonic-system-fibre-optics:before {
+    content: "\f108";
+}
+.si-non-pressurised-area-beyond:before {
+    content: "\f109";
+}
+.si-no-pressure-gravity-suit-required:before {
+    content: "\f10a";
+}
+.si-maintenance:before {
+    content: "\f10b";
+}
+.si-life-support-system:before {
+    content: "\f10c";
+}
+.si-laser:before {
+    content: "\f10d";
+}
+.si-ladderway:before {
+    content: "\f10e";
+}
+.si-intercom:before {
+    content: "\f10f";
+}
+.si-high-radioactivity:before {
+    content: "\f110";
+}
+.si-hazard-warning:before {
+    content: "\f111";
+}
+.si-galley:before {
+    content: "\f112";
+}
+.si-exhaust:before {
+    content: "\f113";
+}
+.si-direction:before {
+    content: "\f114";
+}
+.si-direction-right:before {
+    content: "\f115";
+}
+.si-direction-left:before {
+    content: "\f116";
+}
+.si-direction-down:before {
+    content: "\f117";
+}
+.si-cryogenic-vault:before {
+    content: "\f118";
+}
+.si-computer-terminal:before {
+    content: "\f119";
+}
+.si-coffee:before {
+    content: "\f11a";
+}
+.si-bulkhead-door:before {
+    content: "\f11b";
+}
+.si-bridge:before {
+    content: "\f11c";
+}
+.si-autodoc:before {
+    content: "\f11d";
+}
+.si-astronic-system-electronics:before {
+    content: "\f11e";
+}
+.si-artificial-gravity-area-non-pressurised-suit-required:before {
+    content: "\f11f";
+}
+.si-artificial-gravity-absent:before {
+    content: "\f120";
+}
+.si-area-shielded-from-radiation:before {
+    content: "\f121";
+}
+.si-airlock:before {
+    content: "\f122";
+}

@@ -116,6 +116,14 @@ async def init_db():
             "ALTER TABLE missions ADD COLUMN landing_date TEXT",
             "ALTER TABLE missions ADD COLUMN patch_url TEXT",
             "ALTER TABLE missions ADD COLUMN agency_logo_url TEXT",
+            # Sprint 1: Multi-mission support (SpaceX Crew Dragon)
+            "ALTER TABLE missions ADD COLUMN recovery_site TEXT",
+            "ALTER TABLE missions ADD COLUMN recovery_lat REAL",
+            "ALTER TABLE missions ADD COLUMN recovery_lon REAL",
+            "ALTER TABLE missions ADD COLUMN launch_window_type TEXT",
+            "ALTER TABLE missions ADD COLUMN mission_profile TEXT",
+            "ALTER TABLE missions ADD COLUMN docking_date TEXT",
+            "ALTER TABLE missions ADD COLUMN undocking_date TEXT",
         ]
         for migration in migrations:
             try:

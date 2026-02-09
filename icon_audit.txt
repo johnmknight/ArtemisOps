@@ -1,0 +1,233 @@
+⚙|GEAR|control.html|<div class="control-title">⚙ Control Panel</div>
+➕|HEAVY PLUS SIGN|control.html|<div class="section-title">➕ Add Screen</div>
+🚀|ROCKET|control.html|<option value="1">🚀 Mission (1)</option>
+🌍|EARTH GLOBE EUROPE-AFRICA|control.html|<option value="2">🌍 Tracking (2)</option>
+👨|MAN|control.html|<option value="3">👨‍🚀 Crew (3)</option>
+🚀|ROCKET|control.html|<option value="3">👨‍🚀 Crew (3)</option>
+️|VARIATION SELECTOR-16|control.html|<option value="4">ℹ️ Info (4)</option>
+⚙|GEAR|control.html|<option value="0">⚙ Control (0)</option>
+📡|SATELLITE ANTENNA|control.html|<div class="section-title">📡 Broadcast to All Screens</div
+🚀|ROCKET|control.html|stPage(1)"><span class="icon">🚀</span> Mission</button>
+🌍|EARTH GLOBE EUROPE-AFRICA|control.html|stPage(2)"><span class="icon">🌍</span> Tracking</button>
+👨|MAN|control.html|stPage(3)"><span class="icon">👨‍🚀</span> Crew</button>
+🚀|ROCKET|control.html|Page(3)"><span class="icon">👨‍🚀</span> Crew</button>
+️|VARIATION SELECTOR-16|control.html|tPage(4)"><span class="icon">ℹ️</span> Info</button>
+🖥|DESKTOP COMPUTER|control.html|🖥️ Screens
+️|VARIATION SELECTOR-16|control.html|🖥️ Screens
+🔧|WRENCH|control.html|<div class="section-title">🔧 This Screen</div>
+⛶|SQUARE FOUR CORNERS|control.html|"Control.requestFullscreen()">⛶ Toggle Fullscreen (F)</button
+⚙|GEAR|control.html|const PAGE_ICONS = { 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4
+🚀|ROCKET|control.html|st PAGE_ICONS = { 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' }
+🌍|EARTH GLOBE EUROPE-AFRICA|control.html|ICONS = { 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+👨|MAN|control.html|{ 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+🚀|ROCKET|control.html|0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+️|VARIATION SELECTOR-16|control.html|: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+→|RIGHTWARDS ARROW|control.html|.toast(`${screenId} ${action} → ${PAGE_NAMES[page]}`, 'succes
+🚀|ROCKET|control.html|ateScreen('${screen.id}', 1)">🚀 Mission</button>
+🌍|EARTH GLOBE EUROPE-AFRICA|control.html|ateScreen('${screen.id}', 2)">🌍 Track</button>
+👨|MAN|control.html|ateScreen('${screen.id}', 3)">👨‍🚀 Crew</button>
+🚀|ROCKET|control.html|eScreen('${screen.id}', 3)">👨‍🚀 Crew</button>
+️|VARIATION SELECTOR-16|control.html|teScreen('${screen.id}', 4)">ℹ️ Info</button>
+✕|MULTIPLICATION X|control.html|removeScreen('${screen.id}')">✕ Remove Configuration</button>
+→|RIGHTWARDS ARROW|control.html|this.toast(`${screenId} → ${PAGE_NAMES[page]}`, 'succes
+→|RIGHTWARDS ARROW|control.html|this.toast(`All screens → ${PAGE_NAMES[page]} (${succes
+↗|NORTH EAST ARROW|crew.html|lank" rel="noopener">Full bio ↗</a>` : ''}
+•|BULLET|crew.html|${eva.status === 'active' ? ' • LIVE' : ''}</div>
+👨|MAN|crew.html|tate"><div class="error-icon">👨‍🚀</div><div class="error-msg"
+🚀|ROCKET|crew.html|te"><div class="error-icon">👨‍🚀</div><div class="error-msg">N
+🚀|ROCKET|info.html|ass=mission-patch-placeholder>🚀</div>'">` :
+🚀|ROCKET|info.html|s="mission-patch-placeholder">🚀</div>`
+·|MIDDLE DOT|mission.html|" id="countdownLabel">T-Minus · Countdown to Launch</div>
+⚡|HIGH VOLTAGE SIGN|mission.html|<span class="info-box-icon">⚡</span>
+☀|BLACK SUN WITH RAYS|mission.html|fo-box-icon" id="weatherIcon">☀️</span>
+️|VARIATION SELECTOR-16|mission.html|o-box-icon" id="weatherIcon">☀️</span>
+◀|BLACK LEFT-POINTING TRIANGLE|mission.html|<span id="videoToggleLabel">◀ TV</span>
+📡|SATELLITE ANTENNA|mission.html|lass="video-placeholder-icon">📡</div>
+▶|BLACK RIGHT-POINTING TRIANGLE|mission.html|oggleBtn" title="Load stream">▶ LOAD STREAM</button>
+🔇|SPEAKER WITH CANCELLATION STROKE|mission.html|e mute" style="display:none;">🔇 MUTED</button>
+⛶|SQUARE FOUR CORNERS|mission.html|screen" style="display:none;">⛶ FULLSCREEN</button>
+✓|CHECK MARK|mission.html|class="phase-icon completed">✓</div>
+→|RIGHTWARDS ARROW|mission.html|div class="phase-icon active">→</div>
+🚀|ROCKET|mission.html|v class="phase-icon upcoming">🚀</div>
+📰|NEWSPAPER|mission.html|<div class="ticker-label">📰 NEWS</div>
+✓|CHECK MARK|mission.html|', state: 'completed', icon: '✓' });
+→|RIGHTWARDS ARROW|mission.html|| '', state: 'active', icon: '→' });
+🚀|ROCKET|mission.html|upcoming', icon: isLiftoff ? '🚀' : '○' });
+○|WHITE CIRCLE|mission.html|ng', icon: isLiftoff ? '🚀' : '○' });
+📡|SATELLITE ANTENNA|mission.html|'weatherIcon').textContent = '📡';
+☀|BLACK SUN WITH RAYS|mission.html|Content = conditions.icon || '☀️';
+️|VARIATION SELECTOR-16|mission.html|ontent = conditions.icon || '☀️';
+·|MIDDLE DOT|mission.html|tions.description || 'Clear'} · ${conditions.temperature_high
+·|MIDDLE DOT|mission.html|label.textContent = 'T-Plus · Mission Elapsed Time';
+·|MIDDLE DOT|mission.html|label.textContent = 'T-Minus · Countdown to Launch';
+🔴|LARGE RED CIRCLE|mission.html|// LIVE streams (🔴 prefix)
+🔴|LARGE RED CIRCLE|mission.html|const label = `🔴 ${chTag(s)}${s.title}${s.view
+⏳|HOURGLASS WITH FLOWING SAND|mission.html|// UPCOMING streams (⏳ prefix)
+⏳|HOURGLASS WITH FLOWING SAND|mission.html|addOpt(`yt-${s.video_id}`, `⏳ ${chTag(s)}${s.title}${timeSt
+─|BOX DRAWINGS LIGHT HORIZONTAL|mission.html|sep.textContent = '── Always On ──';
+─|BOX DRAWINGS LIGHT HORIZONTAL|mission.html|p.textContent = '── Always On ──';
+─|BOX DRAWINGS LIGHT HORIZONTAL|mission.html|.textContent = '── Always On ──';
+📡|SATELLITE ANTENNA|mission.html|addOpt(key, `📡 ${s.title}`, s.embed_url, 'fa
+─|BOX DRAWINGS LIGHT HORIZONTAL|mission.html|sep.textContent = '── Recent ──';
+▶|BLACK RIGHT-POINTING TRIANGLE|mission.html|addOpt(`yt-${s.video_id}`, `▶ ${chTag(s)}${s.title}`, s.emb
+🔗|LINK SYMBOL|mission.html|addOpt('custom', '🔗 Custom URL', '', 'custom');
+▶|BLACK RIGHT-POINTING TRIANGLE|mission.html|el.textContent = hidden ? 'TV ▶' : '◀ TV';
+◀|BLACK LEFT-POINTING TRIANGLE|mission.html|tContent = hidden ? 'TV ▶' : '◀ TV';
+▶|BLACK RIGHT-POINTING TRIANGLE|mission.html|toggleBtn.textContent = '▶ LOAD STREAM';
+⏹|BLACK SQUARE FOR STOP|mission.html|toggleBtn.textContent = '⏹ STOP';
+🔇|SPEAKER WITH CANCELLATION STROKE|mission.html|muteBtn.textContent = '🔇 MUTED';
+🔇|SPEAKER WITH CANCELLATION STROKE|mission.html|tContent = this.videoMuted ? '🔇 MUTED' : '🔊 UNMUTE';
+🔊|SPEAKER WITH THREE SOUND WAVES|mission.html|his.videoMuted ? '🔇 MUTED' : '🔊 UNMUTE';
+🎯|DIRECT HIT|recovery.html|<span class="wx-header-title">🎯 Recovery Weather</span>
+🎯|DIRECT HIT|recovery.html|<span class="site-label-icon">🎯</span>
+💨|DASH SYMBOL|recovery.html|pan class="current-stat-icon">💨</span> <strong id="wxWind">--
+☁|CLOUD|recovery.html|pan class="current-stat-icon">☁️</span> <strong id="wxCloud">
+️|VARIATION SELECTOR-16|recovery.html|an class="current-stat-icon">☁️</span> <strong id="wxCloud">-
+💧|DROPLET|recovery.html|pan class="current-stat-icon">💧</span> <strong id="wxHumidity
+🌧|CLOUD WITH RAIN|recovery.html|pan class="current-stat-icon">🌧️</span> <strong id="wxPrecip"
+️|VARIATION SELECTOR-16|recovery.html|an class="current-stat-icon">🌧️</span> <strong id="wxPrecip">
+◀|BLACK LEFT-POINTING TRIANGLE|recovery.html|rPrev" title="Previous frame">◀</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|recovery.html|e="Play/Pause" class="active">▶</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|recovery.html|radarNext" title="Next frame">▶▶</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|recovery.html|adarNext" title="Next frame">▶▶</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|recovery.html|btn.textContent = '▶';
+⏸|DOUBLE VERTICAL BAR|recovery.html|btn.textContent = '⏸';
+❓|BLACK QUESTION MARK ORNAMENT|recovery.html|on').textContent = c.icon || '❓';
+✓|CHECK MARK|recovery.html|constraint.status === 'go' ? '✓' : '✗';
+✗|BALLOT X|recovery.html|aint.status === 'go' ? '✓' : '✗';
+🎯|DIRECT HIT|recovery.html|recast-day-name">${isEvent ? '🎯 ' + day.day_name : day.day_na
+❓|BLACK QUESTION MARK ORNAMENT|recovery.html|cast-day-icon">${day.icon || '❓'}</div>
+💨|DASH SYMBOL|recovery.html|div class="forecast-day-wind">💨 ${day.wind_kmh != null ? Math
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Loading ── */
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Top HUD ── */
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Bottom HUD ── */
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Info panel ── */
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Cinematic overlay ── */
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/* ── Help tooltip ── */
+·|MIDDLE DOT|trajectory3d.html|id="help-tip">Scroll to zoom · Drag to orbit · 1-5 camera pr
+·|MIDDLE DOT|trajectory3d.html|croll to zoom · Drag to orbit · 1-5 camera presets</div>
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ═══════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ═════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ══════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ═══════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|// ═════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|/ ═══════════════════════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═══════════════════════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═══════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|══════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|════════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═══════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|══════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|════════════════════════════════
+═|BOX DRAWINGS DOUBLE HORIZONTAL|trajectory3d.html|═══════════════════════════════
+→|RIGHTWARDS ARROW|trajectory3d.html|nst S  = km => km / RE; // km → scene units
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 1: Launch & LEO (2 orb
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 1: Launch & LEO (2 orbi
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|h & LEO (2 orbits near Earth) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|& LEO (2 orbits near Earth) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 2: High Earth Orbit ch
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 2: High Earth Orbit che
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|igh Earth Orbit checkout loop ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|gh Earth Orbit checkout loop ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 3: TLI burn & outbound
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|: TLI burn & outbound transit ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|TLI burn & outbound transit ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 4: Approach & lunar fl
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 4: Approach & lunar fly
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|far side, ~6,513 km altitude) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|ar side, ~6,513 km altitude) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 5: Return transit ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|/ ── Phase 5: Return transit ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 6: Re-entry & splashdo
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Phase 6: Re-entry & splashdow
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|hase 6: Re-entry & splashdown ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|ase 6: Re-entry & splashdown ──
+✗|BALLOT X|trajectory3d.html|path); loadProgress(label + ' ✗'); r(null); });
+→|RIGHTWARDS ARROW|trajectory3d.html|/ Trail fades from bright red → dim
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Time advance ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Orion position ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Celestial rotation ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Camera tweening (preset fly-
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Camera tweening (preset fly-t
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|mera tweening (preset fly-to) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|era tweening (preset fly-to) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Follow mode (camera tracks O
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Follow mode (camera tracks Or
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|ow mode (camera tracks Orion) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|w mode (camera tracks Orion) ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── HUD ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Waypoint diamonds spin & hig
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|// ── Waypoint diamonds spin & high
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|int diamonds spin & highlight ──
+─|BOX DRAWINGS LIGHT HORIZONTAL|trajectory3d.html|nt diamonds spin & highlight ──
+🚀|ROCKET|weather.html|<span class="wx-header-title">🚀 Launch Weather</span>
+🚀|ROCKET|weather.html|<span class="site-label-icon">🚀</span>
+💨|DASH SYMBOL|weather.html|pan class="current-stat-icon">💨</span> <strong id="wxWind">--
+☁|CLOUD|weather.html|pan class="current-stat-icon">☁️</span> <strong id="wxCloud">
+️|VARIATION SELECTOR-16|weather.html|an class="current-stat-icon">☁️</span> <strong id="wxCloud">-
+💧|DROPLET|weather.html|pan class="current-stat-icon">💧</span> <strong id="wxHumidity
+🌧|CLOUD WITH RAIN|weather.html|pan class="current-stat-icon">🌧️</span> <strong id="wxPrecip"
+️|VARIATION SELECTOR-16|weather.html|an class="current-stat-icon">🌧️</span> <strong id="wxPrecip">
+☀|BLACK SUN WITH RAYS|weather.html|class="spacewx-compact-title">☀ Space Weather</div>
+📡|SATELLITE ANTENNA|weather.html|ick="SubTabs.switch('radar')">📡 Radar</button>
+🛰|SATELLITE|weather.html|"SubTabs.switch('satellite')">🛰️ Satellite</button>
+️|VARIATION SELECTOR-16|weather.html|SubTabs.switch('satellite')">🛰️ Satellite</button>
+☀|BLACK SUN WITH RAYS|weather.html|k="SubTabs.switch('spacewx')">☀ Space Wx</button>
+⚡|HIGH VOLTAGE SIGN|weather.html|"SubTabs.switch('lightning')">⚡ Lightning</button>
+◀|BLACK LEFT-POINTING TRIANGLE|weather.html|rPrev" title="Previous frame">◀</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|weather.html|e="Play/Pause" class="active">▶</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|weather.html|radarNext" title="Next frame">▶▶</button>
+▶|BLACK RIGHT-POINTING TRIANGLE|weather.html|adarNext" title="Next frame">▶▶</button>
+🎛|CONTROL KNOBS|weather.html|olor:#c084fc; color:#c084fc;">🎛 SLIDER</button>
+✕|MULTIPLICATION X|weather.html|ointer; font-family:inherit;">✕ Back to GOES</button>
+🧲|MAGNET|weather.html|ion-title"><span class="icon">🧲</span> Geomagnetic Activity —
+🌊|WATER WAVE|weather.html|ion-title"><span class="icon">🌊</span> Solar Wind — DSCOVR Re
+⚡|HIGH VOLTAGE SIGN|weather.html|ion-title"><span class="icon">⚡</span> Solar X-Ray Flux — GOE
+☢|RADIOACTIVE SIGN|weather.html|ion-title"><span class="icon">☢️</span> Energetic Proton Flux
+️|VARIATION SELECTOR-16|weather.html|on-title"><span class="icon">☢️</span> Energetic Proton Flux
+·|MIDDLE DOT|weather.html|);" id="protonUnit">pfu (p/cm²·s·sr)</div>
+·|MIDDLE DOT|weather.html|" id="protonUnit">pfu (p/cm²·s·sr)</div>
+📊|BAR CHART|weather.html|ion-title"><span class="icon">📊</span> Kp Index Forecast — 3-
+🚨|POLICE CARS REVOLVING LIGHT|weather.html|ion-title"><span class="icon">🚨</span> Active Alerts & Warnin
+🌌|MILKY WAY|weather.html|ion-title"><span class="icon">🌌</span> Aurora Forecast — OVAT
+⚡|HIGH VOLTAGE SIGN|weather.html|<span>⚡ BLITZORTUNG REAL-TIME LIGHTNI
+●|BLACK CIRCLE|weather.html|in-left:8px; color: #ffe066;">●</span> <span style="font-size
+●|BLACK CIRCLE|weather.html|in-left:4px; color: #ff6644;">●</span> <span style="font-size
+▶|BLACK RIGHT-POINTING TRIANGLE|weather.html|g = false; btn.textContent = '▶'; btn.classList.remove('activ
+⏸|DOUBLE VERTICAL BAR|weather.html|ng = true; btn.textContent = '⏸'; btn.classList.add('active')
+✓|CHECK MARK|weather.html|TML = '<div class="no-alerts">✓ No active space weather alert
+🕐|CLOCK FACE ONE OCLOCK|weather.html|ById('wxIcon').textContent = '🕐';
+❓|BLACK QUESTION MARK ORNAMENT|weather.html|on').textContent = c.icon || '❓';
+✓|CHECK MARK|weather.html|constraint.status === 'go' ? '✓' : '✗';
+✗|BALLOT X|weather.html|aint.status === 'go' ? '✓' : '✗';
+🚀|ROCKET|weather.html|recast-day-name">${isEvent ? '🚀 ' + day.day_name : day.day_na
+❓|BLACK QUESTION MARK ORNAMENT|weather.html|cast-day-icon">${day.icon || '❓'}</div>
+💨|DASH SYMBOL|weather.html|div class="forecast-day-wind">💨 ${day.wind_kmh != null ? Math
+←|LEFTWARDS ARROW|index.html|<span class="key-icon">←</span>
+→|RIGHTWARDS ARROW|index.html|<span class="key-icon">→</span>
+⚙|GEAR|index.html|tn" title="Control Panel (0)">⚙</button>
+✓|CHECK MARK|mission-control.html|class="ok" id="stalenessIcon">✓</span> Updated <span id="stal
+·|MIDDLE DOT|mission-control.html|" id="countdownLabel">T-Minus · Countdown to Launch</div>
+⚡|HIGH VOLTAGE SIGN|mission-control.html|<span class="info-box-icon">⚡</span>
+🔄|ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS|mission-control.html|<span class="info-box-icon">🔄</span>
+☀|BLACK SUN WITH RAYS|mission-control.html|fo-box-icon" id="weatherIcon">☀️</span>
+️|VARIATION SELECTOR-16|mission-control.html|o-box-icon" id="weatherIcon">☀️</span>
+🚀|ROCKET|mission-control.html|v class="phase-icon upcoming">🚀</div>
+⛶|SQUARE FOUR CORNERS|mission-control.html|onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+⚠|WARNING SIGN|mission-control.html|icon.textContent = '⚠';
+✓|CHECK MARK|mission-control.html|icon.textContent = '✓';
+·|MIDDLE DOT|mission-control.html|label.textContent = 'T-Plus · Mission Elapsed Time';
+·|MIDDLE DOT|mission-control.html|label.textContent = 'T-Minus · Countdown to Launch';
+☀|BLACK SUN WITH RAYS|mission-control.html|Content = conditions.icon || '☀️';
+️|VARIATION SELECTOR-16|mission-control.html|ontent = conditions.icon || '☀️';
+·|MIDDLE DOT|mission-control.html|tions.description || 'Clear'} · ${temp}`;
+✓|CHECK MARK|mission-control.html|const icons = { completed: '✓', active: '→', pending: '○',
+→|RIGHTWARDS ARROW|mission-control.html|= { completed: '✓', active: '→', pending: '○', upcoming: '○'
+○|WHITE CIRCLE|mission-control.html|: '✓', active: '→', pending: '○', upcoming: '○' };
+○|WHITE CIRCLE|mission-control.html|'→', pending: '○', upcoming: '○' };
+🚀|ROCKET|mission-control.html|const icon = isLaunch ? '🚀' : (icons[status] || '○');
+○|WHITE CIRCLE|mission-control.html|ch ? '🚀' : (icons[status] || '○');
