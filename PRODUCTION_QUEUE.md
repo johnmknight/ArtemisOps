@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** February 8, 2026
+**Last Updated:** February 9, 2026
 
 ---
 
@@ -29,6 +29,13 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
 
+### Recently Completed (Feb 9)
+- [x] Weather tab: switched to live ops endpoint (`/api/weather/operations/`) — no longer gated on 7-day launch window
+- [x] Weather tab: updated GOES satellite imagery from GOES-16/17 to GOES-19/18 (current operational satellites)
+- [x] Weather tab: fixed satellite image loading (removed crossorigin attribute breaking redirected URLs)
+- [x] Weather tab: fixed EVENT_DATE_KEY mapping to match operations response format
+- [x] All weather sub-tabs verified operational: Radar, Satellite (5 bands + SLIDER), Space Wx, Lightning
+
 ### Recently Completed (Feb 8)
 - [x] ISS map icon updated to icon gallery style
 - [x] Mission tab message types fixed (missionData/weatherData)
@@ -46,9 +53,9 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Mission Control: mission status info box
 - [x] Weather tab: RainViewer + NOAA MRMS radar overlays
 - [x] Weather tab: SWPC Space Weather proxy (Kp, solar wind, X-ray, proton, alerts, forecast)
-- [x] Weather tab: GOES-16 satellite imagery (5 bands + ABI sectors)
+- [x] Weather tab: GOES-19 satellite imagery (5 bands + ABI sectors)
 - [x] Weather tab: Real Blitzortung WebSocket lightning + NWS fallback
-- [x] Weather tab: GOES-16 GLM flash extent density overlay
+- [x] Weather tab: GOES-19 GLM flash extent density overlay
 - [x] Weather tab: RAMMB/CIRA SLIDER interactive satellite viewer
 - [x] Weather tab: Aurora OVATION forecast image in Space Weather view
 - [x] Weather tab: Additional SWPC endpoints (solar-regions, enlil, kp-1min)
@@ -369,4 +376,4 @@ server/
 - Mission Control mode is next priority
 - Consider Raspberry Pi deployment for kiosk displays
 
-**Last Updated:** February 8, 2026
+**Last Updated:** February 9, 2026
