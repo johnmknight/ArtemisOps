@@ -388,13 +388,13 @@ async def get_mission_weather(
 
 # GOES satellite imagery sectors by site
 GOES_SECTORS = {
-    "kennedy space center": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
-    "ksc": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
-    "cape canaveral": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
-    "atlantic": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/taw/GEOCOLOR/600x600.jpg", "label": "GOES-East Tropical Atlantic"},
-    "pacific": {"url": "https://cdn.star.nesdis.noaa.gov/GOES17/ABI/SECTOR/np/GEOCOLOR/600x600.jpg", "label": "GOES-West N Pacific"},
-    "vandenberg": {"url": "https://cdn.star.nesdis.noaa.gov/GOES17/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW"},
-    "kourou": {"url": "https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/car/GEOCOLOR/600x600.jpg", "label": "GOES-East Caribbean"},
+    "kennedy space center": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "ksc": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "cape canaveral": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
+    "atlantic": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/taw/GEOCOLOR/600x600.jpg", "label": "GOES-East Tropical Atlantic"},
+    "pacific": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/np/GEOCOLOR/600x600.jpg", "label": "GOES-West N Pacific"},
+    "vandenberg": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW"},
+    "kourou": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/car/GEOCOLOR/600x600.jpg", "label": "GOES-East Caribbean"},
 }
 
 DEFAULT_RECOVERY_SITE = {"lat": 30.0, "lon": -75.0, "name": "Atlantic Recovery Zone"}

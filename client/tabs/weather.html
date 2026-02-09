@@ -365,9 +365,9 @@
             </div>
             <div class="sat-image-container" id="satContainer">
               <div class="sat-loading" id="satLoading">Loading GOES-16 imagery...</div>
-              <img id="satImage" src="" alt="GOES Satellite" style="display:none;" crossorigin="anonymous">
+              <img id="satImage" src="" alt="GOES Satellite" style="display:none;">
               <div class="sat-image-overlay">
-                <span id="satBandLabel">GEOCOLOR — GOES-16 SE US SECTOR</span>
+                <span id="satBandLabel">GEOCOLOR — GOES-19 SE US SECTOR</span>
                 <span id="satTimestamp">--:-- UTC</span>
               </div>
             </div>
@@ -590,8 +590,8 @@
       loaded: false,
       currentBand: 'GEOCOLOR',
       refreshTimer: null,
-      // GOES-16 (East) SE US sector — covers KSC/Cape Canaveral
-      BASE_URL: 'https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/se',
+      // GOES-19 (East) SE US sector — covers KSC/Cape Canaveral (replaced GOES-16 as primary East sat)
+      BASE_URL: 'https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se',
       BANDS: {
         'GEOCOLOR': { label: 'GeoColor (True Color)', path: 'GEOCOLOR' },
         '13':       { label: 'Clean IR Longwave (10.3µm)', path: '13' },
@@ -640,7 +640,7 @@
 
         loading.style.display = 'flex';
         img.style.display = 'none';
-        labelEl.textContent = `${band.label} — GOES-16 SE US`;
+        labelEl.textContent = `${band.label} — GOES-19 SE US`;
 
         const url = `${this.BASE_URL}/${band.path}/1200x1200.jpg?t=${Date.now()}`;
         img.onload = () => {
@@ -1090,13 +1090,13 @@
         try {
           if (!this.glmLayer) {
             // GOES-16 GLM flash extent density overlay — SE US sector
-            const glmUrl = `https://cdn.star.nesdis.noaa.gov/GOES16/GLM/SECTOR/se/EXTENT3/GOES16-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
+            const glmUrl = `https://cdn.star.nesdis.noaa.gov/GOES19/GLM/SECTOR/se/EXTENT3/GOES19-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
             this.glmLayer = L.imageOverlay(glmUrl, [[24.0, -87.5], [36.5, -74.5]], {
               opacity: 0.6, zIndex: 10, interactive: false
             }).addTo(this.map);
           } else {
             // Refresh the overlay image
-            const newUrl = `https://cdn.star.nesdis.noaa.gov/GOES16/GLM/SECTOR/se/EXTENT3/GOES16-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
+            const newUrl = `https://cdn.star.nesdis.noaa.gov/GOES19/GLM/SECTOR/se/EXTENT3/GOES19-SE-GLM-EXTENT3-600x600.gif?t=${Date.now()}`;
             this.glmLayer.setUrl(newUrl);
           }
         } catch (e) {
