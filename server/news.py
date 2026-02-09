@@ -39,6 +39,13 @@ FEEDS = [
         "priority": 1,
     },
     {
+        "id": "nasa-commercial-crew",
+        "name": "NASA Commercial Crew Blog",
+        "url": "https://blogs.nasa.gov/commercialcrew/feed/",
+        "source_label": "NASA Crew",
+        "priority": 1,
+    },
+    {
         "id": "nasa-iss",
         "name": "NASA ISS Blog",
         "url": "https://blogs.nasa.gov/spacestation/feed/",

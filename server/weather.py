@@ -46,6 +46,10 @@ LAUNCH_SITES = {
     "atlantic ocean": {"lat": 30.0, "lon": -75.0, "name": "Atlantic Recovery Zone"},
     "pacific ocean": {"lat": 25.0, "lon": -120.0, "name": "Pacific Recovery Zone"},
     "gulf of mexico": {"lat": 27.0, "lon": -90.0, "name": "Gulf of Mexico"},
+    # SpaceX Crew Dragon recovery zones
+    "off florida coast": {"lat": 30.0, "lon": -80.5, "name": "Off Florida Coast"},
+    "pacific ocean, off san diego": {"lat": 32.5, "lon": -117.5, "name": "Pacific, Off San Diego"},
+    "pacific ocean, off california": {"lat": 32.5, "lon": -117.5, "name": "Pacific, Off California"},
 }
 
 # Weather condition codes from Open-Meteo (WMO codes)
@@ -393,6 +397,9 @@ GOES_SECTORS = {
     "cape canaveral": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US"},
     "atlantic": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/taw/GEOCOLOR/600x600.jpg", "label": "GOES-East Tropical Atlantic"},
     "pacific": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/np/GEOCOLOR/600x600.jpg", "label": "GOES-West N Pacific"},
+    "florida": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/se/GEOCOLOR/600x600.jpg", "label": "GOES-East SE US / Florida"},
+    "san diego": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW / San Diego"},
+    "california": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW / California"},
     "vandenberg": {"url": "https://cdn.star.nesdis.noaa.gov/GOES18/ABI/SECTOR/psw/GEOCOLOR/600x600.jpg", "label": "GOES-West PSW"},
     "kourou": {"url": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/car/GEOCOLOR/600x600.jpg", "label": "GOES-East Caribbean"},
 }

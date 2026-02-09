@@ -1145,21 +1145,45 @@
       data: null,
       SITE_KEY: 'launch_site',
       EVENT_DATE_KEY: 'launch_date',
+      missionId: null,
       refreshInterval: null,
       WX_ICON_MAP: { '☀️': 'sun', '☀': 'sun', '☁️': 'cloud', '☁': 'cloud', '🌧️': 'cloud-rain', '🌧': 'cloud-rain', '🌤️': 'cloud-sun', '🌤': 'cloud-sun', '🌙': 'moon', '❄️': 'snowflake', '❄': 'snowflake', '💨': 'wind', '🌊': 'wave-sine', '🕐': 'clock', '❓': 'question-mark' },
       wxIcon(emoji) { return `<i class="ti ti-${this.WX_ICON_MAP[emoji] || 'question-mark'}"></i>`; },
 
       async init() {
-        await this.fetchData();
+        // Listen for mission data from parent shell
+        window.addEventListener('message', (e) => {
+          if (e.data.type === 'setMissionData' && e.data.mission?.id) {
+            const newId = e.data.mission.id;
+            if (newId !== this.missionId) {
+              this.missionId = newId;
+              this.fetchData();
+            }
+          }
+        });
+        // Notify parent we're ready
+        window.parent.postMessage({ type: 'tabReady', tab: 'weather' }, '*');
+        // Fallback: if no mission data arrives in 2s, fetch default
+        setTimeout(async () => {
+          if (!this.missionId) {
+            try {
+              const res = await fetch('/api/mission');
+              if (res.ok) { const d = await res.json(); this.missionId = d.id || 'artemis-ii'; }
+              else { this.missionId = 'artemis-ii'; }
+            } catch { this.missionId = 'artemis-ii'; }
+            this.fetchData();
+          }
+        }, 2000);
         this.refreshInterval = setInterval(() => this.fetchData(), 5 * 60 * 1000);
         // Init space weather (independent of backend weather)
         SpaceWx.init();
       },
 
       async fetchData() {
+        if (!this.missionId) return;
         try {
           // Use operations endpoint — always returns live weather regardless of launch date
-          const resp = await fetch(`${window.location.origin}/api/weather/operations/artemis-ii`);
+          const resp = await fetch(`${window.location.origin}/api/weather/operations/${this.missionId}`);
           if (resp.ok) {
             this.data = await resp.json();
             this.render();
@@ -1174,7 +1198,7 @@
         const d = this.data;
         const site = d[this.SITE_KEY];
 
-        document.getElementById('wxMission').textContent = d.mission_name || 'Artemis II';
+        document.getElementById('wxMission').textContent = d.mission_name || 'Mission';
         const now = new Date();
         document.getElementById('wxUpdated').textContent =
           `Updated ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} UTC`;

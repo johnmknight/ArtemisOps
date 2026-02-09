@@ -269,7 +269,10 @@ async def upsert_mission(mission: dict) -> str:
                     name = ?, slug = ?, launch_date = ?, landing_date = ?, status = ?,
                     status_description = ?, site = ?, rocket = ?, spacecraft = ?,
                     mission_type = ?, description = ?, image_url = ?, patch_url = ?,
-                    agency_logo_url = ?, api_id = ?, api_source = ?, agencies = ?, 
+                    agency_logo_url = ?, api_id = ?, api_source = ?, agencies = ?,
+                    recovery_site = ?, recovery_lat = ?, recovery_lon = ?,
+                    launch_window_type = ?, mission_profile = ?,
+                    docking_date = ?, undocking_date = ?,
                     is_active = ?, updated_at = ?
                 WHERE id = ?
             """, (
@@ -280,7 +283,11 @@ async def upsert_mission(mission: dict) -> str:
                 mission.get('mission_type'), mission.get('description'),
                 mission.get('image_url'), mission.get('patch_url'),
                 mission.get('agency_logo_url'), mission.get('api_id'), 
-                mission.get('api_source'), mission.get('agencies'), 
+                mission.get('api_source'), mission.get('agencies'),
+                mission.get('recovery_site'), mission.get('recovery_lat'),
+                mission.get('recovery_lon'), mission.get('launch_window_type'),
+                mission.get('mission_profile'), mission.get('docking_date'),
+                mission.get('undocking_date'),
                 mission.get('is_active', 1), now, mission['id']
             ))
         else:
@@ -288,9 +295,11 @@ async def upsert_mission(mission: dict) -> str:
                 INSERT INTO missions (
                     id, name, slug, launch_date, landing_date, status, status_description,
                     site, rocket, spacecraft, mission_type, description,
-                    image_url, patch_url, agency_logo_url, api_id, api_source, agencies, 
+                    image_url, patch_url, agency_logo_url, api_id, api_source, agencies,
+                    recovery_site, recovery_lat, recovery_lon,
+                    launch_window_type, mission_profile, docking_date, undocking_date,
                     is_active, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 mission['id'], mission.get('name'), mission.get('slug'),
                 mission.get('launch_date'), mission.get('landing_date'),
@@ -300,6 +309,10 @@ async def upsert_mission(mission: dict) -> str:
                 mission.get('image_url'), mission.get('patch_url'),
                 mission.get('agency_logo_url'), mission.get('api_id'),
                 mission.get('api_source'), mission.get('agencies'),
+                mission.get('recovery_site'), mission.get('recovery_lat'),
+                mission.get('recovery_lon'), mission.get('launch_window_type'),
+                mission.get('mission_profile'), mission.get('docking_date'),
+                mission.get('undocking_date'),
                 mission.get('is_active', 1), now, now
             ))
         

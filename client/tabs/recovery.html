@@ -668,7 +668,7 @@
     };
     const WeatherTab = {
       data: null,
-      missionId: 'artemis-ii',
+      missionId: null,
       refreshInterval: null,
       API_BASE: window.location.origin,
       SITE_KEY: 'recovery_site',
@@ -680,8 +680,19 @@
       init() {
         window.addEventListener('message', (e) => this.handleMessage(e));
         window.parent.postMessage({ type: 'tabReady', tab: this.TAB_NAME }, '*');
-        this.refreshInterval = setInterval(() => this.loadData(), 5 * 60 * 1000);
-        setTimeout(() => { if (!this.data) this.loadData(); }, 2000);
+        this.refreshInterval = setInterval(() => { if (this.missionId) this.loadData(); }, 5 * 60 * 1000);
+        setTimeout(async () => {
+          if (!this.data) {
+            if (!this.missionId) {
+              try {
+                const res = await fetch('/api/mission');
+                if (res.ok) { const d = await res.json(); this.missionId = d.id || 'artemis-ii'; }
+                else { this.missionId = 'artemis-ii'; }
+              } catch { this.missionId = 'artemis-ii'; }
+            }
+            this.loadData();
+          }
+        }, 2000);
       },
 
       handleMessage(event) {

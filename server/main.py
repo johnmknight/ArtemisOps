@@ -17,6 +17,7 @@ from database import (
     get_last_sync
 )
 from fetcher import sync_all_missions, ensure_default_missions
+from seed_missions import seed_crew_dragon_missions
 from weather import get_mission_weather, is_within_forecast_window, is_same_day, get_hours_until, fetch_current_and_forecast, build_site_weather, find_site_coordinates, DEFAULT_RECOVERY_SITE, _get_client
 from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_combined, get_location_name, get_iss_news
 from crew_enrichment import get_cache_status as get_enrichment_status
@@ -29,6 +30,25 @@ BASE_DIR = Path(__file__).parent
 CLIENT_DIR = BASE_DIR.parent / "client"
 CACHE_DIR = BASE_DIR / "cache"
 CACHE_DIR.mkdir(exist_ok=True)
+
+
+async def get_default_mission_id() -> str:
+    """
+    Get the best default mission ID to show.
+    Priority: first upcoming/active mission by launch date, then fall back to artemis-ii.
+    """
+    missions = await get_all_missions()
+    if missions:
+        # Prefer missions with status "Go" or "In Flight", sorted by soonest launch
+        active = [m for m in missions if (m.get("status") or "").lower() in ("go", "in flight", "tbd", "tbc")]
+        if active:
+            # Sort by launch date (soonest first)
+            active.sort(key=lambda m: m.get("launch_date") or "9999")
+            return active[0]["id"]
+        # Fall back to first mission in list
+        return missions[0]["id"]
+    return "artemis-ii"
+
 
 # In-memory state
 app_state = {
@@ -119,6 +139,9 @@ async def lifespan(app: FastAPI):
     
     # Ensure we have default data
     await ensure_default_missions()
+    
+    # Seed Crew Dragon missions if not present
+    await seed_crew_dragon_missions()
     
     # Initial sync (fetch upcoming missions)
     await sync_all_missions()
@@ -375,14 +398,16 @@ async def get_launch_day_weather(mission_id: str):
 # Legacy endpoint for backward compatibility
 @app.get("/api/mission")
 async def get_default_mission():
-    """Get default mission (Artemis II) - legacy endpoint"""
-    return await get_mission_detail("artemis-ii")
+    """Get default mission - legacy endpoint"""
+    default_id = await get_default_mission_id()
+    return await get_mission_detail(default_id)
 
 
 @app.get("/api/crew")
 async def get_default_crew():
     """Get crew for default mission - legacy endpoint"""
-    mission = await get_full_mission("artemis-ii")
+    default_id = await get_default_mission_id()
+    mission = await get_full_mission(default_id)
     if not mission:
         raise HTTPException(status_code=404, detail="Mission not found")
     
@@ -454,6 +479,18 @@ async def get_weather_operations(mission_id: str):
 
     # Default recovery site
     recovery_coords = DEFAULT_RECOVERY_SITE
+    
+    # Use mission-specific recovery coordinates if available
+    if mission.get("recovery_lat") and mission.get("recovery_lon"):
+        recovery_coords = {
+            "lat": mission["recovery_lat"],
+            "lon": mission["recovery_lon"],
+            "name": mission.get("recovery_site", "Recovery Zone"),
+        }
+    elif mission.get("recovery_site"):
+        site_match = find_site_coordinates(mission["recovery_site"])
+        if site_match:
+            recovery_coords = site_match
 
     launch_weather = None
     recovery_weather = None
@@ -753,7 +790,7 @@ async def list_screens():
             "page": data["page"],
             "page_name": PAGES.get(data["page"], "unknown"),
             "connected_at": data["connected_at"].isoformat() if data.get("connected_at") else None,
-            "mission": data.get("mission", "artemis-ii"),
+            "mission": data.get("mission", "unknown"),
             "online": True,
             "configured": cfg is not None,
             "config_page": cfg["page"] if cfg else None,
@@ -769,7 +806,7 @@ async def list_screens():
                 "page": cfg["page"],
                 "page_name": PAGES.get(cfg["page"], "unknown"),
                 "connected_at": None,
-                "mission": "artemis-ii",
+                "mission": cfg.get("mission", "unknown"),
                 "online": False,
                 "configured": True,
                 "config_page": cfg["page"],
@@ -955,7 +992,7 @@ async def get_screen_status(screen_id: str):
         "page": screen["page"],
         "page_name": PAGES.get(screen["page"], "unknown"),
         "connected_at": screen["connected_at"].isoformat() if screen.get("connected_at") else None,
-        "mission": screen.get("mission", "artemis-ii")
+        "mission": screen.get("mission", "unknown")
     }
 
 
@@ -982,12 +1019,15 @@ async def screen_websocket(websocket: WebSocket, screen_id: str):
     config = app_state["screen_configs"].get(screen_id)
     initial_page = config["page"] if config else 1  # Default to mission
     
+    # Get current default mission for initial state
+    default_id = await get_default_mission_id()
+    
     # Register screen
     app_state["screens"][screen_id] = {
         "ws": websocket,
         "page": initial_page,
         "connected_at": datetime.now(timezone.utc),
-        "mission": "artemis-ii"
+        "mission": default_id
     }
     print(f"Screen '{screen_id}' connected (config: {'yes, page ' + str(initial_page) if config else 'none'}). Total screens: {len(app_state['screens'])}")
     
@@ -1014,11 +1054,11 @@ async def screen_websocket(websocket: WebSocket, screen_id: str):
             "data": missions
         })
         
-        mission = await get_full_mission("artemis-ii")
+        mission = await get_full_mission(default_id)
         if mission:
             await websocket.send_json({
                 "type": "mission_update",
-                "data": await get_mission_detail("artemis-ii")
+                "data": await get_mission_detail(default_id)
             })
         
         # Keep connection alive, listen for messages from screen
@@ -1091,11 +1131,12 @@ async def websocket_endpoint(websocket: WebSocket):
         })
         
         # Send default mission data
-        mission = await get_full_mission("artemis-ii")
+        default_id = await get_default_mission_id()
+        mission = await get_full_mission(default_id)
         if mission:
             await websocket.send_json({
                 "type": "mission_update",
-                "data": await get_mission_detail("artemis-ii")
+                "data": await get_mission_detail(default_id)
             })
         
         # Keep connection alive, listen for messages

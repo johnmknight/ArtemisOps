@@ -270,7 +270,7 @@
     
     const AppShell = {
       currentTab: 'mission',
-      currentMissionId: 'artemis-ii',
+      currentMissionId: null,
       missions: [],
       missionData: null,
       weatherData: null,
@@ -299,8 +299,17 @@
         // Connect WebSocket
         this.connectWebSocket();
         
-        // Load missions list
+        // Load missions list and determine default
         await this.loadMissions();
+        
+        // Determine default mission: first "Go"/"In Flight" by soonest launch, else first in list
+        if (!this.currentMissionId && this.missions.length > 0) {
+          const active = this.missions
+            .filter(m => ['go', 'in flight', 'tbd', 'tbc'].includes((m.status || '').toLowerCase()))
+            .sort((a, b) => (a.launch_date || '9999').localeCompare(b.launch_date || '9999'));
+          this.currentMissionId = active.length > 0 ? active[0].id : this.missions[0].id;
+        }
+        if (!this.currentMissionId) this.currentMissionId = 'artemis-ii'; // ultimate fallback
         
         // Load initial mission data
         await this.loadMissionData(this.currentMissionId);
@@ -558,6 +567,15 @@
             break;
             
           case 'info':
+            if (this.missionData) {
+              frame.contentWindow.postMessage({
+                type: 'setMissionData',
+                mission: this.missionData
+              }, '*');
+            }
+            break;
+
+          case 'tracking':
             if (this.missionData) {
               frame.contentWindow.postMessage({
                 type: 'setMissionData',

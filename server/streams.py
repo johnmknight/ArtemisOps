@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 CHANNELS = [
     {"key": "nasa",     "label": "NASA",             "url": "https://www.youtube.com/@NASA/streams"},
+    {"key": "spacex",   "label": "SpaceX",           "url": "https://www.youtube.com/@SpaceX/streams"},
     {"key": "sfnow",    "label": "Spaceflight Now",  "url": "https://www.youtube.com/@SpaceflightNowVideo/streams"},
 ]
 

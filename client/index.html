@@ -120,7 +120,7 @@
       screenId: null,
       currentTab: 'mission',
       currentTabIndex: 1,
-      currentMission: 'artemis-ii',
+      currentMission: null,
       
       // Data
       missionData: null,
@@ -499,6 +499,16 @@
        */
       async loadMissionData() {
         try {
+          // Resolve default mission if not set
+          if (!this.currentMission) {
+            const res = await fetch('/api/mission');
+            if (res.ok) {
+              const data = await res.json();
+              this.currentMission = data.id || 'artemis-ii';
+            } else {
+              this.currentMission = 'artemis-ii';
+            }
+          }
           const response = await fetch(`/api/missions/${this.currentMission}`);
           this.missionData = await response.json();
           document.title = `ArtemisOps - ${this.missionData.name}`;

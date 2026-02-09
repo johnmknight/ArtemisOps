@@ -84,17 +84,38 @@
   <script>
     const TrackingTab = {
       currentMode: 'iss',
+      currentMissionId: null,
       
       init() {
         // Listen for messages from parent
         window.addEventListener('message', (event) => {
           if (event.data.type === 'setTrackingMode') {
             this.switchMode(event.data.mode);
+          } else if (event.data.type === 'setMissionData' && event.data.mission) {
+            this.handleMissionData(event.data.mission);
           }
         });
         
         // Notify parent that tab is ready
         window.parent.postMessage({ type: 'tabReady', tab: 'tracking' }, '*');
+      },
+      
+      handleMissionData(mission) {
+        if (!mission?.id || mission.id === this.currentMissionId) return;
+        this.currentMissionId = mission.id;
+        
+        const profile = mission.mission_profile || '';
+        const id = mission.id || '';
+        
+        // Route to appropriate view based on mission profile
+        if (profile === 'leo-iss' || id.startsWith('crew-') || id.includes('starliner')) {
+          this.switchMode('iss');
+        } else if (id === 'artemis-ii' || id === 'artemis-i') {
+          this.switchMode('artemis-ii');
+        } else if (id.startsWith('artemis-')) {
+          this.switchMode('artemis-iii');
+        }
+        // else keep current view
       },
       
       switchMode(mode) {

@@ -31,7 +31,36 @@ SPACE_DEVS_BASE = "https://ll.thespacedevs.com/2.2.0"
 LOCAL_PATCHES = {
     "artemis-ii": "/assets/patches/artemis-ii-patch.png",
     "artemis-iii": "/assets/patches/artemis-iii-patch.png",
+    # SpaceX Crew Dragon missions
+    "crew-10": "/assets/patches/crew-10-patch.png",
+    "crew-11": "/assets/patches/crew-11-patch.png",
     # Add more as they become available
+}
+
+# ============================================================================
+# MISSION RECOVERY SITES
+# Per-mission recovery coordinates (overrides auto-detection)
+# ============================================================================
+
+MISSION_RECOVERY_SITES = {
+    "artemis-ii": {"site": "Atlantic Ocean", "lat": 30.0, "lon": -75.0},
+    "artemis-iii": {"site": "Pacific Ocean", "lat": 24.0, "lon": -168.0},
+    "crew-10": {"site": "Pacific Ocean, off San Diego", "lat": 32.5, "lon": -117.5},
+    "crew-11": {"site": "Pacific Ocean, off California", "lat": 32.5, "lon": -117.5},
+}
+
+# ============================================================================
+# CURATED MISSIONS REGISTRY
+# Missions with hand-curated crew/milestone data (overrides API)
+# Keys: mission slug → dict with optional "crew" and "milestones" lists
+# ============================================================================
+
+CURATED_MISSIONS = {
+    "artemis-ii": {
+        "crew": None,       # Set below (ARTEMIS_II_CREW_FALLBACK)
+        "milestones": None,  # Set below (ARTEMIS_II_MILESTONES_FALLBACK)
+    },
+    # Crew Dragon missions will be populated by seed_missions.py
 }
 
 # ============================================================================
@@ -518,6 +547,52 @@ async def parse_launch_to_mission(launch: dict, client: httpx.AsyncClient) -> Op
         else:
             print(f"Using cached logo for: {name}")
         
+        # Determine mission profile and launch window type from programs/orbit
+        mission_profile = None
+        launch_window_type = None
+        orbit = mission_info.get("orbit", {}) if mission_info else {}
+        orbit_name = (orbit.get("name") or "").lower() if orbit else ""
+        
+        prog_names_lower = " ".join(program_names).lower()
+        name_lower = name.lower()
+        
+        if "commercial crew" in prog_names_lower or "crew dragon" in name_lower or "crew-" in name_lower:
+            mission_profile = "leo-iss"
+            launch_window_type = "instantaneous"
+        elif "starliner" in name_lower:
+            mission_profile = "leo-iss"
+            launch_window_type = "instantaneous"
+        elif "artemis" in name_lower:
+            mission_profile = "lunar"
+            launch_window_type = "multi-hour"
+        elif "leo" in orbit_name or "low earth" in orbit_name:
+            mission_profile = "leo-iss" if "iss" in description.lower() else "leo-free"
+            launch_window_type = "instantaneous"
+        elif "lunar" in orbit_name or "moon" in orbit_name:
+            mission_profile = "lunar"
+            launch_window_type = "multi-hour"
+        
+        # Determine recovery site from mission profile
+        recovery_site = None
+        recovery_lat = None
+        recovery_lon = None
+        
+        if mission_id in MISSION_RECOVERY_SITES:
+            rs = MISSION_RECOVERY_SITES[mission_id]
+            recovery_site = rs["site"]
+            recovery_lat = rs["lat"]
+            recovery_lon = rs["lon"]
+        elif mission_profile == "leo-iss" and ("crew dragon" in name_lower or "crew-" in name_lower):
+            # Default SpaceX Crew Dragon recovery: off Florida coast
+            recovery_site = "Off Florida Coast"
+            recovery_lat = 30.0
+            recovery_lon = -80.0
+        elif "artemis" in name_lower:
+            # Default Artemis recovery: Pacific Ocean
+            recovery_site = "Pacific Ocean"
+            recovery_lat = 30.0
+            recovery_lon = -75.0
+        
         return {
             "id": mission_id,
             "name": name,
@@ -537,6 +612,11 @@ async def parse_launch_to_mission(launch: dict, client: httpx.AsyncClient) -> Op
             "api_source": "spacedevs",
             "is_active": 1,
             "agencies": agencies_str,
+            "recovery_site": recovery_site,
+            "recovery_lat": recovery_lat,
+            "recovery_lon": recovery_lon,
+            "launch_window_type": launch_window_type,
+            "mission_profile": mission_profile,
         }
         
     except Exception as e:
@@ -639,6 +719,10 @@ ARTEMIS_II_MILESTONES_FALLBACK = [
     {"date_label": "T-00:00", "title": "LIFTOFF", "description": "RS-25 engines and SRBs ignite", "status": "pending"},
 ]
 
+# Wire curated data into registry
+CURATED_MISSIONS["artemis-ii"]["crew"] = ARTEMIS_II_CREW_FALLBACK
+CURATED_MISSIONS["artemis-ii"]["milestones"] = ARTEMIS_II_MILESTONES_FALLBACK
+
 
 # ============================================================================
 # SYNC FUNCTIONS
@@ -665,18 +749,21 @@ async def sync_all_missions() -> dict:
                 await upsert_mission(mission)
                 result["missions_updated"] += 1
                 
-                if "artemis-ii" in mission["id"]:
-                    # Always use curated fallback for Artemis II
-                    # (API bios are inconsistent lengths)
-                    crew = ARTEMIS_II_CREW_FALLBACK
-                    await upsert_crew(mission["id"], crew)
+                mission_id = mission["id"]
+                
+                # Check if this mission has curated data
+                curated = CURATED_MISSIONS.get(mission_id)
+                
+                if curated and curated.get("crew"):
+                    # Use curated crew (overrides API)
+                    await upsert_crew(mission_id, curated["crew"])
                 elif mission.get("api_id"):
                     crew = await fetch_crew_for_mission(mission["api_id"])
                     if crew:
-                        await upsert_crew(mission["id"], crew)
+                        await upsert_crew(mission_id, crew)
                 
-                if "artemis-ii" in mission["id"]:
-                    await upsert_milestones(mission["id"], ARTEMIS_II_MILESTONES_FALLBACK)
+                if curated and curated.get("milestones"):
+                    await upsert_milestones(mission_id, curated["milestones"])
                 
             except Exception as e:
                 error_msg = f"Error syncing {mission.get('name')}: {e}"
@@ -702,6 +789,7 @@ async def ensure_default_missions():
     if not any("artemis-ii" in m["id"] for m in missions):
         print("No Artemis II found, creating default...")
         
+        rs = MISSION_RECOVERY_SITES.get("artemis-ii", {})
         await upsert_mission({
             "id": "artemis-ii",
             "name": "Artemis II",
@@ -720,6 +808,11 @@ async def ensure_default_missions():
             "api_source": "fallback",
             "is_active": 1,
             "agencies": "NASA, CSA",
+            "recovery_site": rs.get("site", "Atlantic Ocean"),
+            "recovery_lat": rs.get("lat", 30.0),
+            "recovery_lon": rs.get("lon", -75.0),
+            "launch_window_type": "multi-hour",
+            "mission_profile": "lunar",
         })
         
         await upsert_crew("artemis-ii", ARTEMIS_II_CREW_FALLBACK)

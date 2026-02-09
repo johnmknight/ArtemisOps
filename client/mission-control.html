@@ -817,7 +817,17 @@
     };
 
     const urlParams = new URLSearchParams(window.location.search);
-    const MISSION_ID = urlParams.get('mission') || 'artemis-ii';
+    let MISSION_ID = urlParams.get('mission') || null;
+
+    // Resolve default mission from API if not specified in URL
+    async function resolveDefaultMission() {
+      if (MISSION_ID) return;
+      try {
+        const res = await fetch('/api/mission');
+        if (res.ok) { const d = await res.json(); MISSION_ID = d.id || 'artemis-ii'; }
+        else { MISSION_ID = 'artemis-ii'; }
+      } catch { MISSION_ID = 'artemis-ii'; }
+    }
 
     let appState = {
       mission: null,
@@ -1180,6 +1190,7 @@
     // ===== INITIALIZATION =====
     async function init() {
       console.log('Mission Control v2 initializing...');
+      await resolveDefaultMission();
       console.log('Mission ID:', MISSION_ID);
 
       // Initial data fetch
