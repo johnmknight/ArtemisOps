@@ -22,6 +22,7 @@ from iss import get_iss_position, get_iss_crew, get_nasa_telemetry, get_iss_comb
 from crew_enrichment import get_cache_status as get_enrichment_status
 from trajectories import get_trajectory, get_available_trajectories
 from news import get_news
+from streams import fetch_nasa_streams, get_all_sources
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -687,6 +688,34 @@ async def get_news_feed(limit: int = 20, source: str = None):
         return await get_news(limit=limit, source=source)
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"News unavailable: {str(e)}")
+
+
+# === NASA YouTube Streams ===
+
+@app.get("/api/streams")
+async def get_streams(force: bool = False):
+    """
+    Live and upcoming NASA YouTube streams + always-on fallback sources.
+
+    Scrapes youtube.com/@NASA/streams for current live broadcasts,
+    upcoming scheduled streams, and recent past streams.
+
+    Response includes:
+        - live: Currently broadcasting streams
+        - upcoming: Scheduled future streams
+        - recent: Past streams (last 10)
+        - recommended: Best auto-play pick (first live > first upcoming > first recent)
+        - fallback: Always-on sources (NASA TV, ISS cams via IBM/Ustream)
+
+    Query params:
+        force: Skip cache and re-fetch (default false)
+
+    Cached for 5 minutes.
+    """
+    try:
+        return await get_all_sources(force=force)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Streams unavailable: {str(e)}")
 
 
 @app.get("/api/status")
