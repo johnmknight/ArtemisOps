@@ -60,9 +60,9 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Weather tab: Aurora OVATION forecast image in Space Weather view
 - [x] Weather tab: Additional SWPC endpoints (solar-regions, enlil, kp-1min)
 
-### In Progress
-- [ ] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
-- [ ] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
+### Completed
+- [x] **Finish 3D ISS view updates** - Camera angles, dual-view layout (NASA reference)
+- [x] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
 
 ### Up Next
 - [x] ~~Add orbit track rendering~~ — Already implemented (`calculatePredictedOrbit` with 51.6° inclination, Earth rotation, dateline wrapping)
