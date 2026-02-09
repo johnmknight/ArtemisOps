@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArtemisOps - Mission Control Display</title>
+  <link rel="stylesheet" href="assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -650,7 +652,7 @@
       </div>
       <div class="header-center">
         <div class="live-badge"><span class="live-dot"></span> LIVE</div>
-        <div class="staleness"><span class="ok" id="stalenessIcon">✓</span> Updated <span id="staleness">-</span>s ago</div>
+        <div class="staleness"><span class="ok" id="stalenessIcon"><i class="ti ti-check"></i></span> Updated <span id="staleness">-</span>s ago</div>
       </div>
       <div class="header-right">
         <div class="met-display">
@@ -725,7 +727,7 @@
         <!-- Info boxes -->
         <div class="info-boxes">
           <div class="info-box" id="milestoneBox">
-            <span class="info-box-icon">⚡</span>
+            <span class="info-box-icon"><i class="ti ti-bolt"></i></span>
             <div class="info-box-content">
               <div class="info-box-label">Next Milestone</div>
               <div class="info-box-title" id="nextMilestoneTitle">---</div>
@@ -734,7 +736,7 @@
           </div>
           
           <div class="info-box" id="statusBox">
-            <span class="info-box-icon">🔄</span>
+            <span class="info-box-icon"><i class="ti ti-refresh"></i></span>
             <div class="info-box-content">
               <div class="info-box-label">Mission Status</div>
               <div class="info-box-title" id="missionStatusTitle">---</div>
@@ -743,7 +745,7 @@
           </div>
           
           <div class="info-box weather-box" id="weatherBox">
-            <span class="info-box-icon" id="weatherIcon">☀️</span>
+            <span class="info-box-icon" id="weatherIcon"><i class="ti ti-sun"></i></span>
             <div class="info-box-content">
               <div class="info-box-label" id="weatherLabel">Weather at Launch Site</div>
               <div class="info-box-title" id="weatherTitle">---</div>
@@ -791,7 +793,7 @@
         </div>
       </div>
       <div class="phase">
-        <div class="phase-icon upcoming">🚀</div>
+        <div class="phase-icon upcoming"><i class="ti ti-rocket"></i></div>
         <div class="phase-content">
           <div class="phase-label">Liftoff</div>
           <div class="phase-title">Launch</div>
@@ -802,7 +804,7 @@
   </div>
 
   <!-- Fullscreen Button -->
-  <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+  <button class="fullscreen-btn" onclick="toggleFullscreen()"><i class="ti ti-arrows-maximize"></i> FULLSCREEN</button>
 
 
   <script>
@@ -851,10 +853,10 @@
         document.getElementById('staleness').textContent = stale;
         const icon = document.getElementById('stalenessIcon');
         if (stale > 120) {
-          icon.textContent = '⚠';
+          icon.innerHTML = '<i class="ti ti-alert-triangle"></i>';
           icon.className = 'warn';
         } else {
-          icon.textContent = '✓';
+          icon.innerHTML = '<i class="ti ti-check"></i>';
           icon.className = 'ok';
         }
       }
@@ -1007,7 +1009,7 @@
       const conditions = analysis.conditions || {};
 
       // Weather icon & condition
-      document.getElementById('weatherIcon').textContent = conditions.icon || '☀️';
+      document.getElementById('weatherIcon').innerHTML = conditions.icon || '<i class="ti ti-sun"></i>';
       const temp = conditions.temperature_high_f ? `${Math.round(conditions.temperature_high_f)}°F` : '--';
       document.getElementById('weatherTitle').textContent = 
         `${conditions.description || 'Clear'} · ${temp}`;
@@ -1054,12 +1056,12 @@
       }
 
       // Show ALL milestones in the timeline strip
-      const icons = { completed: '✓', active: '→', pending: '○', upcoming: '○' };
+      const icons = { completed: '<i class="ti ti-check"></i>', active: '<i class="ti ti-arrow-right"></i>', pending: '<i class="ti ti-circle"></i>', upcoming: '<i class="ti ti-circle"></i>' };
 
       strip.innerHTML = milestones.map(m => {
         const status = m.status || 'pending';
         const isLaunch = m.title.toLowerCase().includes('liftoff') || m.title.toLowerCase().includes('launch');
-        const icon = isLaunch ? '🚀' : (icons[status] || '○');
+        const icon = isLaunch ? '<i class="ti ti-rocket"></i>' : (icons[status] || '<i class="ti ti-circle"></i>');
         const label = status === 'completed' ? 'Done' : (status === 'active' ? 'Current' : (m.date_label || 'Pending'));
 
         return `

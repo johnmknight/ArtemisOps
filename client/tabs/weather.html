@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launch Weather</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -274,7 +276,7 @@
   <div class="weather-layout">
     <header class="wx-header">
       <div class="wx-header-left">
-        <span class="wx-header-title">🚀 Launch Weather</span>
+        <span class="wx-header-title"><i class="ti ti-rocket"></i> Launch Weather</span>
         <span class="wx-header-mission" id="wxMission">Loading...</span>
       </div>
       <div class="wx-header-right">
@@ -288,7 +290,7 @@
       <div class="wx-data-col">
         <div class="site-header">
           <div class="site-label">
-            <span class="site-label-icon">🚀</span>
+            <span class="site-label-icon"><i class="ti ti-rocket"></i></span>
             <div>
               <div class="site-label-type">Launch Site</div>
               <div class="site-name" id="siteName">Loading...</div>
@@ -303,10 +305,10 @@
           </div>
           <div class="current-desc" id="wxDesc">Loading conditions...</div>
           <div class="current-stats">
-            <span class="current-stat"><span class="current-stat-icon">💨</span> <strong id="wxWind">--</strong> mph</span>
-            <span class="current-stat"><span class="current-stat-icon">☁️</span> <strong id="wxCloud">--</strong>%</span>
-            <span class="current-stat"><span class="current-stat-icon">💧</span> <strong id="wxHumidity">--</strong>%</span>
-            <span class="current-stat"><span class="current-stat-icon">🌧️</span> <strong id="wxPrecip">--</strong> mm</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-wind"></i></span> <strong id="wxWind">--</strong> mph</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-cloud"></i></span> <strong id="wxCloud">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-droplet"></i></span> <strong id="wxHumidity">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-cloud-rain"></i></span> <strong id="wxPrecip">--</strong> mm</span>
           </div>
         </div>
         <div class="constraints">
@@ -319,7 +321,7 @@
 
         <!-- Compact Space Weather -->
         <div class="spacewx-compact" id="spacewxCompact">
-          <div class="spacewx-compact-title">☀ Space Weather</div>
+          <div class="spacewx-compact-title"><i class="ti ti-sun"></i> Space Weather</div>
           <div class="spacewx-compact-grid">
             <div class="spacewx-metric"><span class="spacewx-metric-label">Kp</span><span class="spacewx-metric-value level-unknown" id="swcKp">--</span></div>
             <div class="spacewx-metric"><span class="spacewx-metric-label">X-ray</span><span class="spacewx-metric-value level-unknown" id="swcXray">--</span></div>
@@ -332,10 +334,10 @@
       <!-- RIGHT COLUMN: sub-tabbed views -->
       <div class="right-panel">
         <div class="sub-tab-nav">
-          <button class="sub-tab-btn active" data-view="radar" onclick="SubTabs.switch('radar')">📡 Radar</button>
-          <button class="sub-tab-btn" data-view="satellite" onclick="SubTabs.switch('satellite')">🛰️ Satellite</button>
-          <button class="sub-tab-btn" data-view="spacewx" onclick="SubTabs.switch('spacewx')">☀ Space Wx</button>
-          <button class="sub-tab-btn" data-view="lightning" onclick="SubTabs.switch('lightning')">⚡ Lightning</button>
+          <button class="sub-tab-btn active" data-view="radar" onclick="SubTabs.switch('radar')"><i class="ti ti-satellite"></i> Radar</button>
+          <button class="sub-tab-btn" data-view="satellite" onclick="SubTabs.switch('satellite')"><i class="ti ti-satellite"></i> Satellite</button>
+          <button class="sub-tab-btn" data-view="spacewx" onclick="SubTabs.switch('spacewx')"><i class="ti ti-sun"></i> Space Wx</button>
+          <button class="sub-tab-btn" data-view="lightning" onclick="SubTabs.switch('lightning')"><i class="ti ti-bolt"></i> Lightning</button>
         </div>
 
         <!-- RADAR VIEW -->
@@ -343,9 +345,9 @@
           <div class="satellite-container">
             <div id="radarMap"></div>
             <div class="radar-controls">
-              <button id="radarPrev" title="Previous frame">◀</button>
-              <button id="radarPlay" title="Play/Pause" class="active">▶</button>
-              <button id="radarNext" title="Next frame">▶▶</button>
+              <button id="radarPrev" title="Previous frame"><i class="ti ti-player-track-prev"></i></button>
+              <button id="radarPlay" title="Play/Pause" class="active"><i class="ti ti-player-play"></i></button>
+              <button id="radarNext" title="Next frame"><i class="ti ti-player-play"></i><i class="ti ti-player-play"></i></button>
               <span class="radar-time" id="radarTime">--:-- UTC</span>
               <div class="radar-layer-toggle"><input type="checkbox" id="toggleRainViewer" checked><label for="toggleRainViewer">Radar</label></div>
               <div class="radar-layer-toggle"><input type="checkbox" id="toggleNOAA"><label for="toggleNOAA">NOAA</label></div>
@@ -362,7 +364,7 @@
               <button class="sat-band-btn" data-band="02" onclick="SatViewer.setBand('02')">Visible</button>
               <button class="sat-band-btn" data-band="09" onclick="SatViewer.setBand('09')">Water Vapor</button>
               <button class="sat-band-btn" data-band="AirMass" onclick="SatViewer.setBand('AirMass')">Air Mass</button>
-              <button class="sat-band-btn" data-band="SLIDER" onclick="SatViewer.setBand('SLIDER')" style="border-color:#c084fc; color:#c084fc;">🎛 SLIDER</button>
+              <button class="sat-band-btn" data-band="SLIDER" onclick="SatViewer.setBand('SLIDER')" style="border-color:#c084fc; color:#c084fc;"><i class="ti ti-adjustments-horizontal"></i> SLIDER</button>
             </div>
             <div class="sat-image-container" id="satContainer">
               <div class="sat-loading" id="satLoading">Loading GOES-16 imagery...</div>
@@ -375,7 +377,7 @@
             <div id="sliderContainer" style="display:none; flex:1; position:relative; border-radius:6px; overflow:hidden; border:1px solid var(--border-subtle); min-height:0;">
               <iframe id="sliderFrame" src="" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
               <div style="position:absolute; top:6px; right:6px; z-index:10;">
-                <button onclick="SatViewer.setBand('GEOCOLOR')" style="background:rgba(0,0,0,0.75); border:1px solid var(--border-subtle); color:var(--text-accent); font-size:0.6rem; padding:3px 8px; border-radius:3px; cursor:pointer; font-family:inherit;">✕ Back to GOES</button>
+                <button onclick="SatViewer.setBand('GEOCOLOR')" style="background:rgba(0,0,0,0.75); border:1px solid var(--border-subtle); color:var(--text-accent); font-size:0.6rem; padding:3px 8px; border-radius:3px; cursor:pointer; font-family:inherit;"><i class="ti ti-x"></i> Back to GOES</button>
               </div>
             </div>
           </div>
@@ -385,7 +387,7 @@
         <div class="sub-view" id="view-spacewx">
           <div class="spacewx-view">
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">🧲</span> Geomagnetic Activity — Kp Index</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-magnet"></i></span> Geomagnetic Activity — Kp Index</div>
               <div class="kp-gauge">
                 <div class="kp-value level-unknown" id="kpValue">--</div>
                 <div class="kp-bar-container">
@@ -396,7 +398,7 @@
               <div class="kp-label" id="kpLabel">Loading geomagnetic data...</div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">🌊</span> Solar Wind — DSCOVR Real-Time</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-wave-sine"></i></span> Solar Wind — DSCOVR Real-Time</div>
               <div class="sw-grid">
                 <div class="sw-card"><div class="sw-card-label">Speed</div><div class="sw-card-value" id="swSpeed">--</div><div class="sw-card-unit">km/s</div></div>
                 <div class="sw-card"><div class="sw-card-label">Density</div><div class="sw-card-value" id="swDensity">--</div><div class="sw-card-unit">p/cm³</div></div>
@@ -405,7 +407,7 @@
               </div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">⚡</span> Solar X-Ray Flux — GOES Primary</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-bolt"></i></span> Solar X-Ray Flux — GOES Primary</div>
               <div class="xray-display">
                 <div class="xray-class" id="xrayClass">--</div>
                 <div>
@@ -415,7 +417,7 @@
               </div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">☢️</span> Energetic Proton Flux — GOES ≥10 MeV</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-radioactive"></i></span> Energetic Proton Flux — GOES ≥10 MeV</div>
               <div class="proton-display">
                 <div class="proton-value level-unknown" id="protonValue">--</div>
                 <div>
@@ -428,18 +430,18 @@
               </div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">📊</span> Kp Index Forecast — 3-Day Outlook</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-chart-bar"></i></span> Kp Index Forecast — 3-Day Outlook</div>
               <div id="kpForecastChart" style="display:flex; align-items:flex-end; gap:2px; height:80px; padding:4px 0;"></div>
               <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:var(--text-secondary); padding:0 2px;">
                 <span id="kpFcstStart">--</span><span id="kpFcstEnd">--</span>
               </div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">🚨</span> Active Alerts & Warnings</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-alert-circle"></i></span> Active Alerts & Warnings</div>
               <div id="alertsList"><div class="sat-loading">Loading alerts...</div></div>
             </div>
             <div class="spacewx-section">
-              <div class="spacewx-section-title"><span class="icon">🌌</span> Aurora Forecast — OVATION Northern Hemisphere</div>
+              <div class="spacewx-section-title"><span class="icon"><i class="ti ti-sparkles"></i></span> Aurora Forecast — OVATION Northern Hemisphere</div>
               <div class="aurora-container" id="auroraContainer">
                 <img id="auroraImage" src="" alt="Aurora OVATION" style="width:100%; height:auto; border-radius:4px; display:none;">
                 <div class="sat-loading" id="auroraLoading">Loading aurora forecast...</div>
@@ -456,7 +458,7 @@
           <div class="satellite-container" style="position:relative;">
             <div id="lightningMap"></div>
             <div class="lightning-overlay-bar">
-              <span>⚡ BLITZORTUNG REAL-TIME LIGHTNING</span>
+              <span><i class="ti ti-bolt"></i> BLITZORTUNG REAL-TIME LIGHTNING</span>
               <span style="margin-left:8px; font-family:'Courier New',monospace; color:var(--text-primary);" id="lightningCount">-- strikes</span>
               <span style="margin-left:8px; color: #ffe066;">●</span> <span style="font-size:0.5rem;">NEW</span>
               <span style="margin-left:4px; color: #ff6644;">●</span> <span style="font-size:0.5rem;">RECENT</span>
@@ -576,8 +578,8 @@
 
       togglePlay() {
         const btn = document.getElementById('radarPlay');
-        if (this.isPlaying) { clearInterval(this.animationTimer); this.isPlaying = false; btn.textContent = '▶'; btn.classList.remove('active'); }
-        else { this.animationTimer = setInterval(() => this.step(1), 800); this.isPlaying = true; btn.textContent = '⏸'; btn.classList.add('active'); }
+        if (this.isPlaying) { clearInterval(this.animationTimer); this.isPlaying = false; btn.innerHTML = '<i class="ti ti-player-play"></i>'; btn.classList.remove('active'); }
+        else { this.animationTimer = setInterval(() => this.step(1), 800); this.isPlaying = true; btn.innerHTML = '<i class="ti ti-player-pause"></i>'; btn.classList.add('active'); }
       },
 
       updatePosition(lat, lon) {
@@ -858,7 +860,7 @@
         }).slice(0, 8);
 
         if (recent.length === 0) {
-          container.innerHTML = '<div class="no-alerts">✓ No active space weather alerts</div>';
+          container.innerHTML = '<div class="no-alerts"><i class="ti ti-check"></i> No active space weather alerts</div>';
           return;
         }
 
@@ -1144,6 +1146,8 @@
       SITE_KEY: 'launch_site',
       EVENT_DATE_KEY: 'launch_date',
       refreshInterval: null,
+      WX_ICON_MAP: { '☀️': 'sun', '☀': 'sun', '☁️': 'cloud', '☁': 'cloud', '🌧️': 'cloud-rain', '🌧': 'cloud-rain', '🌤️': 'cloud-sun', '🌤': 'cloud-sun', '🌙': 'moon', '❄️': 'snowflake', '❄': 'snowflake', '💨': 'wind', '🌊': 'wave-sine', '🕐': 'clock', '❓': 'question-mark' },
+      wxIcon(emoji) { return `<i class="ti ti-${this.WX_ICON_MAP[emoji] || 'question-mark'}"></i>`; },
 
       async init() {
         await this.fetchData();
@@ -1181,7 +1185,7 @@
           // No weather data yet — show reason and defaults
           document.getElementById('siteName').textContent = 'Kennedy Space Center LC-39B';
           document.getElementById('wxDesc').textContent = d.reason || 'Weather data not yet available';
-          document.getElementById('wxIcon').textContent = '🕐';
+          document.getElementById('wxIcon').innerHTML = '<i class="ti ti-clock"></i>';
           const overallEl = document.getElementById('siteOverall');
           overallEl.textContent = 'PENDING';
           overallEl.className = 'site-overall unknown';
@@ -1201,7 +1205,8 @@
         // Current conditions
         if (site.current) {
           const c = site.current;
-          document.getElementById('wxIcon').textContent = c.icon || '❓';
+          document.getElementById('wxIcon').innerHTML = this.wxIcon(c.icon);
+
           document.getElementById('wxTemp').textContent = c.temperature_f != null ? Math.round(c.temperature_f) : '--';
           document.getElementById('wxDesc').textContent = c.description || '--';
           document.getElementById('wxWind').textContent = c.wind_speed_mph != null ? Math.round(c.wind_speed_mph) : '--';
@@ -1231,14 +1236,14 @@
       renderConstraint(indId, valId, constraint) {
         if (!constraint) return;
         document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
-        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(indId).innerHTML = constraint.status === 'go' ? '<i class="ti ti-check"></i>' : '<i class="ti ti-x"></i>';
         document.getElementById(valId).textContent = `${constraint.value} ${constraint.unit}`;
       },
 
       renderConstraintWx(indId, valId, constraint) {
         if (!constraint) return;
         document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
-        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(indId).innerHTML = constraint.status === 'go' ? '<i class="ti ti-check"></i>' : '<i class="ti ti-x"></i>';
         document.getElementById(valId).textContent = constraint.description || '--';
       },
 
@@ -1253,13 +1258,13 @@
           const isEvent = eventDate && day.date === eventDate;
           return `
             <div class="forecast-day ${isEvent ? 'highlight-day' : ''}">
-              <div class="forecast-day-name">${isEvent ? '🚀 ' + day.day_name : day.day_name}</div>
-              <div class="forecast-day-icon">${day.icon || '❓'}</div>
+              <div class="forecast-day-name">${isEvent ? '<i class="ti ti-rocket"></i> ' + day.day_name : day.day_name}</div>
+              <div class="forecast-day-icon">${this.wxIcon(day.icon)}</div>
               <div class="forecast-day-temps">
                 <span class="forecast-day-high">${day.temp_high_f != null ? Math.round(day.temp_high_f) : '--'}°</span>
                 <span class="forecast-day-low">${day.temp_low_f != null ? Math.round(day.temp_low_f) : '--'}°</span>
               </div>
-              <div class="forecast-day-wind">💨 ${day.wind_kmh != null ? Math.round(day.wind_kmh * 0.621371) : '--'} mph</div>
+              <div class="forecast-day-wind"><i class="ti ti-wind"></i> ${day.wind_kmh != null ? Math.round(day.wind_kmh * 0.621371) : '--'} mph</div>
             </div>`;
         }).join('');
       }

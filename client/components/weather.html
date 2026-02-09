@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather Component</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -197,13 +199,13 @@
     <div class="panel-title">
       <div class="title-left">
         <span class="live-indicator"></span>
-        <span id="weatherTitle">🌤️ Launch Weather</span>
+        <span id="weatherTitle"><i class="ti ti-sun"></i> Launch Weather</span>
       </div>
       <button class="toggle-btn" id="toggleBtn">AUTO</button>
     </div>
     <div class="panel-content" id="weatherContent">
       <div class="loading-state">
-        <div>☁️</div>
+        <div><i class="ti ti-cloud"></i></div>
         <div>Checking weather conditions...</div>
       </div>
     </div>
@@ -235,9 +237,9 @@
         const analysis = data.analysis;
         const conditions = analysis.conditions || {};
         
-        title.textContent = data.eventType === 'recovery' 
-          ? '🎯 Recovery Weather' 
-          : '🚀 Launch Weather';
+        title.innerHTML = data.eventType === 'recovery' 
+          ? '<i class="ti ti-target"></i> Recovery Weather' 
+          : '<i class="ti ti-rocket"></i> Launch Weather';
         
         const viabilityClass = analysis.status === 'go' ? 'go' 
           : analysis.status === 'marginal' ? 'marginal' 
@@ -249,7 +251,7 @@
         
         content.innerHTML = `
           <div class="weather-status">
-            <div class="weather-icon">${conditions.icon || '❓'}</div>
+            <div class="weather-icon">${conditions.icon || '<i class="ti ti-question-mark"></i>'}</div>
             <div class="weather-main">
               <div class="weather-condition">${conditions.description || 'Unknown'}</div>
               <div class="weather-temp">
@@ -285,7 +287,7 @@
         const content = document.getElementById('weatherContent');
         content.innerHTML = `
           <div class="no-weather">
-            <div class="no-weather-icon">📡</div>
+            <div class="no-weather-icon"><i class="ti ti-satellite"></i></div>
             <div>${reason || 'Weather data not available'}</div>
           </div>
         `;

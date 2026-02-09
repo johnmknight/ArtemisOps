@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recovery Weather</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -448,7 +450,7 @@
   <div class="weather-layout">
     <header class="wx-header">
       <div class="wx-header-left">
-        <span class="wx-header-title">🎯 Recovery Weather</span>
+        <span class="wx-header-title"><i class="ti ti-target"></i> Recovery Weather</span>
         <span class="wx-header-mission" id="wxMission">Loading...</span>
       </div>
       <div class="wx-header-right">
@@ -461,7 +463,7 @@
       <div class="wx-data-col">
         <div class="site-header">
           <div class="site-label">
-            <span class="site-label-icon">🎯</span>
+            <span class="site-label-icon"><i class="ti ti-target"></i></span>
             <div>
               <div class="site-label-type">Recovery Zone</div>
               <div class="site-name" id="siteName">Loading...</div>
@@ -478,10 +480,10 @@
           </div>
           <div class="current-desc" id="wxDesc">Loading conditions...</div>
           <div class="current-stats">
-            <span class="current-stat"><span class="current-stat-icon">💨</span> <strong id="wxWind">--</strong> mph</span>
-            <span class="current-stat"><span class="current-stat-icon">☁️</span> <strong id="wxCloud">--</strong>%</span>
-            <span class="current-stat"><span class="current-stat-icon">💧</span> <strong id="wxHumidity">--</strong>%</span>
-            <span class="current-stat"><span class="current-stat-icon">🌧️</span> <strong id="wxPrecip">--</strong> mm</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-wind"></i></span> <strong id="wxWind">--</strong> mph</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-cloud"></i></span> <strong id="wxCloud">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-droplet"></i></span> <strong id="wxHumidity">--</strong>%</span>
+            <span class="current-stat"><span class="current-stat-icon"><i class="ti ti-cloud-rain"></i></span> <strong id="wxPrecip">--</strong> mm</span>
           </div>
         </div>
         <div class="constraints">
@@ -515,9 +517,9 @@
         <div class="satellite-container">
           <div id="radarMap"></div>
           <div class="radar-controls">
-            <button id="radarPrev" title="Previous frame">◀</button>
-            <button id="radarPlay" title="Play/Pause" class="active">▶</button>
-            <button id="radarNext" title="Next frame">▶▶</button>
+            <button id="radarPrev" title="Previous frame"><i class="ti ti-player-track-prev"></i></button>
+            <button id="radarPlay" title="Play/Pause" class="active"><i class="ti ti-player-play"></i></button>
+            <button id="radarNext" title="Next frame"><i class="ti ti-player-play"></i><i class="ti ti-player-play"></i></button>
             <span class="radar-time" id="radarTime">--:-- UTC</span>
             <div class="radar-layer-toggle">
               <input type="checkbox" id="toggleRainViewer" checked>
@@ -649,12 +651,12 @@
         if (this.isPlaying) {
           clearInterval(this.animationTimer);
           this.isPlaying = false;
-          btn.textContent = '▶';
+          btn.innerHTML = '<i class="ti ti-player-play"></i>';
           btn.classList.remove('active');
         } else {
           this.animationTimer = setInterval(() => this.step(1), 800);
           this.isPlaying = true;
-          btn.textContent = '⏸';
+          btn.innerHTML = '<i class="ti ti-player-pause"></i>';
           btn.classList.add('active');
         }
       },
@@ -672,6 +674,8 @@
       SITE_KEY: 'recovery_site',
       EVENT_DATE_KEY: 'launch_date',
       TAB_NAME: 'recovery',
+      WX_ICON_MAP: { '☀️': 'sun', '☀': 'sun', '☁️': 'cloud', '☁': 'cloud', '🌧️': 'cloud-rain', '🌧': 'cloud-rain', '🌤️': 'cloud-sun', '🌤': 'cloud-sun', '🌙': 'moon', '❄️': 'snowflake', '❄': 'snowflake', '💨': 'wind', '🌊': 'wave-sine', '🕐': 'clock', '❓': 'question-mark' },
+      wxIcon(emoji) { return `<i class="ti ti-${this.WX_ICON_MAP[emoji] || 'question-mark'}"></i>`; },
 
       init() {
         window.addEventListener('message', (e) => this.handleMessage(e));
@@ -732,7 +736,7 @@
         // Current conditions
         if (site.current) {
           const c = site.current;
-          document.getElementById('wxIcon').textContent = c.icon || '❓';
+          document.getElementById('wxIcon').innerHTML = this.wxIcon(c.icon);
           document.getElementById('wxTemp').textContent = c.temperature_f != null ? Math.round(c.temperature_f) : '--';
           document.getElementById('wxDesc').textContent = c.description || '--';
           document.getElementById('wxWind').textContent = c.wind_speed_mph != null ? Math.round(c.wind_speed_mph) : '--';
@@ -762,14 +766,14 @@
       renderConstraint(indId, valId, constraint) {
         if (!constraint) return;
         document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
-        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(indId).innerHTML = constraint.status === 'go' ? '<i class="ti ti-check"></i>' : '<i class="ti ti-x"></i>';
         document.getElementById(valId).textContent = `${constraint.value} ${constraint.unit}`;
       },
 
       renderConstraintWx(indId, valId, constraint) {
         if (!constraint) return;
         document.getElementById(indId).className = `constraint-indicator ${constraint.status}`;
-        document.getElementById(indId).textContent = constraint.status === 'go' ? '✓' : '✗';
+        document.getElementById(indId).innerHTML = constraint.status === 'go' ? '<i class="ti ti-check"></i>' : '<i class="ti ti-x"></i>';
         document.getElementById(valId).textContent = constraint.description || '--';
       },
 
@@ -784,13 +788,13 @@
           const isEvent = eventDate && day.date === eventDate;
           return `
             <div class="forecast-day ${isEvent ? 'highlight-day' : ''}">
-              <div class="forecast-day-name">${isEvent ? '🎯 ' + day.day_name : day.day_name}</div>
-              <div class="forecast-day-icon">${day.icon || '❓'}</div>
+              <div class="forecast-day-name">${isEvent ? '<i class="ti ti-target"></i> ' + day.day_name : day.day_name}</div>
+              <div class="forecast-day-icon">${this.wxIcon(day.icon)}</div>
               <div class="forecast-day-temps">
                 <span class="forecast-day-high">${day.temp_high_f != null ? Math.round(day.temp_high_f) : '--'}°</span>
                 <span class="forecast-day-low">${day.temp_low_f != null ? Math.round(day.temp_low_f) : '--'}°</span>
               </div>
-              <div class="forecast-day-wind">💨 ${day.wind_kmh != null ? Math.round(day.wind_kmh * 0.621371) : '--'} mph</div>
+              <div class="forecast-day-wind"><i class="ti ti-wind"></i> ${day.wind_kmh != null ? Math.round(day.wind_kmh * 0.621371) : '--'} mph</div>
             </div>`;
         }).join('');
       }

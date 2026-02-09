@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control Panel</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -519,7 +521,39 @@
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+
+    /* Custom select dropdown */
+    .custom-select { position: relative; width: 100%; }
+    .custom-select-trigger {
+      padding: 8px 12px; background: #1a1a2e; border: 1px solid #333;
+      border-radius: 6px; color: #e0e0e0; cursor: pointer; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 6px;
+      transition: border-color 0.2s;
+    }
+    .custom-select-trigger:hover { border-color: #00d4ff; }
+    .custom-select-trigger::after {
+      content: '▾'; margin-left: auto; font-size: 0.7rem; opacity: 0.6;
+    }
+    .custom-select-options {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #1a1a2e; border: 1px solid #00d4ff; border-radius: 6px;
+      z-index: 100; overflow: hidden;
+    }
+    .custom-select.open .custom-select-options { display: block; }
+    .custom-select-option {
+      padding: 8px 12px; cursor: pointer; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .custom-select-option:hover { background: rgba(0, 212, 255, 0.15); }
+    .custom-select-option.selected { background: rgba(0, 212, 255, 0.1); color: #00d4ff; }
+
+    /* Inline SVG icon sizing */
+    .ti { display: inline-flex; align-items: center; }
+    .ti svg { width: 1em; height: 1em; vertical-align: -0.125em; display: inline-block; }
+    .icon svg { width: 1.2em; height: 1.2em; vertical-align: -0.15em; display: inline-block; }
   </style>
+  <script src="/js/icons.js"></script>
 </head>
 <body>
   <div class="control-layout">
@@ -527,7 +561,7 @@
     <!-- Header -->
     <header class="control-header">
       <div>
-        <div class="control-title">⚙ Control Panel</div>
+        <div class="control-title"><span class="ti" data-icon="settings"></span> Control Panel</div>
         <div class="control-subtitle">Multi-Screen Management</div>
       </div>
       <div class="server-status" id="serverStatus">
@@ -538,7 +572,7 @@
 
     <!-- Add Screen -->
     <section class="section">
-      <div class="section-title">➕ Add Screen</div>
+      <div class="section-title"><span class="ti" data-icon="plus"></span> Add Screen</div>
       <div class="add-screen-form" id="addScreenForm">
         <div class="form-field id-field">
           <label>Screen ID</label>
@@ -546,13 +580,19 @@
         </div>
         <div class="form-field page-field">
           <label>Assigned Page</label>
-          <select id="newScreenPage">
-            <option value="1">🚀 Mission (1)</option>
-            <option value="2">🌍 Tracking (2)</option>
-            <option value="3">👨‍🚀 Crew (3)</option>
-            <option value="4">ℹ️ Info (4)</option>
-            <option value="0">⚙ Control (0)</option>
-          </select>
+          <input type="hidden" id="newScreenPage" value="1">
+          <div class="custom-select" id="pageSelectWidget">
+            <div class="custom-select-trigger" id="pageSelectTrigger">
+              <span class="ti" data-icon="rocket"></span> Mission (1)
+            </div>
+            <div class="custom-select-options" id="pageSelectOptions">
+              <div class="custom-select-option selected" data-value="1"><span class="ti" data-icon="rocket"></span> Mission (1)</div>
+              <div class="custom-select-option" data-value="2"><span class="ti" data-icon="world"></span> Tracking (2)</div>
+              <div class="custom-select-option" data-value="3"><span class="ti" data-icon="user-circle"></span> Crew (3)</div>
+              <div class="custom-select-option" data-value="4"><span class="ti" data-icon="help"></span> Info (4)</div>
+              <div class="custom-select-option" data-value="0"><span class="ti" data-icon="settings"></span> Control (0)</div>
+            </div>
+          </div>
         </div>
         <div class="form-field mission-field">
           <label>Mission</label>
@@ -573,20 +613,20 @@
 
     <!-- Broadcast to All Screens -->
     <section class="section">
-      <div class="section-title">📡 Broadcast to All Screens</div>
+      <div class="section-title"><span class="ti" data-icon="satellite"></span> Broadcast to All Screens</div>
       <div class="broadcast-row">
         <span class="broadcast-label">Navigate all to:</span>
-        <button class="broadcast-btn" onclick="Control.broadcastPage(1)"><span class="icon">🚀</span> Mission</button>
-        <button class="broadcast-btn" onclick="Control.broadcastPage(2)"><span class="icon">🌍</span> Tracking</button>
-        <button class="broadcast-btn" onclick="Control.broadcastPage(3)"><span class="icon">👨‍🚀</span> Crew</button>
-        <button class="broadcast-btn" onclick="Control.broadcastPage(4)"><span class="icon">ℹ️</span> Info</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(1)"><span class="icon" data-icon="rocket"></span> Mission</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(2)"><span class="icon" data-icon="world"></span> Tracking</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(3)"><span class="icon" data-icon="user-circle"></span> Crew</button>
+        <button class="broadcast-btn" onclick="Control.broadcastPage(4)"><span class="icon" data-icon="help"></span> Info</button>
       </div>
     </section>
 
     <!-- Connected Screens -->
     <section class="section">
       <div class="section-title">
-        🖥️ Screens
+        <span class="ti" data-icon="device-desktop"></span> Screens
         <span class="count" id="screenCount">0</span>
         <span class="count online" id="onlineCount">0 online</span>
       </div>
@@ -597,7 +637,7 @@
 
     <!-- This Screen Settings -->
     <section class="section">
-      <div class="section-title">🔧 This Screen</div>
+      <div class="section-title"><span class="ti" data-icon="tool"></span> This Screen</div>
       <div class="settings-grid">
         <div>
           <div class="field-group">
@@ -618,7 +658,7 @@
           </div>
           <div class="field-group">
             <div class="field-label">Display</div>
-            <button class="action-btn" onclick="Control.requestFullscreen()">⛶ Toggle Fullscreen (F)</button>
+            <button class="action-btn" onclick="Control.requestFullscreen()"><span class="ti" data-icon="arrows-maximize"></span> Toggle Fullscreen (F)</button>
           </div>
         </div>
       </div>
@@ -629,7 +669,7 @@
 
   <script>
     const PAGE_NAMES = { 0: 'control', 1: 'mission', 2: 'tracking', 3: 'crew', 4: 'info' };
-    const PAGE_ICONS = { 0: '⚙', 1: '🚀', 2: '🌍', 3: '👨‍🚀', 4: 'ℹ️' };
+    const PAGE_ICONS = { 0: ICONS['settings'], 1: ICONS['rocket'], 2: ICONS['world'], 3: ICONS['user-circle'], 4: ICONS['help'] };
 
     const Control = {
       screenId: null,
@@ -799,10 +839,10 @@
           if (isOnline && !isSelf) {
             navHtml = `
               <div class="screen-nav-buttons">
-                <button class="nav-btn ${screen.page === 1 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 1)">🚀 Mission</button>
-                <button class="nav-btn ${screen.page === 2 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 2)">🌍 Track</button>
-                <button class="nav-btn ${screen.page === 3 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 3)">👨‍🚀 Crew</button>
-                <button class="nav-btn ${screen.page === 4 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 4)">ℹ️ Info</button>
+                <button class="nav-btn ${screen.page === 1 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 1)">${ICONS.rocket} Mission</button>
+                <button class="nav-btn ${screen.page === 2 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 2)">${ICONS.world} Track</button>
+                <button class="nav-btn ${screen.page === 3 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 3)">${ICONS['user-circle']} Crew</button>
+                <button class="nav-btn ${screen.page === 4 ? 'active-page' : ''}" onclick="Control.navigateScreen('${screen.id}', 4)">${ICONS.help} Info</button>
               </div>
             `;
           }
@@ -810,7 +850,7 @@
           // Remove button (only for configured screens, not self)
           let removeHtml = '';
           if (isConfigured && !isSelf) {
-            removeHtml = `<button class="remove-btn" onclick="Control.removeScreen('${screen.id}')">✕ Remove Configuration</button>`;
+            removeHtml = `<button class="remove-btn" onclick="Control.removeScreen('${screen.id}')">${ICONS.x} Remove Configuration</button>`;
           }
 
           return `
@@ -907,7 +947,40 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', () => Control.init());
+    document.addEventListener('DOMContentLoaded', () => {
+      // Populate data-icon elements with SVG icons
+      document.querySelectorAll('[data-icon]').forEach(el => {
+        const name = el.dataset.icon;
+        if (ICONS[name]) el.innerHTML = ICONS[name];
+      });
+
+      // Custom select dropdown behavior
+      const widget = document.getElementById('pageSelectWidget');
+      const trigger = document.getElementById('pageSelectTrigger');
+      const hiddenInput = document.getElementById('newScreenPage');
+
+      trigger.addEventListener('click', () => widget.classList.toggle('open'));
+
+      widget.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          hiddenInput.value = opt.dataset.value;
+          trigger.innerHTML = opt.innerHTML;
+          // Re-populate icons in new trigger content
+          trigger.querySelectorAll('[data-icon]').forEach(el => {
+            if (ICONS[el.dataset.icon]) el.innerHTML = ICONS[el.dataset.icon];
+          });
+          widget.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          widget.classList.remove('open');
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!widget.contains(e.target)) widget.classList.remove('open');
+      });
+
+      Control.init();
+    });
   </script>
 </body>
 </html>

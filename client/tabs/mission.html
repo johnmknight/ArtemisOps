@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mission Tab - v9 Layout</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -301,6 +303,7 @@
       font-size: 2.5rem;
       opacity: 0.4;
     }
+    .video-placeholder-icon svg { width: 2.5rem; height: 2.5rem; }
 
     .video-placeholder-title {
       font-size: 0.85rem;
@@ -339,6 +342,7 @@
     }
 
     .video-mute-btn:hover { background: rgba(255,255,255,0.08); }
+    .video-mute-btn svg { width: 12px; height: 12px; vertical-align: -2px; }
 
     /* ===== NEWS TICKER ===== */
     .news-ticker {
@@ -366,6 +370,7 @@
       color: var(--text-accent);
       text-transform: uppercase;
     }
+    .ticker-label svg { width: 14px; height: 14px; }
 
     .ticker-track {
       flex: 1;
@@ -576,7 +581,8 @@
       min-width: 220px;
     }
 
-    .info-box-icon { font-size: clamp(1rem, 1.5vh, 1.3rem); }
+    .info-box-icon { font-size: clamp(1rem, 1.5vh, 1.3rem); display: flex; align-items: center; }
+    .info-box-icon svg { width: 1.3em; height: 1.3em; }
 
     .info-box-content { flex: 1; }
 
@@ -696,6 +702,7 @@
       border: 2px solid var(--border-subtle);
       color: var(--text-secondary);
     }
+    .phase-icon svg { width: 16px; height: 16px; }
 
     @keyframes pulse-phase {
       0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
@@ -745,6 +752,7 @@
       }
     }
   </style>
+  <script src="/js/icons.js"></script>
 </head>
 <body>
   <div class="mission-layout">
@@ -827,7 +835,7 @@
         <!-- Info boxes -->
         <div class="info-boxes">
           <div class="info-box">
-            <span class="info-box-icon">⚡</span>
+            <span class="info-box-icon" id="milestoneIcon"></span>
             <div class="info-box-content">
               <div class="info-box-label">Next Milestone</div>
               <div class="info-box-title" id="nextMilestoneTitle">Loading...</div>
@@ -836,7 +844,7 @@
           </div>
           
           <div class="info-box weather-box" id="weatherBox">
-            <span class="info-box-icon" id="weatherIcon">☀️</span>
+            <span class="info-box-icon" id="weatherIcon"></span>
             <div class="info-box-content">
               <div class="info-box-label">Forecast Weather at Launch Site</div>
               <div class="info-box-title" id="weatherCondition">Loading...</div>
@@ -855,7 +863,7 @@
 
       <!-- VIDEO PANEL TOGGLE -->
       <div class="video-toggle-strip" id="videoToggleStrip" title="Toggle video panel">
-        <span id="videoToggleLabel">◀ TV</span>
+        <span id="videoToggleLabel"><i class="ti ti-player-track-prev"></i> TV</span>
       </div>
 
       <!-- RIGHT: NASA TV (40%) -->
@@ -871,15 +879,15 @@
         </div>
         <div class="video-container" id="videoContainer">
           <div class="video-placeholder" id="videoPlaceholder">
-            <div class="video-placeholder-icon">📡</div>
+            <div class="video-placeholder-icon" id="videoPlaceholderIcon"></div>
             <div class="video-placeholder-title">NASA TV</div>
             <div class="video-placeholder-sub" id="videoPlaceholderSub">Coverage begins at T-02:00:00</div>
           </div>
         </div>
         <div class="video-footer">
-          <button class="video-mute-btn" id="videoToggleBtn" title="Load stream">▶ LOAD STREAM</button>
-          <button class="video-mute-btn" id="videoMuteBtn" title="Toggle mute" style="display:none;">🔇 MUTED</button>
-          <button class="video-mute-btn" id="videoFullscreenBtn" title="Fullscreen" style="display:none;">⛶ FULLSCREEN</button>
+          <button class="video-mute-btn" id="videoToggleBtn" title="Load stream"><i class="ti ti-player-play"></i> LOAD STREAM</button>
+          <button class="video-mute-btn" id="videoMuteBtn" title="Toggle mute" style="display:none;"></button>
+          <button class="video-mute-btn" id="videoFullscreenBtn" title="Fullscreen" style="display:none;"></button>
         </div>
       </div>
     </section>
@@ -887,7 +895,7 @@
     <!-- TIMELINE FOOTER -->
     <footer class="timeline-strip">
       <div class="phase completed" id="phase1">
-        <div class="phase-icon completed">✓</div>
+        <div class="phase-icon completed" id="phase1Icon"></div>
         <div class="phase-content">
           <div class="phase-label">Completed</div>
           <div class="phase-title" id="phase1Title">Loading...</div>
@@ -903,7 +911,7 @@
         </div>
       </div>
       <div class="phase" id="phase3">
-        <div class="phase-icon upcoming">🚀</div>
+        <div class="phase-icon upcoming" id="phase3Icon"></div>
         <div class="phase-content">
           <div class="phase-label">Liftoff</div>
           <div class="phase-title" id="phase3Title">Launch Window</div>
@@ -914,7 +922,7 @@
 
     <!-- NEWS TICKER -->
     <div class="news-ticker">
-      <div class="ticker-label">📰 NEWS</div>
+      <div class="ticker-label" id="tickerLabel"></div>
       <div class="ticker-track">
         <div class="ticker-content" id="tickerContent">
           <span class="ticker-item"><span class="ticker-item-source">Loading</span> Fetching latest space news...</span>
@@ -934,6 +942,16 @@
       streamSources: {},   // Populated dynamically from /api/streams
       
       init() {
+        // Initialize icons from icons.js
+        document.getElementById('milestoneIcon').innerHTML = ICONS['bolt'];
+        document.getElementById('weatherIcon').innerHTML = ICONS['sun'];
+        document.getElementById('videoPlaceholderIcon').innerHTML = ICONS['satellite'];
+        document.getElementById('videoMuteBtn').innerHTML = ICONS['volume-off'] + ' MUTED';
+        document.getElementById('videoFullscreenBtn').innerHTML = ICONS['arrows-maximize'] + ' FULLSCREEN';
+        document.getElementById('phase1Icon').innerHTML = ICONS['check'];
+        document.getElementById('phase3Icon').innerHTML = ICONS['rocket'];
+        document.getElementById('tickerLabel').innerHTML = ICONS['news'] + ' NEWS';
+
         window.addEventListener('message', (event) => this.handleMessage(event));
         
         this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
@@ -1067,7 +1085,7 @@
         // Slot 1: last completed
         if (completed.length > 0) {
           const last = completed[completed.length - 1];
-          slots.push({ label: 'Completed', title: last.title, time: last.date || 'Done', state: 'completed', icon: '✓' });
+          slots.push({ label: 'Completed', title: last.title, time: last.date || 'Done', state: 'completed', icon: ICONS['check'] });
         }
         
         // Slot 2: active or next pending
@@ -1085,7 +1103,7 @@
         if (remaining.length > 0) {
           const upcoming = remaining[0];
           const isLiftoff = upcoming.title && upcoming.title.toLowerCase().includes('liftoff');
-          slots.push({ label: 'Upcoming', title: upcoming.title, time: upcoming.date || '', state: 'upcoming', icon: isLiftoff ? '🚀' : '○' });
+          slots.push({ label: 'Upcoming', title: upcoming.title, time: upcoming.date || '', state: 'upcoming', icon: isLiftoff ? ICONS['rocket'] : ICONS['circle'] });
         }
         
         // Render up to 3 slots
@@ -1096,7 +1114,7 @@
             el.style.display = '';
             el.className = `phase ${s.state === 'completed' ? 'completed' : s.state === 'active' ? 'active' : ''}`;
             el.querySelector('.phase-icon').className = `phase-icon ${s.state}`;
-            el.querySelector('.phase-icon').textContent = s.icon;
+            el.querySelector('.phase-icon').innerHTML = s.icon;
             el.querySelector('.phase-label').textContent = s.label;
             el.querySelector('.phase-title').textContent = s.title;
             el.querySelector('.phase-time').textContent = s.time;
@@ -1118,7 +1136,7 @@
             const daysMatch = reason.match(/(\d+) days away/);
             const days = daysMatch ? daysMatch[1] : '?';
             document.getElementById('weatherCondition').textContent = `Available in ${Math.max(0, days - 7)}d`;
-            document.getElementById('weatherIcon').textContent = '📡';
+            document.getElementById('weatherIcon').innerHTML = ICONS['satellite'];
             statusValue.textContent = 'PENDING';
             statusValue.classList.remove('marginal', 'no-go');
           } else {
@@ -1134,8 +1152,10 @@
         const conditions = analysis?.conditions;
         
         if (conditions) {
-          // Update weather icon
-          document.getElementById('weatherIcon').textContent = conditions.icon || '☀️';
+          // Map weather emoji to icon keys
+          const weatherIconMap = { '☀️': 'sun', '☀': 'sun', '☁️': 'cloud', '☁': 'cloud', '🌧️': 'cloud-rain', '🌧': 'cloud-rain', '🌤️': 'cloud-sun', '🌤': 'cloud-sun', '🌙': 'moon', '❄️': 'snowflake', '❄': 'snowflake', '💨': 'wind', '🌊': 'wave-sine' };
+          const iconKey = weatherIconMap[conditions.icon] || 'sun';
+          document.getElementById('weatherIcon').innerHTML = ICONS[iconKey] || ICONS['sun'];
           
           // Update condition text
           document.getElementById('weatherCondition').textContent = 
@@ -1268,15 +1288,15 @@
         // Helper: channel tag (skip for NASA since it's the default)
         const chTag = (s) => s.channel && s.channel !== 'NASA' ? `[${s.channel}] ` : '';
 
-        // LIVE streams (🔴 prefix)
+        // LIVE streams
         if (data.live && data.live.length) {
           for (const s of data.live) {
-            const label = `🔴 ${chTag(s)}${s.title}${s.viewers ? ` (${s.viewers.toLocaleString()})` : ''}`;
+            const label = `[LIVE] ${chTag(s)}${s.title}${s.viewers ? ` (${s.viewers.toLocaleString()})` : ''}`;
             addOpt(`yt-${s.video_id}`, label, s.embed_url, 'live');
           }
         }
 
-        // UPCOMING streams (⏳ prefix)
+        // UPCOMING streams
         if (data.upcoming && data.upcoming.length) {
           for (const s of data.upcoming) {
             let timeStr = '';
@@ -1284,7 +1304,7 @@
               const d = new Date(s.scheduled);
               timeStr = ` — ${d.toLocaleDateString('en-US', {month:'short', day:'numeric'})} ${d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})}`;
             }
-            addOpt(`yt-${s.video_id}`, `⏳ ${chTag(s)}${s.title}${timeStr}`, s.embed_url, 'upcoming');
+            addOpt(`yt-${s.video_id}`, `[SOON] ${chTag(s)}${s.title}${timeStr}`, s.embed_url, 'upcoming');
           }
         }
 
@@ -1300,7 +1320,7 @@
         if (data.fallback) {
           for (const s of data.fallback) {
             const key = `fb-${s.title.replace(/\W+/g, '-').toLowerCase()}`;
-            addOpt(key, `📡 ${s.title}`, s.embed_url, 'fallback');
+            addOpt(key, `[24/7] ${s.title}`, s.embed_url, 'fallback');
           }
         }
 
@@ -1311,12 +1331,12 @@
           sep.textContent = '── Recent ──';
           select.appendChild(sep);
           for (const s of data.recent.slice(0, 3)) {
-            addOpt(`yt-${s.video_id}`, `▶ ${chTag(s)}${s.title}`, s.embed_url, 'vod');
+            addOpt(`yt-${s.video_id}`, `[VOD] ${chTag(s)}${s.title}`, s.embed_url, 'vod');
           }
         }
 
         // Custom URL (always last)
-        addOpt('custom', '🔗 Custom URL', '', 'custom');
+        addOpt('custom', '[URL] Custom URL', '', 'custom');
 
         // Restore selection or pick recommended
         if (currentVal && this.streamSources[currentVal]) {
@@ -1333,7 +1353,7 @@
         const label = document.getElementById('videoToggleLabel');
         panel.classList.toggle('collapsed');
         const hidden = panel.classList.contains('collapsed');
-        label.textContent = hidden ? 'TV ▶' : '◀ TV';
+        label.innerHTML = hidden ? 'TV <i class="ti ti-arrow-right"></i>' : '<i class="ti ti-arrow-left"></i> TV';
       },
 
       // ===== VIDEO PANEL =====
@@ -1348,7 +1368,7 @@
           const iframe = container.querySelector('iframe');
           if (iframe) iframe.remove();
           placeholder.style.display = '';
-          toggleBtn.textContent = '▶ LOAD STREAM';
+          toggleBtn.innerHTML = '<i class="ti ti-player-play"></i> LOAD STREAM';
           muteBtn.style.display = 'none';
           document.getElementById('videoFullscreenBtn').style.display = 'none';
           this.videoLoaded = false;
@@ -1403,9 +1423,9 @@
         iframe.style.cssText = 'width:100%;height:100%;border:none;';
         container.appendChild(iframe);
 
-        toggleBtn.textContent = '⏹ STOP';
+        toggleBtn.innerHTML = '<i class="ti ti-player-stop"></i> STOP';
         muteBtn.style.display = '';
-        muteBtn.textContent = '🔇 MUTED';
+        muteBtn.innerHTML = ICONS['volume-off'] + ' MUTED';
         document.getElementById('videoFullscreenBtn').style.display = '';
         this.videoLoaded = true;
         this.videoMuted = true;
@@ -1442,7 +1462,7 @@
           console.warn('Mute toggle failed:', e);
         }
 
-        muteBtn.textContent = this.videoMuted ? '🔇 MUTED' : '🔊 UNMUTE';
+        muteBtn.innerHTML = this.videoMuted ? ICONS['volume-off'] + ' MUTED' : ICONS['volume'] + ' UNMUTE';
       },
 
       changeSource(sourceKey) {

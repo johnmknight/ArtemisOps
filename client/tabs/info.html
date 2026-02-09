@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Info Tab</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -285,8 +287,8 @@
           <div class="mission-header">
             ${m.mission_patch ? 
               `<img src="${m.mission_patch}" alt="${m.name}" class="mission-patch" 
-                   onerror="this.outerHTML='<div class=mission-patch-placeholder>🚀</div>'">` :
-              `<div class="mission-patch-placeholder">🚀</div>`
+                   onerror="this.outerHTML='<div class=mission-patch-placeholder><i class=\\'ti ti-rocket\\'></i></div>'">` :
+              `<div class="mission-patch-placeholder"><i class="ti ti-rocket"></i></div>`
             }
             <div class="mission-title-block">
               <h2>${m.name || 'Unknown Mission'}</h2>

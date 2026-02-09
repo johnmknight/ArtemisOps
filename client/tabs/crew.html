@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crew Tab</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -674,7 +676,7 @@
         const layout = document.getElementById('crewLayout');
         
         if (!this.crew?.length) {
-          layout.innerHTML = '<div class="error-state"><div class="error-icon">👨‍🚀</div><div class="error-msg">No crew data available</div><div class="error-hint">Waiting for mission data from server</div></div>';
+          layout.innerHTML = '<div class="error-state"><div class="error-icon"><i class="ti ti-user-circle"></i></div><div class="error-msg">No crew data available</div><div class="error-hint">Waiting for mission data from server</div></div>';
           return;
         }
         

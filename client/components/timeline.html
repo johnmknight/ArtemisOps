@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timeline Component</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -226,9 +228,9 @@
         const progress = ((completedCount + (activeCount * 0.5)) / this.milestones.length) * 100;
         
         const milestonesHtml = this.milestones.map(m => {
-          let statusIcon = '○';
-          if (m.status === 'completed') statusIcon = '✓';
-          if (m.status === 'active') statusIcon = '◉';
+          let statusIcon = '<i class="ti ti-circle"></i>';
+          if (m.status === 'completed') statusIcon = '<i class="ti ti-check"></i>';
+          if (m.status === 'active') statusIcon = '<i class="ti ti-circle-filled"></i>';
           
           return `
             <div class="milestone ${m.status}">
