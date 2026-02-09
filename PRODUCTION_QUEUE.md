@@ -215,7 +215,6 @@ client/js/components/
 | Clock/date display | UTC + ET time, MET in header | 1 hr | Low | ✅ Done |
 | Mission status box | Status + description info box | 1 hr | Medium | ✅ Done |
 | Live stream embed | NASA TV / YouTube embed | 4 hrs | Medium | 🔲 Open |
-| Auto-rotate views | Cycle countdown → tracking → crew | 3 hrs | Low | 🔲 Open |
 | News ticker | Scrolling news at bottom | 2 hrs | Low | 🔲 Open |
 
 #### Technical Requirements
