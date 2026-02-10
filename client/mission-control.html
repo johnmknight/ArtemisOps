@@ -38,7 +38,7 @@
     /* ===== LAYOUT ===== */
     .mission-control {
       display: grid;
-      grid-template-rows: 48px 1fr 72px;
+      grid-template-rows: 48px 1fr 72px 32px;
       grid-template-columns: 1fr;
       height: 100vh;
       width: 100vw;
@@ -158,16 +158,25 @@
       color: var(--success-color);
     }
 
-    /* ===== CENTER - COUNTDOWN WITH FLANKING LOGOS ===== */
+    /* ===== CENTER - SPLIT LAYOUT ===== */
     .countdown-center {
+      display: flex;
+      flex-direction: row;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 30% 50%, #0a1825 0%, #000000 70%);
+    }
+
+    .countdown-left {
+      flex: 6;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(ellipse at 50% 50%, #0a1825 0%, #000000 70%);
       padding: 16px;
+      min-width: 0;
     }
 
     .grid-overlay {
@@ -275,6 +284,7 @@
       display: flex;
       align-items: flex-start;
       gap: clamp(4px, 0.6vw, 10px);
+      max-width: 100%;
     }
 
     .countdown-segment {
@@ -285,7 +295,7 @@
 
     .countdown-value {
       font-family: 'Courier New', monospace;
-      font-size: clamp(5rem, min(14vw, 32vh), 16rem);
+      font-size: clamp(3rem, min(6.5vw, 24vh), 12rem);
       font-weight: 700;
       color: var(--countdown-color);
       text-shadow: 0 0 70px rgba(0, 255, 204, 0.5), 0 0 140px rgba(0, 255, 204, 0.25);
@@ -635,6 +645,237 @@
       background: var(--text-accent);
       color: #000;
     }
+
+    /* ===== NEWS TICKER ===== */
+    .news-ticker {
+      background: linear-gradient(180deg, #080c14 0%, #050810 100%);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      height: 32px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .ticker-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      background: rgba(0, 212, 255, 0.1);
+      border-right: 1px solid var(--border-subtle);
+      height: 100%;
+      flex-shrink: 0;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-accent);
+      text-transform: uppercase;
+    }
+    .ticker-label i { font-size: 14px; }
+
+    .ticker-track {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+    }
+
+    .ticker-content {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      white-space: nowrap;
+      animation: ticker-scroll 60s linear infinite;
+      gap: 40px;
+      padding-left: 100%;
+    }
+
+    .ticker-content:hover { animation-play-state: paused; }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .ticker-item-source {
+      color: var(--text-accent);
+      font-weight: 600;
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .ticker-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--border-subtle);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* ===== STREAM PIP PANEL ===== */
+    /* (removed — replaced by full video column) */
+
+    /* ===== VIDEO COLUMN ===== */
+    .video-toggle-strip {
+      flex-shrink: 0;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(0, 20, 40, 0.6);
+      border-left: 1px solid var(--border-subtle);
+      transition: background 0.2s;
+      z-index: 2;
+    }
+    .video-toggle-strip:hover { background: rgba(0, 40, 80, 0.8); }
+    .video-toggle-strip span {
+      writing-mode: vertical-lr;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+
+    .video-right {
+      flex: 4;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--border-subtle);
+      background: rgba(0, 10, 20, 0.6);
+      min-width: 0;
+      transition: flex 0.3s ease, opacity 0.3s ease;
+    }
+
+    .video-right.collapsed {
+      flex: 0 !important;
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      border-left: none;
+      pointer-events: none;
+    }
+
+    .video-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(0, 20, 40, 0.8);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .video-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .video-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--live-color);
+      animation: pulse 1.5s infinite;
+    }
+
+    .video-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-accent);
+    }
+
+    .video-source-select {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      font-size: 0.65rem;
+      padding: 3px 6px;
+      max-width: 300px;
+      cursor: pointer;
+    }
+
+    .video-container {
+      flex: 1;
+      position: relative;
+      background: #000;
+      min-height: 0;
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    .video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      gap: 8px;
+    }
+    .video-placeholder i { font-size: 48px; opacity: 0.3; }
+    .video-placeholder-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .video-placeholder-sub {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .video-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(0, 20, 40, 0.8);
+      border-top: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .video-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .video-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-accent); }
+    .video-btn i { font-size: 12px; }
   </style>
 </head>
 
@@ -668,6 +909,8 @@
     
     <!-- CENTER: COUNTDOWN WITH FLANKING LOGOS -->
     <section class="countdown-center">
+      <!-- LEFT: COUNTDOWN (60%) -->
+      <div class="countdown-left">
       <div class="grid-overlay"></div>
       
       <div class="countdown-content">
@@ -772,6 +1015,37 @@
         <!-- Crew Strip -->
         <div class="crew-strip" id="crewStrip"></div>
       </div>
+      </div><!-- /countdown-left -->
+
+      <!-- VIDEO PANEL TOGGLE -->
+      <div class="video-toggle-strip" id="videoToggleStrip">
+        <span id="videoToggleLabel"><i class="ti ti-player-track-prev"></i> TV</span>
+      </div>
+
+      <!-- RIGHT: NASA TV (40%) -->
+      <div class="video-right" id="videoRight">
+        <div class="video-header">
+          <div class="video-header-left">
+            <div class="video-live-dot"></div>
+            <span class="video-title">NASA TV</span>
+          </div>
+          <select class="video-source-select" id="streamSource">
+            <option value="">Loading streams...</option>
+          </select>
+        </div>
+        <div class="video-container" id="videoContainer">
+          <div class="video-placeholder" id="videoPlaceholder">
+            <i class="ti ti-satellite"></i>
+            <div class="video-placeholder-title">NASA TV</div>
+            <div class="video-placeholder-sub">Coverage begins at T-02:00:00</div>
+          </div>
+        </div>
+        <div class="video-footer">
+          <button class="video-btn" id="videoLoadBtn"><i class="ti ti-player-play"></i> LOAD STREAM</button>
+          <button class="video-btn" id="videoMuteBtn" style="display:none;"><i class="ti ti-volume-off"></i> MUTED</button>
+          <button class="video-btn" id="videoFullscreenBtn" style="display:none;"><i class="ti ti-arrows-maximize"></i> FULLSCREEN</button>
+        </div>
+      </div>
     </section>
     
     <!-- TIMELINE -->
@@ -801,6 +1075,16 @@
         </div>
       </div>
     </footer>
+
+    <!-- NEWS TICKER -->
+    <div class="news-ticker">
+      <div class="ticker-label"><i class="ti ti-news"></i> NEWS</div>
+      <div class="ticker-track">
+        <div class="ticker-content" id="tickerContent">
+          <span class="ticker-item"><span class="ticker-item-source">Loading</span> Fetching latest space news...</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Fullscreen Button -->
@@ -1187,6 +1471,205 @@
       }
     });
 
+    // ===== NEWS TICKER =====
+    async function fetchNews() {
+      try {
+        const resp = await fetch('/api/news?limit=15');
+        if (!resp.ok) throw new Error('News fetch failed');
+        const data = await resp.json();
+        const items = data.news || data.articles || data.items || data;
+        if (!Array.isArray(items) || items.length === 0) return;
+        renderTicker(items);
+      } catch (e) {
+        console.warn('News ticker fetch failed:', e);
+        renderTicker([
+          { title: 'Mission preparations continue at Kennedy Space Center', source: 'NASA' },
+          { title: 'Spacecraft systems undergoing final checkouts', source: 'NASA' },
+          { title: 'Live mission data powered by ArtemisOps', source: 'ArtemisOps' }
+        ]);
+      }
+    }
+
+    function renderTicker(items) {
+      const container = document.getElementById('tickerContent');
+      const html = [...items, ...items].map(item => {
+        const source = item.source || item.feed_name || 'NASA';
+        const title = item.title || item.headline || '';
+        return `<span class="ticker-item"><span class="ticker-item-source">${source}</span> ${title}</span><span class="ticker-dot"></span>`;
+      }).join('');
+      container.innerHTML = html;
+      requestAnimationFrame(() => {
+        const width = container.scrollWidth;
+        const speed = Math.max(30, width / 80);
+        container.style.animationDuration = `${speed}s`;
+      });
+    }
+
+    // ===== VIDEO PANEL =====
+    let streamSources = {};
+    let streamLoaded = false;
+    let streamMuted = true;
+
+    function toggleVideoPanel() {
+      const panel = document.getElementById('videoRight');
+      const label = document.getElementById('videoToggleLabel');
+      panel.classList.toggle('collapsed');
+      const hidden = panel.classList.contains('collapsed');
+      label.innerHTML = hidden ? 'TV <i class="ti ti-arrow-right"></i>' : '<i class="ti ti-player-track-prev"></i> TV';
+    }
+
+    function loadStream() {
+      const select = document.getElementById('streamSource');
+      const key = select.value;
+      const source = streamSources[key];
+      if (!source || !source.url) return;
+
+      const container = document.getElementById('videoContainer');
+      const placeholder = document.getElementById('videoPlaceholder');
+      const loadBtn = document.getElementById('videoLoadBtn');
+      const muteBtn = document.getElementById('videoMuteBtn');
+      const fsBtn = document.getElementById('videoFullscreenBtn');
+
+      if (streamLoaded) {
+        // Unload
+        const iframe = container.querySelector('iframe');
+        if (iframe) iframe.remove();
+        placeholder.style.display = '';
+        loadBtn.innerHTML = '<i class="ti ti-player-play"></i> LOAD STREAM';
+        muteBtn.style.display = 'none';
+        fsBtn.style.display = 'none';
+        streamLoaded = false;
+        return;
+      }
+
+      // Load
+      placeholder.style.display = 'none';
+      const iframe = document.createElement('iframe');
+      iframe.src = source.url;
+      iframe.allow = 'autoplay; encrypted-media';
+      iframe.allowFullscreen = true;
+      container.appendChild(iframe);
+      streamLoaded = true;
+      loadBtn.innerHTML = '<i class="ti ti-player-stop"></i> STOP';
+      muteBtn.style.display = '';
+      fsBtn.style.display = '';
+    }
+
+    function changeStreamSource() {
+      if (streamLoaded) {
+        // Reload with new source
+        const container = document.getElementById('videoContainer');
+        const iframe = container.querySelector('iframe');
+        if (iframe) iframe.remove();
+        const select = document.getElementById('streamSource');
+        const source = streamSources[select.value];
+        if (source && source.url) {
+          const newIframe = document.createElement('iframe');
+          newIframe.src = source.url;
+          newIframe.allow = 'autoplay; encrypted-media';
+          newIframe.allowFullscreen = true;
+          container.appendChild(newIframe);
+        }
+      }
+    }
+
+    function toggleMute() {
+      const iframe = document.querySelector('#videoContainer iframe');
+      const muteBtn = document.getElementById('videoMuteBtn');
+      if (!iframe) return;
+      try {
+        const src = new URL(iframe.src);
+        if (streamMuted) {
+          src.searchParams.delete('mute');
+        } else {
+          src.searchParams.set('mute', '');
+        }
+        iframe.src = src.toString();
+        streamMuted = !streamMuted;
+      } catch (e) { console.warn('Mute toggle failed:', e); }
+      muteBtn.innerHTML = streamMuted ? '<i class="ti ti-volume-off"></i> MUTED' : '<i class="ti ti-volume"></i> UNMUTE';
+    }
+
+    function videoFullscreen() {
+      const iframe = document.querySelector('#videoContainer iframe');
+      if (!iframe) return;
+      if (iframe.requestFullscreen) iframe.requestFullscreen();
+      else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    }
+
+    async function fetchStreams() {
+      try {
+        const resp = await fetch('/api/streams');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        buildStreamDropdown(data);
+      } catch (e) {
+        console.warn('Stream fetch failed, using fallback:', e);
+        buildStreamDropdown({
+          live: [], upcoming: [], recent: [],
+          fallback: [
+            { title: 'NASA TV — Public', embed_url: 'https://video.ibm.com/embed/nasahdtv?autoplay&mute' },
+            { title: 'ISS — Live Views', embed_url: 'https://video.ibm.com/embed/live-iss-stream?autoplay&mute' }
+          ]
+        });
+      }
+    }
+
+    function buildStreamDropdown(data) {
+      const select = document.getElementById('streamSource');
+      const currentVal = select.value;
+      streamSources = {};
+      select.innerHTML = '';
+
+      const addOpt = (key, label, embedUrl) => {
+        streamSources[key] = { title: label, url: embedUrl };
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        select.appendChild(opt);
+      };
+
+      const chTag = (s) => s.channel && s.channel !== 'NASA' ? `[${s.channel}] ` : '';
+
+      if (data.live && data.live.length) {
+        for (const s of data.live)
+          addOpt(`yt-${s.video_id}`, `[LIVE] ${chTag(s)}${s.title}`, s.embed_url);
+      }
+
+      if (data.upcoming && data.upcoming.length) {
+        for (const s of data.upcoming) {
+          let t = '';
+          if (s.scheduled) {
+            const d = new Date(s.scheduled);
+            t = ` — ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+          }
+          addOpt(`yt-${s.video_id}`, `[SOON] ${chTag(s)}${s.title}${t}`, s.embed_url);
+        }
+      }
+
+      if (data.fallback && data.fallback.length) {
+        for (const s of data.fallback) {
+          const key = `fb-${s.title.replace(/\W+/g, '-').toLowerCase()}`;
+          addOpt(key, `[24/7] ${s.title}`, s.embed_url);
+        }
+      }
+
+      if (data.recent && data.recent.length) {
+        for (const s of data.recent.slice(0, 3))
+          addOpt(`yt-${s.video_id}`, `[VOD] ${chTag(s)}${s.title}`, s.embed_url);
+      }
+
+      if (currentVal && streamSources[currentVal]) {
+        select.value = currentVal;
+      } else if (data.recommended) {
+        const recKey = `yt-${data.recommended.video_id}`;
+        if (streamSources[recKey]) select.value = recKey;
+      }
+
+      // Change source on select
+      select.onchange = changeStreamSource;
+    }
+
     // ===== INITIALIZATION =====
     async function init() {
       console.log('Mission Control v2 initializing...');
@@ -1196,6 +1679,20 @@
       // Initial data fetch
       await fetchMissionData();
       await fetchWeather();
+
+      // News ticker
+      fetchNews();
+      setInterval(fetchNews, 5 * 60 * 1000);
+
+      // Stream sources
+      fetchStreams();
+      setInterval(fetchStreams, 30 * 60 * 1000);
+
+      // Video controls
+      document.getElementById('videoToggleStrip').addEventListener('click', toggleVideoPanel);
+      document.getElementById('videoLoadBtn').addEventListener('click', loadStream);
+      document.getElementById('videoMuteBtn').addEventListener('click', toggleMute);
+      document.getElementById('videoFullscreenBtn').addEventListener('click', videoFullscreen);
 
       // Set up periodic refresh
       setInterval(fetchMissionData, CONFIG.UPDATE_INTERVAL);

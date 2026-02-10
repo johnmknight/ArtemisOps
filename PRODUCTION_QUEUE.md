@@ -29,6 +29,11 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
 
+### Recently Completed (Feb 10)
+- [x] Mission Control: NASA TV / YouTube live stream panel (60/40 split layout with source selector, load/mute/fullscreen controls)
+- [x] Mission Control: Scrolling news ticker (fetches /api/news, auto-scroll with hover pause)
+- [x] Mission Control: Countdown digit sizing adjusted for split-panel layout
+
 ### Recently Completed (Feb 9)
 - [x] Weather tab: switched to live ops endpoint (`/api/weather/operations/`) — no longer gated on 7-day launch window
 - [x] Weather tab: updated GOES satellite imagery from GOES-16/17 to GOES-19/18 (current operational satellites)
@@ -79,7 +84,7 @@ This document tracks development progress and the integration plan for the Artem
 | Phase 2 | Main App Integration | ✅ Complete |
 | Phase 3 | Component Architecture | ✅ Complete |
 | Phase 4 | Backend API Enhancements | ✅ Complete |
-| Phase 5 | Mission Control Mode | 🔄 **IN PROGRESS** |
+| Phase 5 | Mission Control Mode | ✅ Complete |
 | Phase 6 | Mobile UI Mode | 🔲 Not Started |
 | Phase 7 | Offline Support / PWA | 🔲 Not Started |
 
@@ -153,7 +158,7 @@ client/js/components/
 
 ---
 
-## 🔄 Phase 5: Mission Control Mode - IN PROGRESS
+## ✅ Phase 5: Mission Control Mode - COMPLETE
 
 **Goal:** Create a high-density, ambient display mode for large screens, kiosks, and signage.
 
@@ -214,8 +219,8 @@ client/js/components/
 | Horizontal timeline | Full-width milestone progress (all milestones) | 2 hrs | Medium | ✅ Done |
 | Clock/date display | UTC + ET time, MET in header | 1 hr | Low | ✅ Done |
 | Mission status box | Status + description info box | 1 hr | Medium | ✅ Done |
-| Live stream embed | NASA TV / YouTube embed | 4 hrs | Medium | 🔲 Open |
-| News ticker | Scrolling news at bottom | 2 hrs | Low | 🔲 Open |
+| Live stream embed | NASA TV / YouTube embed | 4 hrs | Medium | ✅ Done |
+| News ticker | Scrolling news at bottom | 2 hrs | Low | ✅ Done |
 
 #### Technical Requirements
 - Standalone HTML file (can run independently)
