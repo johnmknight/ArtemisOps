@@ -30,11 +30,18 @@ SPACE_DEVS_BASE = "https://ll.thespacedevs.com/2.2.0"
 
 LOCAL_PATCHES = {
     "artemis-ii": "/assets/patches/artemis-ii-patch.png",
-    "artemis-iii": "/assets/patches/artemis-iii-patch.png",
     # SpaceX Crew Dragon missions
     "crew-10": "/assets/patches/crew-10-patch.png",
     "crew-11": "/assets/patches/crew-11-patch.png",
+    "crew-12": "/assets/patches/crew-12-patch.png",
     # Add more as they become available
+}
+
+# Program-level patches: used when a mission has no specific patch
+# Maps program prefix → fallback patch path
+PROGRAM_PATCHES = {
+    "artemis": "/assets/patches/artemis-program-patch.png",  # Artemis program insignia
+    "crew": "/assets/patches/crew-dragon-patch.png",      # SpaceX Dragon 2 insignia (if available)
 }
 
 # ============================================================================
@@ -226,6 +233,15 @@ async def get_mission_patch(mission_name: str, launch_image: str, client: httpx.
     if mission_id in LOCAL_PATCHES:
         print(f"  → Using LOCAL patch for '{mission_name}': {LOCAL_PATCHES[mission_id]}")
         return LOCAL_PATCHES[mission_id]
+    
+    # 1b. Check program-level patches (e.g. Artemis program insignia for any Artemis mission)
+    for prefix, patch_path in PROGRAM_PATCHES.items():
+        if mission_id.startswith(prefix):
+            import os
+            patch_file = os.path.join(os.path.dirname(__file__), "..", "client", patch_path.lstrip("/"))
+            if os.path.exists(patch_file):
+                print(f"  → Using PROGRAM patch for '{mission_name}': {patch_path}")
+                return patch_path
     
     # 2. Check hardcoded Wikipedia fallbacks
     for key, url in FALLBACK_PATCHES.items():

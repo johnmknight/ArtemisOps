@@ -1237,7 +1237,7 @@
 
       // Mission patch
       document.getElementById('missionName').textContent = data.name || '---';
-      const patchUrl = data.patch_url || data.image_url;
+      const patchUrl = data.mission_patch || data.patch_url || data.image_url || data.image;
       if (patchUrl) {
         const patchEl = document.getElementById('missionPatch');
         patchEl.src = patchUrl;
