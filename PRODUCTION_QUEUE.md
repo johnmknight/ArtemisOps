@@ -85,6 +85,7 @@ This document tracks development progress and the integration plan for the Artem
 - [x] **Implement dual 3D panel layout** - Side-by-side orthogonal ISS views
 
 ### Up Next
+- [ ] **Control page: Data/API tab** — New tab listing all server-side API calls with last-fired timestamps, response status, and editable polling intervals
 - [x] ~~Add orbit track rendering~~ — Already implemented (`calculatePredictedOrbit` with 51.6° inclination, Earth rotation, dateline wrapping)
 - [x] ~~Implement ground station visibility overlays~~ — 12 stations (MCC-H, TsUP, TDRS, DSN, JAXA, ESA, CSA) with comm range circles
 - [x] ~~Add day/night terminator line to map~~ — Solar declination + equation of time, polygon overlay, 60s refresh
