@@ -147,9 +147,9 @@
       z-index: 1000;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      min-width: 180px;
-      max-width: 220px;
+      gap: 2px;
+      min-width: 200px;
+      max-width: 240px;
     }
     .data-overlay-title {
       font-size: 0.5rem;
@@ -160,31 +160,80 @@
       padding-bottom: 4px;
       margin-bottom: 2px;
     }
-    .data-row {
+    .data-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .data-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1px 0;
+      padding: 2px 0;
     }
-    .data-row label { 
-      font-size: 0.5rem; 
-      color: var(--text-secondary); 
-      letter-spacing: 0.5px; 
+    .data-item label {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
       text-transform: uppercase;
     }
-    .data-row span { 
-      font-family: 'Courier New', monospace; 
-      font-size: 0.7rem; 
-      color: var(--text-primary);
+    .data-item span {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: var(--text-accent);
     }
-    .data-row span.location-val {
+    .data-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 3px 0;
+    }
+    .data-location {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 2px 0;
+    }
+    .data-location label {
+      font-size: 0.5rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .data-location .location-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
       color: var(--iss-color);
-      font-size: 0.65rem;
-      text-align: right;
-      max-width: 120px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .data-location .location-country {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+    }
+    .data-stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      padding-top: 2px;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .stat-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: var(--text-accent);
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.45rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     /* Side Panel - ISS Telemetry */
