@@ -1209,6 +1209,10 @@ if CLIENT_DIR.exists():
     if (CLIENT_DIR / "js").exists():
         app.mount("/js", StaticFiles(directory=CLIENT_DIR / "js"), name="js")
     
+    # Serve CSS files from root /css/ path
+    if (CLIENT_DIR / "css").exists():
+        app.mount("/css", StaticFiles(directory=CLIENT_DIR / "css"), name="css")
+    
     # Serve mockups from root /mockups/ path (for iframe embeds)
     if (CLIENT_DIR / "mockups").exists():
         app.mount("/mockups", StaticFiles(directory=CLIENT_DIR / "mockups"), name="mockups")

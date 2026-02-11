@@ -32,7 +32,7 @@
   --ao-cyan-glow:     rgba(0, 240, 212, 0.35);
 
   /* Corner geometry per tier */
-  --ao-clip-page:     20px;
+  --ao-clip-page:     80px;
   --ao-clip-panel:    12px;
   --ao-clip-sub:      6px;
   --ao-clip-popup:    8px;
@@ -50,17 +50,18 @@
 .ao-frame-page {
   position: relative;
   width: 100%; height: 100%;
+  overflow: hidden;
   clip-path: polygon(
     var(--ao-clip-page) 0%, calc(100% - var(--ao-clip-page)) 0%,
     100% var(--ao-clip-page), 100% calc(100% - var(--ao-clip-page)),
     calc(100% - var(--ao-clip-page)) 100%, var(--ao-clip-page) 100%,
     0% calc(100% - var(--ao-clip-page)), 0% var(--ao-clip-page)
   );
-  box-shadow: inset 0 0 0 1px var(--ao-border-dim);
+  box-shadow: inset 0 0 0 3px var(--ao-border-bright);
 }
 .ao-frame-page::before {
   content: ''; position: absolute; inset: 0; clip-path: inherit;
-  box-shadow: inset 0 0 0 1px var(--ao-border-mid), inset 0 0 20px var(--ao-glow);
+  box-shadow: inset 0 0 0 3px var(--ao-border-mid), inset 0 0 60px var(--ao-glow-strong);
   pointer-events: none; z-index: 10;
 }
 .ao-frame-page::after {
@@ -71,7 +72,7 @@
 
 /* Page corners */
 .ao-frame-page .ao-corner {
-  position: absolute; width: 60px; height: 60px;
+  position: absolute; width: 240px; height: 240px;
   z-index: 12; pointer-events: none;
 }
 .ao-corner.tl { top: 0; left: 0; }
@@ -81,7 +82,7 @@
 
 /* Hazard stripes */
 .ao-hazard {
-  position: absolute; left: 60px; right: 60px; height: 3px;
+  position: absolute; left: 240px; right: 240px; height: 3px;
   z-index: 12; pointer-events: none; opacity: 0.4;
   background: repeating-linear-gradient(90deg,
     var(--ao-border-mid) 0px, var(--ao-border-mid) 8px,
@@ -93,8 +94,8 @@
 /* Side notches */
 .ao-notch {
   position: absolute; top: 50%; transform: translateY(-50%);
-  width: 4px; height: 40px; z-index: 12; pointer-events: none;
-  background: var(--ao-border-mid); opacity: 0.5;
+  width: 6px; height: 120px; z-index: 12; pointer-events: none;
+  background: var(--ao-border-mid); opacity: 0.7;
 }
 .ao-notch.left  { left: 0; border-radius: 0 2px 2px 0; }
 .ao-notch.right { right: 0; border-radius: 2px 0 0 2px; }
