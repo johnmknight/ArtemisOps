@@ -135,77 +135,56 @@
     
     #iss-map { flex: 1; min-height: 300px; background: #0a1628; }
     
-    /* Data Overlay */
+    /* Data Overlay - compact bottom-right on map */
     .data-overlay {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 22, 40, 0.9);
-      border-top: 1px solid var(--border-color);
-      padding: 8px 16px;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(10, 22, 40, 0.92);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 8px 12px;
       z-index: 1000;
       display: flex;
-      align-items: center;
-      gap: 24px;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 180px;
+      max-width: 220px;
     }
-    .data-section {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .data-item label { 
-      font-size: 0.5rem; 
-      color: var(--text-secondary); 
-      letter-spacing: 1px; 
-      display: block; 
-      text-transform: uppercase;
-    }
-    .data-item span { 
-      font-family: 'Courier New', monospace; 
-      font-size: 0.85rem; 
-      color: var(--text-primary);
-    }
-    .data-divider {
-      width: 1px;
-      height: 30px;
-      background: var(--border-color);
-    }
-    .data-location label {
+    .data-overlay-title {
       font-size: 0.5rem;
-      color: var(--text-secondary);
+      color: var(--text-accent);
       letter-spacing: 1px;
       text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      margin-bottom: 2px;
     }
-    .data-location .location-name {
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      color: var(--iss-color);
-      display: block;
-      margin-top: 1px;
-    }
-    .data-location .location-country {
-      font-size: 0.6rem;
-      color: var(--text-secondary);
-    }
-    .data-stats {
+    .data-row {
       display: flex;
-      gap: 16px;
-      margin-left: auto;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1px 0;
     }
-    .data-stats .stat-item {
-      text-align: center;
+    .data-row label { 
+      font-size: 0.5rem; 
+      color: var(--text-secondary); 
+      letter-spacing: 0.5px; 
+      text-transform: uppercase;
     }
-    .data-stats .stat-value {
-      font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
+    .data-row span { 
+      font-family: 'Courier New', monospace; 
+      font-size: 0.7rem; 
       color: var(--text-primary);
     }
-    .data-stats .stat-label {
-      font-size: 0.45rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .data-row span.location-val {
+      color: var(--iss-color);
+      font-size: 0.65rem;
+      text-align: right;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     /* Side Panel - ISS Telemetry */
@@ -1023,13 +1002,57 @@
        DUAL 3D VIEW LAYOUT (NASA Mission Control Style)
        ============================================ */
     
-    /* Station viewer now stacks vertically: 3D views on top, telemetry below */
+    /* Station viewer: module column left + 3D views right */
     .station-viewer-dual {
       flex: 1;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       min-height: 0;
       background: #000;
+    }
+    
+    /* Module info column - left of 3D views */
+    .module-info-column {
+      width: 110px;
+      min-width: 110px;
+      background: rgba(13, 26, 45, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 4px;
+      gap: 3px;
+    }
+    .module-info-card {
+      padding: 5px 6px;
+      border: 1px solid rgba(26, 58, 92, 0.4);
+      border-radius: 4px;
+      background: rgba(0, 15, 30, 0.6);
+      transition: all 0.2s ease;
+    }
+    .module-info-card:hover {
+      background: rgba(0, 212, 255, 0.08);
+      border-color: rgba(0, 212, 255, 0.4);
+    }
+    .module-info-name {
+      font-size: 0.5rem;
+      font-weight: 600;
+      color: var(--text-accent);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .module-info-flag {
+      font-size: 0.6rem;
+      line-height: 1;
+    }
+    .module-info-data {
+      font-family: 'Courier New', monospace;
+      font-size: 0.5rem;
+      color: var(--success-color);
+      margin-top: 2px;
+      line-height: 1.4;
     }
     
     /* Container for the two 3D views stacked vertically */
@@ -1038,6 +1061,41 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      position: relative;
+    }
+    
+    /* ISS data overlay between the two 3D views */
+    .iss-data-strip {
+      background: rgba(10, 22, 40, 0.92);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .strip-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+    .strip-label {
+      font-size: 0.38rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .strip-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.6rem;
+      color: var(--text-accent);
+      font-weight: 600;
+      white-space: nowrap;
     }
     
     /* Individual 3D view panel */
@@ -1281,15 +1339,50 @@
         </div>
         
         <div class="station-viewer-dual">
-          <!-- Dual 3D Views -->
+          <!-- Module Info Column -->
+          <div class="module-info-column">
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇺🇸</span> Destiny</div>
+              <div class="module-info-data" id="destiny-temp">--°C</div>
+              <div class="module-info-data" id="destiny-press">-- mmHg</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇺🇸</span> Harmony</div>
+              <div class="module-info-data" id="harmony-temp">--°C</div>
+              <div class="module-info-data" id="harmony-press">-- psia</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇪🇺</span> Columbus</div>
+              <div class="module-info-data" id="columbus-temp">--°C</div>
+              <div class="module-info-data" id="columbus-press">-- psia</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇯🇵</span> Kibo</div>
+              <div class="module-info-data" id="kibo-temp">--°C</div>
+              <div class="module-info-data" id="kibo-press">-- psia</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇷🇺</span> Zvezda</div>
+              <div class="module-info-data" id="zvezda-temp">--°C</div>
+              <div class="module-info-data" id="zvezda-press">-- psia</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name"><span class="module-info-flag">🇷🇺</span> Zarya</div>
+              <div class="module-info-data" id="zarya-temp">--°C</div>
+              <div class="module-info-data" id="zarya-press">-- psia</div>
+            </div>
+            <div class="module-info-card">
+              <div class="module-info-name">☀️ Solar</div>
+              <div class="module-info-data" id="solarAngles">--°</div>
+              <div class="module-info-data">Tracking Sun</div>
+            </div>
+          </div>
+
+          <!-- Dual 3D Views with ISS data strip between -->
           <div class="dual-view-container">
-            <!-- NADIR VIEW - Looking from below the station -->
             <div class="iss-view" id="nadirView">
               <div class="view-label">NADIR VIEW</div>
               <canvas id="nadirCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-x">↑Vel</span>
-              </div>
               <div class="loading-overlay" id="nadirLoading">
                 <div class="loading-spinner"></div>
                 <div class="loading-text">Loading ISS Model...</div>
@@ -1297,67 +1390,41 @@
               </div>
             </div>
             
-            <!-- VELOCITY VIEW - Looking from behind along flight path -->
+            <!-- ISS Orbital Data Strip -->
+            <div class="iss-data-strip">
+              <div class="strip-item">
+                <span class="strip-label">Lat</span>
+                <span class="strip-value" id="stripLat">--°</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label">Lng</span>
+                <span class="strip-value" id="stripLng">--°</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label">Alt</span>
+                <span class="strip-value" id="stripAlt">-- km</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label">Vel</span>
+                <span class="strip-value" id="stripVel">-- km/s</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label">Attitude</span>
+                <span class="strip-value" id="attitudeDisplay">R:--° P:--°</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label">Orbit</span>
+                <span class="strip-value" id="statOrbit">---</span>
+              </div>
+            </div>
+
             <div class="iss-view" id="velocityView">
               <div class="view-label">VELOCITY VIEW</div>
               <canvas id="velocityCanvas"></canvas>
-              <div class="axis-indicator">
-                <span class="axis-z">←Truss→</span> <span class="axis-y">↓Nadir</span>
-              </div>
               <div class="loading-overlay" id="velocityLoading">
                 <div class="loading-spinner"></div>
                 <div class="loading-text">Loading ISS Model...</div>
                 <div class="loading-progress" id="velocityProgress">0%</div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Telemetry Grid -->
-          <div class="telemetry-grid-panel">
-            <div class="telemetry-grid-header">
-              <span>📊 STATION SYSTEMS TELEMETRY</span>
-              <div class="live-badge" id="telemLiveBadge"><span class="connecting-dot"></span>LIVE</div>
-            </div>
-            <div class="telemetry-grid">
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">DESTINY LAB</div>
-                <div class="telem-grid-value" id="destiny-temp">--°C</div>
-                <div class="telem-grid-unit" id="destiny-press">-- mmHg</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">HARMONY</div>
-                <div class="telem-grid-value" id="harmony-temp">--°C</div>
-                <div class="telem-grid-unit" id="harmony-press">-- psia</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">COLUMBUS</div>
-                <div class="telem-grid-value" id="columbus-temp">--°C</div>
-                <div class="telem-grid-unit" id="columbus-press">-- psia</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">KIBO (JEM)</div>
-                <div class="telem-grid-value" id="kibo-temp">--°C</div>
-                <div class="telem-grid-unit" id="kibo-press">-- psia</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ZVEZDA</div>
-                <div class="telem-grid-value" id="zvezda-temp">--°C</div>
-                <div class="telem-grid-unit" id="zvezda-press">-- psia</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ZARYA</div>
-                <div class="telem-grid-value" id="zarya-temp">--°C</div>
-                <div class="telem-grid-unit" id="zarya-press">-- psia</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">ATTITUDE</div>
-                <div class="telem-grid-value" id="attitudeDisplay">R:--° P:--°</div>
-                <div class="telem-grid-unit" id="attitudeYaw">Y: --°</div>
-              </div>
-              <div class="telem-grid-item">
-                <div class="telem-grid-label">SOLAR ARRAYS</div>
-                <div class="telem-grid-value" id="solarAngles">--°</div>
-                <div class="telem-grid-unit">Tracking Sun</div>
               </div>
             </div>
           </div>
@@ -2125,6 +2192,16 @@
         document.getElementById('dataLng').textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
         document.getElementById('dataAlt').textContent = alt.toFixed(0) + ' km';
         document.getElementById('dataVel').textContent = vel.toFixed(0) + ' km/h';
+        
+        // Update strip between 3D views
+        const sLat = document.getElementById('stripLat');
+        const sLng = document.getElementById('stripLng');
+        const sAlt = document.getElementById('stripAlt');
+        const sVel = document.getElementById('stripVel');
+        if (sLat) sLat.textContent = lat.toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S');
+        if (sLng) sLng.textContent = Math.abs(lng).toFixed(2) + '°' + (lng >= 0 ? 'E' : 'W');
+        if (sAlt) sAlt.textContent = alt.toFixed(0) + ' km';
+        if (sVel) sVel.textContent = vel.toFixed(0) + ' km/s';
         
         // Update telemetry (with null checks for removed elements)
         const telAlt = document.getElementById('telAlt');
