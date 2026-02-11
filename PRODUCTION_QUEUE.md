@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 11, 2026
 
 ---
 
@@ -28,6 +28,15 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Enable fractional zoom for optimal map fill
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
+
+### Recently Completed (Feb 11)
+- [x] Asset localization: all crew photos, agency logos, hero images served from local /assets/ (zero remote image fetches)
+- [x] Agency logo upgrades: ESA PNG, hi-res JAXA (40KB) and Roscosmos (73KB) PNGs replace corrupt/tiny files
+- [x] ISS tracking header: text agency badges replaced with actual logo images (NASA, ESA, JAXA, CSA, Roscosmos)
+- [x] Crew ISS mission branding rule: Crew-X missions always show NASA logo instead of SpaceX
+- [x] Page architecture consolidation: deleted standalone mission-control.html, all UI lives in tabs/*.html via iframe shell
+- [x] Mission patch fixes: API field mismatch (mission_patch vs patch_url), Crew-12 patch upgraded to 544KB with transparency
+- [x] Font research: evaluated 24 space/sci-fi fonts, selected Orbitron + existing stack, samples page created
 
 ### Recently Completed (Feb 10)
 - [x] Mission Control: NASA TV / YouTube live stream panel (60/40 split layout with source selector, load/mute/fullscreen controls)
@@ -301,8 +310,15 @@ client/js/components/
 ### Client Files
 ```
 client/
-├── index.html                    # Main desktop app
-├── mission-control.html          # ✅ Kiosk/signage mode (standalone)
+├── index.html                    # Iframe shell (primary entry point)
+├── index-shell.html              # Second iteration shell
+├── index2.html                   # Kiosk mode entry
+├── assets/
+│   ├── crew/                     # Local astronaut portraits (8 JPEGs)
+│   ├── images/                   # Mission hero images
+│   ├── logos/                    # Agency logos (NASA SVG, ESA/JAXA/Roscosmos/SpaceX/CSA PNG)
+│   ├── patches/                  # Mission patches (Crew-10/11/12, Artemis II/III)
+│   └── fonts/                    # Local fonts (Tabler, Spaceicons, pending Orbitron)
 ├── data/
 │   └── spacecraft-manifest.json  # Spacecraft registry for icons/tracking
 ├── js/
@@ -316,12 +332,16 @@ client/
 │       ├── ArtemisIIIMap.js
 │       ├── ISSMap.js
 │       └── MissionMapRouter.js
+├── tabs/                         # All UI pages (served via iframe shell)
+│   ├── mission.html              # Mission countdown + status + crew strip
+│   ├── tracking.html             # Map tracking modes
+│   └── ...                       # crew, info, trajectory3d, weather, recovery
 └── mockups/                      # Design references
     ├── mode1-prelaunch.html
     ├── mode2-ascent.html
-    ├── mode3-*.html
-    ├── icon-gallery-v7.html      # Final icon references
-    └── map-epsg4326-test.html    # Projection test
+    ├── mode3-iss-live.html       # ISS tracker with dual 3D views
+    ├── icon-gallery-v7.html
+    └── map-epsg4326-test.html
 ```
 
 ### Server Files
@@ -335,6 +355,8 @@ server/
 ├── crew_enrichment.py            # ISS crew agency enrichment
 ├── trajectories.py               # Trajectory waypoint/path data
 ├── news.py                       # General NASA RSS news aggregation
+├── localize_images.py            # Download remote assets to local /assets/
+├── fix_bg.py                     # Mission patch background removal
 ├── requirements.txt              # Python dependencies
 └── artemisops.db                 # SQLite database
 ```
@@ -375,9 +397,18 @@ server/
 
 ## Notes
 
+### Architecture Decisions
+- **Iframe shell consolidation (Feb 11):** All UI pages live in `tabs/*.html`, served through iframe shell (`index.html`). Standalone `mission-control.html` was deleted. No more standalone pages — everything accessed via tabbed shell.
+- **Asset localization (Feb 11):** All crew photos, agency logos, mission patches, and hero images are served locally from `/assets/`. Zero remote image fetches for mission data. Supports offline kiosk mode. Only live streams, map tiles, and radar data remain remote by necessity.
+
+### Design Rules
+- **Crew ISS branding:** If missions are CREW missions to ISS, they use the NASA logo instead of SpaceX. Detected by mission name starting with "crew-" or containing "crew dragon".
+- **Agency logos:** Served locally as SVG/PNG from `/assets/logos/`. ISS tracker header shows all 5 partner agencies (NASA, ESA, JAXA, CSA, Roscosmos).
+- **Fonts:** Orbitron selected for display text. Space Mono + IBM Plex Sans for body. All hosted locally (no CDN) for offline kiosk support.
+
 - Desktop mode is production-ready
 - Tracking tab fully functional with live ISS data
 - Mission Control mode is next priority
 - Consider Raspberry Pi deployment for kiosk displays
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 11, 2026
