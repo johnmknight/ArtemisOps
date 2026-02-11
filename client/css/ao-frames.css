@@ -1,0 +1,202 @@
+/* =============================================
+   ArtemisOps — Border Design System (ao-frames)
+   4-tier frame hierarchy + countdown digit frames
+   ============================================= */
+
+:root {
+  /* Core palette */
+  --ao-bg-deep:       #060a10;
+  --ao-bg-panel:      rgba(8, 14, 24, 0.85);
+  --ao-bg-sub:        rgba(12, 20, 32, 0.7);
+  --ao-bg-popup:      rgba(10, 16, 28, 0.95);
+
+  /* Border colors — nominal cyan */
+  --ao-border-bright: #88ccff;
+  --ao-border-mid:    #4a80aa;
+  --ao-border-dim:    #1e3348;
+  --ao-border-faint:  rgba(30, 51, 72, 0.5);
+
+  /* Glow */
+  --ao-glow:          rgba(100, 180, 255, 0.25);
+  --ao-glow-strong:   rgba(136, 204, 255, 0.4);
+
+  /* Status accents */
+  --ao-nominal:       #44dd88;
+  --ao-caution:       #ddaa44;
+  --ao-alert:         #dd4455;
+
+  /* Countdown cyan */
+  --ao-cyan:          #00f0d4;
+  --ao-cyan-mid:      #00c4ad;
+  --ao-cyan-dim:      #0a8a7a;
+  --ao-cyan-glow:     rgba(0, 240, 212, 0.35);
+
+  /* Corner geometry per tier */
+  --ao-clip-page:     20px;
+  --ao-clip-panel:    12px;
+  --ao-clip-sub:      6px;
+  --ao-clip-popup:    8px;
+
+  /* Scanline overlay */
+  --ao-scanline: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 2px,
+    rgba(136, 204, 255, 0.012) 2px,
+    rgba(136, 204, 255, 0.012) 4px
+  );
+}
+
+/* ── TIER 1: PAGE FRAME ── */
+.ao-frame-page {
+  position: relative;
+  width: 100%; height: 100%;
+  clip-path: polygon(
+    var(--ao-clip-page) 0%, calc(100% - var(--ao-clip-page)) 0%,
+    100% var(--ao-clip-page), 100% calc(100% - var(--ao-clip-page)),
+    calc(100% - var(--ao-clip-page)) 100%, var(--ao-clip-page) 100%,
+    0% calc(100% - var(--ao-clip-page)), 0% var(--ao-clip-page)
+  );
+  box-shadow: inset 0 0 0 1px var(--ao-border-dim);
+}
+.ao-frame-page::before {
+  content: ''; position: absolute; inset: 0; clip-path: inherit;
+  box-shadow: inset 0 0 0 1px var(--ao-border-mid), inset 0 0 20px var(--ao-glow);
+  pointer-events: none; z-index: 10;
+}
+.ao-frame-page::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--ao-scanline);
+  pointer-events: none; z-index: 11;
+}
+
+/* Page corners */
+.ao-frame-page .ao-corner {
+  position: absolute; width: 60px; height: 60px;
+  z-index: 12; pointer-events: none;
+}
+.ao-corner.tl { top: 0; left: 0; }
+.ao-corner.tr { top: 0; right: 0; }
+.ao-corner.bl { bottom: 0; left: 0; }
+.ao-corner.br { bottom: 0; right: 0; }
+
+/* Hazard stripes */
+.ao-hazard {
+  position: absolute; left: 60px; right: 60px; height: 3px;
+  z-index: 12; pointer-events: none; opacity: 0.4;
+  background: repeating-linear-gradient(90deg,
+    var(--ao-border-mid) 0px, var(--ao-border-mid) 8px,
+    transparent 8px, transparent 16px);
+}
+.ao-hazard.top { top: 0; }
+.ao-hazard.bottom { bottom: 0; }
+
+/* Side notches */
+.ao-notch {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 4px; height: 40px; z-index: 12; pointer-events: none;
+  background: var(--ao-border-mid); opacity: 0.5;
+}
+.ao-notch.left  { left: 0; border-radius: 0 2px 2px 0; }
+.ao-notch.right { right: 0; border-radius: 2px 0 0 2px; }
+
+/* ── TIER 2: PANEL FRAME ── */
+.ao-frame-panel {
+  position: relative;
+  background: var(--ao-bg-panel);
+  clip-path: polygon(
+    var(--ao-clip-panel) 0%, calc(100% - var(--ao-clip-panel)) 0%,
+    100% var(--ao-clip-panel), 100% calc(100% - var(--ao-clip-panel)),
+    calc(100% - var(--ao-clip-panel)) 100%, var(--ao-clip-panel) 100%,
+    0% calc(100% - var(--ao-clip-panel)), 0% var(--ao-clip-panel)
+  );
+  box-shadow: inset 0 0 0 1px var(--ao-border-dim);
+}
+.ao-frame-panel::before {
+  content: ''; position: absolute;
+  top: 0; left: var(--ao-clip-panel); right: var(--ao-clip-panel);
+  height: 1px; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--ao-border-bright), transparent);
+}
+.ao-frame-panel .ao-pin {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ao-border-bright); opacity: 0.5;
+  z-index: 2; pointer-events: none;
+}
+.ao-pin.tl { top: 8px; left: 8px; }
+.ao-pin.tr { top: 8px; right: 8px; }
+.ao-pin.bl { bottom: 8px; left: 8px; }
+.ao-pin.br { bottom: 8px; right: 8px; }
+
+/* ── TIER 3: SUB FRAME ── */
+.ao-frame-sub {
+  position: relative;
+  background: var(--ao-bg-sub);
+  clip-path: polygon(
+    var(--ao-clip-sub) 0%, calc(100% - var(--ao-clip-sub)) 0%,
+    100% var(--ao-clip-sub), 100% calc(100% - var(--ao-clip-sub)),
+    calc(100% - var(--ao-clip-sub)) 100%, var(--ao-clip-sub) 100%,
+    0% calc(100% - var(--ao-clip-sub)), 0% var(--ao-clip-sub)
+  );
+  box-shadow: inset 0 0 0 1px var(--ao-border-dim);
+}
+/* Left status stripe */
+.ao-frame-sub::before {
+  content: ''; position: absolute; top: 6px; bottom: 6px; left: 0; width: 3px;
+  background: var(--ao-border-mid); z-index: 2; pointer-events: none;
+}
+.ao-frame-sub.nominal::before { background: var(--ao-nominal); }
+.ao-frame-sub.caution::before { background: var(--ao-caution); }
+.ao-frame-sub.alert::before   { background: var(--ao-alert); }
+
+/* ── COUNTDOWN DIGIT FRAMES ── */
+.ao-digit-frame {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.ao-digit-cell {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, rgba(6,10,16,0.95) 0%, rgba(10,18,30,0.9) 100%);
+  clip-path: polygon(
+    var(--ao-clip-panel) 0%, calc(100% - var(--ao-clip-panel)) 0%,
+    100% var(--ao-clip-panel), 100% calc(100% - var(--ao-clip-panel)),
+    calc(100% - var(--ao-clip-panel)) 100%, var(--ao-clip-panel) 100%,
+    0% calc(100% - var(--ao-clip-panel)), 0% var(--ao-clip-panel)
+  );
+  box-shadow:
+    inset 0 0 0 1px var(--ao-cyan-dim),
+    inset 0 0 30px rgba(0, 240, 212, 0.08),
+    0 0 15px rgba(0, 240, 212, 0.1);
+}
+/* Corner accent marks */
+.ao-digit-cell .ao-digit-corner {
+  position: absolute; width: 8px; height: 8px; z-index: 3; pointer-events: none;
+}
+.ao-digit-corner.tl { top: 4px; left: 4px; border-top: 1px solid var(--ao-cyan-mid); border-left: 1px solid var(--ao-cyan-mid); }
+.ao-digit-corner.tr { top: 4px; right: 4px; border-top: 1px solid var(--ao-cyan-mid); border-right: 1px solid var(--ao-cyan-mid); }
+.ao-digit-corner.bl { bottom: 4px; left: 4px; border-bottom: 1px solid var(--ao-cyan-mid); border-left: 1px solid var(--ao-cyan-mid); }
+.ao-digit-corner.br { bottom: 4px; right: 4px; border-bottom: 1px solid var(--ao-cyan-mid); border-right: 1px solid var(--ao-cyan-mid); }
+
+/* Separator dots */
+.ao-digit-sep {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px;
+}
+.ao-digit-sep .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ao-cyan); opacity: 0.9;
+  box-shadow: 0 0 8px var(--ao-cyan-glow);
+  animation: sep-pulse 1s ease-in-out infinite;
+}
+.ao-digit-sep .dot:nth-child(2) { animation-delay: 0.1s; }
+
+@keyframes sep-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.3; }
+}
+
+/* ── INTERACTIVE Z-INDEX FIX ── */
+/* Ensure clickable elements are above scanline overlay */
+.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch)::before,
+.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
+  position: relative;
+  z-index: 12;
+}
