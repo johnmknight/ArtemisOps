@@ -1222,14 +1222,6 @@ if CLIENT_DIR.exists():
         """New iframe-based shell architecture"""
         return FileResponse(CLIENT_DIR / "index-shell.html")
     
-    @app.get("/mission-control.html")
-    async def serve_mission_control():
-        return FileResponse(CLIENT_DIR / "mission-control.html")
-    
-    @app.get("/mission-control")
-    async def serve_mission_control_alt():
-        return FileResponse(CLIENT_DIR / "mission-control.html")
-
     @app.get("/kiosk")
     async def serve_kiosk():
         """New kiosk mode interface"""

@@ -466,9 +466,62 @@
       padding: 0 10px;
     }
 
-    /* Launch info row */
-    .launch-info-container {
-      margin-bottom: clamp(12px, 2vh, 24px);
+    /* Launch info with flanking logos */
+    .info-with-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(16px, 2.5vw, 40px);
+      margin-bottom: clamp(12px, 2.5vh, 28px);
+    }
+
+    .agency-logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .agency-logo {
+      height: clamp(50px, min(8vw, 14vh), 140px);
+      width: auto;
+      min-width: 50px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
+      background: transparent;
+    }
+
+    .agency-name {
+      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      color: var(--text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .mission-patch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mission-patch-large {
+      height: clamp(50px, min(8vw, 14vh), 140px);
+      width: auto;
+      min-width: 50px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.25));
+      background: transparent;
+    }
+
+    .mission-name {
+      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      color: var(--text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
     }
 
 
@@ -647,6 +700,89 @@
 
     .weather-stat strong { color: var(--text-primary); }
 
+    /* ===== STATUS PANEL ===== */
+    .status-panel {
+      display: flex;
+      gap: clamp(6px, 1vw, 14px);
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: clamp(8px, 1.2vh, 14px);
+    }
+
+    .status-light {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(0, 20, 40, 0.6);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      font-size: clamp(0.6rem, 0.9vh, 0.75rem);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .status-light .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-light.go .dot { background: var(--success-color); box-shadow: 0 0 8px var(--success-color); }
+    .status-light.go { color: var(--success-color); border-color: rgba(34, 197, 94, 0.3); }
+    .status-light.caution .dot { background: var(--warning-color); box-shadow: 0 0 8px var(--warning-color); }
+    .status-light.caution { color: var(--warning-color); border-color: rgba(245, 158, 11, 0.3); }
+    .status-light.nogo .dot { background: var(--danger-color); box-shadow: 0 0 8px var(--danger-color); }
+    .status-light.nogo { color: var(--danger-color); border-color: rgba(239, 68, 68, 0.3); }
+    .status-light.tbd .dot { background: var(--text-secondary); }
+    .status-light.tbd { color: var(--text-secondary); }
+
+    /* ===== CREW STRIP ===== */
+    .crew-strip {
+      display: flex;
+      gap: clamp(6px, 1vw, 14px);
+      justify-content: center;
+      margin-top: clamp(6px, 1vh, 12px);
+    }
+
+    .crew-strip-member {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px 5px 5px;
+      background: rgba(0, 20, 40, 0.6);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .crew-strip-photo {
+      width: clamp(32px, 5vh, 48px);
+      height: clamp(32px, 5vh, 48px);
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center 20%;
+      border: 2px solid var(--border-subtle);
+    }
+
+    .crew-strip-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .crew-strip-name {
+      font-size: clamp(0.7rem, 1.1vh, 0.9rem);
+      font-weight: 700;
+    }
+
+    .crew-strip-role {
+      font-size: clamp(0.55rem, 0.8vh, 0.7rem);
+      color: var(--text-accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
     /* ===== TIMELINE FOOTER ===== */
     .timeline-strip {
       grid-column: 1 / -1;
@@ -814,8 +950,12 @@
           </div>
         </div>
         
-        <!-- Launch info -->
-        <div class="launch-info-container">
+        <!-- Launch info with flanking logos -->
+        <div class="info-with-logos">
+          <div class="agency-logo-container">
+            <img id="agencyLogo" src="" alt="NASA" class="agency-logo">
+            <span class="agency-name" id="agencyName">NASA</span>
+          </div>
           <div class="launch-info-row">
             <div class="launch-info-item">
               <div class="launch-info-label">Target Date</div>
@@ -830,6 +970,10 @@
               <div class="launch-info-value" id="launchSite">Loading...</div>
             </div>
           </div>
+          <div class="mission-patch-container">
+            <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
+            <span class="mission-name" id="missionName">---</span>
+          </div>
         </div>
         
         <!-- Info boxes -->
@@ -840,6 +984,15 @@
               <div class="info-box-label">Next Milestone</div>
               <div class="info-box-title" id="nextMilestoneTitle">Loading...</div>
               <div class="info-box-meta" id="nextMilestoneMeta">--</div>
+            </div>
+          </div>
+          
+          <div class="info-box" id="statusBox">
+            <span class="info-box-icon" id="statusIcon"></span>
+            <div class="info-box-content">
+              <div class="info-box-label">Mission Status</div>
+              <div class="info-box-title" id="missionStatusTitle">---</div>
+              <div class="info-box-meta" id="missionStatusMeta">---</div>
             </div>
           </div>
           
@@ -858,6 +1011,18 @@
             </div>
           </div>
         </div>
+        
+        <!-- Status Indicators -->
+        <div class="status-panel" id="statusPanel">
+          <div class="status-light tbd"><span class="dot"></span>Vehicle</div>
+          <div class="status-light tbd"><span class="dot"></span>Weather</div>
+          <div class="status-light tbd"><span class="dot"></span>Range</div>
+          <div class="status-light tbd"><span class="dot"></span>Crew</div>
+          <div class="status-light tbd"><span class="dot"></span>Ground</div>
+        </div>
+        
+        <!-- Crew Strip -->
+        <div class="crew-strip" id="crewStrip"></div>
       </div>
       </div><!-- /countdown-left -->
 
@@ -933,6 +1098,15 @@
 
   <script>
     // Mission Tab Controller - V9 Integrated Layout
+    // ===== DEFAULT AGENCY LOGOS =====
+    const AGENCY_LOGOS = {
+      'NASA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/200px-NASA_logo.svg.png',
+      'ESA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/ESA_logo.svg/200px-ESA_logo.svg.png',
+      'JAXA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Jaxa_logo.svg/200px-Jaxa_logo.svg.png',
+      'SpaceX': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/SpaceX-Logo.svg/200px-SpaceX-Logo.svg.png',
+      'SpX': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/SpaceX-Logo.svg/200px-SpaceX-Logo.svg.png',
+    };
+
     const MissionTab = {
       missionData: null,
       weatherData: null,
@@ -944,6 +1118,7 @@
       init() {
         // Initialize icons from icons.js
         document.getElementById('milestoneIcon').innerHTML = ICONS['bolt'];
+        document.getElementById('statusIcon').innerHTML = ICONS['refresh'] || ICONS['rotate'] || '⟳';
         document.getElementById('weatherIcon').innerHTML = ICONS['sun'];
         document.getElementById('videoPlaceholderIcon').innerHTML = ICONS['satellite'];
         document.getElementById('videoMuteBtn').innerHTML = ICONS['volume-off'] + ' MUTED';
@@ -1032,9 +1207,36 @@
         
         document.getElementById('launchSite').textContent = m.site || 'TBD';
         
+        // Agency logo — Crew ISS missions are NASA missions
+        const missionName = (m.name || '').toLowerCase();
+        const isCrewMission = missionName.startsWith('crew-') || missionName.includes('crew dragon');
+        const agencyName = isCrewMission ? 'NASA' : (m.agencies ? m.agencies.split(',')[0].trim() : 'NASA');
+        document.getElementById('agencyName').textContent = agencyName;
+        const logoUrl = m.agency_logo || AGENCY_LOGOS[agencyName];
+        if (logoUrl) document.getElementById('agencyLogo').src = logoUrl;
+
+        // Mission patch
+        document.getElementById('missionName').textContent = m.name || '---';
+        const patchUrl = m.mission_patch || m.patch_url || m.image_url || m.image;
+        if (patchUrl) {
+          const patchEl = document.getElementById('missionPatch');
+          patchEl.src = patchUrl;
+          patchEl.style.display = 'block';
+        }
+
+        // Mission status box
+        document.getElementById('missionStatusTitle').textContent = m.status || 'Unknown';
+        document.getElementById('missionStatusMeta').textContent = m.status_description ? m.status_description.substring(0, 45) : (m.rocket || '---');
+
         // Update milestones
         this.updateMilestones(m.milestones || []);
         
+        // Crew strip
+        this.updateCrewStrip(m.crew || []);
+
+        // Status indicators
+        this.updateStatusPanel(m);
+
         // Initial countdown update
         this.updateCountdown();
       },
@@ -1502,6 +1704,69 @@
             { title: 'Live mission data powered by ArtemisOps', source: 'ArtemisOps' }
           ]);
         }
+      },
+
+      // ===== CREW STRIP =====
+      updateCrewStrip(crew) {
+        const strip = document.getElementById('crewStrip');
+        if (!crew || crew.length === 0) {
+          strip.innerHTML = '';
+          return;
+        }
+        strip.innerHTML = crew.map(m => `
+          <div class="crew-strip-member">
+            ${(m.photo_url || m.photo) ? `<img src="${m.photo_url || m.photo}" alt="${m.name}" class="crew-strip-photo">` : ''}
+            <div class="crew-strip-info">
+              <span class="crew-strip-name">${m.name.split(' ').pop()}</span>
+              <span class="crew-strip-role">${m.role || ''}</span>
+            </div>
+          </div>
+        `).join('');
+      },
+
+      // ===== STATUS INDICATORS =====
+      updateStatusPanel(data) {
+        const panel = document.getElementById('statusPanel');
+        const status = (data.status || '').toLowerCase();
+        const milestones = data.milestones || [];
+        const hasWeather = this.weatherData && this.weatherData.launch;
+
+        const vehicleStatus = this.deriveVehicleStatus(status, milestones);
+        const weatherStatus = hasWeather ? this.deriveWeatherStatus(this.weatherData) : 'tbd';
+        const rangeStatus = status === 'go' ? 'go' : (status === 'hold' ? 'caution' : 'tbd');
+        const crewStatus = (data.crew && data.crew.length > 0) ? (status === 'go' ? 'go' : 'tbd') : 'tbd';
+        const groundStatus = status === 'go' ? 'go' : 'tbd';
+
+        const lights = [
+          { name: 'Vehicle', status: vehicleStatus },
+          { name: 'Weather', status: weatherStatus },
+          { name: 'Range', status: rangeStatus },
+          { name: 'Crew', status: crewStatus },
+          { name: 'Ground', status: groundStatus },
+        ];
+
+        panel.innerHTML = lights.map(l =>
+          `<div class="status-light ${l.status}"><span class="dot"></span>${l.name}</div>`
+        ).join('');
+      },
+
+      deriveVehicleStatus(status, milestones) {
+        const wdrDone = milestones.some(m => m.title.toLowerCase().includes('dress rehearsal') && m.status === 'completed');
+        const hasIssue = milestones.some(m => m.title.toLowerCase().includes('issue') && m.status === 'active');
+        if (status === 'go') return 'go';
+        if (hasIssue) return 'caution';
+        if (wdrDone) return 'caution';
+        return 'tbd';
+      },
+
+      deriveWeatherStatus(weather) {
+        if (!weather || !weather.launch) return 'tbd';
+        const analysis = weather.launch.analysis;
+        if (!analysis) return 'tbd';
+        if (analysis.status === 'go') return 'go';
+        if (analysis.status === 'marginal') return 'caution';
+        if (analysis.status === 'no-go') return 'nogo';
+        return 'tbd';
       },
 
       renderTicker(items) {
