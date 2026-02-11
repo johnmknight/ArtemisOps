@@ -29,6 +29,12 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
 
+### Up Next (Current Sprint)
+- [ ] Continue fixing Mission page sizing — maximize countdown clock per design intent
+- [ ] Add back video feeds for ISS tracking page
+- [ ] Add sci-fi frames around panels (beveled/angled borders, corner accents)
+- [ ] Implement full theming system with switchable palettes, fonts, and border styles
+
 ### Recently Completed (Feb 11)
 - [x] Asset localization: all crew photos, agency logos, hero images served from local /assets/ (zero remote image fetches)
 - [x] Agency logo upgrades: ESA PNG, hi-res JAXA (40KB) and Roscosmos (73KB) PNGs replace corrupt/tiny files
