@@ -401,6 +401,13 @@ server/
 - **Iframe shell consolidation (Feb 11):** All UI pages live in `tabs/*.html`, served through iframe shell (`index.html`). Standalone `mission-control.html` was deleted. No more standalone pages — everything accessed via tabbed shell.
 - **Asset localization (Feb 11):** All crew photos, agency logos, mission patches, and hero images are served locally from `/assets/`. Zero remote image fetches for mission data. Supports offline kiosk mode. Only live streams, map tiles, and radar data remain remote by necessity.
 
+### Page Design Intents
+Each page follows a "maximize the hero element" philosophy:
+- **Mission:** Largest possible countdown clock while maintaining correct space for the live feed panel. Countdown is king.
+- **Tracking:** Maximize the tracking map and keep large 3D model views and video panels. Map dominates the layout.
+- **Crew:** Maximize astronaut photo size, dynamically scaled based on crew count (e.g. 4 crew = larger cards than 7 crew).
+- **Info:** Development paused.
+
 ### Design Rules
 - **Crew ISS branding:** If missions are CREW missions to ISS, they use the NASA logo instead of SpaceX. Detected by mission name starting with "crew-" or containing "crew dragon".
 - **Agency logos:** Served locally as SVG/PNG from `/assets/logos/`. ISS tracker header shows all 5 partner agencies (NASA, ESA, JAXA, CSA, Roscosmos).
