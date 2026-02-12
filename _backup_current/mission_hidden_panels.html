@@ -6,7 +6,6 @@
   <title>Mission Tab - v9 Layout</title>
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
-  <link rel="stylesheet" href="../css/ao-frames.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -164,8 +163,6 @@
       position: relative;
       overflow: hidden;
       background: radial-gradient(ellipse at 30% 50%, #0a1825 0%, #000000 70%);
-      padding: 0 20px;
-      gap: 20px;
     }
 
     .countdown-left {
@@ -893,8 +890,6 @@
   <script src="/js/icons.js"></script>
 </head>
 <body>
-<div class="ao-frame-page">
-
   <div class="mission-layout">
     
     <!-- NASA-STYLE HEADER BAR -->
@@ -923,16 +918,7 @@
     <!-- CENTER: COUNTDOWN + VIDEO SPLIT -->
     <section class="countdown-center">
       <!-- LEFT: COUNTDOWN (60%) -->
-      <div class="countdown-left ao-frame-panel">
-      <!-- Panel decorations -->
-      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
-      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
-      <div class="ao-bracket tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,30 L 2,12 L 12,2 L 38,2" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,2 L 28,2 L 38,12 L 38,30" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,10 L 2,28 L 12,38 L 38,38" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,38 L 28,38 L 38,28 L 38,10" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-hazard top"></div>
-      <div class="ao-hazard bottom"></div>
+      <div class="countdown-left">
       <div class="grid-overlay"></div>
       
       <div class="countdown-content">
@@ -940,41 +926,25 @@
         
         <!-- Countdown Timer -->
         <div class="countdown-row">
-          <div class="ao-countdown">
-            <div class="ao-digit-frame wide">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="days">---</div>
-              </div>
-              <div class="ao-digit-label">Days</div>
+          <div class="countdown-timer">
+            <div class="countdown-segment">
+              <div class="countdown-value" id="days">---</div>
+              <div class="countdown-unit">Days</div>
             </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="hours">--</div>
-              </div>
-              <div class="ao-digit-label">Hours</div>
+            <div class="countdown-separator" id="sep1">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="hours">--</div>
+              <div class="countdown-unit">Hours</div>
             </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="minutes">--</div>
-              </div>
-              <div class="ao-digit-label">Min</div>
+            <div class="countdown-separator" id="sep2">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="minutes">--</div>
+              <div class="countdown-unit">Min</div>
             </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="seconds">--</div>
-              </div>
-              <div class="ao-digit-label">Sec</div>
+            <div class="countdown-separator" id="sep3">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-value" id="seconds">--</div>
+              <div class="countdown-unit">Sec</div>
             </div>
           </div>
         </div>
@@ -1041,10 +1011,17 @@
           </div>
         </div>
         
-        <!-- Status panel removed -->
+        <!-- Status Indicators -->
+        <div class="status-panel" id="statusPanel">
+          <div class="status-light tbd"><span class="dot"></span>Vehicle</div>
+          <div class="status-light tbd"><span class="dot"></span>Weather</div>
+          <div class="status-light tbd"><span class="dot"></span>Range</div>
+          <div class="status-light tbd"><span class="dot"></span>Crew</div>
+          <div class="status-light tbd"><span class="dot"></span>Ground</div>
+        </div>
         
         <!-- Crew Strip -->
-        <!-- Crew strip removed -->
+        <div class="crew-strip" id="crewStrip"></div>
       </div>
       </div><!-- /countdown-left -->
 
@@ -1054,16 +1031,7 @@
       </div>
 
       <!-- RIGHT: NASA TV (40%) -->
-      <div class="video-right ao-frame-panel">
-        <!-- Panel decorations -->
-        <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
-        <span class="ao-pin bl"></span><span class="ao-pin br"></span>
-        <div class="ao-bracket tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,30 L 2,12 L 12,2 L 38,2" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,2 L 28,2 L 38,12 L 38,30" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,10 L 2,28 L 12,38 L 38,38" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,38 L 28,38 L 38,28 L 38,10" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-hazard top"></div>
-        <div class="ao-hazard bottom"></div>
+      <div class="video-right">
         <div class="video-header">
           <div class="video-header-left">
             <div class="video-live-dot" id="videoLiveDot"></div>
@@ -1126,7 +1094,6 @@
       </div>
     </div>
   </div>
-</div><!-- /ao-frame-page -->
 
   <script>
     // Mission Tab Controller - V9 Integrated Layout
@@ -1741,7 +1708,6 @@
       // ===== CREW STRIP =====
       updateCrewStrip(crew) {
         const strip = document.getElementById('crewStrip');
-        if (!strip) return;
         if (!crew || crew.length === 0) {
           strip.innerHTML = '';
           return;
@@ -1760,7 +1726,6 @@
       // ===== STATUS INDICATORS =====
       updateStatusPanel(data) {
         const panel = document.getElementById('statusPanel');
-        if (!panel) return;
         const status = (data.status || '').toLowerCase();
         const milestones = data.milestones || [];
         const hasWeather = this.weatherData && this.weatherData.launch;

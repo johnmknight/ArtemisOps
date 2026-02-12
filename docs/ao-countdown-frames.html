@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtemisOps — Countdown Digit Frame</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ao-bg-deep: #060a10;
+    --ao-cyan: #00f0d4;
+    --ao-cyan-mid: #00c4ad;
+    --ao-cyan-dim: #0a8a7a;
+    --ao-cyan-ghost: rgba(0, 240, 212, 0.06);
+    --ao-cyan-glow: rgba(0, 240, 212, 0.35);
+    --ao-cyan-glow-strong: rgba(0, 240, 212, 0.6);
+    --ao-border-dim: rgba(0, 200, 180, 0.15);
+    --ao-border-mid: rgba(0, 200, 180, 0.3);
+    --ao-font-mono: 'Space Mono', monospace;
+    --ao-font-sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ao-bg-deep);
+    background-image:
+      radial-gradient(ellipse at 50% 40%, rgba(0, 60, 60, 0.15) 0%, transparent 60%);
+    font-family: var(--ao-font-sans);
+    color: #c0d8ee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    padding: 40px 20px;
+  }
+
+  .section-label {
+    font-family: var(--ao-font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #2a5a5a;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 900px;
+  }
+  .section-label::before, .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #1a3a3a, transparent);
+  }
+
+  /* ================================================================
+     COUNTDOWN WRAPPER
+     ================================================================ */
+  .ao-countdown {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  .ao-countdown-label {
+    text-align: center;
+    font-family: var(--ao-font-mono);
+    font-size: clamp(10px, 1.2vw, 13px);
+    letter-spacing: clamp(3px, 0.5vw, 6px);
+    text-transform: uppercase;
+    color: var(--ao-cyan);
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+
+  /* ================================================================
+     DIGIT FRAME — ao-digit-frame
+     ================================================================
+     The star of the show. Each countdown segment gets one.
+     Layered construction:
+       1. Outer glow border (SVG)
+       2. Inner recessed panel
+       3. Digit value
+       4. Integrated bottom label tab
+     ================================================================ */
+
+  .ao-digit-frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* The main digit cell */
+  .ao-digit-cell {
+    position: relative;
+    width: clamp(100px, 18vw, 220px);
+    height: clamp(90px, 15vw, 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  /* Layered background: outer border → inner recess */
+  .ao-digit-cell .ao-digit-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    /* Outer border */
+    border: 1.5px solid var(--ao-border-mid);
+    /* Inner fill */
+    background:
+      radial-gradient(ellipse at 50% 80%, rgba(0, 240, 212, 0.04) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(6, 12, 20, 0.9) 0%, rgba(8, 16, 28, 0.95) 100%);
+    box-shadow:
+      /* Outer glow */
+      0 0 15px rgba(0, 240, 212, 0.08),
+      0 0 40px rgba(0, 240, 212, 0.03),
+      /* Inner shadow for depth */
+      inset 0 2px 8px rgba(0, 0, 0, 0.4),
+      inset 0 -1px 4px rgba(0, 240, 212, 0.03),
+      /* Border glow */
+      inset 0 0 0 1px rgba(0, 240, 212, 0.04);
+    z-index: 1;
+  }
+
+  /* Inner recessed area (darker inset panel) */
+  .ao-digit-cell .ao-digit-recess {
+    position: absolute;
+    inset: 6px;
+    border-radius: 4px;
+    background:
+      radial-gradient(ellipse at 50% 90%, rgba(0, 240, 212, 0.025) 0%, transparent 50%),
+      rgba(4, 8, 14, 0.7);
+    border: 1px solid rgba(0, 200, 180, 0.08);
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.5),
+      inset 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+  }
+
+  /* Corner accents on the outer frame */
+  .ao-digit-cell .ao-digit-corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .ao-digit-cell .ao-digit-corner.tl { top: 2px; left: 2px; border-top: 1px solid var(--ao-cyan-dim); border-left: 1px solid var(--ao-cyan-dim); border-radius: 4px 0 0 0; }
+  .ao-digit-cell .ao-digit-corner.tr { top: 2px; right: 2px; border-top: 1px solid var(--ao-cyan-dim); border-right: 1px solid var(--ao-cyan-dim); border-radius: 0 4px 0 0; }
+  .ao-digit-cell .ao-digit-corner.bl { bottom: 2px; left: 2px; border-bottom: 1px solid var(--ao-cyan-dim); border-left: 1px solid var(--ao-cyan-dim); border-radius: 0 0 0 4px; }
+  .ao-digit-cell .ao-digit-corner.br { bottom: 2px; right: 2px; border-bottom: 1px solid var(--ao-cyan-dim); border-right: 1px solid var(--ao-cyan-dim); border-radius: 0 0 4px 0; }
+
+  /* The digit value itself */
+  .ao-digit-value {
+    position: relative;
+    z-index: 4;
+    font-family: var(--ao-font-mono);
+    font-weight: 700;
+    font-size: clamp(42px, 10vw, 110px);
+    color: var(--ao-cyan);
+    text-shadow:
+      0 0 10px var(--ao-cyan-glow),
+      0 0 30px rgba(0, 240, 212, 0.2),
+      0 0 60px rgba(0, 240, 212, 0.08);
+    line-height: 1;
+    letter-spacing: 2px;
+    /* Slight vertical offset to sit in the recess nicely */
+    margin-top: -2px;
+  }
+
+  /* The integrated label tab — sits at the bottom of the frame */
+  .ao-digit-label {
+    position: relative;
+    z-index: 5;
+    margin-top: -1px;
+    padding: 5px 0 2px;
+    width: 70%;
+    text-align: center;
+    font-family: var(--ao-font-mono);
+    font-size: clamp(8px, 1vw, 11px);
+    letter-spacing: clamp(2px, 0.4vw, 4px);
+    text-transform: uppercase;
+    color: var(--ao-cyan-dim);
+  }
+
+  /* Thin connecting lines from cell to label */
+  .ao-digit-label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ao-border-mid), transparent);
+  }
+
+  /* ================================================================
+     SEPARATOR (colon between digit groups)
+     ================================================================ */
+  .ao-digit-sep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(12px, 2.5vw, 28px);
+    padding: 0 clamp(4px, 1vw, 12px);
+    margin-bottom: 22px; /* align with digit cells, not labels */
+  }
+
+  .ao-digit-sep .dot {
+    width: clamp(5px, 0.8vw, 8px);
+    height: clamp(5px, 0.8vw, 8px);
+    border-radius: 50%;
+    background: var(--ao-cyan-dim);
+    box-shadow: 0 0 8px rgba(0, 240, 212, 0.3);
+    animation: sep-pulse 1s ease-in-out infinite;
+  }
+  .ao-digit-sep .dot:nth-child(2) {
+    animation-delay: 0.5s;
+  }
+
+  @keyframes sep-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.25; }
+  }
+
+  /* ================================================================
+     VARIANT A: DAYS gets a wider frame + 3-digit support
+     ================================================================ */
+  .ao-digit-frame.wide .ao-digit-cell {
+    width: clamp(140px, 24vw, 300px);
+  }
+
+  /* ================================================================
+     VARIANT B: FLUSH — label is part of the frame bottom
+     ================================================================ */
+  .ao-countdown.flush .ao-digit-label {
+    margin-top: 0;
+    background: rgba(0, 240, 212, 0.03);
+    border: 1px solid var(--ao-border-dim);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 4px 12px 5px;
+    width: auto;
+    min-width: 60%;
+  }
+  .ao-countdown.flush .ao-digit-label::before { display: none; }
+
+  /* ================================================================
+     VARIANT C: NOTCHED — mechanical cutout feel
+     ================================================================ */
+  .ao-countdown.notched .ao-digit-cell .ao-digit-bg {
+    border-radius: 4px;
+    clip-path: polygon(
+      8px 0%, calc(100% - 8px) 0%,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0% calc(100% - 8px), 0% 8px
+    );
+  }
+  .ao-countdown.notched .ao-digit-cell .ao-digit-recess {
+    border-radius: 2px;
+    clip-path: polygon(
+      6px 0%, calc(100% - 6px) 0%,
+      100% 6px, 100% calc(100% - 6px),
+      calc(100% - 6px) 100%, 6px 100%,
+      0% calc(100% - 6px), 0% 6px
+    );
+  }
+  .ao-countdown.notched .ao-digit-cell .ao-digit-corner { display: none; }
+  .ao-countdown.notched .ao-digit-label {
+    clip-path: polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% 100%, 0% 100%, 0% 4px);
+    background: rgba(0, 240, 212, 0.03);
+    border: 1px solid var(--ao-border-dim);
+    border-top: none;
+    padding: 5px 14px 4px;
+    width: auto;
+    border-radius: 0;
+  }
+  .ao-countdown.notched .ao-digit-label::before { display: none; }
+
+  /* ================================================================
+     VARIANT D: MINIMAL — hairline, no recess, clean
+     ================================================================ */
+  .ao-countdown.minimal .ao-digit-cell .ao-digit-bg {
+    border: 1px solid rgba(0, 200, 180, 0.12);
+    background: rgba(6, 12, 20, 0.5);
+    box-shadow:
+      0 0 20px rgba(0, 240, 212, 0.04),
+      inset 0 0 0 1px rgba(0, 240, 212, 0.02);
+    border-radius: 6px;
+  }
+  .ao-countdown.minimal .ao-digit-cell .ao-digit-recess { display: none; }
+  .ao-countdown.minimal .ao-digit-cell .ao-digit-corner { display: none; }
+  .ao-countdown.minimal .ao-digit-value {
+    text-shadow:
+      0 0 8px var(--ao-cyan-glow),
+      0 0 25px rgba(0, 240, 212, 0.15);
+  }
+  .ao-countdown.minimal .ao-digit-label {
+    color: rgba(0, 200, 180, 0.25);
+    letter-spacing: 5px;
+  }
+  .ao-countdown.minimal .ao-digit-label::before { display: none; }
+  .ao-countdown.minimal .ao-digit-sep .dot {
+    width: 4px; height: 4px;
+    background: rgba(0, 200, 180, 0.2);
+    box-shadow: none;
+  }
+
+  /* ================================================================
+     VARIANT E: HEAVY — bold industrial frame
+     ================================================================ */
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-bg {
+    border: 2.5px solid rgba(0, 200, 180, 0.35);
+    border-radius: 6px;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(0, 240, 212, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, rgba(4, 8, 14, 0.95) 0%, rgba(6, 12, 22, 0.98) 100%);
+    box-shadow:
+      0 0 20px rgba(0, 240, 212, 0.1),
+      0 0 50px rgba(0, 240, 212, 0.04),
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      inset 0 2px 10px rgba(0, 0, 0, 0.5),
+      inset 0 -2px 8px rgba(0, 240, 212, 0.04);
+  }
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-recess {
+    inset: 8px;
+    border: 1.5px solid rgba(0, 200, 180, 0.1);
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(0, 240, 212, 0.03) 0%, transparent 40%),
+      rgba(2, 5, 10, 0.8);
+    box-shadow:
+      inset 0 3px 8px rgba(0, 0, 0, 0.6),
+      inset 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-corner {
+    width: 14px; height: 14px;
+  }
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-corner.tl,
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-corner.tr,
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-corner.bl,
+  .ao-countdown.heavy .ao-digit-cell .ao-digit-corner.br {
+    border-color: var(--ao-cyan-mid);
+  }
+  .ao-countdown.heavy .ao-digit-value {
+    text-shadow:
+      0 0 15px var(--ao-cyan-glow-strong),
+      0 0 40px rgba(0, 240, 212, 0.25),
+      0 0 80px rgba(0, 240, 212, 0.1);
+  }
+  .ao-countdown.heavy .ao-digit-label {
+    color: var(--ao-cyan-mid);
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+  .ao-countdown.heavy .ao-digit-label::before {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 200, 180, 0.25), transparent);
+  }
+  .ao-countdown.heavy .ao-digit-sep .dot {
+    width: 10px; height: 10px;
+    background: var(--ao-cyan-mid);
+    box-shadow: 0 0 12px rgba(0, 240, 212, 0.4);
+  }
+
+  /* ================================================================
+     LIVE TICKING (JS powered)
+     ================================================================ */
+  .ao-digit-value {
+    /* Tabular figures for no layout shift */
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     VARIANT A: DEFAULT (matches screenshot)
+     ================================================================ -->
+<div class="section-label">Default — Recessed Panel</div>
+
+<div>
+  <div class="ao-countdown-label">T-Minus · Countdown to Launch</div>
+  <div class="ao-countdown" id="countdown-default">
+    <div class="ao-digit-frame wide">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div>
+        <div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div>
+        <div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="days">002</div>
+      </div>
+      <div class="ao-digit-label">Days</div>
+    </div>
+
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div>
+        <div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div>
+        <div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="hours">03</div>
+      </div>
+      <div class="ao-digit-label">Hours</div>
+    </div>
+
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div>
+        <div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div>
+        <div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="minutes">25</div>
+      </div>
+      <div class="ao-digit-label">Min</div>
+    </div>
+
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div>
+        <div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div>
+        <div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="seconds">21</div>
+      </div>
+      <div class="ao-digit-label">Sec</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     VARIANT B: FLUSH TAB LABEL
+     ================================================================ -->
+<div class="section-label">Flush — Label Tab Attached</div>
+
+<div>
+  <div class="ao-countdown-label">T-Minus · Countdown to Launch</div>
+  <div class="ao-countdown flush" id="countdown-flush">
+    <div class="ao-digit-frame wide">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="days">002</div>
+      </div>
+      <div class="ao-digit-label">Days</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="hours">03</div>
+      </div>
+      <div class="ao-digit-label">Hours</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="minutes">25</div>
+      </div>
+      <div class="ao-digit-label">Min</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="seconds">21</div>
+      </div>
+      <div class="ao-digit-label">Sec</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     VARIANT C: NOTCHED / ANGULAR
+     ================================================================ -->
+<div class="section-label">Notched — Angular Cutouts</div>
+
+<div>
+  <div class="ao-countdown-label">T-Minus · Countdown to Launch</div>
+  <div class="ao-countdown notched" id="countdown-notched">
+    <div class="ao-digit-frame wide">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-value" data-unit="days">002</div>
+      </div>
+      <div class="ao-digit-label">Days</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-value" data-unit="hours">03</div>
+      </div>
+      <div class="ao-digit-label">Hours</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-value" data-unit="minutes">25</div>
+      </div>
+      <div class="ao-digit-label">Min</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-value" data-unit="seconds">21</div>
+      </div>
+      <div class="ao-digit-label">Sec</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     VARIANT D: MINIMAL
+     ================================================================ -->
+<div class="section-label">Minimal — Hairline Clean</div>
+
+<div>
+  <div class="ao-countdown-label" style="opacity:0.3;">T-Minus · Countdown to Launch</div>
+  <div class="ao-countdown minimal" id="countdown-minimal">
+    <div class="ao-digit-frame wide">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-value" data-unit="days">002</div>
+      </div>
+      <div class="ao-digit-label">Days</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-value" data-unit="hours">03</div>
+      </div>
+      <div class="ao-digit-label">Hours</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-value" data-unit="minutes">25</div>
+      </div>
+      <div class="ao-digit-label">Min</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div>
+        <div class="ao-digit-value" data-unit="seconds">21</div>
+      </div>
+      <div class="ao-digit-label">Sec</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     VARIANT E: HEAVY / BOLD
+     ================================================================ -->
+<div class="section-label">Heavy — Bold Industrial</div>
+
+<div>
+  <div class="ao-countdown-label" style="opacity:0.7; font-weight:700;">T-Minus · Countdown to Launch</div>
+  <div class="ao-countdown heavy" id="countdown-heavy">
+    <div class="ao-digit-frame wide">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="days">002</div>
+      </div>
+      <div class="ao-digit-label">Days</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="hours">03</div>
+      </div>
+      <div class="ao-digit-label">Hours</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="minutes">25</div>
+      </div>
+      <div class="ao-digit-label">Min</div>
+    </div>
+    <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
+    <div class="ao-digit-frame">
+      <div class="ao-digit-cell">
+        <div class="ao-digit-bg"></div><div class="ao-digit-recess"></div>
+        <div class="ao-digit-corner tl"></div><div class="ao-digit-corner tr"></div>
+        <div class="ao-digit-corner bl"></div><div class="ao-digit-corner br"></div>
+        <div class="ao-digit-value" data-unit="seconds">21</div>
+      </div>
+      <div class="ao-digit-label">Sec</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     LIVE TICK SCRIPT
+     ================================================================ -->
+<script>
+  // Target launch: ~2 days, 3 hours, 25 min from now (adjust as needed)
+  const launchDate = new Date(Date.now() + (2*86400000 + 3*3600000 + 25*60000 + 21000));
+
+  function updateCountdowns() {
+    const now = new Date();
+    const diff = Math.max(0, launchDate - now);
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    document.querySelectorAll('[data-unit="days"]').forEach(el => el.textContent = String(days).padStart(3, '0'));
+    document.querySelectorAll('[data-unit="hours"]').forEach(el => el.textContent = String(hours).padStart(2, '0'));
+    document.querySelectorAll('[data-unit="minutes"]').forEach(el => el.textContent = String(minutes).padStart(2, '0'));
+    document.querySelectorAll('[data-unit="seconds"]').forEach(el => el.textContent = String(seconds).padStart(2, '0'));
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+</script>
+
+</body>
+</html>

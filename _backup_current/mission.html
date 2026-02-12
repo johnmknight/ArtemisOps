@@ -6,7 +6,7 @@
   <title>Mission Tab - v9 Layout</title>
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
-  <link rel="stylesheet" href="../css/ao-frames.css">
+  <link rel="stylesheet" href="/css/ao-frames.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,6 +22,13 @@
       --success-color: #22c55e;
       --warning-color: #f59e0b;
       --danger-color: #ef4444;
+
+      /* Text scale — single source of truth */
+      --text-xs: 0.85rem;    /* labels, badges, meta */
+      --text-sm: 1rem;       /* secondary info, stats */
+      --text-md: 1.25rem;    /* body text, values */
+      --text-lg: 1.5rem;     /* section titles, header */
+      --text-xl: 2rem;       /* large headings */
     }
 
     html, body {
@@ -60,7 +67,7 @@
     }
 
     .header-mission-name {
-      font-size: 1rem;
+      font-size: var(--text-lg);
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -75,7 +82,7 @@
       background: rgba(34, 197, 94, 0.15);
       border: 1px solid rgba(34, 197, 94, 0.4);
       border-radius: 4px;
-      font-size: 0.7rem;
+      font-size: var(--text-xs);
       font-weight: 700;
       letter-spacing: 1px;
       color: var(--success-color);
@@ -107,7 +114,7 @@
     }
 
     .header-clock-label {
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -116,7 +123,7 @@
 
     .header-clock-value {
       font-family: 'Courier New', monospace;
-      font-size: 1.1rem;
+      font-size: var(--text-lg);
       font-weight: 700;
       color: var(--text-accent);
       letter-spacing: 2px;
@@ -135,7 +142,7 @@
     }
 
     .header-met-label {
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -144,7 +151,7 @@
 
     .header-met-value {
       font-family: 'Courier New', monospace;
-      font-size: 1rem;
+      font-size: var(--text-md);
       font-weight: 700;
       color: var(--countdown-color);
       letter-spacing: 1px;
@@ -164,8 +171,6 @@
       position: relative;
       overflow: hidden;
       background: radial-gradient(ellipse at 30% 50%, #0a1825 0%, #000000 70%);
-      padding: 0 20px;
-      gap: 20px;
     }
 
     .countdown-left {
@@ -208,7 +213,7 @@
     }
     .video-toggle-strip span {
       writing-mode: vertical-lr;
-      font-size: 10px;
+      font-size: var(--text-xs);
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--text-secondary);
@@ -255,7 +260,7 @@
     }
 
     .video-title {
-      font-size: 0.7rem;
+      font-size: var(--text-sm);
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -265,7 +270,7 @@
     .video-title.live { color: var(--text-primary); }
 
     .video-source-select {
-      font-size: 0.65rem;
+      font-size: var(--text-sm);
       background: rgba(255,255,255,0.08);
       border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
@@ -309,13 +314,13 @@
     .video-placeholder-icon svg { width: 2.5rem; height: 2.5rem; }
 
     .video-placeholder-title {
-      font-size: 0.85rem;
+      font-size: var(--text-md);
       font-weight: 600;
       letter-spacing: 1px;
     }
 
     .video-placeholder-sub {
-      font-size: 0.7rem;
+      font-size: var(--text-sm);
       opacity: 0.6;
     }
 
@@ -328,7 +333,7 @@
       background: rgba(0, 20, 40, 0.8);
       border-top: 1px solid var(--border-subtle);
       flex-shrink: 0;
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       color: var(--text-secondary);
       letter-spacing: 1px;
     }
@@ -339,7 +344,7 @@
       color: var(--text-secondary);
       padding: 2px 8px;
       border-radius: 3px;
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       cursor: pointer;
       letter-spacing: 1px;
     }
@@ -367,7 +372,7 @@
       border-right: 1px solid var(--border-subtle);
       height: 100%;
       flex-shrink: 0;
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       font-weight: 700;
       letter-spacing: 2px;
       color: var(--text-accent);
@@ -398,7 +403,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.7rem;
+      font-size: var(--text-sm);
       color: var(--text-secondary);
       flex-shrink: 0;
     }
@@ -406,7 +411,7 @@
     .ticker-item-source {
       color: var(--text-accent);
       font-weight: 600;
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       letter-spacing: 1px;
       text-transform: uppercase;
     }
@@ -440,18 +445,81 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-evenly;
       width: 100%;
       flex: 1;
+      min-height: 0;
+    }
+
+    /* Countdown area grows to fill available space */
+    .countdown-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+    }
+
+    /* Supporting info stays compact at bottom */
+    .countdown-support {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 0.6vh, 10px);
+      padding-bottom: clamp(4px, 0.5vh, 8px);
+      width: 100%;
+    }
+
+    /* Logo | info | Patch row */
+    .support-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2vw, 30px);
+      width: 100%;
+    }
+
+    .support-row > .agency-logo-container,
+    .support-row > .mission-patch-container {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .support-row .agency-logo {
+      height: clamp(100px, 22vh, 280px);
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
+      background: transparent;
+    }
+
+    .support-row .mission-patch-large {
+      height: clamp(100px, 22vh, 280px);
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.25));
+      background: transparent;
+    }
+
+    .support-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 0.5vh, 8px);
     }
 
     .countdown-label {
-      font-size: clamp(0.75rem, 1.2vh, 1rem);
+      font-size: var(--text-sm);
       font-weight: 600;
       letter-spacing: clamp(4px, 0.8vw, 10px);
       text-transform: uppercase;
       color: var(--text-accent);
-      margin-bottom: clamp(8px, 1.5vh, 16px);
+      margin-bottom: clamp(4px, 0.8vh, 10px);
       text-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
     }
 
@@ -470,57 +538,16 @@
       padding: 0 10px;
     }
 
-    /* Launch info with flanking logos */
-    .info-with-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(16px, 2.5vw, 40px);
-    }
-
-    .agency-logo-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .agency-logo {
-      height: clamp(60px, min(10vw, 18vh), 160px);
-      width: auto;
-      min-width: 50px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
-      background: transparent;
-    }
-
     .agency-name {
-      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      font-size: var(--text-xs);
       color: var(--text-secondary);
       letter-spacing: 3px;
       text-transform: uppercase;
       font-weight: 600;
     }
 
-    .mission-patch-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .mission-patch-large {
-      height: clamp(60px, min(10vw, 18vh), 160px);
-      width: auto;
-      min-width: 50px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.25));
-      background: transparent;
-    }
-
     .mission-name {
-      font-size: clamp(0.7rem, 1.2vh, 1rem);
+      font-size: var(--text-xs);
       color: var(--text-secondary);
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -547,7 +574,7 @@
 
     .countdown-value {
       font-family: 'Courier New', monospace;
-      font-size: clamp(3rem, min(7vw, 28vh), 12rem);
+      font-size: clamp(5rem, min(12vw, 42vh), 20rem);
       font-weight: 700;
       color: var(--countdown-color);
       text-shadow: 0 0 50px rgba(0, 255, 204, 0.5), 0 0 100px rgba(0, 255, 204, 0.2);
@@ -555,7 +582,7 @@
       min-width: 2.1ch;
       text-align: center;
       background: rgba(0, 20, 40, 0.5);
-      padding: clamp(8px, 1.5vh, 28px) clamp(6px, 0.8vw, 38px);
+      padding: clamp(10px, 2vh, 36px) clamp(8px, 1.2vw, 48px);
       border: 2px solid rgba(0, 255, 204, 0.2);
       border-radius: 8px;
     }
@@ -567,7 +594,7 @@
     }
 
     .countdown-unit {
-      font-size: clamp(0.55rem, 0.9vh, 0.8rem);
+      font-size: var(--text-xs);
       color: var(--text-secondary);
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -577,7 +604,7 @@
 
     .countdown-separator {
       font-family: 'Courier New', monospace;
-      font-size: clamp(2.5rem, min(5.5vw, 20vh), 9rem);
+      font-size: clamp(4rem, min(10vw, 35vh), 16rem);
       color: var(--countdown-color);
       opacity: 0.2;
       align-self: flex-start;
@@ -604,7 +631,7 @@
     .launch-info-item { text-align: center; }
 
     .launch-info-label {
-      font-size: clamp(0.5rem, 0.7vh, 0.65rem);
+      font-size: var(--text-xs);
       color: var(--text-secondary);
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -612,7 +639,7 @@
     }
 
     .launch-info-value {
-      font-size: clamp(0.85rem, 1.5vh, 1.1rem);
+      font-size: var(--text-md);
       font-weight: 700;
     }
 
@@ -637,13 +664,13 @@
       min-width: 220px;
     }
 
-    .info-box-icon { font-size: clamp(1rem, 1.5vh, 1.3rem); display: flex; align-items: center; }
+    .info-box-icon { font-size: var(--text-md); display: flex; align-items: center; }
     .info-box-icon svg { width: 1.3em; height: 1.3em; }
 
     .info-box-content { flex: 1; }
 
     .info-box-label {
-      font-size: clamp(0.5rem, 0.7vh, 0.65rem);
+      font-size: var(--text-xs);
       color: var(--text-accent);
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -651,12 +678,12 @@
     }
 
     .info-box-title {
-      font-size: clamp(0.8rem, 1.2vh, 1rem);
+      font-size: var(--text-md);
       font-weight: 700;
     }
 
     .info-box-meta {
-      font-size: clamp(0.65rem, 0.9vh, 0.8rem);
+      font-size: var(--text-sm);
       color: var(--text-secondary);
     }
 
@@ -685,7 +712,7 @@
     }
 
     .weather-status-value {
-      font-size: clamp(1rem, 1.6vh, 1.3rem);
+      font-size: var(--text-lg);
       font-weight: 800;
       color: var(--success-color);
       letter-spacing: 2px;
@@ -697,7 +724,7 @@
     .weather-stats {
       display: flex;
       gap: 8px;
-      font-size: clamp(0.55rem, 0.85vh, 0.75rem);
+      font-size: var(--text-xs);
       color: var(--text-secondary);
     }
 
@@ -705,7 +732,7 @@
 
     /* ===== STATUS PANEL ===== */
     .status-panel {
-      display: none;
+      display: flex;
       gap: clamp(6px, 1vw, 14px);
       flex-wrap: wrap;
       justify-content: center;
@@ -720,7 +747,7 @@
       background: rgba(0, 20, 40, 0.6);
       border-radius: 6px;
       border: 1px solid var(--border-subtle);
-      font-size: clamp(0.6rem, 0.9vh, 0.75rem);
+      font-size: var(--text-sm);
       font-weight: 600;
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -744,7 +771,7 @@
 
     /* ===== CREW STRIP ===== */
     .crew-strip {
-      display: none;
+      display: flex;
       gap: clamp(6px, 1vw, 14px);
       justify-content: center;
     }
@@ -774,12 +801,12 @@
     }
 
     .crew-strip-name {
-      font-size: clamp(0.7rem, 1.1vh, 0.9rem);
+      font-size: var(--text-sm);
       font-weight: 700;
     }
 
     .crew-strip-role {
-      font-size: clamp(0.55rem, 0.8vh, 0.7rem);
+      font-size: var(--text-xs);
       color: var(--text-accent);
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -818,7 +845,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: var(--text-md);
       flex-shrink: 0;
     }
 
@@ -850,7 +877,7 @@
     .phase-content { flex: 1; min-width: 0; }
 
     .phase-label {
-      font-size: 0.6rem;
+      font-size: var(--text-xs);
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -858,7 +885,7 @@
     }
 
     .phase-title {
-      font-size: 0.9rem;
+      font-size: var(--text-md);
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
@@ -866,7 +893,7 @@
     }
 
     .phase-time {
-      font-size: 0.75rem;
+      font-size: var(--text-sm);
       color: var(--text-accent);
     }
 
@@ -894,6 +921,15 @@
 </head>
 <body>
 <div class="ao-frame-page">
+  <!-- Page frame decorations -->
+  <div class="ao-corner tl"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M 60,8 L 20,8 L 8,20 L 8,60" stroke="var(--ao-border-mid)" stroke-width="1"/><path d="M 60,8 L 20,8 L 8,20 L 8,40" stroke="var(--ao-border-bright)" stroke-width="2" opacity="0.9"/><circle cx="20" cy="20" r="2" fill="var(--ao-border-bright)" opacity="0.8"/><circle cx="20" cy="20" r="4" fill="var(--ao-border-bright)" opacity="0.15"/></svg></div>
+  <div class="ao-corner tr"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M 0,8 L 40,8 L 52,20 L 52,60" stroke="var(--ao-border-mid)" stroke-width="1"/><path d="M 0,8 L 40,8 L 52,20 L 52,40" stroke="var(--ao-border-bright)" stroke-width="2" opacity="0.9"/><circle cx="40" cy="20" r="2" fill="var(--ao-border-bright)" opacity="0.8"/><circle cx="40" cy="20" r="4" fill="var(--ao-border-bright)" opacity="0.15"/></svg></div>
+  <div class="ao-corner bl"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M 8,0 L 8,40 L 20,52 L 60,52" stroke="var(--ao-border-mid)" stroke-width="1"/><path d="M 8,20 L 8,40 L 20,52 L 60,52" stroke="var(--ao-border-bright)" stroke-width="2" opacity="0.9"/><circle cx="20" cy="40" r="2" fill="var(--ao-border-bright)" opacity="0.8"/><circle cx="20" cy="40" r="4" fill="var(--ao-border-bright)" opacity="0.15"/></svg></div>
+  <div class="ao-corner br"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none"><path d="M 52,0 L 52,40 L 40,52 L 0,52" stroke="var(--ao-border-mid)" stroke-width="1"/><path d="M 52,20 L 52,40 L 40,52 L 0,52" stroke="var(--ao-border-bright)" stroke-width="2" opacity="0.9"/><circle cx="40" cy="40" r="2" fill="var(--ao-border-bright)" opacity="0.8"/><circle cx="40" cy="40" r="4" fill="var(--ao-border-bright)" opacity="0.15"/></svg></div>
+  <div class="ao-hazard top"></div>
+  <div class="ao-hazard bottom"></div>
+  <div class="ao-notch left"></div>
+  <div class="ao-notch right"></div>
 
   <div class="mission-layout">
     
@@ -923,90 +959,61 @@
     <!-- CENTER: COUNTDOWN + VIDEO SPLIT -->
     <section class="countdown-center">
       <!-- LEFT: COUNTDOWN (60%) -->
-      <div class="countdown-left ao-frame-panel">
-      <!-- Panel decorations -->
-      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
-      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
-      <div class="ao-bracket tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,30 L 2,12 L 12,2 L 38,2" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,2 L 28,2 L 38,12 L 38,30" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,10 L 2,28 L 12,38 L 38,38" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-bracket br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,38 L 28,38 L 38,28 L 38,10" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-      <div class="ao-hazard top"></div>
-      <div class="ao-hazard bottom"></div>
+      <div class="countdown-left">
       <div class="grid-overlay"></div>
       
       <div class="countdown-content">
-        <div class="countdown-label" id="countdownLabel">T-Minus · Countdown to Launch</div>
-        
-        <!-- Countdown Timer -->
-        <div class="countdown-row">
-          <div class="ao-countdown">
-            <div class="ao-digit-frame wide">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="days">---</div>
+        <div class="countdown-hero">
+          <div class="countdown-label" id="countdownLabel">T-Minus · Countdown to Launch</div>
+          <div class="countdown-row">
+            <div class="countdown-timer">
+              <div class="countdown-segment">
+                <div class="countdown-value" id="days">---</div>
+                <div class="countdown-unit">Days</div>
               </div>
-              <div class="ao-digit-label">Days</div>
-            </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="hours">--</div>
+              <div class="countdown-separator" id="sep1">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-value" id="hours">--</div>
+                <div class="countdown-unit">Hours</div>
               </div>
-              <div class="ao-digit-label">Hours</div>
-            </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="minutes">--</div>
+              <div class="countdown-separator" id="sep2">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-value" id="minutes">--</div>
+                <div class="countdown-unit">Min</div>
               </div>
-              <div class="ao-digit-label">Min</div>
-            </div>
-            <div class="ao-digit-sep"><div class="dot"></div><div class="dot"></div></div>
-            <div class="ao-digit-frame">
-              <div class="ao-digit-cell">
-                <div class="ao-digit-bg"></div>
-                <div class="ao-digit-recess"></div>
-                <div class="ao-digit-value" id="seconds">--</div>
+              <div class="countdown-separator" id="sep3">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-value" id="seconds">--</div>
+                <div class="countdown-unit">Sec</div>
               </div>
-              <div class="ao-digit-label">Sec</div>
             </div>
           </div>
         </div>
-        
-        <!-- Launch info with flanking logos -->
-        <div class="info-with-logos">
-          <div class="agency-logo-container">
-            <img id="agencyLogo" src="" alt="NASA" class="agency-logo">
-            <span class="agency-name" id="agencyName">NASA</span>
-          </div>
-          <div class="launch-info-row">
-            <div class="launch-info-item">
-              <div class="launch-info-label">Target Date</div>
-              <div class="launch-info-value" id="launchDate">Loading...</div>
+
+        <div class="countdown-support">
+          <div class="support-row">
+            <div class="agency-logo-container">
+              <img id="agencyLogo" src="" alt="NASA" class="agency-logo">
+              <span class="agency-name" id="agencyName">NASA</span>
             </div>
-            <div class="launch-info-item">
-              <div class="launch-info-label">Window</div>
-              <div class="launch-info-value accent" id="launchTime">--:-- UTC</div>
-            </div>
-            <div class="launch-info-item">
-              <div class="launch-info-label">Site</div>
-              <div class="launch-info-value" id="launchSite">Loading...</div>
-            </div>
-          </div>
-          <div class="mission-patch-container">
-            <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
-            <span class="mission-name" id="missionName">---</span>
-          </div>
-        </div>
-        
-        <!-- Info boxes -->
-        <div class="info-boxes">
+
+            <div class="support-center">
+              <div class="launch-info-row">
+                <div class="launch-info-item">
+                  <div class="launch-info-label">Target Date</div>
+                  <div class="launch-info-value" id="launchDate">Loading...</div>
+                </div>
+                <div class="launch-info-item">
+                  <div class="launch-info-label">Window</div>
+                  <div class="launch-info-value accent" id="launchTime">--:-- UTC</div>
+                </div>
+                <div class="launch-info-item">
+                  <div class="launch-info-label">Site</div>
+                  <div class="launch-info-value" id="launchSite">Loading...</div>
+                </div>
+              </div>
+
+              <div class="info-boxes">
           <div class="info-box">
             <span class="info-box-icon" id="milestoneIcon"></span>
             <div class="info-box-content">
@@ -1039,13 +1046,16 @@
               <div class="weather-status-value" id="weatherStatusValue">--</div>
             </div>
           </div>
-        </div>
-        
-        <!-- Status panel removed -->
-        
-        <!-- Crew Strip -->
-        <!-- Crew strip removed -->
-      </div>
+        </div><!-- /info-boxes -->
+            </div><!-- /support-center -->
+
+            <div class="mission-patch-container">
+              <img id="missionPatch" src="" alt="Mission Patch" class="mission-patch-large" style="display:none;">
+              <span class="mission-name" id="missionName">---</span>
+            </div>
+          </div><!-- /support-row -->
+        </div><!-- /countdown-support -->
+      </div><!-- /countdown-content -->
       </div><!-- /countdown-left -->
 
       <!-- VIDEO PANEL TOGGLE -->
@@ -1055,15 +1065,6 @@
 
       <!-- RIGHT: NASA TV (40%) -->
       <div class="video-right ao-frame-panel">
-        <!-- Panel decorations -->
-        <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
-        <span class="ao-pin bl"></span><span class="ao-pin br"></span>
-        <div class="ao-bracket tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,30 L 2,12 L 12,2 L 38,2" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,2 L 28,2 L 38,12 L 38,30" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,10 L 2,28 L 12,38 L 38,38" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-bracket br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 2,38 L 28,38 L 38,28 L 38,10" stroke="#88ccff" stroke-width="1.5"/></svg></div>
-        <div class="ao-hazard top"></div>
-        <div class="ao-hazard bottom"></div>
         <div class="video-header">
           <div class="video-header-left">
             <div class="video-live-dot" id="videoLiveDot"></div>
@@ -1089,7 +1090,7 @@
     </section>
     
     <!-- TIMELINE FOOTER -->
-    <footer class="timeline-strip">
+    <footer class="timeline-strip ao-frame-panel">
       <div class="phase completed" id="phase1">
         <div class="phase-icon completed" id="phase1Icon"></div>
         <div class="phase-content">
@@ -1125,7 +1126,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /mission-layout -->
 </div><!-- /ao-frame-page -->
 
   <script>

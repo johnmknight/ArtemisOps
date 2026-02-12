@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space & Sci-Fi Fonts — ArtemisOps Evaluation</title>
+
+<!-- Google Fonts imports -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&family=Rajdhani:wght@300;400;500;600;700&family=Audiowide&family=Baumans&family=Electrolize&family=Jura:wght@300;400;500;600;700&family=Michroma&family=Oxanium:wght@300;400;500;600;700&family=Russo+One&family=Saira:wght@300;400;500;600;700&family=Saira+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Tektur:wght@400;500;600;700;900&family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Chakra+Petch:wght@300;400;500;600;700&family=Syne+Mono&family=Nova+Mono&family=Iceland&family=Revalia&family=Major+Mono+Display&family=Geo:ital@0;1&family=Aldrich&family=Atomic+Age&family=Keania+One&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-card: #0d1525;
+    --bg-card-hover: #111d33;
+    --border: #1a2a44;
+    --accent: #00e5c8;
+    --accent-dim: #00b89f;
+    --text-primary: #e8edf5;
+    --text-secondary: #7a8ba8;
+    --text-label: #4a6080;
+    --danger: #ff4757;
+    --warning: #ffa502;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 40px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .font-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .font-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .font-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-dim);
+  }
+
+  .font-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .font-card:hover::before { opacity: 1; }
+
+  .font-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .font-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .font-tags {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .tag.google { border-color: #4285f4; color: #4285f4; }
+  .tag.mono { border-color: #ffa502; color: #ffa502; }
+  .tag.display { border-color: #ff6b81; color: #ff6b81; }
+  .tag.body { border-color: #7bed9f; color: #7bed9f; }
+  .tag.current { border-color: var(--accent); color: var(--accent); background: rgba(0,229,200,0.1); }
+
+  .font-sample-headline {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .font-sample-subhead {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    opacity: 0.85;
+  }
+
+  .font-sample-body {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .font-sample-data {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-label);
+    font-family: inherit;
+  }
+
+  .font-sample-countdown {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin: 8px 0;
+  }
+
+  .font-note {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.7rem;
+    color: var(--text-label);
+    margin-top: 10px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Comparison section */
+  .comparison-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 30px;
+    margin-bottom: 12px;
+  }
+
+  .comparison-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-label);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .comparison-text {
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+  }
+
+  .mission-sim {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 30px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .mission-sim-label {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-label);
+    margin-bottom: 6px;
+  }
+
+  .all-chars {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+
+  .weight-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .weight-sample {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+
+  .weight-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--text-label);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Space · Sci-Fi · Fonts</h1>
+  <p>Free fonts for ArtemisOps mission control interface. All Google Fonts (self-hostable via .woff2 for offline kiosk). Shown on dark background matching the dashboard theme.</p>
+</div>
+
+<!-- ==================== CURRENTLY USED ==================== -->
+<div class="section-title">Currently Used in ArtemisOps</div>
+<div class="font-grid">
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Space Mono</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag mono">Mono</span><span class="tag current">In Use</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Space Mono', monospace;">T-002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Space Mono', monospace;">ARTEMIS II · CREW-12</div>
+    <div class="font-sample-body" style="font-family: 'Space Mono', monospace;">Mission status: Go for launch. All systems nominal. Countdown proceeding as planned.</div>
+    <div class="font-note">Retro-futuristic monospace. 2 weights (Regular, Bold). Currently used for countdown, headers, data readouts.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">IBM Plex Sans</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span><span class="tag current">In Use</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'IBM Plex Sans', sans-serif; font-weight: 600;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'IBM Plex Sans', sans-serif;">Kennedy Space Center, FL, USA</div>
+    <div class="font-sample-body" style="font-family: 'IBM Plex Sans', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather at Cape Canaveral: Overcast, 77°F, winds 7 mph.</div>
+    <div class="font-note">Clean, technical sans-serif. 7 weights + italics. Currently used for body text, labels, descriptions.</div>
+  </div>
+
+</div>
+
+<!-- ==================== DISPLAY / HEADLINE FONTS ==================== -->
+<div class="section-title">Display & Headline Candidates — Big Impact</div>
+<div class="font-grid">
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Orbitron</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Orbitron', sans-serif;">002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Orbitron', sans-serif; letter-spacing: 4px; text-transform: uppercase;">Artemis II · Countdown to Launch</div>
+    <div class="font-sample-body" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789</div>
+    <div class="font-note">⭐ Top pick. THE sci-fi font. 4 weights. Geometric, wide, very readable at large sizes. Think spaceship signage.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Audiowide</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Audiowide', cursive;">002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Audiowide', cursive; letter-spacing: 3px;">Artemis II · Countdown to Launch</div>
+    <div class="font-sample-body" style="font-family: 'Audiowide', cursive; font-size: 0.75rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Wide, rounded edges. Single weight only. Friendly futuristic feel. Good for titles.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Russo One</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Russo One', sans-serif;">002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Russo One', sans-serif; letter-spacing: 3px; text-transform: uppercase;">Artemis II · Mission Control</div>
+    <div class="font-sample-body" style="font-family: 'Russo One', sans-serif; font-size: 0.75rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Bold, blocky, industrial. Single weight. Strong military/aerospace vibe.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Michroma</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Michroma', sans-serif;">002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Michroma', sans-serif; letter-spacing: 4px; text-transform: uppercase;">Artemis II · Countdown to Launch</div>
+    <div class="font-sample-body" style="font-family: 'Michroma', sans-serif; font-size: 0.72rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Wide, geometric, very "mission control". Single weight. Similar to Eurostile/Microgramma.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Tektur</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Tektur', sans-serif; font-weight: 700;">002:13:17:15</div>
+    <div class="font-sample-subhead" style="font-family: 'Tektur', sans-serif; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;">Artemis II · Countdown to Launch</div>
+    <div class="font-sample-body" style="font-family: 'Tektur', sans-serif;">Falcon 9 · Vehicle is Go · Weather Overcast · Range Clear</div>
+    <div class="font-note">Modern tech display. 5 weights (400–900). Sharp, angular. Good versatility.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Revalia</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Revalia', cursive; font-size: 2rem; letter-spacing: 3px;">ARTEMIS II</div>
+    <div class="font-sample-subhead" style="font-family: 'Revalia', cursive; letter-spacing: 2px;">MISSION CONTROL DISPLAY</div>
+    <div class="font-sample-body" style="font-family: 'Revalia', cursive; font-size: 0.75rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Decorative sci-fi display. Single weight. Very stylized — best for logos/titles only.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Keania One</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Keania One', cursive; font-size: 2rem; letter-spacing: 3px;">ARTEMIS II</div>
+    <div class="font-sample-subhead" style="font-family: 'Keania One', cursive; letter-spacing: 2px;">Mission Control · Launch Operations</div>
+    <div class="font-sample-body" style="font-family: 'Keania One', cursive; font-size: 0.8rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Stencil-style military/space. Single weight. Great for mission names and status headers.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Atomic Age</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Atomic Age', cursive; font-size: 2rem;">ARTEMIS II</div>
+    <div class="font-sample-subhead" style="font-family: 'Atomic Age', cursive;">Countdown to Launch · T-Minus</div>
+    <div class="font-sample-body" style="font-family: 'Atomic Age', cursive; font-size: 0.8rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Retro 1950s space-age. Single weight. Playful, vintage sci-fi comic book vibe.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Major Mono Display</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span><span class="tag mono">Mono</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Major Mono Display', monospace; font-size: 1.6rem;">ARTEMIS II</div>
+    <div class="font-sample-subhead" style="font-family: 'Major Mono Display', monospace; font-size: 0.95rem;">mission control display</div>
+    <div class="font-sample-body" style="font-family: 'Major Mono Display', monospace; font-size: 0.75rem;">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
+    <div class="font-note">Experimental monospace display. Lowercase has unique alternate forms. Very distinctive.</div>
+  </div>
+
+</div>
+
+<!-- ==================== UI / INTERFACE FONTS ==================== -->
+<div class="section-title">UI & Interface Candidates — Readable at All Sizes</div>
+<div class="font-grid">
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Exo 2</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Exo 2', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Exo 2', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Exo 2', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">⭐ Top pick. 15 styles (Thin–Black + italics). Geometric futuristic but highly readable. Works for both headlines AND body.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Rajdhani</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Rajdhani', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Rajdhani', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Rajdhani', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Condensed, narrow, technical. 5 weights. Fits lots of info in small spaces — great for data-dense UIs.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Chakra Petch</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Chakra Petch', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Chakra Petch', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Chakra Petch', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">⭐ Top pick. Squared-off techy feel. 5 weights + italics. Very "HUD display" aesthetic. Excellent readability.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Titillium Web</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Titillium Web', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Titillium Web', sans-serif;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Titillium Web', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Used by ESA. 7 weights + italics. Modern, clean, authoritative. Strong aerospace pedigree.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Electrolize</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Electrolize', sans-serif;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Electrolize', sans-serif;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Electrolize', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Square, technical. Single weight. Clean digital display look. Excellent on dark backgrounds.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Oxanium</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Oxanium', cursive; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Oxanium', cursive; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Oxanium', cursive;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Rounded, futuristic. 7 weights. Softer sci-fi feel. Great for gaming/entertainment UIs.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Saira</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Saira', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Saira', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Saira', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Geometric, wide. 9 weights + italics. Also has a Condensed variant. Very versatile tech font.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Saira Condensed</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Saira Condensed', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Saira Condensed', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Saira Condensed', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Narrow version of Saira. 9 weights. Fits maximum data in tight dashboard panels.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Jura</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Jura', sans-serif; font-weight: 700;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Jura', sans-serif; font-weight: 500;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Jura', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Elegant, light. 5 weights. Subtle sci-fi feel without being heavy. Good for clean, minimal interfaces.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Aldrich</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag body">Body</span></div>
+    </div>
+    <div class="font-sample-headline" style="font-family: 'Aldrich', sans-serif;">Mission Control Dashboard</div>
+    <div class="font-sample-subhead" style="font-family: 'Aldrich', sans-serif;">Kennedy Space Center, FL, USA · Cape Canaveral SFS</div>
+    <div class="font-sample-body" style="font-family: 'Aldrich', sans-serif;">Current T-0 confirmed by official or reliable sources. Weather conditions: Overcast skies at 77°F with winds at 7 mph from the southeast. All ground systems nominal.</div>
+    <div class="font-note">Subtle, squared sans-serif. Single weight. Reserved and professional. Quiet futurism.</div>
+  </div>
+
+</div>
+
+<!-- ==================== MONOSPACE / DATA FONTS ==================== -->
+<div class="section-title">Monospace & Data Readout Candidates</div>
+<div class="font-grid">
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Share Tech Mono</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag mono">Mono</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Share Tech Mono', monospace;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'Share Tech Mono', monospace;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'Share Tech Mono', monospace;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">⭐ Top pick for data. Clean, technical mono. Single weight. Very readable telemetry display.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">IBM Plex Mono</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag mono">Mono</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'IBM Plex Mono', monospace; font-weight: 600;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'IBM Plex Mono', monospace;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'IBM Plex Mono', monospace;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">Premium monospace. 4 weights + italics. Pairs perfectly with IBM Plex Sans. Very professional.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Syne Mono</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag mono">Mono</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Syne Mono', monospace;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'Syne Mono', monospace;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'Syne Mono', monospace;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">Weathered, distressed look. Single weight. "Abandoned spaceship" aesthetic. Very unique.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Nova Mono</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag mono">Mono</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Nova Mono', monospace;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'Nova Mono', monospace;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'Nova Mono', monospace;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">Inscription-style mono. Single weight. Stone-carved feel — unique for a space UI.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Geo</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Geo', sans-serif;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'Geo', sans-serif;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'Geo', sans-serif;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">Minimal geometric. Single weight + italic. Very stripped-down, digital display feel.</div>
+  </div>
+
+  <div class="font-card">
+    <div class="font-meta">
+      <span class="font-name">Iceland</span>
+      <div class="font-tags"><span class="tag google">Google</span><span class="tag display">Display</span></div>
+    </div>
+    <div class="font-sample-countdown" style="font-family: 'Iceland', cursive;">002:13:17:15</div>
+    <div class="font-sample-body" style="font-family: 'Iceland', cursive;">LAT 28.5729° N  LON 80.6490° W  ALT 0.0 km  VEL 0.0 m/s</div>
+    <div class="font-sample-data" style="font-family: 'Iceland', cursive;">STATUS: NOMINAL  |  TEMP: 77°F  |  WIND: 7 MPH SE  |  PRESS: 1013 hPa</div>
+    <div class="font-note">Sharp, angular geometric. Single weight. Strong digital/LED display aesthetic.</div>
+  </div>
+
+</div>
+
+<!-- ==================== COUNTDOWN COMPARISON ==================== -->
+<div class="section-title">Side-by-Side — Countdown Timer Comparison</div>
+
+<div class="comparison-row">
+  <div class="comparison-label">Space Mono (current)</div>
+  <div class="comparison-text" style="font-family: 'Space Mono', monospace; font-weight: 700;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Orbitron</div>
+  <div class="comparison-text" style="font-family: 'Orbitron', sans-serif; font-weight: 700;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Share Tech Mono</div>
+  <div class="comparison-text" style="font-family: 'Share Tech Mono', monospace;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Chakra Petch</div>
+  <div class="comparison-text" style="font-family: 'Chakra Petch', sans-serif; font-weight: 700;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Electrolize</div>
+  <div class="comparison-text" style="font-family: 'Electrolize', sans-serif;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Tektur</div>
+  <div class="comparison-text" style="font-family: 'Tektur', sans-serif; font-weight: 700;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Audiowide</div>
+  <div class="comparison-text" style="font-family: 'Audiowide', cursive;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Michroma</div>
+  <div class="comparison-text" style="font-family: 'Michroma', sans-serif;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Iceland</div>
+  <div class="comparison-text" style="font-family: 'Iceland', cursive;">T-002:13:17:15</div>
+</div>
+<div class="comparison-row">
+  <div class="comparison-label">Exo 2</div>
+  <div class="comparison-text" style="font-family: 'Exo 2', sans-serif; font-weight: 700;">T-002:13:17:15</div>
+</div>
+
+<!-- ==================== RECOMMENDED COMBOS ==================== -->
+<div class="section-title">Recommended Pairings for ArtemisOps</div>
+
+<div class="mission-sim">
+  <div class="mission-sim-label">Option A — Current + Refined</div>
+  <div style="font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; color: var(--text-label); margin-bottom: 4px;">T-MINUS · COUNTDOWN TO LAUNCH</div>
+  <div style="font-family: 'Space Mono', monospace; font-size: 3rem; font-weight: 700; color: var(--accent);">002:13:17:15</div>
+  <div style="font-family: 'IBM Plex Sans', sans-serif; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">February 13, 2026 · 10:15 UTC · Cape Canaveral SFS, FL, USA</div>
+  <div class="font-note" style="text-align: center;">Headline: Space Mono · Body: IBM Plex Sans (keep current stack)</div>
+</div>
+
+<div class="mission-sim">
+  <div class="mission-sim-label">Option B — Orbitron + Exo 2</div>
+  <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 5px; color: var(--text-label); margin-bottom: 4px;">T-MINUS · COUNTDOWN TO LAUNCH</div>
+  <div style="font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 700; color: var(--accent);">002:13:17:15</div>
+  <div style="font-family: 'Exo 2', sans-serif; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">February 13, 2026 · 10:15 UTC · Cape Canaveral SFS, FL, USA</div>
+  <div class="font-note" style="text-align: center;">Headline: Orbitron · Body: Exo 2 — Maximum sci-fi impact</div>
+</div>
+
+<div class="mission-sim">
+  <div class="mission-sim-label">Option C — Chakra Petch + Share Tech Mono</div>
+  <div style="font-family: 'Chakra Petch', sans-serif; font-weight: 600; font-size: 0.7rem; letter-spacing: 4px; color: var(--text-label); margin-bottom: 4px;">T-MINUS · COUNTDOWN TO LAUNCH</div>
+  <div style="font-family: 'Share Tech Mono', monospace; font-size: 3rem; color: var(--accent);">002:13:17:15</div>
+  <div style="font-family: 'Chakra Petch', sans-serif; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">February 13, 2026 · 10:15 UTC · Cape Canaveral SFS, FL, USA</div>
+  <div class="font-note" style="text-align: center;">Headline: Chakra Petch · Data: Share Tech Mono — HUD/military ops feel</div>
+</div>
+
+<div class="mission-sim">
+  <div class="mission-sim-label">Option D — Michroma + Titillium Web</div>
+  <div style="font-family: 'Michroma', sans-serif; font-size: 0.65rem; letter-spacing: 5px; color: var(--text-label); margin-bottom: 4px;">T-MINUS · COUNTDOWN TO LAUNCH</div>
+  <div style="font-family: 'Michroma', sans-serif; font-size: 3rem; color: var(--accent);">002:13:17:15</div>
+  <div style="font-family: 'Titillium Web', sans-serif; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">February 13, 2026 · 10:15 UTC · Cape Canaveral SFS, FL, USA</div>
+  <div class="font-note" style="text-align: center;">Headline: Michroma · Body: Titillium Web — ESA/Eurostile heritage feel</div>
+</div>
+
+<div class="mission-sim">
+  <div class="mission-sim-label">Option E — Tektur + Saira Condensed</div>
+  <div style="font-family: 'Tektur', sans-serif; font-weight: 600; font-size: 0.7rem; letter-spacing: 4px; color: var(--text-label); margin-bottom: 4px;">T-MINUS · COUNTDOWN TO LAUNCH</div>
+  <div style="font-family: 'Tektur', sans-serif; font-weight: 900; font-size: 3rem; color: var(--accent);">002:13:17:15</div>
+  <div style="font-family: 'Saira Condensed', sans-serif; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">February 13, 2026 · 10:15 UTC · Cape Canaveral SFS, FL, USA</div>
+  <div class="font-note" style="text-align: center;">Headline: Tektur · Body: Saira Condensed — Modern tech dashboard</div>
+</div>
+
+<div style="text-align: center; margin-top: 50px; padding: 20px; color: var(--text-label); font-size: 0.75rem; border-top: 1px solid var(--border);">
+  All fonts are Google Fonts · OFL/Apache licensed · Can be self-hosted as .woff2 for offline kiosk use<br>
+  <span style="color: var(--text-secondary);">24 fonts shown · All free for commercial use</span>
+</div>
+
+</body>
+</html>

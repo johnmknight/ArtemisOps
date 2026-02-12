@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtemisOps — Border Design System</title>
+<style>
+  /* ================================================================
+     ARTEMISOPS BORDER DESIGN SYSTEM
+     ================================================================
+     4 Tiers:
+       1. ao-frame-page    — Full screen wrapper (one per view)
+       2. ao-frame-panel   — Major content area (map, video, crew grid)
+       3. ao-frame-sub     — Individual data card / readout
+       4. ao-frame-popup   — Overlay, tooltip, settings modal
+     ================================================================ */
+
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  /* ──────────────────────────────────────────────
+     DESIGN TOKENS
+     ────────────────────────────────────────────── */
+  :root {
+    /* Core palette */
+    --ao-bg-deep:       #060a10;
+    --ao-bg-panel:      rgba(8, 14, 24, 0.85);
+    --ao-bg-sub:        rgba(12, 20, 32, 0.7);
+    --ao-bg-popup:      rgba(10, 16, 28, 0.95);
+
+    /* Border colors — nominal (cyan) */
+    --ao-border-bright: #88ccff;
+    --ao-border-mid:    #4a80aa;
+    --ao-border-dim:    #1e3348;
+    --ao-border-faint:  rgba(30, 51, 72, 0.5);
+
+    /* Glow */
+    --ao-glow:          rgba(100, 180, 255, 0.25);
+    --ao-glow-strong:   rgba(136, 204, 255, 0.4);
+
+    /* Status accents */
+    --ao-nominal:       #44dd88;
+    --ao-caution:       #ddaa44;
+    --ao-alert:         #dd4455;
+
+    /* Hazard stripe */
+    --ao-hazard-a:      rgba(136, 204, 255, 0.3);
+    --ao-hazard-b:      rgba(12, 20, 32, 0.7);
+
+    /* Corner geometry */
+    --ao-clip-page:     20px;
+    --ao-clip-panel:    12px;
+    --ao-clip-sub:      6px;
+    --ao-clip-popup:    8px;
+
+    /* Fonts */
+    --ao-font-mono:     'Space Mono', monospace;
+    --ao-font-sans:     'IBM Plex Sans', sans-serif;
+
+    /* Scanline */
+    --ao-scanline: repeating-linear-gradient(
+      0deg,
+      transparent 0px, transparent 2px,
+      rgba(136, 204, 255, 0.012) 2px,
+      rgba(136, 204, 255, 0.012) 4px
+    );
+  }
+
+  /* ──────────────────────────────────────────────
+     RESET / BASE
+     ────────────────────────────────────────────── */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ao-bg-deep);
+    background-image:
+      radial-gradient(ellipse at 25% 30%, rgba(10, 30, 60, 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 75% 70%, rgba(10, 25, 50, 0.2) 0%, transparent 60%);
+    font-family: var(--ao-font-sans);
+    color: #c0d8ee;
+    min-height: 100vh;
+    padding: 30px;
+  }
+
+
+  /* ================================================================
+     TIER 1: PAGE FRAME — ao-frame-page
+     ================================================================
+     Wraps an entire screen view. Heaviest treatment.
+     - Cut/angled corners
+     - Glowing corner brackets
+     - Hazard stripe accents top & bottom
+     - Side notch details
+     - Scanline overlay
+     ================================================================ */
+
+  .ao-frame-page {
+    position: relative;
+    padding: 32px 28px;
+    /* Angled corner clip */
+    clip-path: polygon(
+      var(--ao-clip-page) 0%,
+      calc(100% - var(--ao-clip-page)) 0%,
+      100% var(--ao-clip-page),
+      100% calc(100% - var(--ao-clip-page)),
+      calc(100% - var(--ao-clip-page)) 100%,
+      var(--ao-clip-page) 100%,
+      0% calc(100% - var(--ao-clip-page)),
+      0% var(--ao-clip-page)
+    );
+    background: var(--ao-bg-panel);
+  }
+
+  /* Outer border — uses an inset SVG outline matching the clip */
+  .ao-frame-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(
+      var(--ao-clip-page) 0%,
+      calc(100% - var(--ao-clip-page)) 0%,
+      100% var(--ao-clip-page),
+      100% calc(100% - var(--ao-clip-page)),
+      calc(100% - var(--ao-clip-page)) 100%,
+      var(--ao-clip-page) 100%,
+      0% calc(100% - var(--ao-clip-page)),
+      0% var(--ao-clip-page)
+    );
+    /* Fake border via box-shadow since clip-path kills border */
+    box-shadow:
+      inset 0 0 0 1.5px var(--ao-border-mid),
+      inset 0 0 0 3px var(--ao-border-dim),
+      inset 0 0 12px var(--ao-glow);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Scanline overlay */
+  .ao-frame-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--ao-scanline);
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  /* Corner brackets — positioned absolutely */
+  .ao-frame-page .ao-corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    z-index: 12;
+    pointer-events: none;
+  }
+  .ao-frame-page .ao-corner svg { width: 100%; height: 100%; }
+  .ao-frame-page .ao-corner.tl { top: 0; left: 0; }
+  .ao-frame-page .ao-corner.tr { top: 0; right: 0; }
+  .ao-frame-page .ao-corner.bl { bottom: 0; left: 0; }
+  .ao-frame-page .ao-corner.br { bottom: 0; right: 0; }
+
+  /* Hazard stripe bars */
+  .ao-frame-page .ao-hazard {
+    position: absolute;
+    height: 4px;
+    z-index: 12;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--ao-hazard-a) 0px, var(--ao-hazard-a) 4px,
+      var(--ao-hazard-b) 4px, var(--ao-hazard-b) 8px
+    );
+  }
+  .ao-frame-page .ao-hazard.top {
+    top: 6px; left: 70px; right: 70px;
+  }
+  .ao-frame-page .ao-hazard.bottom {
+    bottom: 6px; left: 70px; right: 70px;
+  }
+
+  /* Side notch accents */
+  .ao-frame-page .ao-notch {
+    position: absolute;
+    width: 6px;
+    height: 60px;
+    z-index: 12;
+    pointer-events: none;
+  }
+  .ao-frame-page .ao-notch.left {
+    left: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right: 1.5px solid var(--ao-border-mid);
+    border-top: 1.5px solid var(--ao-border-mid);
+    border-bottom: 1.5px solid var(--ao-border-mid);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 2px 0 8px var(--ao-glow);
+  }
+  .ao-frame-page .ao-notch.right {
+    right: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 1.5px solid var(--ao-border-mid);
+    border-top: 1.5px solid var(--ao-border-mid);
+    border-bottom: 1.5px solid var(--ao-border-mid);
+    border-radius: 3px 0 0 3px;
+    box-shadow: -2px 0 8px var(--ao-glow);
+  }
+
+
+  /* ================================================================
+     TIER 2: MAJOR PANEL — ao-frame-panel
+     ================================================================
+     For primary content areas: map, video column, crew grid,
+     countdown center, telemetry panel.
+     - Subtle corner clips
+     - Top accent line (colored edge)
+     - Corner pin dots
+     - Optional header slot
+     ================================================================ */
+
+  .ao-frame-panel {
+    position: relative;
+    background: var(--ao-bg-sub);
+    clip-path: polygon(
+      var(--ao-clip-panel) 0%,
+      calc(100% - var(--ao-clip-panel)) 0%,
+      100% var(--ao-clip-panel),
+      100% calc(100% - var(--ao-clip-panel)),
+      calc(100% - var(--ao-clip-panel)) 100%,
+      var(--ao-clip-panel) 100%,
+      0% calc(100% - var(--ao-clip-panel)),
+      0% var(--ao-clip-panel)
+    );
+    padding: 1px; /* border trick — inner element fills the rest */
+  }
+
+  /* Border glow via box-shadow */
+  .ao-frame-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--ao-border-mid),
+      inset 0 0 0 2px rgba(30, 51, 72, 0.4),
+      inset 0 0 8px var(--ao-glow);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Top accent edge — bright line */
+  .ao-frame-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--ao-clip-panel);
+    right: var(--ao-clip-panel);
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--ao-border-bright) 15%,
+      var(--ao-border-bright) 85%,
+      transparent 100%
+    );
+    box-shadow: 0 0 8px var(--ao-glow-strong);
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  .ao-frame-panel .ao-panel-inner {
+    padding: 16px 18px;
+    position: relative;
+  }
+
+  /* Corner dots */
+  .ao-frame-panel .ao-pin {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--ao-border-bright);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--ao-glow-strong);
+    z-index: 6;
+    pointer-events: none;
+  }
+  .ao-frame-panel .ao-pin.tl { top: 6px; left: 6px; }
+  .ao-frame-panel .ao-pin.tr { top: 6px; right: 6px; }
+  .ao-frame-panel .ao-pin.bl { bottom: 6px; left: 6px; }
+  .ao-frame-panel .ao-pin.br { bottom: 6px; right: 6px; }
+
+  /* Panel header bar */
+  .ao-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--ao-border-faint);
+  }
+  .ao-panel-title {
+    font-family: var(--ao-font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ao-border-bright);
+  }
+  .ao-panel-badge {
+    font-family: var(--ao-font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+  .ao-panel-badge.nominal {
+    color: var(--ao-nominal);
+    border-color: var(--ao-nominal);
+    background: rgba(68, 221, 136, 0.08);
+  }
+  .ao-panel-badge.caution {
+    color: var(--ao-caution);
+    border-color: var(--ao-caution);
+    background: rgba(221, 170, 68, 0.08);
+  }
+  .ao-panel-badge.alert {
+    color: var(--ao-alert);
+    border-color: var(--ao-alert);
+    background: rgba(221, 68, 85, 0.08);
+  }
+
+
+  /* ================================================================
+     TIER 3: SUB-PANEL — ao-frame-sub
+     ================================================================
+     For individual data readouts, stat cards, crew cards,
+     weather boxes, milestone items.
+     - Thin border with subtle corner accent
+     - Minimal footprint
+     - Left-edge color accent (status stripe)
+     ================================================================ */
+
+  .ao-frame-sub {
+    position: relative;
+    background: rgba(10, 18, 30, 0.6);
+    border: 1px solid var(--ao-border-dim);
+    padding: 10px 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  /* Tiny corner clips */
+  .ao-frame-sub {
+    clip-path: polygon(
+      var(--ao-clip-sub) 0%,
+      calc(100% - var(--ao-clip-sub)) 0%,
+      100% var(--ao-clip-sub),
+      100% calc(100% - var(--ao-clip-sub)),
+      calc(100% - var(--ao-clip-sub)) 100%,
+      var(--ao-clip-sub) 100%,
+      0% calc(100% - var(--ao-clip-sub)),
+      0% var(--ao-clip-sub)
+    );
+  }
+
+  /* Left status stripe */
+  .ao-frame-sub::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: var(--ao-clip-sub);
+    bottom: var(--ao-clip-sub);
+    width: 2px;
+    background: var(--ao-border-mid);
+    z-index: 2;
+  }
+  .ao-frame-sub.nominal::before { background: var(--ao-nominal); box-shadow: 0 0 6px rgba(68, 221, 136, 0.4); }
+  .ao-frame-sub.caution::before { background: var(--ao-caution); box-shadow: 0 0 6px rgba(221, 170, 68, 0.4); }
+  .ao-frame-sub.alert::before   { background: var(--ao-alert);   box-shadow: 0 0 6px rgba(221, 68, 85, 0.4); }
+
+  /* Top-right corner tick */
+  .ao-frame-sub::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 8px;
+    height: 8px;
+    border-top: 1px solid var(--ao-border-mid);
+    border-right: 1px solid var(--ao-border-mid);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Hover lift */
+  .ao-frame-sub:hover {
+    border-color: var(--ao-border-mid);
+    box-shadow: inset 0 0 12px rgba(74, 128, 170, 0.1);
+  }
+
+  .ao-sub-label {
+    font-family: var(--ao-font-mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #4a7a9a;
+    margin-bottom: 4px;
+  }
+  .ao-sub-value {
+    font-family: var(--ao-font-mono);
+    font-size: 18px;
+    color: var(--ao-border-bright);
+    line-height: 1.2;
+  }
+  .ao-sub-value.sm { font-size: 13px; }
+  .ao-sub-detail {
+    font-size: 11px;
+    color: #5a8aaa;
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+
+  /* ================================================================
+     TIER 4: POPUP / OVERLAY — ao-frame-popup
+     ================================================================
+     For settings gear panel, tooltips, quick-info overlays,
+     confirmation dialogs.
+     - Solid background (high opacity for readability)
+     - Top tab label
+     - Warning variant with alert coloring
+     - Drop shadow for float effect
+     ================================================================ */
+
+  .ao-frame-popup {
+    position: relative;
+    background: var(--ao-bg-popup);
+    border: 1px solid var(--ao-border-mid);
+    padding: 14px 16px;
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.6),
+      0 0 1px var(--ao-border-mid),
+      inset 0 1px 0 rgba(136, 204, 255, 0.08);
+    clip-path: polygon(
+      var(--ao-clip-popup) 0%,
+      calc(100% - var(--ao-clip-popup)) 0%,
+      100% var(--ao-clip-popup),
+      100% calc(100% - var(--ao-clip-popup)),
+      calc(100% - var(--ao-clip-popup)) 100%,
+      var(--ao-clip-popup) 100%,
+      0% calc(100% - var(--ao-clip-popup)),
+      0% var(--ao-clip-popup)
+    );
+  }
+
+  /* Top accent bar */
+  .ao-frame-popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--ao-clip-popup);
+    right: var(--ao-clip-popup);
+    height: 2px;
+    background: var(--ao-border-bright);
+    box-shadow: 0 0 10px var(--ao-glow-strong);
+    z-index: 2;
+  }
+
+  /* Bottom subtle line */
+  .ao-frame-popup::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--ao-clip-popup);
+    right: var(--ao-clip-popup);
+    height: 1px;
+    background: var(--ao-border-dim);
+    z-index: 2;
+  }
+
+  /* Tab label (floats above the popup) */
+  .ao-popup-tab {
+    position: absolute;
+    top: -18px;
+    left: 12px;
+    background: var(--ao-bg-popup);
+    border: 1px solid var(--ao-border-mid);
+    border-bottom: 1px solid var(--ao-bg-popup);
+    padding: 2px 10px 3px;
+    font-family: var(--ao-font-mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ao-border-bright);
+    z-index: 3;
+  }
+
+  /* Warning variant */
+  .ao-frame-popup.warning {
+    border-color: var(--ao-caution);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.6),
+      0 0 1px var(--ao-caution),
+      inset 0 0 20px rgba(221, 170, 68, 0.05);
+  }
+  .ao-frame-popup.warning::before {
+    background: var(--ao-caution);
+    box-shadow: 0 0 10px rgba(221, 170, 68, 0.4);
+  }
+  .ao-frame-popup.warning .ao-popup-tab {
+    border-color: var(--ao-caution);
+    color: var(--ao-caution);
+  }
+
+  /* Alert variant */
+  .ao-frame-popup.alert {
+    border-color: var(--ao-alert);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.6),
+      0 0 1px var(--ao-alert),
+      inset 0 0 20px rgba(221, 68, 85, 0.05);
+  }
+  .ao-frame-popup.alert::before {
+    background: var(--ao-alert);
+    box-shadow: 0 0 10px rgba(221, 68, 85, 0.4);
+  }
+  .ao-frame-popup.alert .ao-popup-tab {
+    border-color: var(--ao-alert);
+    color: var(--ao-alert);
+  }
+
+  .ao-popup-title {
+    font-family: var(--ao-font-mono);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ao-border-bright);
+    margin-bottom: 8px;
+  }
+  .ao-popup-text {
+    font-size: 13px;
+    color: #8aa8c4;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+  .ao-popup-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: flex-end;
+  }
+  .ao-btn {
+    font-family: var(--ao-font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border: 1px solid var(--ao-border-mid);
+    background: rgba(136, 204, 255, 0.06);
+    color: var(--ao-border-bright);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ao-btn:hover {
+    background: rgba(136, 204, 255, 0.15);
+    box-shadow: 0 0 8px var(--ao-glow);
+  }
+  .ao-btn.primary {
+    background: rgba(136, 204, 255, 0.12);
+    border-color: var(--ao-border-bright);
+  }
+
+
+  /* ================================================================
+     DEMO PAGE LAYOUT
+     ================================================================ */
+
+  .demo-section {
+    margin-bottom: 50px;
+  }
+  .demo-tier-label {
+    font-family: var(--ao-font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #3a5a7a;
+    margin-bottom: 16px;
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .demo-tier-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #1e3348, transparent);
+  }
+  .demo-tier-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #3a5a7a;
+    font-size: 11px;
+    color: #5a8aaa;
+    margin-right: 4px;
+  }
+
+  .demo-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .demo-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Simulated content inside panels */
+  .placeholder-map {
+    height: 200px;
+    background:
+      linear-gradient(180deg, #0a1628 0%, #0c1e30 100%);
+    border: 1px solid var(--ao-border-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ao-font-mono);
+    font-size: 11px;
+    color: #2a4a6a;
+    letter-spacing: 1px;
+  }
+
+  .placeholder-video {
+    aspect-ratio: 4/3;
+    background: #000;
+    border: 1px solid var(--ao-border-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ao-font-mono);
+    font-size: 10px;
+    color: #2a4a6a;
+  }
+
+  .sub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .popup-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .popup-grid > * {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  /* Page title */
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .page-header h1 {
+    font-family: var(--ao-font-mono);
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ao-border-bright);
+    opacity: 0.6;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 12px;
+    color: #3a5a7a;
+    letter-spacing: 1px;
+  }
+
+  /* Layout example: simulating tracking page */
+  .tracking-layout {
+    display: grid;
+    grid-template-columns: 1fr 200px 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 800px) {
+    .tracking-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Crew card mini */
+  .crew-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .crew-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ao-border-dim);
+    border: 1px solid var(--ao-border-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--ao-border-bright);
+    flex-shrink: 0;
+  }
+  .crew-name {
+    font-family: var(--ao-font-mono);
+    font-size: 11px;
+    color: #c0d8ee;
+    letter-spacing: 0.5px;
+  }
+  .crew-role {
+    font-size: 10px;
+    color: #4a7a9a;
+    margin-top: 1px;
+  }
+
+  /* Status dot */
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .status-dot.nominal { background: var(--ao-nominal); box-shadow: 0 0 6px var(--ao-nominal); }
+  .status-dot.caution { background: var(--ao-caution); box-shadow: 0 0 6px var(--ao-caution); }
+  .status-dot.alert   { background: var(--ao-alert);   box-shadow: 0 0 6px var(--ao-alert); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Settings row */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--ao-border-faint);
+    font-size: 12px;
+    color: #8aa8c4;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-key {
+    font-family: var(--ao-font-mono);
+    font-size: 10px;
+    color: #5a8aaa;
+    letter-spacing: 0.5px;
+  }
+  .settings-val {
+    font-family: var(--ao-font-mono);
+    font-size: 11px;
+    color: var(--ao-border-bright);
+  }
+
+  /* Countdown demo */
+  .countdown-demo {
+    font-family: var(--ao-font-mono);
+    text-align: center;
+  }
+  .countdown-demo .label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #4a7a9a;
+    margin-bottom: 4px;
+  }
+  .countdown-demo .digits {
+    font-size: 36px;
+    color: var(--ao-border-bright);
+    text-shadow: 0 0 20px var(--ao-glow-strong);
+    letter-spacing: 3px;
+  }
+  .countdown-demo .info {
+    font-size: 10px;
+    color: #3a6a8a;
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>ArtemisOps — Border Design System</h1>
+  <p>4-tier frame hierarchy for mission control interfaces</p>
+</div>
+
+
+<!-- ================================================================
+     TIER 1 DEMO: PAGE FRAME
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">1</span>
+    ao-frame-page — Full screen wrapper
+  </div>
+
+  <div class="ao-frame-page">
+    <!-- Corner brackets -->
+    <div class="ao-corner tl">
+      <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M 60,8 L 20,8 L 8,20 L 8,60" stroke="#4a80aa" stroke-width="1"/>
+        <path d="M 60,8 L 20,8 L 8,20 L 8,40" stroke="#88ccff" stroke-width="2" opacity="0.9"/>
+        <circle cx="20" cy="20" r="2" fill="#88ccff" opacity="0.8"/>
+        <circle cx="20" cy="20" r="4" fill="#88ccff" opacity="0.15"/>
+      </svg>
+    </div>
+    <div class="ao-corner tr">
+      <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M 0,8 L 40,8 L 52,20 L 52,60" stroke="#4a80aa" stroke-width="1"/>
+        <path d="M 0,8 L 40,8 L 52,20 L 52,40" stroke="#88ccff" stroke-width="2" opacity="0.9"/>
+        <circle cx="40" cy="20" r="2" fill="#88ccff" opacity="0.8"/>
+        <circle cx="40" cy="20" r="4" fill="#88ccff" opacity="0.15"/>
+      </svg>
+    </div>
+    <div class="ao-corner bl">
+      <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M 8,0 L 8,40 L 20,52 L 60,52" stroke="#4a80aa" stroke-width="1"/>
+        <path d="M 8,20 L 8,40 L 20,52 L 60,52" stroke="#88ccff" stroke-width="2" opacity="0.9"/>
+        <circle cx="20" cy="40" r="2" fill="#88ccff" opacity="0.8"/>
+        <circle cx="20" cy="40" r="4" fill="#88ccff" opacity="0.15"/>
+      </svg>
+    </div>
+    <div class="ao-corner br">
+      <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M 52,0 L 52,40 L 40,52 L 0,52" stroke="#4a80aa" stroke-width="1"/>
+        <path d="M 52,20 L 52,40 L 40,52 L 0,52" stroke="#88ccff" stroke-width="2" opacity="0.9"/>
+        <circle cx="40" cy="40" r="2" fill="#88ccff" opacity="0.8"/>
+        <circle cx="40" cy="40" r="4" fill="#88ccff" opacity="0.15"/>
+      </svg>
+    </div>
+
+    <!-- Hazard stripes -->
+    <div class="ao-hazard top"></div>
+    <div class="ao-hazard bottom"></div>
+
+    <!-- Side notches -->
+    <div class="ao-notch left"></div>
+    <div class="ao-notch right"></div>
+
+    <!-- Demo content simulating a page -->
+    <div class="demo-content">
+      <div class="countdown-demo">
+        <div class="label">T-Minus · Countdown to Launch</div>
+        <div class="digits">013 : 22 : 45 : 08</div>
+        <div class="info">Feb 25, 2026 · 12:00 UTC · Kennedy Space Center LC-39B</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 24px;">
+        <div class="ao-frame-sub nominal">
+          <div class="ao-sub-label">Vehicle</div>
+          <div class="ao-sub-value sm"><span class="status-dot nominal"></span>GO</div>
+        </div>
+        <div class="ao-frame-sub nominal">
+          <div class="ao-sub-label">Weather</div>
+          <div class="ao-sub-value sm"><span class="status-dot nominal"></span>GO</div>
+        </div>
+        <div class="ao-frame-sub caution">
+          <div class="ao-sub-label">Range</div>
+          <div class="ao-sub-value sm" style="color: var(--ao-caution);"><span class="status-dot caution"></span>HOLD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     TIER 2 DEMO: MAJOR PANELS
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">2</span>
+    ao-frame-panel — Major content areas
+  </div>
+
+  <div class="tracking-layout">
+    <!-- Map panel -->
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner">
+        <div class="ao-panel-header">
+          <span class="ao-panel-title">▸ ISS Ground Track</span>
+          <span class="ao-panel-badge nominal">Live</span>
+        </div>
+        <div class="placeholder-map">[ Leaflet Map · Dark CartoDB Tiles ]</div>
+      </div>
+    </div>
+
+    <!-- Video panel -->
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner">
+        <div class="ao-panel-header">
+          <span class="ao-panel-title">▸ ISS Live</span>
+        </div>
+        <div class="placeholder-video" style="margin-bottom:8px;">[ YouTube Feed 1 ]</div>
+        <div class="placeholder-video">[ YouTube Feed 2 ]</div>
+      </div>
+    </div>
+
+    <!-- Telemetry panel -->
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner">
+        <div class="ao-panel-header">
+          <span class="ao-panel-title">▸ Position & Attitude</span>
+          <span class="ao-panel-badge nominal">Nominal</span>
+        </div>
+        <div class="sub-grid">
+          <div class="ao-frame-sub nominal">
+            <div class="ao-sub-label">Latitude</div>
+            <div class="ao-sub-value">-48.88°</div>
+          </div>
+          <div class="ao-frame-sub nominal">
+            <div class="ao-sub-label">Longitude</div>
+            <div class="ao-sub-value">130.10°</div>
+          </div>
+          <div class="ao-frame-sub nominal">
+            <div class="ao-sub-label">Altitude</div>
+            <div class="ao-sub-value">441 km</div>
+          </div>
+          <div class="ao-frame-sub nominal">
+            <div class="ao-sub-label">Velocity</div>
+            <div class="ao-sub-value">27,527</div>
+            <div class="ao-sub-detail">km/h</div>
+          </div>
+          <div class="ao-frame-sub nominal">
+            <div class="ao-sub-label">Roll</div>
+            <div class="ao-sub-value">0.76°</div>
+          </div>
+          <div class="ao-frame-sub caution">
+            <div class="ao-sub-label">Beta Angle</div>
+            <div class="ao-sub-value" style="color: var(--ao-caution);">-67.3°</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     TIER 2 DEMO: CREW LAYOUT
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">2</span>
+    ao-frame-panel — Crew page layout
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 300px; gap: 12px;">
+    <!-- Crew cards -->
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner" style="text-align: center;">
+        <div style="width:60px;height:80px;background:#0c1828;border:1px solid var(--ao-border-dim);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#2a4a6a;font-size:20px;">👨‍🚀</div>
+        <div class="ao-panel-title" style="font-size:10px; margin-bottom:2px;">Wiseman</div>
+        <div style="font-size:9px;color:#4a7a9a;">Commander · NASA</div>
+      </div>
+    </div>
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner" style="text-align: center;">
+        <div style="width:60px;height:80px;background:#0c1828;border:1px solid var(--ao-border-dim);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#2a4a6a;font-size:20px;">👨‍🚀</div>
+        <div class="ao-panel-title" style="font-size:10px; margin-bottom:2px;">Glover</div>
+        <div style="font-size:9px;color:#4a7a9a;">Pilot · NASA</div>
+      </div>
+    </div>
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner" style="text-align: center;">
+        <div style="width:60px;height:80px;background:#0c1828;border:1px solid var(--ao-border-dim);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#2a4a6a;font-size:20px;">👨‍🚀</div>
+        <div class="ao-panel-title" style="font-size:10px; margin-bottom:2px;">Hansen</div>
+        <div style="font-size:9px;color:#4a7a9a;">Mission Spec. · CSA</div>
+      </div>
+    </div>
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner" style="text-align: center;">
+        <div style="width:60px;height:80px;background:#0c1828;border:1px solid var(--ao-border-dim);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#2a4a6a;font-size:20px;">👩‍🚀</div>
+        <div class="ao-panel-title" style="font-size:10px; margin-bottom:2px;">Koch</div>
+        <div style="font-size:9px;color:#4a7a9a;">Mission Spec. · NASA</div>
+      </div>
+    </div>
+
+    <!-- EVA panel -->
+    <div class="ao-frame-panel">
+      <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+      <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+      <div class="ao-panel-inner">
+        <div class="ao-panel-header">
+          <span class="ao-panel-title">▸ Next EVA</span>
+          <span class="ao-panel-badge caution">T-02:45</span>
+        </div>
+        <div class="ao-frame-sub" style="margin-bottom:8px;">
+          <div class="ao-sub-label">EVA-1 · Surface Ops</div>
+          <div class="crew-mini">
+            <div class="crew-avatar">CK</div>
+            <div><div class="crew-name">Koch & Hansen</div><div class="crew-role">Feb 8 · 14:30 UTC</div></div>
+          </div>
+        </div>
+        <div class="ao-frame-sub">
+          <div class="ao-sub-label">EVA-2 · Sample Collection</div>
+          <div class="crew-mini">
+            <div class="crew-avatar">TBD</div>
+            <div><div class="crew-name">TBD</div><div class="crew-role">Feb 10</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     TIER 3 DEMO: SUB-PANELS
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">3</span>
+    ao-frame-sub — Individual data readouts
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; max-width: 900px;">
+    <div class="ao-frame-sub nominal">
+      <div class="ao-sub-label">Altitude</div>
+      <div class="ao-sub-value">384,400</div>
+      <div class="ao-sub-detail">km · Lunar distance</div>
+    </div>
+    <div class="ao-frame-sub nominal">
+      <div class="ao-sub-label">Velocity</div>
+      <div class="ao-sub-value">1.022</div>
+      <div class="ao-sub-detail">km/s</div>
+    </div>
+    <div class="ao-frame-sub nominal">
+      <div class="ao-sub-label">MET</div>
+      <div class="ao-sub-value">42:18:33</div>
+    </div>
+    <div class="ao-frame-sub nominal">
+      <div class="ao-sub-label">Crew Status</div>
+      <div class="ao-sub-value sm"><span class="status-dot nominal"></span>All GO</div>
+    </div>
+    <div class="ao-frame-sub caution">
+      <div class="ao-sub-label">O₂ Reserve</div>
+      <div class="ao-sub-value" style="color: var(--ao-caution);">78.2%</div>
+      <div class="ao-sub-detail">Below optimal</div>
+    </div>
+    <div class="ao-frame-sub alert">
+      <div class="ao-sub-label">Comm Link</div>
+      <div class="ao-sub-value sm" style="color: var(--ao-alert);"><span class="status-dot alert"></span>Degraded</div>
+      <div class="ao-sub-detail">S-band intermittent</div>
+    </div>
+    <div class="ao-frame-sub">
+      <div class="ao-sub-label">Next Burn</div>
+      <div class="ao-sub-value">06:03:27</div>
+      <div class="ao-sub-detail">TLI correction</div>
+    </div>
+    <div class="ao-frame-sub">
+      <div class="ao-sub-label">ISS Mass</div>
+      <div class="ao-sub-value sm">472,008 kg</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     TIER 4 DEMO: POPUPS / OVERLAYS
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">4</span>
+    ao-frame-popup — Overlays, tooltips, modals
+  </div>
+
+  <div class="popup-grid">
+    <!-- Settings popup -->
+    <div class="ao-frame-popup" style="position: relative; margin-top: 24px;">
+      <div class="ao-popup-tab">Settings</div>
+      <div class="settings-row">
+        <span class="settings-key">Screen ID</span>
+        <span class="settings-val">1</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-key">Mission</span>
+        <span class="settings-val">Artemis II</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-key">Fullscreen</span>
+        <span class="settings-val">OFF</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-key">Auto-Rotate</span>
+        <span class="settings-val">OFF</span>
+      </div>
+    </div>
+
+    <!-- Info tooltip -->
+    <div class="ao-frame-popup" style="position: relative; margin-top: 24px;">
+      <div class="ao-popup-tab">Waypoint 7</div>
+      <div class="ao-popup-title">Lunar Closest Approach</div>
+      <div class="ao-popup-text">
+        Orion passes within 130 km of the lunar surface on the far side. Loss of signal expected for 34 minutes.
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <div class="ao-frame-sub" style="flex:1;">
+          <div class="ao-sub-label">Altitude</div>
+          <div class="ao-sub-value sm">130 km</div>
+        </div>
+        <div class="ao-frame-sub" style="flex:1;">
+          <div class="ao-sub-label">LOS Duration</div>
+          <div class="ao-sub-value sm">00:34:12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning popup -->
+    <div class="ao-frame-popup warning" style="position: relative; margin-top: 24px;">
+      <div class="ao-popup-tab">Caution</div>
+      <div class="ao-popup-title" style="color: var(--ao-caution);">S-Band Signal Degraded</div>
+      <div class="ao-popup-text">
+        Primary S-band antenna showing intermittent signal. Switching to backup Ka-band. Estimated restoration: T+43:05:00.
+      </div>
+      <div class="ao-popup-actions">
+        <button class="ao-btn">Dismiss</button>
+        <button class="ao-btn primary" style="border-color:var(--ao-caution);color:var(--ao-caution);">Acknowledge</button>
+      </div>
+    </div>
+
+    <!-- Alert popup -->
+    <div class="ao-frame-popup alert" style="position: relative; margin-top: 24px;">
+      <div class="ao-popup-tab">Alert</div>
+      <div class="ao-popup-title" style="color: var(--ao-alert);">Abort Advisory</div>
+      <div class="ao-popup-text">
+        Contingency abort option available. Service Module propulsion standing by. Crew has been notified.
+      </div>
+      <div class="ao-popup-actions">
+        <button class="ao-btn">Cancel</button>
+        <button class="ao-btn primary" style="border-color:var(--ao-alert);color:var(--ao-alert);">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     USAGE REFERENCE
+     ================================================================ -->
+<div class="demo-section">
+  <div class="demo-tier-label">
+    <span class="demo-tier-num">?</span>
+    Quick reference — HTML structure
+  </div>
+
+  <div class="ao-frame-panel" style="max-width: 700px;">
+    <span class="ao-pin tl"></span><span class="ao-pin tr"></span>
+    <span class="ao-pin bl"></span><span class="ao-pin br"></span>
+    <div class="ao-panel-inner">
+      <div class="ao-panel-header">
+        <span class="ao-panel-title">▸ Usage Cheat Sheet</span>
+      </div>
+      <pre style="font-family: var(--ao-font-mono); font-size: 11px; color: #6a9aba; line-height: 1.8; white-space: pre-wrap; overflow-x: auto;">
+&lt;!-- TIER 1: Page --&gt;
+&lt;div class="ao-frame-page"&gt;
+  &lt;div class="ao-corner tl"&gt;...svg...&lt;/div&gt;
+  &lt;div class="ao-corner tr"&gt;...svg...&lt;/div&gt;
+  &lt;div class="ao-corner bl"&gt;...svg...&lt;/div&gt;
+  &lt;div class="ao-corner br"&gt;...svg...&lt;/div&gt;
+  &lt;div class="ao-hazard top"&gt;&lt;/div&gt;
+  &lt;div class="ao-hazard bottom"&gt;&lt;/div&gt;
+  &lt;div class="ao-notch left"&gt;&lt;/div&gt;
+  &lt;div class="ao-notch right"&gt;&lt;/div&gt;
+  &lt;!-- your page content --&gt;
+&lt;/div&gt;
+
+&lt;!-- TIER 2: Panel --&gt;
+&lt;div class="ao-frame-panel"&gt;
+  &lt;span class="ao-pin tl"&gt;&lt;/span&gt;
+  &lt;span class="ao-pin tr"&gt;&lt;/span&gt;
+  &lt;span class="ao-pin bl"&gt;&lt;/span&gt;
+  &lt;span class="ao-pin br"&gt;&lt;/span&gt;
+  &lt;div class="ao-panel-inner"&gt;
+    &lt;div class="ao-panel-header"&gt;
+      &lt;span class="ao-panel-title"&gt;▸ Title&lt;/span&gt;
+      &lt;span class="ao-panel-badge nominal"&gt;Live&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;!-- panel content --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- TIER 3: Sub-panel --&gt;
+&lt;div class="ao-frame-sub nominal"&gt;
+  &lt;div class="ao-sub-label"&gt;Label&lt;/div&gt;
+  &lt;div class="ao-sub-value"&gt;Value&lt;/div&gt;
+  &lt;div class="ao-sub-detail"&gt;Detail&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Status: .nominal | .caution | .alert --&gt;
+
+&lt;!-- TIER 4: Popup --&gt;
+&lt;div class="ao-frame-popup warning"&gt;
+  &lt;div class="ao-popup-tab"&gt;Label&lt;/div&gt;
+  &lt;div class="ao-popup-title"&gt;Title&lt;/div&gt;
+  &lt;div class="ao-popup-text"&gt;Content&lt;/div&gt;
+  &lt;div class="ao-popup-actions"&gt;
+    &lt;button class="ao-btn"&gt;Cancel&lt;/button&gt;
+    &lt;button class="ao-btn primary"&gt;OK&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Variants: (none) | .warning | .alert --&gt;</pre>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtemisOps — Sci-Fi Border Variations</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@300;400&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #060a10;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(10, 30, 60, 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, rgba(10, 25, 50, 0.2) 0%, transparent 60%);
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #c0d8ee;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    align-items: center;
+  }
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #88ccff;
+    opacity: 0.5;
+  }
+  .variation-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a7a9a;
+    margin-bottom: -30px;
+    align-self: flex-start;
+    max-width: 700px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 4px;
+  }
+  .svg-wrap {
+    width: 100%;
+    max-width: 700px;
+  }
+  .svg-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<h1>ArtemisOps — Border Variation Kit</h1>
+
+<!-- ============================================
+     VARIATION 1: INDUSTRIAL / BOLTED
+     Heavy frame, corner bolts, thick hazard bars
+     ============================================ -->
+<p class="variation-label">01 — Industrial / Bolted</p>
+<div class="svg-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <filter id="g1" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <pattern id="hz1" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+      <rect width="5" height="10" fill="#88ccff" opacity="0.3"/>
+      <rect x="5" width="5" height="10" fill="#0a1520" opacity="0.7"/>
+    </pattern>
+    <pattern id="grid1" patternUnits="userSpaceOnUse" width="20" height="20">
+      <rect width="20" height="20" fill="none"/>
+      <line x1="20" y1="0" x2="20" y2="20" stroke="#1a2a3a" stroke-width="0.3"/>
+      <line x1="0" y1="20" x2="20" y2="20" stroke="#1a2a3a" stroke-width="0.3"/>
+    </pattern>
+  </defs>
+
+  <!-- Background fill -->
+  <rect x="28" y="28" width="644" height="344" fill="#080e16" rx="2"/>
+  <rect x="28" y="28" width="644" height="344" fill="url(#grid1)" opacity="0.5"/>
+
+  <!-- Outer thick frame -->
+  <rect x="16" y="16" width="668" height="368" rx="3" fill="none" stroke="#2a3a4a" stroke-width="4"/>
+  <!-- Inner frame -->
+  <rect x="24" y="24" width="652" height="352" rx="2" fill="none" stroke="#4a7090" stroke-width="2"/>
+  <!-- Innermost subtle line -->
+  <rect x="32" y="32" width="636" height="336" rx="1" fill="none" stroke="#1e3348" stroke-width="0.5" stroke-dasharray="6,4"/>
+
+  <!-- Top hazard bar -->
+  <rect x="60" y="14" width="200" height="12" fill="url(#hz1)"/>
+  <rect x="60" y="14" width="200" height="12" fill="none" stroke="#3a5a7a" stroke-width="0.5"/>
+
+  <!-- Bottom hazard bar -->
+  <rect x="440" y="374" width="200" height="12" fill="url(#hz1)"/>
+  <rect x="440" y="374" width="200" height="12" fill="none" stroke="#3a5a7a" stroke-width="0.5"/>
+
+  <!-- Corner bolts - TL -->
+  <circle cx="30" cy="30" r="6" fill="#0a1520" stroke="#5a8aaa" stroke-width="1.5"/>
+  <circle cx="30" cy="30" r="2" fill="#88ccff" opacity="0.6"/>
+  <line x1="26" y1="30" x2="34" y2="30" stroke="#5a8aaa" stroke-width="0.8"/>
+  <line x1="30" y1="26" x2="30" y2="34" stroke="#5a8aaa" stroke-width="0.8"/>
+
+  <!-- Corner bolts - TR -->
+  <circle cx="670" cy="30" r="6" fill="#0a1520" stroke="#5a8aaa" stroke-width="1.5"/>
+  <circle cx="670" cy="30" r="2" fill="#88ccff" opacity="0.6"/>
+  <line x1="666" y1="30" x2="674" y2="30" stroke="#5a8aaa" stroke-width="0.8"/>
+  <line x1="670" y1="26" x2="670" y2="34" stroke="#5a8aaa" stroke-width="0.8"/>
+
+  <!-- Corner bolts - BL -->
+  <circle cx="30" cy="370" r="6" fill="#0a1520" stroke="#5a8aaa" stroke-width="1.5"/>
+  <circle cx="30" cy="370" r="2" fill="#88ccff" opacity="0.6"/>
+  <line x1="26" y1="370" x2="34" y2="370" stroke="#5a8aaa" stroke-width="0.8"/>
+  <line x1="30" y1="366" x2="30" y2="374" stroke="#5a8aaa" stroke-width="0.8"/>
+
+  <!-- Corner bolts - BR -->
+  <circle cx="670" cy="370" r="6" fill="#0a1520" stroke="#5a8aaa" stroke-width="1.5"/>
+  <circle cx="670" cy="370" r="2" fill="#88ccff" opacity="0.6"/>
+  <line x1="666" y1="370" x2="674" y2="370" stroke="#5a8aaa" stroke-width="0.8"/>
+  <line x1="670" y1="366" x2="670" y2="374" stroke="#5a8aaa" stroke-width="0.8"/>
+
+  <!-- Side bracket accents - left -->
+  <path d="M 14,100 L 8,110 L 8,190 L 14,200" fill="none" stroke="#4a7a9a" stroke-width="1.5" filter="url(#g1)"/>
+  <path d="M 14,220 L 8,230 L 8,290 L 14,300" fill="none" stroke="#4a7a9a" stroke-width="1" opacity="0.5"/>
+
+  <!-- Side bracket accents - right -->
+  <path d="M 686,100 L 692,110 L 692,190 L 686,200" fill="none" stroke="#4a7a9a" stroke-width="1.5" filter="url(#g1)"/>
+  <path d="M 686,220 L 692,230 L 692,290 L 686,300" fill="none" stroke="#4a7a9a" stroke-width="1" opacity="0.5"/>
+
+  <!-- Top-left label area -->
+  <rect x="32" y="32" width="100" height="16" fill="#88ccff" opacity="0.06"/>
+  <rect x="33" y="38" width="30" height="4" rx="1" fill="#88ccff" opacity="0.2"/>
+  <rect x="67" y="38" width="55" height="4" rx="1" fill="#88ccff" opacity="0.1"/>
+
+  <!-- Bottom-right label area -->
+  <rect x="568" y="352" width="100" height="16" fill="#88ccff" opacity="0.06"/>
+  <rect x="580" y="358" width="40" height="4" rx="1" fill="#88ccff" opacity="0.12"/>
+  <rect x="625" y="358" width="30" height="4" rx="1" fill="#88ccff" opacity="0.08"/>
+
+  <!-- Mid-side tick clusters -->
+  <g stroke="#3a6a8a" stroke-width="0.5" opacity="0.5">
+    <line x1="24" y1="120" x2="30" y2="120"/>
+    <line x1="24" y1="130" x2="28" y2="130"/>
+    <line x1="24" y1="140" x2="30" y2="140"/>
+    <line x1="670" y1="260" x2="676" y2="260"/>
+    <line x1="672" y1="270" x2="676" y2="270"/>
+    <line x1="670" y1="280" x2="676" y2="280"/>
+  </g>
+</svg>
+</div>
+
+
+<!-- ============================================
+     VARIATION 2: MINIMAL / ELEGANT
+     Thin hairlines, subtle corner angles, clean
+     ============================================ -->
+<p class="variation-label">02 — Minimal / Elegant</p>
+<div class="svg-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <filter id="g2" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Very subtle background -->
+  <rect x="30" y="30" width="640" height="340" fill="#080c14" opacity="0.5"/>
+
+  <!-- Single thin outer frame -->
+  <rect x="20" y="20" width="660" height="360" fill="none" stroke="#2a4060" stroke-width="0.5"/>
+
+  <!-- Main frame with cut corners -->
+  <path d="
+    M 40,24 L 660,24 L 676,40 L 676,360 L 660,376 L 40,376 L 24,360 L 24,40 Z
+  " fill="none" stroke="#4a80aa" stroke-width="1"/>
+
+  <!-- TL corner accent - bright thin L -->
+  <path d="M 24,70 L 24,40 L 40,24 L 100,24" fill="none" stroke="#88ccff" stroke-width="1.5" filter="url(#g2)"/>
+  <!-- Small diamond at corner vertex -->
+  <polygon points="32,32 36,28 40,32 36,36" fill="#88ccff" opacity="0.7"/>
+
+  <!-- TR corner accent -->
+  <path d="M 600,24 L 660,24 L 676,40 L 676,70" fill="none" stroke="#88ccff" stroke-width="1.5" filter="url(#g2)"/>
+  <polygon points="664,28 668,32 664,36 660,32" fill="#88ccff" opacity="0.7"/>
+
+  <!-- BL corner accent -->
+  <path d="M 24,330 L 24,360 L 40,376 L 100,376" fill="none" stroke="#88ccff" stroke-width="1.5" filter="url(#g2)"/>
+  <polygon points="32,368 36,364 40,368 36,372" fill="#88ccff" opacity="0.7"/>
+
+  <!-- BR corner accent -->
+  <path d="M 600,376 L 660,376 L 676,360 L 676,330" fill="none" stroke="#88ccff" stroke-width="1.5" filter="url(#g2)"/>
+  <polygon points="664,372 668,368 664,364 660,368" fill="#88ccff" opacity="0.7"/>
+
+  <!-- Elegant thin inner lines at corners only -->
+  <line x1="40" y1="36" x2="120" y2="36" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+  <line x1="36" y1="40" x2="36" y2="120" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+
+  <line x1="580" y1="36" x2="660" y2="36" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+  <line x1="664" y1="40" x2="664" y2="120" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+
+  <line x1="40" y1="364" x2="120" y2="364" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+  <line x1="36" y1="280" x2="36" y2="360" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+
+  <line x1="580" y1="364" x2="660" y2="364" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+  <line x1="664" y1="280" x2="664" y2="360" stroke="#1e3348" stroke-width="0.5" opacity="0.6"/>
+
+  <!-- Center-top subtle decorative line -->
+  <line x1="280" y1="24" x2="420" y2="24" stroke="#88ccff" stroke-width="0.3" opacity="0.4"/>
+  <circle cx="280" cy="24" r="1.5" fill="#88ccff" opacity="0.5"/>
+  <circle cx="350" cy="24" r="1" fill="#88ccff" opacity="0.3"/>
+  <circle cx="420" cy="24" r="1.5" fill="#88ccff" opacity="0.5"/>
+
+  <!-- Center-bottom subtle decorative line -->
+  <line x1="280" y1="376" x2="420" y2="376" stroke="#88ccff" stroke-width="0.3" opacity="0.4"/>
+  <circle cx="280" cy="376" r="1.5" fill="#88ccff" opacity="0.5"/>
+  <circle cx="420" cy="376" r="1.5" fill="#88ccff" opacity="0.5"/>
+
+  <!-- Left & Right mid whiskers -->
+  <line x1="20" y1="180" x2="24" y2="180" stroke="#4a80aa" stroke-width="0.8" opacity="0.6"/>
+  <line x1="20" y1="200" x2="28" y2="200" stroke="#88ccff" stroke-width="0.5" opacity="0.4"/>
+  <line x1="20" y1="220" x2="24" y2="220" stroke="#4a80aa" stroke-width="0.8" opacity="0.6"/>
+
+  <line x1="676" y1="180" x2="680" y2="180" stroke="#4a80aa" stroke-width="0.8" opacity="0.6"/>
+  <line x1="672" y1="200" x2="680" y2="200" stroke="#88ccff" stroke-width="0.5" opacity="0.4"/>
+  <line x1="676" y1="220" x2="680" y2="220" stroke="#4a80aa" stroke-width="0.8" opacity="0.6"/>
+</svg>
+</div>
+
+
+<!-- ============================================
+     VARIATION 3: ROUNDED TECH / DISPLAY PANEL
+     Rounded corners, circular tech accents, panel feel
+     ============================================ -->
+<p class="variation-label">03 — Rounded Tech / Display Panel</p>
+<div class="svg-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <filter id="g3" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c1824" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#060c14" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Panel background -->
+  <rect x="26" y="26" width="648" height="348" rx="16" fill="url(#panelGrad)"/>
+
+  <!-- Outer rounded frame -->
+  <rect x="18" y="18" width="664" height="364" rx="20" fill="none" stroke="#1e3348" stroke-width="2"/>
+  <!-- Main rounded frame -->
+  <rect x="22" y="22" width="656" height="356" rx="18" fill="none" stroke="#4a80aa" stroke-width="1.5"/>
+  <!-- Inner rounded frame -->
+  <rect x="30" y="30" width="640" height="340" rx="14" fill="none" stroke="#1e3348" stroke-width="0.5" stroke-dasharray="4,6"/>
+
+  <!-- Corner tech circles - TL -->
+  <circle cx="40" cy="40" r="12" fill="none" stroke="#2a4a6a" stroke-width="1"/>
+  <circle cx="40" cy="40" r="8" fill="none" stroke="#4a80aa" stroke-width="0.5"/>
+  <circle cx="40" cy="40" r="3" fill="#88ccff" opacity="0.5" filter="url(#g3)"/>
+  <path d="M 40,28 L 40,24" stroke="#4a80aa" stroke-width="0.5"/>
+  <path d="M 52,40 L 56,40" stroke="#4a80aa" stroke-width="0.5"/>
+
+  <!-- Corner tech circles - TR -->
+  <circle cx="660" cy="40" r="12" fill="none" stroke="#2a4a6a" stroke-width="1"/>
+  <circle cx="660" cy="40" r="8" fill="none" stroke="#4a80aa" stroke-width="0.5"/>
+  <circle cx="660" cy="40" r="3" fill="#88ccff" opacity="0.5" filter="url(#g3)"/>
+  <path d="M 660,28 L 660,24" stroke="#4a80aa" stroke-width="0.5"/>
+  <path d="M 648,40 L 644,40" stroke="#4a80aa" stroke-width="0.5"/>
+
+  <!-- Corner tech circles - BL -->
+  <circle cx="40" cy="360" r="12" fill="none" stroke="#2a4a6a" stroke-width="1"/>
+  <circle cx="40" cy="360" r="8" fill="none" stroke="#4a80aa" stroke-width="0.5"/>
+  <circle cx="40" cy="360" r="3" fill="#88ccff" opacity="0.5" filter="url(#g3)"/>
+  <path d="M 40,372 L 40,376" stroke="#4a80aa" stroke-width="0.5"/>
+  <path d="M 52,360 L 56,360" stroke="#4a80aa" stroke-width="0.5"/>
+
+  <!-- Corner tech circles - BR -->
+  <circle cx="660" cy="360" r="12" fill="none" stroke="#2a4a6a" stroke-width="1"/>
+  <circle cx="660" cy="360" r="8" fill="none" stroke="#4a80aa" stroke-width="0.5"/>
+  <circle cx="660" cy="360" r="3" fill="#88ccff" opacity="0.5" filter="url(#g3)"/>
+  <path d="M 660,372 L 660,376" stroke="#4a80aa" stroke-width="0.5"/>
+  <path d="M 648,360 L 644,360" stroke="#4a80aa" stroke-width="0.5"/>
+
+  <!-- Top header band -->
+  <rect x="70" y="22" width="560" height="20" fill="#88ccff" opacity="0.03"/>
+  <line x1="70" y1="42" x2="630" y2="42" stroke="#2a4a6a" stroke-width="0.5"/>
+  <!-- Header dots -->
+  <circle cx="82" cy="32" r="2.5" fill="#44dd88" opacity="0.7"/>
+  <circle cx="92" cy="32" r="2.5" fill="#ddaa44" opacity="0.5"/>
+  <circle cx="102" cy="32" r="2.5" fill="#2a4a6a" opacity="0.6"/>
+  <rect x="115" y="30" width="70" height="4" rx="2" fill="#88ccff" opacity="0.12"/>
+
+  <!-- Bottom status band -->
+  <rect x="70" y="358" width="560" height="20" fill="#88ccff" opacity="0.03"/>
+  <line x1="70" y1="358" x2="630" y2="358" stroke="#2a4a6a" stroke-width="0.5"/>
+  <rect x="82" y="366" width="50" height="4" rx="2" fill="#88ccff" opacity="0.1"/>
+  <rect x="140" y="366" width="30" height="4" rx="2" fill="#88ccff" opacity="0.07"/>
+  <!-- Bottom right indicator -->
+  <rect x="570" y="366" width="50" height="4" rx="2" fill="#44dd88" opacity="0.2"/>
+
+  <!-- Side scallop details - left -->
+  <path d="M 22,130 Q 14,140 14,150 Q 14,160 22,170" fill="none" stroke="#3a6a8a" stroke-width="1" opacity="0.5"/>
+  <path d="M 22,210 Q 14,220 14,230 Q 14,240 22,250" fill="none" stroke="#3a6a8a" stroke-width="1" opacity="0.5"/>
+
+  <!-- Side scallop details - right -->
+  <path d="M 678,130 Q 686,140 686,150 Q 686,160 678,170" fill="none" stroke="#3a6a8a" stroke-width="1" opacity="0.5"/>
+  <path d="M 678,210 Q 686,220 686,230 Q 686,240 678,250" fill="none" stroke="#3a6a8a" stroke-width="1" opacity="0.5"/>
+
+  <!-- Tick marks along top -->
+  <g stroke="#3a6080" stroke-width="0.5" opacity="0.4">
+    <line x1="150" y1="22" x2="150" y2="28"/>
+    <line x1="250" y1="22" x2="250" y2="28"/>
+    <line x1="350" y1="22" x2="350" y2="30"/>
+    <line x1="450" y1="22" x2="450" y2="28"/>
+    <line x1="550" y1="22" x2="550" y2="28"/>
+  </g>
+</svg>
+</div>
+
+
+<!-- ============================================
+     VARIATION 4: ANGULAR / AGGRESSIVE
+     Sharp wedge cuts, asymmetric, heavy top bar
+     ============================================ -->
+<p class="variation-label">04 — Angular / Aggressive</p>
+<div class="svg-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <filter id="g4" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <pattern id="hz4" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+      <rect width="4" height="8" fill="#88ccff" opacity="0.4"/>
+      <rect x="4" width="4" height="8" fill="#0a1520" opacity="0.8"/>
+    </pattern>
+    <clipPath id="clip4">
+      <path d="M 50,16 L 650,16 L 684,50 L 684,350 L 650,384 L 120,384 L 16,384 L 16,80 L 50,16"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background with clip -->
+  <path d="M 50,18 L 648,18 L 682,52 L 682,348 L 648,382 L 18,382 L 18,78 L 50,18" fill="#080e16" opacity="0.7"/>
+
+  <!-- Outer aggressive frame -->
+  <path d="
+    M 50,14 L 650,14 L 686,50 L 686,352 L 650,386 L 14,386 L 14,78 Z
+  " fill="none" stroke="#2a4060" stroke-width="1.5"/>
+
+  <!-- Main frame -->
+  <path d="
+    M 52,18 L 648,18 L 682,52 L 682,348 L 648,382 L 18,382 L 18,78 Z
+  " fill="none" stroke="#4a80aa" stroke-width="2"/>
+
+  <!-- Bright accent on top edge -->
+  <path d="M 52,18 L 648,18 L 682,52" fill="none" stroke="#88ccff" stroke-width="2.5" filter="url(#g4)"/>
+
+  <!-- Bright accent on left angular edge -->
+  <path d="M 18,382 L 18,78 L 52,18" fill="none" stroke="#88ccff" stroke-width="2" filter="url(#g4)" opacity="0.7"/>
+
+  <!-- Heavy top header bar -->
+  <path d="M 58,20 L 644,20 L 674,50 L 674,54 L 56,54 L 24,80 L 20,76 Z" fill="#88ccff" opacity="0.05" stroke="#2a4a6a" stroke-width="0.3"/>
+  <!-- Header hazard stripe -->
+  <rect x="80" y="20" width="160" height="6" fill="url(#hz4)"/>
+
+  <!-- TL corner detail: wedge notch -->
+  <path d="M 18,78 L 52,18" stroke="#88ccff" stroke-width="2.5"/>
+  <line x1="30" y1="58" x2="45" y2="58" stroke="#4a80aa" stroke-width="0.5" opacity="0.5"/>
+  <line x1="25" y1="68" x2="40" y2="68" stroke="#4a80aa" stroke-width="0.5" opacity="0.5"/>
+  <circle cx="35" cy="48" r="2" fill="#88ccff" opacity="0.7"/>
+
+  <!-- TR corner detail -->
+  <path d="M 648,18 L 682,52" stroke="#88ccff" stroke-width="2.5"/>
+  <circle cx="665" cy="35" r="2" fill="#88ccff" opacity="0.7"/>
+  <line x1="658" y1="30" x2="672" y2="44" stroke="#4a80aa" stroke-width="3" opacity="0.15"/>
+
+  <!-- BR corner detail: angular step -->
+  <path d="M 682,320 L 682,348 L 648,382" fill="none" stroke="#88ccff" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="665" cy="365" r="2" fill="#88ccff" opacity="0.6"/>
+  <!-- Step notch -->
+  <path d="M 648,382 L 590,382" fill="none" stroke="#66aadd" stroke-width="1.5"/>
+  <path d="M 590,382 L 590,386" fill="none" stroke="#66aadd" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- BL straight edge with tick marks -->
+  <g stroke="#3a6080" stroke-width="0.5" opacity="0.5">
+    <line x1="18" y1="200" x2="24" y2="200"/>
+    <line x1="18" y1="240" x2="28" y2="240"/>
+    <line x1="18" y1="280" x2="24" y2="280"/>
+    <line x1="18" y1="320" x2="28" y2="320"/>
+    <line x1="18" y1="360" x2="24" y2="360"/>
+  </g>
+
+  <!-- Inner dashed border -->
+  <path d="M 58,28 L 642,28 L 672,58 L 672,342 L 642,372 L 28,372 L 28,84 Z" fill="none" stroke="#1e3348" stroke-width="0.5" stroke-dasharray="4,6"/>
+
+  <!-- Warning label - top right area -->
+  <rect x="520" y="28" width="80" height="16" fill="#0a1520" stroke="#3a5a7a" stroke-width="0.5"/>
+  <rect x="524" y="33" width="24" height="5" rx="1" fill="#dd4455" opacity="0.5"/>
+  <rect x="552" y="33" width="44" height="5" rx="1" fill="#88ccff" opacity="0.1"/>
+
+  <!-- Bottom info bar -->
+  <rect x="28" y="360" width="200" height="12" fill="#88ccff" opacity="0.03"/>
+  <line x1="28" y1="360" x2="228" y2="360" stroke="#2a4a6a" stroke-width="0.5"/>
+  <rect x="36" y="364" width="30" height="4" rx="1" fill="#88ccff" opacity="0.12"/>
+  <rect x="72" y="364" width="50" height="4" rx="1" fill="#88ccff" opacity="0.08"/>
+  <rect x="128" y="364" width="20" height="4" rx="1" fill="#44dd88" opacity="0.15"/>
+
+  <!-- Angled accent slash near TL -->
+  <line x1="62" y1="54" x2="82" y2="54" stroke="#4a80aa" stroke-width="2" opacity="0.3"/>
+  <line x1="86" y1="54" x2="92" y2="54" stroke="#4a80aa" stroke-width="2" opacity="0.2"/>
+
+  <!-- Right side detail -->
+  <path d="M 686,140 L 692,146 L 692,254 L 686,260" fill="none" stroke="#3a6a8a" stroke-width="1" opacity="0.4"/>
+  <line x1="692" y1="180" x2="696" y2="180" stroke="#88ccff" stroke-width="0.5" opacity="0.3"/>
+  <line x1="692" y1="200" x2="698" y2="200" stroke="#88ccff" stroke-width="0.5" opacity="0.5"/>
+  <line x1="692" y1="220" x2="696" y2="220" stroke="#88ccff" stroke-width="0.5" opacity="0.3"/>
+</svg>
+</div>
+
+
+<!-- ============================================
+     VARIATION 5: WARNING / CONTAINMENT
+     Double-border, warning tabs, status lights
+     ============================================ -->
+<p class="variation-label">05 — Warning / Containment</p>
+<div class="svg-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <defs>
+    <filter id="g5" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <filter id="g5r" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <pattern id="hz5" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+      <rect width="5" height="10" fill="#dd6644" opacity="0.35"/>
+      <rect x="5" width="5" height="10" fill="#1a1008" opacity="0.7"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect x="24" y="36" width="652" height="340" fill="#0c0a08" opacity="0.6"/>
+
+  <!-- Outer double frame -->
+  <rect x="14" y="28" width="672" height="356" fill="none" stroke="#3a2a1a" stroke-width="1.5"/>
+  <rect x="20" y="34" width="660" height="344" fill="none" stroke="#8a5530" stroke-width="1.5"/>
+
+  <!-- Inner frame -->
+  <rect x="28" y="42" width="644" height="328" fill="none" stroke="#4a3020" stroke-width="0.5" stroke-dasharray="6,3"/>
+
+  <!-- Top warning tab - left -->
+  <path d="M 40,28 L 40,14 L 150,14 L 150,28" fill="#1a0e08" stroke="#cc6644" stroke-width="1"/>
+  <rect x="48" y="18" width="46" height="8" rx="1" fill="#dd4433" opacity="0.7"/>
+  <rect x="100" y="18" width="42" height="8" rx="1" fill="#cc6644" opacity="0.2"/>
+  <!-- "WARNING" simulated -->
+  <text x="52" y="25" font-family="monospace" font-size="7" fill="#ff8866" letter-spacing="1" opacity="0.9">WARNING</text>
+
+  <!-- Top warning tab - right -->
+  <path d="M 550,28 L 550,14 L 660,14 L 660,28" fill="#1a0e08" stroke="#cc6644" stroke-width="1"/>
+  <rect x="558" y="18" width="36" height="8" rx="1" fill="#dd4433" opacity="0.5"/>
+  <rect x="600" y="18" width="52" height="8" rx="1" fill="#cc6644" opacity="0.15"/>
+  <text x="562" y="25" font-family="monospace" font-size="7" fill="#ff8866" letter-spacing="1" opacity="0.7">DANGER</text>
+
+  <!-- Hazard stripes - top -->
+  <rect x="160" y="26" width="380" height="8" fill="url(#hz5)"/>
+  <rect x="160" y="26" width="380" height="8" fill="none" stroke="#6a3a20" stroke-width="0.3"/>
+
+  <!-- Hazard stripes - bottom -->
+  <rect x="100" y="378" width="500" height="8" fill="url(#hz5)"/>
+  <rect x="100" y="378" width="500" height="8" fill="none" stroke="#6a3a20" stroke-width="0.3"/>
+
+  <!-- Corner brackets with status lights -->
+  <!-- TL -->
+  <path d="M 20,80 L 20,34 L 66,34" fill="none" stroke="#cc6644" stroke-width="2" filter="url(#g5)"/>
+  <circle cx="26" cy="40" r="3.5" fill="#dd3322" opacity="0.9" filter="url(#g5r)"/>
+  <circle cx="26" cy="40" r="2" fill="#ff6644"/>
+
+  <!-- TR -->
+  <path d="M 634,34 L 680,34 L 680,80" fill="none" stroke="#cc6644" stroke-width="2" filter="url(#g5)"/>
+  <circle cx="674" cy="40" r="3.5" fill="#dd3322" opacity="0.9" filter="url(#g5r)"/>
+  <circle cx="674" cy="40" r="2" fill="#ff6644"/>
+
+  <!-- BL -->
+  <path d="M 20,298 L 20,378 L 90,378" fill="none" stroke="#cc6644" stroke-width="2" filter="url(#g5)"/>
+  <circle cx="26" cy="372" r="3.5" fill="#ddaa22" opacity="0.8" filter="url(#g5r)"/>
+  <circle cx="26" cy="372" r="2" fill="#eebb44"/>
+
+  <!-- BR -->
+  <path d="M 610,378 L 680,378 L 680,298" fill="none" stroke="#cc6644" stroke-width="2" filter="url(#g5)"/>
+  <circle cx="674" cy="372" r="3.5" fill="#ddaa22" opacity="0.8" filter="url(#g5r)"/>
+  <circle cx="674" cy="372" r="2" fill="#eebb44"/>
+
+  <!-- Side containment markers - left -->
+  <rect x="10" y="140" width="10" height="3" fill="#cc6644" opacity="0.4"/>
+  <rect x="10" y="180" width="10" height="3" fill="#cc6644" opacity="0.3"/>
+  <rect x="10" y="220" width="10" height="3" fill="#cc6644" opacity="0.4"/>
+  <rect x="10" y="260" width="10" height="3" fill="#cc6644" opacity="0.3"/>
+
+  <!-- Side containment markers - right -->
+  <rect x="680" y="140" width="10" height="3" fill="#cc6644" opacity="0.4"/>
+  <rect x="680" y="180" width="10" height="3" fill="#cc6644" opacity="0.3"/>
+  <rect x="680" y="220" width="10" height="3" fill="#cc6644" opacity="0.4"/>
+  <rect x="680" y="260" width="10" height="3" fill="#cc6644" opacity="0.3"/>
+
+  <!-- Inner content area border -->
+  <rect x="36" y="50" width="628" height="312" fill="none" stroke="#3a2a1a" stroke-width="0.5"/>
+
+  <!-- Bottom status bar -->
+  <rect x="36" y="346" width="628" height="16" fill="#cc6644" opacity="0.03"/>
+  <line x1="36" y1="346" x2="664" y2="346" stroke="#4a3020" stroke-width="0.5"/>
+  <rect x="44" y="350" width="60" height="6" rx="1" fill="#cc6644" opacity="0.12"/>
+  <rect x="112" y="350" width="40" height="6" rx="1" fill="#cc6644" opacity="0.08"/>
+  <circle cx="630" cy="353" r="3" fill="none" stroke="#cc6644" stroke-width="0.5" opacity="0.4"/>
+  <circle cx="630" cy="353" r="1.5" fill="#dd3322" opacity="0.6"/>
+  <circle cx="648" cy="353" r="3" fill="none" stroke="#cc6644" stroke-width="0.5" opacity="0.4"/>
+  <circle cx="648" cy="353" r="1.5" fill="#ddaa22" opacity="0.6"/>
+</svg>
+</div>
+
+</body>
+</html>
