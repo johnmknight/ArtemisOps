@@ -258,11 +258,11 @@
   width: clamp(150px, 26vw, 360px);
 }
 
-/* Outer shell — rounded box with glow border */
+/* Outer shell — heavy rounded box with glow border + top accent */
 .ao-digit-cell .ao-digit-bg {
   position: absolute; inset: 0;
   border-radius: 12px;
-  border: 2px solid var(--ao-cyan-dim);
+  border: 3px solid var(--ao-cyan-dim);
   background: linear-gradient(180deg, #060c14 0%, #040810 100%);
   box-shadow:
     0 0 20px rgba(0, 240, 212, 0.06),
@@ -271,12 +271,24 @@
   z-index: 1;
 }
 
+/* Top accent gradient line on digit cells */
+.ao-digit-cell .ao-digit-bg::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 10%; right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--ao-border-bright) 20%, var(--ao-border-bright) 80%, transparent 100%);
+  box-shadow: 0 0 8px var(--ao-glow);
+  z-index: 2;
+  pointer-events: none;
+}
+
 /* Inner recessed display area */
 .ao-digit-cell .ao-digit-recess {
   position: absolute;
   inset: 8px;
   border-radius: 8px;
-  border: 2px solid var(--ao-cyan-dim);
+  border: 3px solid var(--ao-cyan-dim);
   background:
     radial-gradient(ellipse at 50% 90%, rgba(0, 240, 212, 0.02) 0%, transparent 50%),
     #020508;
