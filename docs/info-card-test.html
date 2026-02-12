@@ -23,13 +23,23 @@
   }
 
   body {
-    background: var(--ao-bg-deep);
+    background: #0a1520;
     color: var(--text-primary);
     font-family: 'Segoe UI', -apple-system, sans-serif;
     padding: 40px;
     display: flex;
     flex-direction: column;
     gap: 40px;
+  }
+
+  /* Simulates the mission page panel background */
+  .on-panel {
+    background: radial-gradient(ellipse at 30% 50%, #0a1825 0%, #050a12 70%);
+    padding: 30px;
+    border-radius: 12px;
+  }
+  .on-panel .ao-info-card-title {
+    background: #070d16;
   }
 
   h2 {
@@ -69,7 +79,8 @@
     top: -0.65em;
     left: 16px;
     padding: 0 8px;
-    background: var(--ao-bg-deep);
+    background: #080e18;
+    padding: 0 8px;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 3px;
