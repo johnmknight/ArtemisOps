@@ -627,6 +627,12 @@
       justify-content: center;
     }
 
+    /* Title background matches mission page dark bg */
+    .info-boxes .ao-info-card-title,
+    .launch-info-row .ao-info-card-title {
+      background: #000;
+    }
+
     .info-box {
       display: flex;
       align-items: center;
@@ -981,6 +987,7 @@
             <span class="agency-name" id="agencyName">NASA</span>
           </div>
           <div class="launch-info-row ao-info-card">
+            <span class="ao-info-card-title">Launch Details</span>
             <div class="launch-info-item">
               <div class="launch-info-label">Target Date</div>
               <div class="launch-info-value" id="launchDate">Loading...</div>
@@ -1003,27 +1010,27 @@
         <!-- Info boxes -->
         <div class="info-boxes">
           <div class="info-box ao-info-card">
+            <span class="ao-info-card-title">Next Milestone</span>
             <span class="info-box-icon" id="milestoneIcon"></span>
             <div class="info-box-content">
-              <div class="info-box-label">Next Milestone</div>
               <div class="info-box-title" id="nextMilestoneTitle">Loading...</div>
               <div class="info-box-meta" id="nextMilestoneMeta">--</div>
             </div>
           </div>
           
           <div class="info-box ao-info-card" id="statusBox">
+            <span class="ao-info-card-title">Mission Status</span>
             <span class="info-box-icon" id="statusIcon"></span>
             <div class="info-box-content">
-              <div class="info-box-label">Mission Status</div>
               <div class="info-box-title" id="missionStatusTitle">---</div>
               <div class="info-box-meta" id="missionStatusMeta">---</div>
             </div>
           </div>
           
           <div class="info-box weather-box ao-info-card nominal" id="weatherBox">
+            <span class="ao-info-card-title">Forecast Weather</span>
             <span class="info-box-icon" id="weatherIcon"></span>
             <div class="info-box-content">
-              <div class="info-box-label">Forecast Weather at Launch Site</div>
               <div class="info-box-title" id="weatherCondition">Loading...</div>
               <div class="weather-stats">
                 <span class="weather-stat">Wind: <strong id="weatherWind">--</strong></span>

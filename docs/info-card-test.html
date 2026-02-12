@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ao-info-card — Title in Border Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ao-bg-deep:       #060a10;
+    --ao-bg-panel:      rgba(8, 14, 24, 0.85);
+    --ao-border-bright: #88ccff;
+    --ao-border-mid:    #4a80aa;
+    --ao-border-dim:    #1e3348;
+    --ao-glow:          rgba(100, 180, 255, 0.25);
+    --ao-nominal:       #44dd88;
+    --ao-caution:       #ddaa44;
+    --ao-alert:         #dd4455;
+    --text-primary:     #ffffff;
+    --text-secondary:   #7a8a9a;
+    --text-accent:      #00d4ff;
+  }
+
+  body {
+    background: var(--ao-bg-deep);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  h2 {
+    color: var(--text-accent);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: -20px;
+  }
+
+  /* ============================================
+     ao-info-card — UPDATED with title-in-border
+     ============================================ */
+  .ao-info-card {
+    position: relative;
+    background: var(--ao-bg-panel);
+    border: 3px solid var(--ao-border-dim);
+    border-radius: 8px;
+    overflow: visible;
+  }
+
+  /* Top accent gradient line */
+  .ao-info-card::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--ao-border-bright) 20%, var(--ao-border-bright) 80%, transparent 100%);
+    box-shadow: 0 0 8px var(--ao-glow);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Title label — sits on top border, left-justified */
+  .ao-info-card-title {
+    position: absolute;
+    top: -0.65em;
+    left: 16px;
+    padding: 0 8px;
+    background: var(--ao-bg-deep);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ao-border-bright);
+    z-index: 3;
+    line-height: 1;
+  }
+
+  /* Status variants */
+  .ao-info-card.nominal { border-color: rgba(68, 221, 136, 0.35); }
+  .ao-info-card.nominal::before { background: linear-gradient(90deg, transparent 0%, var(--ao-nominal) 20%, var(--ao-nominal) 80%, transparent 100%); box-shadow: 0 0 8px rgba(68, 221, 136, 0.3); }
+  .ao-info-card.nominal .ao-info-card-title { color: var(--ao-nominal); }
+
+  .ao-info-card.caution { border-color: rgba(221, 170, 68, 0.35); }
+  .ao-info-card.caution::before { background: linear-gradient(90deg, transparent 0%, var(--ao-caution) 20%, var(--ao-caution) 80%, transparent 100%); box-shadow: 0 0 8px rgba(221, 170, 68, 0.3); }
+  .ao-info-card.caution .ao-info-card-title { color: var(--ao-caution); }
+
+  .ao-info-card.alert { border-color: rgba(221, 68, 85, 0.35); }
+  .ao-info-card.alert::before { background: linear-gradient(90deg, transparent 0%, var(--ao-alert) 20%, var(--ao-alert) 80%, transparent 100%); box-shadow: 0 0 8px rgba(221, 68, 85, 0.3); }
+  .ao-info-card.alert .ao-info-card-title { color: var(--ao-alert); }
+
+  /* Cell layout inside card */
+  .ao-info-card-row { display: flex; align-items: stretch; }
+  .ao-info-cell { flex: 1; padding: 14px 18px; border-left: 1px solid var(--ao-border-dim); }
+  .ao-info-cell:first-child { border-left: none; }
+  .ao-info-cell-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px; }
+  .ao-info-cell-value { font-size: 0.95rem; font-weight: 700; }
+  .ao-info-cell-value.accent { color: var(--text-accent); }
+
+  /* Generic card body */
+  .ao-info-card-body { padding: 14px 18px; display: flex; align-items: center; gap: 10px; }
+  .info-icon { font-size: 1.2rem; opacity: 0.7; }
+  .info-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-accent); margin-bottom: 2px; }
+  .info-title { font-size: 0.9rem; font-weight: 700; }
+  .info-meta { font-size: 0.75rem; color: var(--text-secondary); }
+  .weather-go { margin-left: auto; font-size: 1.1rem; font-weight: 800; color: var(--ao-nominal); letter-spacing: 2px; }
+
+  /* Demo layout helpers */
+  .demo-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .demo-row .ao-info-card { flex: 1; min-width: 240px; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+  .label-tag { font-size: 0.6rem; color: var(--text-secondary); letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+  <h2>Launch Info Row — Title in Border</h2>
+  <div class="ao-info-card" style="max-width: 700px;">
+    <span class="ao-info-card-title">Launch Details</span>
+    <div class="ao-info-card-row">
+      <div class="ao-info-cell">
+        <div class="ao-info-cell-label">Target Date</div>
+        <div class="ao-info-cell-value">February 13, 2026</div>
+      </div>
+      <div class="ao-info-cell">
+        <div class="ao-info-cell-label">Window</div>
+        <div class="ao-info-cell-value accent">10:15 UTC</div>
+      </div>
+      <div class="ao-info-cell">
+        <div class="ao-info-cell-label">Site</div>
+        <div class="ao-info-cell-value">Cape Canaveral SFS, FL</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Info Boxes — With Titles</h2>
+  <div class="demo-row">
+    <div class="ao-info-card">
+      <span class="ao-info-card-title">Next Milestone</span>
+      <div class="ao-info-card-body">
+        <span class="info-icon">⚡</span>
+        <div>
+          <div class="info-title">ISS Docking</div>
+          <div class="info-meta">Feb 12, 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ao-info-card">
+      <span class="ao-info-card-title">Mission Status</span>
+      <div class="ao-info-card-body">
+        <span class="info-icon">⟳</span>
+        <div>
+          <div class="info-title">T-0 confirmed by official sources.</div>
+          <div class="info-meta">Falcon 9</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ao-info-card nominal">
+      <span class="ao-info-card-title">Forecast Weather</span>
+      <div class="ao-info-card-body">
+        <span class="info-icon">☁</span>
+        <div>
+          <div class="info-title">Overcast · 70.9°F</div>
+          <div class="info-meta">Wind: 12 mph &nbsp; Cloud: --</div>
+        </div>
+        <span class="weather-go">GO</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Status Variants</h2>
+  <div class="demo-row">
+    <div class="ao-info-card">
+      <span class="ao-info-card-title">Default (Cyan)</span>
+      <div class="ao-info-card-body">
+        <div>
+          <div class="ao-info-cell-label">Altitude</div>
+          <div class="ao-info-cell-value">130 km</div>
+        </div>
+      </div>
+    </div>
+    <div class="ao-info-card nominal">
+      <span class="ao-info-card-title">Nominal (Green)</span>
+      <div class="ao-info-card-body">
+        <div>
+          <div class="ao-info-cell-label">Status</div>
+          <div class="ao-info-cell-value" style="color: var(--ao-nominal);">GO</div>
+        </div>
+      </div>
+    </div>
+    <div class="ao-info-card caution">
+      <span class="ao-info-card-title">Caution (Amber)</span>
+      <div class="ao-info-card-body">
+        <div>
+          <div class="ao-info-cell-label">Wind Speed</div>
+          <div class="ao-info-cell-value" style="color: var(--ao-caution);">34 kts</div>
+        </div>
+      </div>
+    </div>
+    <div class="ao-info-card alert">
+      <span class="ao-info-card-title">Alert (Red)</span>
+      <div class="ao-info-card-body">
+        <div>
+          <div class="ao-info-cell-label">Range Safety</div>
+          <div class="ao-info-cell-value" style="color: var(--ao-alert);">NO-GO</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Side-by-Side: Before → After</h2>
+  <div class="comparison">
+    <div>
+      <div class="label-tag">Before — label inside card</div>
+      <div style="border: 1px solid var(--ao-border-dim); border-radius: 8px; background: var(--ao-bg-panel); padding: 14px 18px; display: flex; align-items: center; gap: 10px;">
+        <span class="info-icon">⚡</span>
+        <div>
+          <div class="info-label">Next Milestone</div>
+          <div class="info-title">ISS Docking</div>
+          <div class="info-meta">Feb 12, 2026</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label-tag">After — title in border</div>
+      <div class="ao-info-card">
+        <span class="ao-info-card-title">Next Milestone</span>
+        <div class="ao-info-card-body">
+          <span class="info-icon">⚡</span>
+          <div>
+            <div class="info-title">ISS Docking</div>
+            <div class="info-meta">Feb 12, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
