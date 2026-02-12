@@ -374,6 +374,58 @@
   50% { opacity: 0.3; }
 }
 
+/* ── TIER 4: INFO CARD ── */
+/* Clean panel with top accent line — for data readouts, status boxes, info rows */
+.ao-info-card {
+  position: relative;
+  background: var(--ao-bg-panel);
+  border: 1px solid var(--ao-border-dim);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Top accent gradient line */
+.ao-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--ao-border-bright) 20%, var(--ao-border-bright) 80%, transparent 100%);
+  box-shadow: 0 0 8px var(--ao-glow);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Data cell inside an info card — left-accented readout */
+.ao-info-cell {
+  position: relative;
+  padding: 8px 14px 8px 16px;
+  border-left: 2px solid var(--ao-border-dim);
+}
+
+/* First cell in a row doesn't need divider */
+.ao-info-cell:first-child {
+  border-left: none;
+}
+
+/* Inline row layout for multiple cells */
+.ao-info-card-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.ao-info-card-row .ao-info-cell {
+  flex: 1;
+}
+
+/* Status variants */
+.ao-info-card.nominal { border-color: rgba(68, 221, 136, 0.3); }
+.ao-info-card.nominal::before { background: linear-gradient(90deg, transparent 0%, var(--ao-nominal) 20%, var(--ao-nominal) 80%, transparent 100%); box-shadow: 0 0 8px rgba(68, 221, 136, 0.3); }
+.ao-info-card.caution { border-color: rgba(221, 170, 68, 0.3); }
+.ao-info-card.caution::before { background: linear-gradient(90deg, transparent 0%, var(--ao-caution) 20%, var(--ao-caution) 80%, transparent 100%); box-shadow: 0 0 8px rgba(221, 170, 68, 0.3); }
+.ao-info-card.alert { border-color: rgba(221, 68, 85, 0.3); }
+.ao-info-card.alert::before { background: linear-gradient(90deg, transparent 0%, var(--ao-alert) 20%, var(--ao-alert) 80%, transparent 100%); box-shadow: 0 0 8px rgba(221, 68, 85, 0.3); }
+
 /* ── INTERACTIVE Z-INDEX FIX ── */
 /* Ensure clickable elements are above scanline overlay */
 .ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch)::before,
