@@ -150,23 +150,24 @@ CREW_DRAGON_MISSIONS = [
     },
 
     # ------------------------------------------------------------------
-    # CREW-12 (UPCOMING)
-    # Target Launch: February 11, 2026, 6:01 AM EST from SLC-40 CCSFS
+    # CREW-12 (IN FLIGHT)
+    # Launched: February 13, 2026, 5:15 AM EST from SLC-40 CCSFS
     # Dragon Freedom (C212) 5th flight | Falcon 9
+    # Crew: Meir (CDR), Hathaway (PLT), Adenot (MS1/ESA), Fedyaev (MS2/Roscosmos)
     # ------------------------------------------------------------------
     {
         "mission": {
             "id": "crew-12",
             "name": "SpaceX Crew-12",
             "slug": "crew-12",
-            "launch_date": "2026-02-11T11:01:00Z",
-            "status": "Go",
-            "status_description": "Flight Readiness Review complete. Crew in quarantine at KSC. Launch targeted Feb 11 at 6:01 AM EST.",
+            "launch_date": "2026-02-13T10:15:00Z",
+            "status": "In Flight",
+            "status_description": "Crew-12 launched Feb 13 at 5:15 AM EST. In transit to ISS, docking Feb 14 at 3:15 PM EST.",
             "site": "Cape Canaveral SFS, SLC-40",
             "rocket": "Falcon 9 Block 5",
             "spacecraft": "Crew Dragon Freedom",
             "mission_type": "Commercial Crew",
-            "description": "NASA's 12th Commercial Crew rotation. 8-month science expedition aboard ISS as Expedition 74.",
+            "description": "NASA's 12th Commercial Crew rotation. 8-month science expedition aboard ISS as Expedition 74/75. First launch from SLC-40 for Commercial Crew. Delayed from Feb 11 due to weather.",
             "patch_url": "/assets/patches/crew-12-patch.png",
             "api_source": "seed",
             "is_active": 1,
@@ -196,14 +197,14 @@ CREW_DRAGON_MISSIONS = [
                 "name": "Sophie Adenot",
                 "role": "Mission Specialist",
                 "agency": "ESA",
-                "bio": "ESA 2022 astronaut class. First career astronaut from that class to fly. Mission named 'Epsilon'. First spaceflight.",
+                "bio": "ESA 2022 astronaut class. French Air and Space Force helicopter pilot. First career astronaut from that class to fly. ESA mission name: Epsilon. First spaceflight.",
                 "sort_order": 2,
             },
             {
                 "name": "Andrey Fedyaev",
                 "role": "Mission Specialist",
                 "agency": "Roscosmos",
-                "bio": "Second spaceflight. Previously flew Crew-6 (186 days). Hero of the Russian Federation.",
+                "bio": "Second spaceflight. Previously flew Crew-6 (186 days). Hero of the Russian Federation. Replaced Oleg Artemyev in Dec 2025.",
                 "sort_order": 3,
             },
         ],
@@ -211,10 +212,48 @@ CREW_DRAGON_MISSIONS = [
             {"date_label": "Jan 28, 2026", "title": "Crew Quarantine", "description": "Crew begins 2-week quarantine at Johnson Space Center, Houston", "status": "completed"},
             {"date_label": "Feb 6, 2026", "title": "Flight Readiness Review", "description": "NASA, SpaceX, and international partners cleared Crew-12 for launch", "status": "completed"},
             {"date_label": "Feb 6, 2026", "title": "Crew Arrives at KSC", "description": "Crew arrived at Kennedy Space Center Launch and Landing Facility", "status": "completed"},
-            {"date_label": "Feb 9, 2026", "title": "Dry Dress Rehearsal", "description": "Full rehearsal of launch day activities including suit-up and pad access", "status": "active"},
-            {"date_label": "Feb 11, 2026", "title": "LAUNCH", "description": "Targeted 6:01 AM EST from SLC-40, Cape Canaveral Space Force Station", "status": "pending"},
-            {"date_label": "Feb 12, 2026", "title": "ISS Docking", "description": "Targeted docking ~10:30 AM EST at Harmony module", "status": "pending"},
+            {"date_label": "Feb 9, 2026", "title": "Dry Dress Rehearsal", "description": "Full rehearsal of launch day activities including suit-up and pad access", "status": "completed"},
+            {"date_label": "Feb 13, 2026", "title": "LAUNCH", "description": "Launched 5:15 AM EST from SLC-40, Cape Canaveral Space Force Station. First Commercial Crew launch from SLC-40.", "status": "completed"},
+            {"date_label": "Feb 14, 2026", "title": "ISS Docking", "description": "Targeted docking 3:15 PM EST at Harmony module", "status": "active"},
             {"date_label": "~Oct 2026", "title": "Undocking & Splashdown", "description": "Planned return after 8-month science expedition", "status": "pending"},
+        ],
+    },
+
+    # ------------------------------------------------------------------
+    # CRS-33 (CARGO - Docked at ISS)
+    # Launched: August 24, 2025 from SLC-40 CCSFS
+    # Cargo Dragon C211 3rd flight | Falcon 9 B1090
+    # Includes ISS boost kit for orbit maintenance reboosts
+    # ------------------------------------------------------------------
+    {
+        "mission": {
+            "id": "crs-33",
+            "name": "SpaceX CRS-33",
+            "slug": "crs-33",
+            "launch_date": "2025-08-24T05:34:00Z",
+            "status": "In Flight",
+            "status_description": "Cargo Dragon docked at ISS Harmony zenith port. Performing ISS reboost demonstrations with boost kit.",
+            "site": "Cape Canaveral SFS, SLC-40",
+            "rocket": "Falcon 9 Block 5",
+            "spacecraft": "Cargo Dragon C211",
+            "mission_type": "Commercial Resupply",
+            "description": "NASA's 33rd Commercial Resupply mission. First to include ISS boost kit for orbit maintenance. Delivered 5,000 lbs of cargo including 3D printing and bioprinting experiments.",
+            "patch_url": None,
+            "api_source": "seed",
+            "is_active": 1,
+            "agencies": "NASA, SpaceX",
+            "recovery_site": "Pacific Ocean, off California",
+            "recovery_lat": 32.5,
+            "recovery_lon": -117.5,
+            "launch_window_type": "instantaneous",
+            "mission_profile": "leo-iss",
+        },
+        "crew": [],
+        "milestones": [
+            {"date_label": "Aug 24, 2025", "title": "Launch", "description": "Falcon 9 liftoff from SLC-40, Cape Canaveral", "status": "completed"},
+            {"date_label": "Aug 25, 2025", "title": "ISS Docking", "description": "Docked to Harmony zenith port at 7:05 AM EDT", "status": "completed"},
+            {"date_label": "Sep 2025", "title": "First ISS Reboost", "description": "Boost kit Draco thruster demonstration for ISS orbit maintenance", "status": "completed"},
+            {"date_label": "TBD", "title": "Undocking & Splashdown", "description": "Return to Earth with research samples and cargo", "status": "pending"},
         ],
     },
 ]
