@@ -164,6 +164,66 @@ def _is_dragon_mission(mission: Dict[str, Any]) -> bool:
     return False
 
 
+def _is_mission_inflight(mission: Dict[str, Any]) -> bool:
+    """
+    Determine if a mission is currently in flight.
+    Handles multiple status formats:
+      - Our seed data: "In Flight", "Go"
+      - SpaceDevs API: "The launch vehicle successfully inserted its payload(s)..."
+      - Completed missions: "Success", "Complete"
+    """
+    from datetime import datetime, timezone
+
+    status = (mission.get("status") or "").lower()
+    now = datetime.now(timezone.utc)
+
+    # Explicit in-flight status
+    if "in flight" in status:
+        return True
+
+    # Explicitly completed/failed — not in flight
+    COMPLETED_KEYWORDS = ["success", "complete", "failed", "failure", "partial failure", "retired"]
+    is_completed = any(kw in status for kw in COMPLETED_KEYWORDS)
+    if is_completed:
+        return False
+
+    # Check if launched but not yet landed
+    launch_date = mission.get("launch_date")
+    landing_date = mission.get("landing_date")
+
+    if launch_date:
+        try:
+            ld = datetime.fromisoformat(launch_date.replace("Z", "+00:00"))
+            has_launched = ld < now
+        except (ValueError, TypeError):
+            has_launched = False
+    else:
+        has_launched = False
+
+    if landing_date:
+        try:
+            rd = datetime.fromisoformat(landing_date.replace("Z", "+00:00"))
+            has_landed = rd < now
+        except (ValueError, TypeError):
+            has_landed = False
+    else:
+        has_landed = False
+
+    # Launched + no landing date = in flight (covers SpaceDevs "inserted into orbit" status)
+    if has_launched and not landing_date:
+        return True
+
+    # Launched + landing date in the future = in flight
+    if has_launched and landing_date and not has_landed:
+        return True
+
+    # "Go" with past launch date = in flight (pre-launch status that wasn't updated)
+    if status == "go" and has_launched:
+        return True
+
+    return False
+
+
 async def get_inflight_dragon_missions() -> List[Dict[str, Any]]:
     """
     Query our missions database for Dragon missions currently in flight.
@@ -176,23 +236,7 @@ async def get_inflight_dragon_missions() -> List[Dict[str, Any]]:
         inflight = []
 
         for m in all_missions:
-            status = (m.get("status") or "").lower()
-            # "in flight" or "go" with past launch date
-            is_inflight = "in flight" in status
-
-            if not is_inflight and status == "go":
-                # Check if launch date has passed
-                launch_date = m.get("launch_date")
-                if launch_date:
-                    from datetime import datetime, timezone
-                    try:
-                        ld = datetime.fromisoformat(launch_date.replace("Z", "+00:00"))
-                        if ld < datetime.now(timezone.utc):
-                            is_inflight = True
-                    except:
-                        pass
-
-            if is_inflight and _is_dragon_mission(m):
+            if _is_mission_inflight(m) and _is_dragon_mission(m):
                 # Get full mission data including crew
                 full = await get_full_mission(m["id"])
                 if full:

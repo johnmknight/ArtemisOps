@@ -485,6 +485,33 @@ async def parse_launch_to_mission(launch: dict, client: httpx.AsyncClient) -> Op
         status_name = status.get("abbrev", "Unknown")
         status_desc = status.get("description", "")
         
+        # SpaceDevs "Success" means "launch succeeded" — but for Dragon/Axiom
+        # missions still in orbit, we want "In Flight" until splashdown.
+        if status_name == "Success":
+            _launch_net = launch.get("net")
+            _sc_stage = (launch.get("rocket") or {}).get("spacecraft_stage") or {}
+            _sc = _sc_stage.get("spacecraft") or {}
+            _landing_date = _sc.get("landing_date")
+            _name_lower = name.lower()
+            _is_dragon = any(kw in _name_lower for kw in ["crew-", "crew dragon", "crs-", "cargo dragon", "axiom"])
+            if _is_dragon and _launch_net:
+                try:
+                    _ld = datetime.fromisoformat(_launch_net.replace("Z", "+00:00"))
+                    _now = datetime.now(timezone.utc)
+                    _age_days = (_now - _ld).days
+                    _has_landed = False
+                    if _landing_date:
+                        try:
+                            _land_dt = datetime.fromisoformat(_landing_date.replace("Z", "+00:00"))
+                            _has_landed = _land_dt < _now
+                        except:
+                            pass
+                    if _age_days < 300 and not _has_landed:
+                        status_name = "In Flight"
+                        status_desc = f"Launched {_ld.strftime('%b %d, %Y')}. Mission in progress."
+                except:
+                    pass
+        
         pad = launch.get("pad", {})
         location = pad.get("location", {})
         site = location.get("name", "Unknown")
