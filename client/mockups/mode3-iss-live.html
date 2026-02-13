@@ -1032,6 +1032,80 @@
       50% { opacity: 0.3; }
     }
     
+    /* SpaceX Dragon Marker Styles */
+    .dragon-marker {
+      background: transparent !important;
+      border: none !important;
+    }
+    .dragon-marker-container {
+      position: relative;
+      width: 80px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dragon-marker-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      border: 2px solid #e04040;
+      border-radius: 50%;
+      background: rgba(224, 64, 64, 0.15);
+      animation: dragon-pulse 2s ease-in-out infinite;
+    }
+    .dragon-marker-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: #e04040;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #e04040;
+      z-index: 2;
+    }
+    .dragon-marker-label {
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    @keyframes dragon-pulse {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(224,64,64,0.4), 0 0 16px rgba(224,64,64,0.2);
+        border-color: rgba(224,64,64,0.8);
+      }
+      50% {
+        box-shadow: 0 0 14px rgba(224,64,64,0.7), 0 0 28px rgba(224,64,64,0.3);
+        border-color: rgba(240,80,80,1);
+      }
+    }
+    .dragon-popup .leaflet-popup-content-wrapper {
+      background: rgba(13, 26, 45, 0.95) !important;
+      border: 1px solid #e04040 !important;
+    }
+    .dragon-popup .leaflet-popup-tip {
+      background: rgba(13, 26, 45, 0.95) !important;
+    }
+    /* Dragon toggle button active state */
+    .map-btn#btnDragons.active {
+      background: #e04040 !important;
+      color: #000 !important;
+      border-color: #e04040 !important;
+    }
+
     .leaflet-popup-content-wrapper {
       background: #0d1a2d !important;
       border: 1px solid #00bcd4 !important;
@@ -1335,6 +1409,7 @@
           <button class="map-btn" onclick="centerOnISS()">Center ISS</button>
           <button class="map-btn active" id="btnTerminator" onclick="toggleTerminator()">Day/Night</button>
           <button class="map-btn" id="btnStations" onclick="toggleStations()">Stations</button>
+          <button class="map-btn" id="btnDragons" onclick="toggleDragons()" style="color:#e04040;border-color:#e04040;background:rgba(224,64,64,0.15);">🚀 Dragons</button>
         </div>
         <div id="iss-map"></div>
         
@@ -1500,6 +1575,12 @@
   
   <!-- Lightstreamer Client for NASA ISS Telemetry -->
   <script src="https://unpkg.com/lightstreamer-client-web/lightstreamer.min.js" data-lightstreamer-ns="Ls"></script>
+  
+  <!-- satellite.js for SGP4 orbit propagation -->
+  <script src="https://unpkg.com/satellite.js@5.0.0/dist/satellite.min.js"></script>
+  
+  <!-- SpaceX Dragon Tracker -->
+  <script src="/js/dragon-tracker.js"></script>
   
   <script>
     // Global variables
@@ -2530,6 +2611,19 @@
         if (stationLayerGroup) map.removeLayer(stationLayerGroup);
         document.getElementById('btnStations').classList.remove('active');
       }
+    }
+    
+    // SpaceX Dragon toggle
+    async function toggleDragons() {
+      if (typeof DragonTracker === 'undefined') {
+        console.warn('DragonTracker not loaded');
+        return;
+      }
+      if (!DragonTracker.map) {
+        DragonTracker.init(map);
+      }
+      const enabled = await DragonTracker.toggle();
+      document.getElementById('btnDragons').classList.toggle('active', enabled);
     }
     
     // Update UTC time

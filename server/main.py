@@ -24,6 +24,7 @@ from crew_enrichment import get_cache_status as get_enrichment_status
 from trajectories import get_trajectory, get_available_trajectories
 from news import get_news
 from streams import fetch_nasa_streams, get_all_sources
+from spacex import get_dragons_response
 
 # Paths
 BASE_DIR = Path(__file__).parent
@@ -665,6 +666,21 @@ async def get_iss_location_name(lat: float, lng: float):
         return await get_location_name(lat, lng)
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Location lookup unavailable: {str(e)}")
+
+
+# === SpaceX Tracking ===
+
+@app.get("/api/spacex/dragons")
+async def get_spacex_dragons():
+    """
+    Get TLE data for active SpaceX Crew Dragon capsules.
+    Client uses satellite.js for SGP4 orbit propagation.
+    TLEs cached for 1 hour from CelesTrak.
+    """
+    try:
+        return await get_dragons_response()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"SpaceX data unavailable: {str(e)}")
 
 
 # === Trajectory Data ===
