@@ -34,6 +34,7 @@
   --ao-cyan-mid:      #00c4ad;
   --ao-cyan-dim:      #0a8a7a;
   --ao-cyan-glow:     rgba(0, 240, 212, 0.35);
+  --ao-cyan-glow-strong: rgba(0, 240, 212, 0.6);
 
   /* Corner geometry per tier */
   --ao-clip-page:     20px;
@@ -51,11 +52,44 @@
 }
 
 /* ── TIER 1: PAGE FRAME ── */
+/*
+  Border technique: double clip-path layer.
+  Outer .ao-frame-page: octagonal clip + border color as background.
+  Inner ::before: slightly inset, same octagonal clip + dark bg.
+  The 2px gap between the two clips IS the visible border.
+  box-shadow draws outward glow around the clipped shape.
+*/
 .ao-frame-page {
   position: relative;
   width: 100%; height: 100%;
   overflow: hidden;
   box-sizing: border-box;
+  clip-path: polygon(
+    20px 0%, calc(100% - 20px) 0%,
+    100% 20px, 100% calc(100% - 20px),
+    calc(100% - 20px) 100%, 20px 100%,
+    0% calc(100% - 20px), 0% 20px
+  );
+  background: var(--ao-border-mid);
+  box-shadow:
+    0 0 40px var(--ao-glow),
+    0 0 80px rgba(74, 128, 170, 0.06);
+}
+
+/* Inner fill — dark background, inset 2px to expose border ring */
+.ao-frame-page::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(
+    18px 0%, calc(100% - 18px) 0%,
+    100% 18px, 100% calc(100% - 18px),
+    calc(100% - 18px) 100%, 18px 100%,
+    0% calc(100% - 18px), 0% 18px
+  );
+  background: var(--ao-bg-deep);
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ── PANEL BORDERS ── */
@@ -137,10 +171,16 @@
   pointer-events: none; z-index: 11;
 }
 
+/* Content must sit above ::before fill (z:0) */
+.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
+  position: relative;
+  z-index: 1;
+}
+
 /* Page corners */
 .ao-frame-page .ao-corner {
   position: absolute; width: 60px; height: 60px;
-  z-index: 12; pointer-events: none;
+  z-index: 14; pointer-events: none;
 }
 .ao-frame-page .ao-corner svg { width: 100%; height: 100%; }
 .ao-corner.tl { top: 0; left: 0; }
@@ -151,7 +191,7 @@
 /* Hazard stripes */
 .ao-hazard {
   position: absolute; left: 70px; right: 70px; height: 4px;
-  z-index: 12; pointer-events: none;
+  z-index: 14; pointer-events: none;
   background: repeating-linear-gradient(
     -45deg,
     var(--ao-hazard-a) 0px, var(--ao-hazard-a) 4px,
@@ -164,7 +204,7 @@
 /* Side notches */
 .ao-notch {
   position: absolute; top: 50%; transform: translateY(-50%);
-  width: 6px; height: 60px; z-index: 12; pointer-events: none;
+  width: 6px; height: 60px; z-index: 14; pointer-events: none;
 }
 .ao-notch.left {
   left: -3px;
@@ -258,51 +298,50 @@
   width: clamp(150px, 26vw, 360px);
 }
 
-/* Outer shell — heavy rounded box with glow border + top accent */
+/* Outer shell — Heavy Bold Industrial */
 .ao-digit-cell .ao-digit-bg {
   position: absolute; inset: 0;
-  border-radius: 12px;
-  border: 3px solid var(--ao-cyan-dim);
-  background: linear-gradient(180deg, #060c14 0%, #040810 100%);
+  border-radius: 6px;
+  border: 2.5px solid rgba(0, 200, 180, 0.35);
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(0, 240, 212, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.95) 0%, rgba(6, 12, 22, 0.98) 100%);
   box-shadow:
-    0 0 20px rgba(0, 240, 212, 0.06),
-    0 0 50px rgba(0, 240, 212, 0.02),
-    inset 0 0 30px rgba(0, 0, 0, 0.6);
+    0 0 20px rgba(0, 240, 212, 0.1),
+    0 0 50px rgba(0, 240, 212, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 10px rgba(0, 0, 0, 0.5),
+    inset 0 -2px 8px rgba(0, 240, 212, 0.04);
   z-index: 1;
 }
 
-/* Top accent gradient line on digit cells */
-.ao-digit-cell .ao-digit-bg::before {
-  content: '';
-  position: absolute;
-  top: -3px; left: 10%; right: 10%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--ao-border-bright) 20%, var(--ao-border-bright) 80%, transparent 100%);
-  box-shadow: 0 0 8px var(--ao-glow);
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Inner recessed display area */
+/* Inner recessed display area — Heavy */
 .ao-digit-cell .ao-digit-recess {
   position: absolute;
   inset: 8px;
-  border-radius: 8px;
-  border: 3px solid var(--ao-cyan-dim);
+  border-radius: 4px;
+  border: 1.5px solid rgba(0, 200, 180, 0.1);
   background:
-    radial-gradient(ellipse at 50% 90%, rgba(0, 240, 212, 0.02) 0%, transparent 50%),
-    #020508;
+    radial-gradient(ellipse at 50% 100%, rgba(0, 240, 212, 0.03) 0%, transparent 40%),
+    rgba(2, 5, 10, 0.8);
   box-shadow:
-    inset 0 3px 10px rgba(0, 0, 0, 0.7),
-    inset 0 0 30px rgba(0, 0, 0, 0.4),
-    0 0 8px rgba(0, 240, 212, 0.05);
+    inset 0 3px 8px rgba(0, 0, 0, 0.6),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
   z-index: 2;
 }
 
-/* Corner accents (disabled by default for clean look) */
+/* Corner accents — Heavy (14px, visible) */
 .ao-digit-cell .ao-digit-corner {
-  display: none;
+  display: block;
+  position: absolute;
+  width: 14px; height: 14px;
+  z-index: 3;
+  pointer-events: none;
 }
+.ao-digit-cell .ao-digit-corner.tl { top: 2px; left: 2px; border-top: 1.5px solid var(--ao-cyan-dim); border-left: 1.5px solid var(--ao-cyan-dim); border-radius: 4px 0 0 0; border-color: var(--ao-cyan-dim); }
+.ao-digit-cell .ao-digit-corner.tr { top: 2px; right: 2px; border-top: 1.5px solid var(--ao-cyan-dim); border-right: 1.5px solid var(--ao-cyan-dim); border-radius: 0 4px 0 0; border-color: var(--ao-cyan-dim); }
+.ao-digit-cell .ao-digit-corner.bl { bottom: 2px; left: 2px; border-bottom: 1.5px solid var(--ao-cyan-dim); border-left: 1.5px solid var(--ao-cyan-dim); border-radius: 0 0 0 4px; border-color: var(--ao-cyan-dim); }
+.ao-digit-cell .ao-digit-corner.br { bottom: 2px; right: 2px; border-bottom: 1.5px solid var(--ao-cyan-dim); border-right: 1.5px solid var(--ao-cyan-dim); border-radius: 0 0 4px 0; border-color: var(--ao-cyan-dim); }
 
 /* Digit value */
 .ao-digit-value {
@@ -313,26 +352,33 @@
   font-variant-numeric: tabular-nums;
   color: var(--ao-cyan);
   text-shadow:
-    0 0 15px var(--ao-cyan-glow),
+    0 0 15px var(--ao-cyan-glow-strong),
     0 0 40px rgba(0, 240, 212, 0.25),
     0 0 80px rgba(0, 240, 212, 0.10);
   line-height: 1;
   letter-spacing: 2px;
 }
 
-/* Label below box */
+/* Label below box — Heavy */
 .ao-digit-label {
   position: relative; z-index: 5;
-  margin-top: clamp(6px, 1vh, 12px);
+  margin-top: 4px;
   padding: 0;
   text-align: center;
   font-family: var(--ao-font-mono);
   font-size: clamp(9px, 1.1vw, 13px);
-  letter-spacing: clamp(3px, 0.5vw, 6px);
+  letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--ao-cyan-dim);
+  font-weight: 700;
+  color: var(--ao-cyan-mid);
 }
-.ao-digit-label::before { display: none; }
+.ao-digit-label::before {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-bottom: 4px;
+  background: linear-gradient(90deg, transparent, rgba(0, 200, 180, 0.25), transparent);
+}
 
 /* ── VARIANT: NOTCHED — Angular Cutouts ── */
 .ao-countdown.notched .ao-digit-cell .ao-digit-bg {
@@ -372,11 +418,11 @@
   margin-bottom: 22px;
 }
 .ao-digit-sep .dot {
-  width: clamp(6px, 0.9vw, 10px);
-  height: clamp(6px, 0.9vw, 10px);
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--ao-cyan-dim);
-  box-shadow: 0 0 6px rgba(0, 240, 212, 0.2);
+  background: var(--ao-cyan-mid);
+  box-shadow: 0 0 12px rgba(0, 240, 212, 0.4);
   animation: sep-pulse 1s ease-in-out infinite;
 }
 .ao-digit-sep .dot:nth-child(2) { animation-delay: 0.5s; }
@@ -436,9 +482,4 @@
 .ao-info-card.alert .ao-info-card-title { color: var(--ao-alert); }
 
 /* ── INTERACTIVE Z-INDEX FIX ── */
-/* Ensure clickable elements are above scanline overlay */
-.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch)::before,
-.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
-  position: relative;
-  z-index: 12;
-}
+/* Clickable content sits above scanline (z:11) via the > * rule above */
