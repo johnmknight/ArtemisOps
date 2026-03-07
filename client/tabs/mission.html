@@ -12,17 +12,18 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-primary: #000000;
-      --bg-panel: #080c14;
-      --bg-card: #0f1620;
-      --border-subtle: #1a3050;
-      --text-primary: #ffffff;
-      --text-secondary: #7a8a9a;
-      --text-accent: #00d4ff;
-      --countdown-color: #00ffcc;
-      --success-color: #22c55e;
-      --warning-color: #f59e0b;
-      --danger-color: #ef4444;
+      /* Wired to ao-themes.css tokens — fallbacks keep standalone rendering intact */
+      --bg-primary:      var(--theme-bg-primary,    #000000);
+      --bg-panel:        var(--theme-bg-panel,       #080c14);
+      --bg-card:         var(--theme-bg-card,        #0f1620);
+      --border-subtle:   var(--theme-border,         #1a3050);
+      --text-primary:    var(--theme-text-primary,   #ffffff);
+      --text-secondary:  var(--theme-text-secondary, #7a8a9a);
+      --text-accent:     var(--theme-accent,         #00d4ff);
+      --countdown-color: var(--theme-countdown,      #00ffcc);
+      --success-color:   var(--theme-success,        #22c55e);
+      --warning-color:   var(--theme-warning,        #f59e0b);
+      --danger-color:    var(--theme-danger,         #ef4444);
     }
 
     html, body {
@@ -1002,7 +1003,7 @@
   <div class="mission-layout">
     
     <!-- NASA-STYLE HEADER BAR -->
-    <header class="header-bar">
+    <header class="header-bar ao-frame-sub horizontal">
       <div class="header-left">
         <span class="header-mission-name" id="headerMissionName">MISSION</span>
         <div class="header-status-badge">
@@ -1194,7 +1195,7 @@
     </section>
     
     <!-- TIMELINE FOOTER -->
-    <footer class="timeline-strip">
+    <footer class="timeline-strip ao-frame-sub horizontal">
       <div class="phase completed" id="phase1">
         <div class="phase-icon completed" id="phase1Icon"></div>
         <div class="phase-content">
@@ -1222,7 +1223,7 @@
     </footer>
 
     <!-- NEWS TICKER -->
-    <div class="news-ticker">
+    <div class="news-ticker ao-frame-sub horizontal">
       <div class="ticker-label" id="tickerLabel"></div>
       <div class="ticker-track">
         <div class="ticker-content" id="tickerContent">

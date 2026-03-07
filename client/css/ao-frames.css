@@ -292,6 +292,15 @@
 .ao-frame-sub.caution::before { background: var(--ao-caution); }
 .ao-frame-sub.alert::before   { background: var(--ao-alert); }
 
+/* Horizontal variant — top accent stripe instead of left (for headers/footers/tickers) */
+.ao-frame-sub.horizontal::before {
+  top: 0; left: 6px; right: 6px; bottom: auto;
+  width: auto; height: 2px;
+}
+.ao-frame-sub.horizontal.nominal::before { background: var(--ao-nominal); }
+.ao-frame-sub.horizontal.caution::before { background: var(--ao-caution); }
+.ao-frame-sub.horizontal.alert::before   { background: var(--ao-alert); }
+
 /* ── COUNTDOWN DIGIT FRAMES ── */
 .ao-countdown {
   display: flex;
