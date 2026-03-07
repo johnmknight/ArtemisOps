@@ -1303,18 +1303,15 @@
         const msg = event.data;
         
         switch (msg.type) {
-          case 'missionData':
-            this.missionData = msg.data;
+          case 'setMissionData':   // shell → tab (current)
+          case 'missionData':      // legacy
+            this.missionData = msg.mission || msg.data;
             this.updateMissionDisplay();
             break;
-            
-          case 'weatherData':
-            this.weatherData = msg.data;
-            this.updateWeatherDisplay();
-            break;
-          
-          case 'setWeatherData':
-            this.weatherData = msg.weather;
+
+          case 'setWeatherData':   // shell → tab (current)
+          case 'weatherData':      // legacy
+            this.weatherData = msg.weather || msg.data;
             this.updateWeatherDisplay();
             break;
         }
