@@ -292,7 +292,9 @@
       <iframe class="tab-frame active" id="frame-mission" src="/tabs/mission.html"></iframe>
       <iframe class="tab-frame" id="frame-tracking" src="/tabs/tracking.html"></iframe>
       <iframe class="tab-frame" id="frame-crew" src="/tabs/crew.html"></iframe>
+      <!-- frame-info: dev paused, removed from navigation — code preserved
       <iframe class="tab-frame" id="frame-info" src="/tabs/info.html"></iframe>
+      -->
       <iframe class="tab-frame" id="frame-weather" src="/tabs/weather.html"></iframe>
     </main>
   </div>
@@ -480,7 +482,7 @@
       },
       
       // === Keyboard Navigation ===
-      tabOrder: ['mission', 'tracking', 'crew', 'info', 'weather'],
+      tabOrder: ['mission', 'tracking', 'crew', 'weather'], // 'info' paused — dev on hold
       
       handleKeydown(e) {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
