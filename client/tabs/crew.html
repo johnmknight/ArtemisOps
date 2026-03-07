@@ -7,18 +7,19 @@
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <link rel="stylesheet" href="../css/ao-frames.css">
+  <link rel="stylesheet" href="../css/ao-themes.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     :root {
-      --bg-primary: #0a1628;
-      --bg-card: rgba(12, 20, 35, 0.95);
-      --text-primary: #ffffff;
-      --text-muted: #94a3b8;
-      --accent-cyan: #22d3ee;
-      --accent-orange: #fb923c;
-      --accent-red: #ef4444;
-      --border-subtle: rgba(255,255,255,0.1);
+      --bg-primary:    var(--theme-bg-primary,  #0a1628);
+      --bg-card:       var(--theme-bg-card,      rgba(12,20,35,0.95));
+      --text-primary:  var(--theme-text-primary,  #ffffff);
+      --text-muted:    var(--theme-text-secondary,#94a3b8);
+      --accent-cyan:   var(--theme-accent,        #22d3ee);
+      --accent-orange: var(--theme-warning,       #fb923c);
+      --accent-red:    var(--theme-danger,        #ef4444);
+      --border-subtle: var(--theme-border,        rgba(255,255,255,0.1));
     }
     
     html, body {

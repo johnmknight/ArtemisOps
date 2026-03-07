@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** March 6, 2026
+**Last Updated:** March 7, 2026
 
 ---
 
@@ -43,6 +43,18 @@ This document tracks development progress and the integration plan for the Artem
 - [ ] Continue fixing Mission page sizing — maximize countdown clock per design intent
 - [ ] Add back video feeds for ISS tracking page
 - [ ] Implement full theming system with switchable palettes, fonts, and border styles
+
+### Completed (Mar 7)
+- [x] ao-themes.css — 4 themes (nominal/expanse/hazard/stealth) with `--theme-*` CSS tokens
+- [x] mission.html interior wired to theme system — all color vars reference `--theme-*` with fallbacks
+- [x] crew.html wired to ao-themes.css — added link + remapped :root vars to `--theme-*` tokens
+- [x] ao-frame-sub.horizontal variant — top accent stripe for header/footer/ticker elements
+- [x] Mission page ao-frame-sub applied — header-bar, timeline-strip, news-ticker all use `.horizontal`
+- [x] CSS specificity bug fixed — `.ao-page-border` added to ao-frames.css exclusion list; mission layout no longer pushed off-screen
+- [x] postMessage type mismatch fixed — mission.html now handles both `setMissionData` and `missionData`; weather handler patched to match
+- [x] Shell null guards — `updateHeader()` and `updateMissionSelector()` check element existence before setting properties
+- [x] Info tab paused — removed from `tabOrder` and iframe commented out; code fully preserved for resumption
+- [x] Countdown digit size increased — raised vh clamp ceilings on `.countdown-left .ao-digit-cell` and `.ao-digit-value`
 
 ### Recently Completed (Feb 11)
 - [x] Asset localization: all crew photos, agency logos, hero images served from local /assets/ (zero remote image fetches)
@@ -288,16 +300,21 @@ client/js/components/
 
 ### Completed
 - [x] ao-frames.css — 4-tier frame hierarchy (page, panel, sub, popup)
+- [x] ao-frame-sub.horizontal variant — top stripe for headers/footers/tickers
 - [x] Corner border fix — double clip-path technique
 - [x] Z-index stack — documented and enforced
 - [x] Utility components — .ao-dot, .ao-readout, .ao-divider
 - [x] Responsive breakpoints + reduced-motion support
+- [x] ao-themes.css — 4 themes (nominal / expanse / hazard / stealth) with --theme-* tokens
+- [x] mission.html interior — fully wired to ao-themes.css token system
+- [x] crew.html interior — wired to ao-themes.css token system
 
 ### Remaining
-- [ ] Apply frame classes to mission.html, tracking.html, crew.html panels
-- [ ] Maximize countdown clock sizing on Mission page
-- [ ] Restore video feeds on ISS tracking page
-- [ ] Switchable theming system (palettes, fonts, border styles)
+- [ ] **Fix 3-digit countdown clipping** (ISSUE-003) — DAYS digits clip at 3 chars (e.g. "195")
+- [ ] **ISS video auto-load** (ISSUE-004) — auto-load added but not triggering; investigate autoplay policy
+- [ ] **Fix default mission selection** (ISSUE-005) — cargo missions outranking crewed on some reloads
+- [ ] Apply ao-frame-panel classes to crew.html EVA sidebar (currently inline styles)
+- [ ] tracking.html theme wiring (DEFERRED-002) — requires postMessage bridge to inner mockup iframe
 
 ---
 
