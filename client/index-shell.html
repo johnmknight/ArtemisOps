@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArtemisOps - Mission Control</title>
+  <link rel="stylesheet" href="css/ao-frames.css">
+  <link rel="stylesheet" href="css/ao-themes.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -244,6 +246,37 @@
       color: var(--text-secondary);
       letter-spacing: 2px;
     }
+
+    /* ── Theme switcher widget ── */
+    .theme-switcher {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      gap: 6px;
+      background: rgba(6, 10, 16, 0.85);
+      border: 1px solid #1e3348;
+      border-radius: 6px;
+      padding: 6px 8px;
+      backdrop-filter: blur(6px);
+    }
+
+    .theme-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .theme-btn:hover      { transform: scale(1.2); }
+    .theme-btn.active     { border-color: rgba(255,255,255,0.7); transform: scale(1.15); }
+    .theme-btn[data-t="nominal"]  { background: #4a80aa; }
+    .theme-btn[data-t="expanse"]  { background: #8a6820; }
+    .theme-btn[data-t="hazard"]   { background: #882020; }
+    .theme-btn[data-t="stealth"]  { background: #303030; }
   </style>
 </head>
 <body>
@@ -262,6 +295,14 @@
       <iframe class="tab-frame" id="frame-info" src="/tabs/info.html"></iframe>
       <iframe class="tab-frame" id="frame-weather" src="/tabs/weather.html"></iframe>
     </main>
+  </div>
+
+  <!-- Theme switcher — 4 color swatches, bottom-right corner -->
+  <div class="theme-switcher" title="Switch theme">
+    <button class="theme-btn active" data-t="nominal"  title="Nominal (NASA blue)"></button>
+    <button class="theme-btn"        data-t="expanse"  title="Expanse (amber)"></button>
+    <button class="theme-btn"        data-t="hazard"   title="Hazard (red alert)"></button>
+    <button class="theme-btn"        data-t="stealth"  title="Stealth (dark)"></button>
   </div>
 
   <script>
@@ -400,25 +441,21 @@
       // === UI Updates ===
       updateHeader() {
         if (!this.missionData) return;
-        
-        document.getElementById('missionTitle').textContent = this.missionData.name || 'MISSION';
-        document.getElementById('missionSubtitle').textContent = 
-          this.missionData.description?.substring(0, 50) + '...' || '';
-        
-        if (this.missionData.agency_logo) {
-          document.getElementById('agencyLogo').src = this.missionData.agency_logo;
-        }
+        const t = document.getElementById('missionTitle');
+        const s = document.getElementById('missionSubtitle');
+        const l = document.getElementById('agencyLogo');
+        if (t) t.textContent = this.missionData.name || 'MISSION';
+        if (s) s.textContent = this.missionData.description?.substring(0, 50) + '...' || '';
+        if (l && this.missionData.agency_logo) l.src = this.missionData.agency_logo;
       },
-      
+
       updateMissionSelector() {
         const selector = document.getElementById('missionSelector');
-        selector.innerHTML = this.missions.map(m => 
+        if (!selector) return;
+        selector.innerHTML = this.missions.map(m =>
           `<option value="${m.id}" ${m.id === this.currentMissionId ? 'selected' : ''}>${m.name}</option>`
         ).join('');
-        
-        selector.onchange = (e) => {
-          this.switchMission(e.target.value);
-        };
+        selector.onchange = (e) => { this.switchMission(e.target.value); };
       },
       
       // === Tab Switching ===
@@ -597,7 +634,28 @@
     };
     
     // Initialize on load
-    document.addEventListener('DOMContentLoaded', () => AppShell.init());
+    document.addEventListener('DOMContentLoaded', () => {
+      AppShell.init();
+
+      // ── Theme switcher ──
+      const btns = document.querySelectorAll('.theme-btn');
+      const IFRAMES = () => document.querySelectorAll('.tab-frame');
+
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        btns.forEach(b => b.classList.toggle('active', b.dataset.t === theme));
+        // Broadcast to all child iframes so their ao-themes.css picks it up
+        IFRAMES().forEach(f => {
+          try { f.contentDocument.documentElement.dataset.theme = theme; } catch(e) {}
+        });
+        localStorage.setItem('ao-theme', theme);
+      }
+
+      btns.forEach(btn => btn.addEventListener('click', () => applyTheme(btn.dataset.t)));
+
+      // Restore saved theme (default: nominal)
+      applyTheme(localStorage.getItem('ao-theme') || 'nominal');
+    });
   </script>
 </body>
 </html>

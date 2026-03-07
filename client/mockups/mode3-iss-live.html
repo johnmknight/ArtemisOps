@@ -670,25 +670,87 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     .section-content { padding: 10px 12px; }
     
-    .video-embed { 
-      background: #000; 
-      height: 120px; 
-      border-radius: 4px; 
-      display: flex; 
-      align-items: center; 
+    .video-embed {
+      background: #000;
+      height: 160px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
+      border: 1px solid var(--border-color);
     }
     .video-embed iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
-    .video-placeholder { 
-      color: var(--text-secondary); 
-      font-size: 0.7rem; 
+    .video-placeholder {
+      color: var(--text-secondary);
+      font-size: 0.7rem;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px;
+    }
+    .video-load-btn {
+      margin-top: 6px;
+      padding: 4px 14px;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      color: var(--accent-primary);
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+    .video-load-btn:hover { background: rgba(0, 212, 255, 0.2); }
+    .video-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0, 212, 255, 0.04);
+      flex-shrink: 0;
+    }
+    .video-panel-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .video-live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #444;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .video-live-dot.live {
+      background: #ef4444;
+      animation: pulse-dot 1.5s infinite;
+    }
+    .video-source-select {
+      font-size: 0.6rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .video-section {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border-color);
     }
     
     /* ISS Diagram Panel Styles */
@@ -1569,6 +1631,28 @@
                 <div class="loading-text">Loading ISS Model...</div>
                 <div class="loading-progress" id="velocityProgress">0%</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ISS LIVE VIDEO FEED -->
+        <div class="video-section" id="issVideoSection">
+          <div class="video-panel-header">
+            <span class="video-panel-title">
+              <span class="video-live-dot" id="issVideoLiveDot"></span>
+              ISS LIVE VIEW
+            </span>
+            <select class="video-source-select" id="issVideoSource">
+              <option value="iss-earth">🌍 Earth Views</option>
+              <option value="nasa-tv">📡 NASA TV</option>
+              <option value="nasatv-yt">🎥 NASA TV (YT)</option>
+            </select>
+          </div>
+          <div class="video-embed" id="issVideoEmbed">
+            <div class="video-placeholder" id="issVideoPlaceholder">
+              <div>📡</div>
+              <div>ISS Live Camera</div>
+              <button class="video-load-btn" id="issVideoLoadBtn" onclick="ISSVideo.load()">LOAD STREAM</button>
             </div>
           </div>
         </div>
@@ -3339,6 +3423,67 @@
       // Refresh news every 15 minutes
       setInterval(loadISSNews, 15 * 60 * 1000);
     });
+  </script>
+  <script>
+    // ── ISS LIVE VIDEO CONTROLLER ──────────────────────────────────────────
+    const ISSVideo = {
+      loaded: false,
+      SOURCES: {
+        'iss-earth': {
+          label: 'ISS HD Earth Viewing',
+          url: 'https://video.ibm.com/embed/live-iss-stream?autoplay&mute'
+        },
+        'nasa-tv': {
+          label: 'NASA TV Public',
+          url: 'https://video.ibm.com/embed/nasahdtv?autoplay&mute'
+        },
+        'nasatv-yt': {
+          label: 'NASA TV (YouTube)',
+          url: 'https://www.youtube.com/embed/live_stream?channel=UCLA_DiR1FfKNvjuUpBHmylQ&autoplay=1&mute=1'
+        }
+      },
+
+      load() {
+        const sourceKey = document.getElementById('issVideoSource').value;
+        const source = this.SOURCES[sourceKey];
+        if (!source) return;
+
+        const embed = document.getElementById('issVideoEmbed');
+        const placeholder = document.getElementById('issVideoPlaceholder');
+        const dot = document.getElementById('issVideoLiveDot');
+
+        placeholder.style.display = 'none';
+
+        const existing = embed.querySelector('iframe');
+        if (existing) existing.remove();
+
+        const iframe = document.createElement('iframe');
+        iframe.src = source.url;
+        iframe.allow = 'autoplay; encrypted-media; fullscreen';
+        iframe.allowFullscreen = true;
+        embed.appendChild(iframe);
+
+        dot.classList.add('live');
+        this.loaded = true;
+      },
+
+      unload() {
+        const embed = document.getElementById('issVideoEmbed');
+        const placeholder = document.getElementById('issVideoPlaceholder');
+        const dot = document.getElementById('issVideoLiveDot');
+        const existing = embed.querySelector('iframe');
+        if (existing) existing.remove();
+        placeholder.style.display = '';
+        dot.classList.remove('live');
+        this.loaded = false;
+      },
+
+      changeSource() {
+        if (this.loaded) this.load();
+      }
+    };
+
+    document.getElementById('issVideoSource').addEventListener('change', () => ISSVideo.changeSource());
   </script>
   <script>
     // Forward navigation keys to top-level shell

@@ -92,6 +92,17 @@
   pointer-events: none;
 }
 
+/* Full-viewport SVG border overlay */
+.ao-page-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  overflow: visible;
+}
+
 /* ── PANEL BORDERS ── */
 .ao-frame-panel {
   position: relative;
@@ -172,17 +183,26 @@
 }
 
 /* Content must sit above ::before fill (z:0) */
-.ao-frame-page > *:not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
+/* Note: .ao-page-border gets position:absolute from its own rule below */
+.ao-frame-page > *:not(.ao-page-border):not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
   position: relative;
   z-index: 1;
 }
 
-/* Page corners */
-.ao-frame-page .ao-corner {
-  position: absolute; width: 60px; height: 60px;
-  z-index: 14; pointer-events: none;
+/* Full-viewport SVG border overlay — replaces 4 small corner SVGs */
+.ao-page-border {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 12; pointer-events: none;
+  overflow: visible;
 }
-.ao-frame-page .ao-corner svg { width: 100%; height: 100%; }
+
+/* Keep .ao-corner for panel-tier use (smaller frames) */
+.ao-frame-panel .ao-corner {
+  position: absolute; width: 40px; height: 40px;
+  z-index: 7; pointer-events: none;
+}
+.ao-frame-panel .ao-corner svg { width: 100%; height: 100%; }
 .ao-corner.tl { top: 0; left: 0; }
 .ao-corner.tr { top: 0; right: 0; }
 .ao-corner.bl { bottom: 0; left: 0; }
@@ -482,4 +502,251 @@
 .ao-info-card.alert .ao-info-card-title { color: var(--ao-alert); }
 
 /* ── INTERACTIVE Z-INDEX FIX ── */
-/* Clickable content sits above scanline (z:11) via the > * rule above */
+/* Scanline overlay lives at z:11; page-border SVG at z:12.
+   All child content in .ao-frame-page needs z ≥ 12 to render above
+   the scanline. Decorative overlays use pointer-events:none so clicks
+   still register regardless — but visual z-order matters for hover
+   states, tooltips, and any translucent overlapping elements.         */
+
+.ao-frame-page > *:not(.ao-page-border):not(.ao-corner):not(.ao-hazard):not(.ao-notch) {
+  position: relative;
+  z-index: 12;       /* above scanline (z:11) */
+}
+
+/* Page-border SVG floats above all content decoratively */
+.ao-page-border {
+  z-index: 14;
+}
+
+/* Modals / popups spawned inside the page frame need to break out */
+.ao-frame-popup,
+[data-ao-layer="modal"] {
+  z-index: 100;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   TIER 4 — POPUP / MODAL FRAME
+   Floating panels: alerts, confirmations, data overlays, tool tips.
+   Uses --ao-clip-popup (8px) corners + bright border for visibility.
+   ══════════════════════════════════════════════════════════════════════ */
+.ao-frame-popup {
+  position: absolute;            /* caller sets top/left/transform */
+  background: var(--ao-bg-popup);
+  clip-path: polygon(
+    var(--ao-clip-popup) 0%,
+    calc(100% - var(--ao-clip-popup)) 0%,
+    100% var(--ao-clip-popup),
+    100% calc(100% - var(--ao-clip-popup)),
+    calc(100% - var(--ao-clip-popup)) 100%,
+    var(--ao-clip-popup) 100%,
+    0% calc(100% - var(--ao-clip-popup)),
+    0% var(--ao-clip-popup)
+  );
+  box-shadow:
+    0 0 0 1px var(--ao-border-mid),
+    0 0 24px var(--ao-glow),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  pointer-events: auto;
+}
+
+/* Bright top accent — more prominent than panel tier */
+.ao-frame-popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--ao-clip-popup);
+  right: var(--ao-clip-popup);
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ao-border-bright) 20%,
+    var(--ao-border-bright) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px var(--ao-glow-strong);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Bottom dim accent */
+.ao-frame-popup::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--ao-clip-popup);
+  right: var(--ao-clip-popup);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ao-border-dim) 30%,
+    var(--ao-border-dim) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Corner pins — popup tier (smaller: 3px) */
+.ao-frame-popup .ao-pin {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: var(--ao-border-bright);
+  border-radius: 50%;
+  box-shadow: 0 0 4px var(--ao-glow-strong);
+  z-index: 3; pointer-events: none;
+}
+.ao-frame-popup .ao-pin.tl { top: 4px;    left: 4px;  }
+.ao-frame-popup .ao-pin.tr { top: 4px;    right: 4px; }
+.ao-frame-popup .ao-pin.bl { bottom: 4px; left: 4px;  }
+.ao-frame-popup .ao-pin.br { bottom: 4px; right: 4px; }
+
+/* Status variants for popups */
+.ao-frame-popup.nominal { box-shadow: 0 0 0 1px var(--ao-nominal), 0 0 20px rgba(68, 221, 136, 0.15), 0 8px 32px rgba(0,0,0,0.6); }
+.ao-frame-popup.nominal::before { background: linear-gradient(90deg, transparent, var(--ao-nominal), transparent); box-shadow: 0 0 10px rgba(68, 221, 136, 0.4); }
+
+.ao-frame-popup.caution { box-shadow: 0 0 0 1px var(--ao-caution), 0 0 20px rgba(221, 170, 68, 0.15), 0 8px 32px rgba(0,0,0,0.6); }
+.ao-frame-popup.caution::before { background: linear-gradient(90deg, transparent, var(--ao-caution), transparent); box-shadow: 0 0 10px rgba(221, 170, 68, 0.4); }
+
+.ao-frame-popup.alert { box-shadow: 0 0 0 1px var(--ao-alert), 0 0 20px rgba(221, 68, 85, 0.2), 0 8px 32px rgba(0,0,0,0.6); }
+.ao-frame-popup.alert::before { background: linear-gradient(90deg, transparent, var(--ao-alert), transparent); box-shadow: 0 0 10px rgba(221, 68, 85, 0.5); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   UTILITY — STATUS DOTS  (.ao-dot)
+   Inline indicator used in info cards, readouts, table rows, etc.
+   ══════════════════════════════════════════════════════════════════════ */
+.ao-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ao-border-mid);
+  box-shadow: 0 0 5px rgba(74, 128, 170, 0.4);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.ao-dot.nominal { background: var(--ao-nominal); box-shadow: 0 0 6px rgba(68, 221, 136, 0.5); }
+.ao-dot.caution { background: var(--ao-caution); box-shadow: 0 0 6px rgba(221, 170, 68, 0.5); }
+.ao-dot.alert   { background: var(--ao-alert);   box-shadow: 0 0 6px rgba(221, 68, 85, 0.5);  }
+.ao-dot.pulse   { animation: dot-pulse 1.6s ease-in-out infinite; }
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+/* Large dot (12px) for section headers */
+.ao-dot.lg { width: 12px; height: 12px; }
+
+/* ── UTILITY — DATA READOUT ROW  (.ao-readout) ── */
+/*  Used inside .ao-info-card or .ao-frame-sub for label:value pairs.  */
+.ao-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+}
+.ao-readout + .ao-readout {
+  border-top: 1px solid var(--ao-border-faint);
+}
+.ao-readout-label {
+  flex: 0 0 auto;
+  font-family: var(--ao-font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ao-border-mid);
+  white-space: nowrap;
+}
+.ao-readout-value {
+  flex: 1 1 auto;
+  font-family: var(--ao-font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ao-border-bright);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ao-readout-value.nominal { color: var(--ao-nominal); }
+.ao-readout-value.caution { color: var(--ao-caution); }
+.ao-readout-value.alert   { color: var(--ao-alert);   }
+.ao-readout-value.mono    { letter-spacing: 1px; }
+
+/* ── UTILITY — SECTION DIVIDER  (.ao-divider) ── */
+.ao-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.ao-divider::before,
+.ao-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ao-border-dim), transparent);
+}
+.ao-divider span {
+  font-family: var(--ao-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ao-border-dim);
+  white-space: nowrap;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Countdown digit scaling
+   Below 900px collapse clamp ranges; below 600px hide separators.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .ao-digit-cell {
+    width: clamp(70px, 14vw, 140px);
+    height: clamp(60px, 12vw, 120px);
+  }
+  .ao-digit-value {
+    font-size: clamp(32px, 8vw, 80px);
+  }
+  .ao-digit-cell .ao-digit-corner {
+    width: 10px; height: 10px;
+  }
+  .ao-digit-frame.wide .ao-digit-cell {
+    width: clamp(100px, 20vw, 200px);
+  }
+}
+
+@media (max-width: 600px) {
+  .ao-digit-sep { display: none; }
+  .ao-countdown { gap: 4px; }
+  .ao-digit-cell {
+    width: clamp(52px, 22vw, 90px);
+    height: clamp(46px, 18vw, 76px);
+  }
+  .ao-digit-value {
+    font-size: clamp(22px, 11vw, 48px);
+    letter-spacing: 0;
+  }
+  .ao-digit-label {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY — Reduced motion
+   ══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .ao-digit-sep .dot,
+  .ao-dot.pulse {
+    animation: none;
+    opacity: 1;
+  }
+}

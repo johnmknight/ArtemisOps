@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
   <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
   <link rel="stylesheet" href="../css/ao-frames.css">
+  <link rel="stylesheet" href="../css/ao-themes.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -871,6 +872,38 @@
       color: var(--text-accent);
     }
 
+    /* ===== COUNTDOWN MAXIMIZATION — override ao-frames clamp ceilings ===== */
+    /* ao-frames.css uses conservative clamps for general use;
+       the mission countdown panel has ~60% of viewport width + full height,
+       so we push the ceilings up to fill that space.                        */
+    .countdown-left .ao-digit-cell {
+      width: clamp(120px, min(20vw, 24vh), 310px);
+      height: clamp(100px, min(17vw, 22vh), 250px);
+    }
+    .countdown-left .ao-digit-frame.wide .ao-digit-cell {
+      width: clamp(160px, min(28vw, 32vh), 420px);
+    }
+    .countdown-left .ao-digit-value {
+      font-size: clamp(56px, min(12vw, 16vh), 168px);
+    }
+    .countdown-left .ao-digit-label {
+      font-size: clamp(10px, min(1.2vw, 1.4vh), 15px);
+      letter-spacing: 4px;
+    }
+    .countdown-left .ao-digit-sep {
+      gap: clamp(14px, 2.5vh, 30px);
+      padding: 0 clamp(4px, 0.8vw, 12px);
+    }
+    .countdown-left .ao-digit-sep .dot {
+      width: clamp(8px, 1.2vh, 13px);
+      height: clamp(8px, 1.2vh, 13px);
+    }
+    /* Corner accents scale with the larger cells */
+    .countdown-left .ao-digit-cell .ao-digit-corner {
+      width: 16px;
+      height: 16px;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .mission-layout {
@@ -896,37 +929,67 @@
 <body>
 <div class="ao-frame-page">
 
-  <!-- TL corner -->
-  <div class="ao-corner tl"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
-    <path d="M 60,7 L 20,7 L 7,20 L 7,60" stroke="#4a80aa" stroke-width="1"/>
-    <path d="M 56,7 L 20,7 L 7,20 L 7,50" stroke="#88ccff" stroke-width="1.5" opacity="0.9"/>
-    <circle cx="20" cy="20" r="2.5" fill="#88ccff" opacity="0.9"/>
-    <circle cx="20" cy="20" r="6" fill="#88ccff" opacity="0.1"/>
-  </svg></div>
+  <!-- Full-viewport page border — single SVG replaces 4 small corner brackets -->
+  <!-- viewBox="0 0 1920 1080" with preserveAspectRatio="none" fills any screen size -->
+  <!-- Cut corners at 20 units (≈20px at 1080p) for octagonal frame shape -->
+  <svg class="ao-page-border" viewBox="0 0 1920 1080" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg" fill="none">
+    <defs>
+      <filter id="page-glow" x="-5%" y="-5%" width="110%" height="110%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      </filter>
+      <filter id="corner-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3"/>
+      </filter>
+    </defs>
 
-  <!-- TR corner -->
-  <div class="ao-corner tr"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
-    <path d="M 0,7 L 40,7 L 53,20 L 53,60" stroke="#4a80aa" stroke-width="1"/>
-    <path d="M 4,7 L 40,7 L 53,20 L 53,50" stroke="#88ccff" stroke-width="1.5" opacity="0.9"/>
-    <circle cx="40" cy="20" r="2.5" fill="#88ccff" opacity="0.9"/>
-    <circle cx="40" cy="20" r="6" fill="#88ccff" opacity="0.1"/>
-  </svg></div>
+    <!-- Glow halo (blurred, drawn first so it's behind) -->
+    <polygon
+      points="20,1 1900,1 1919,20 1919,1060 1900,1079 20,1079 1,1060 1,20"
+      fill="none" stroke="#4a8fcc" stroke-width="8" opacity="0.18"
+      filter="url(#page-glow)"/>
 
-  <!-- BL corner -->
-  <div class="ao-corner bl"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
-    <path d="M 7,0 L 7,40 L 20,53 L 60,53" stroke="#4a80aa" stroke-width="1"/>
-    <path d="M 7,10 L 7,40 L 20,53 L 56,53" stroke="#88ccff" stroke-width="1.5" opacity="0.9"/>
-    <circle cx="20" cy="40" r="2.5" fill="#88ccff" opacity="0.9"/>
-    <circle cx="20" cy="40" r="6" fill="#88ccff" opacity="0.1"/>
-  </svg></div>
+    <!-- Main border — outer dim line -->
+    <polygon
+      points="20,1 1900,1 1919,20 1919,1060 1900,1079 20,1079 1,1060 1,20"
+      fill="none" stroke="#4a80aa" stroke-width="2"/>
 
-  <!-- BR corner -->
-  <div class="ao-corner br"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
-    <path d="M 53,0 L 53,40 L 40,53 L 0,53" stroke="#4a80aa" stroke-width="1"/>
-    <path d="M 53,10 L 53,40 L 40,53 L 4,53" stroke="#88ccff" stroke-width="1.5" opacity="0.9"/>
-    <circle cx="40" cy="40" r="2.5" fill="#88ccff" opacity="0.9"/>
-    <circle cx="40" cy="40" r="6" fill="#88ccff" opacity="0.1"/>
-  </svg></div>
+    <!-- Inner accent line — brighter, slightly inset -->
+    <polygon
+      points="23,4 1897,4 1916,23 1916,1057 1897,1076 23,1076 4,1057 4,23"
+      fill="none" stroke="#88ccff" stroke-width="1" opacity="0.55"/>
+
+    <!-- Top edge accent — bright center glow -->
+    <line x1="80" y1="1" x2="1840" y2="1" stroke="#88ccff" stroke-width="2" opacity="0.7"/>
+
+    <!-- Corner vertex dots — TL -->
+    <circle cx="20" cy="20" r="10" fill="#88ccff" opacity="0.08" filter="url(#corner-glow)"/>
+    <circle cx="20" cy="20" r="3"  fill="#88ccff" opacity="0.9"/>
+    <!-- TR -->
+    <circle cx="1900" cy="20" r="10" fill="#88ccff" opacity="0.08" filter="url(#corner-glow)"/>
+    <circle cx="1900" cy="20" r="3"  fill="#88ccff" opacity="0.9"/>
+    <!-- BL -->
+    <circle cx="20" cy="1060" r="10" fill="#88ccff" opacity="0.08" filter="url(#corner-glow)"/>
+    <circle cx="20" cy="1060" r="3"  fill="#88ccff" opacity="0.9"/>
+    <!-- BR -->
+    <circle cx="1900" cy="1060" r="10" fill="#88ccff" opacity="0.08" filter="url(#corner-glow)"/>
+    <circle cx="1900" cy="1060" r="3"  fill="#88ccff" opacity="0.9"/>
+
+    <!-- Corner bracket accent lines — extend inward from each vertex (sci-fi detail) -->
+    <!-- TL — horizontal tick + vertical tick -->
+    <line x1="20" y1="20" x2="80" y2="20" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <line x1="20" y1="20" x2="20" y2="80" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <!-- TR -->
+    <line x1="1900" y1="20" x2="1840" y2="20" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <line x1="1900" y1="20" x2="1900" y2="80" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <!-- BL -->
+    <line x1="20" y1="1060" x2="80" y2="1060" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <line x1="20" y1="1060" x2="20" y2="1000" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <!-- BR -->
+    <line x1="1900" y1="1060" x2="1840" y2="1060" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+    <line x1="1900" y1="1060" x2="1900" y2="1000" stroke="#88ccff" stroke-width="1" opacity="0.6"/>
+  </svg>
 
   <!-- Hazard stripes -->
   <div class="ao-hazard top"></div>

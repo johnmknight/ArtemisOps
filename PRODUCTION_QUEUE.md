@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** February 11, 2026
+**Last Updated:** March 6, 2026
 
 ---
 
@@ -29,10 +29,19 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Fix tile wrapping (no duplicate world maps)
 - [x] Add spacecraft manifest data file (`client/data/spacecraft-manifest.json`)
 
+### Completed (Mar 6)
+- [x] ao-frames.css complete — all 4 tiers built (page, panel, sub, popup)
+- [x] Corner border bug resolved — double clip-path layer technique (no more box-shadow on clipped elements)
+- [x] Z-index stack formalized — content z:12, page-border SVG z:14, popups z:100
+- [x] ao-frame-popup tier built out — octagonal clip, bright accent, corner pins, status variants
+- [x] Utility components added — .ao-dot (status indicators), .ao-readout (label:value rows), .ao-divider
+- [x] Responsive breakpoints — 900px and 600px countdown digit scaling
+- [x] prefers-reduced-motion — kills sep-pulse and dot-pulse animations
+
 ### Up Next (Current Sprint)
+- [ ] Apply ao-frames.css to panels — mission.html, tracking.html, crew.html panels need frame classes
 - [ ] Continue fixing Mission page sizing — maximize countdown clock per design intent
 - [ ] Add back video feeds for ISS tracking page
-- [ ] Add sci-fi frames around panels (beveled/angled borders, corner accents)
 - [ ] Implement full theming system with switchable palettes, fonts, and border styles
 
 ### Recently Completed (Feb 11)
@@ -101,8 +110,9 @@ This document tracks development progress and the integration plan for the Artem
 | Phase 3 | Component Architecture | ✅ Complete |
 | Phase 4 | Backend API Enhancements | ✅ Complete |
 | Phase 5 | Mission Control Mode | ✅ Complete |
-| Phase 6 | Mobile UI Mode | 🔲 Not Started |
+| Phase 6 | Border System + Theming | 🔄 In Progress |
 | Phase 7 | Offline Support / PWA | 🔲 Not Started |
+| Phase 8 | Mobile UI Mode | 🔲 Not Started (Low Priority) |
 
 ---
 
@@ -274,18 +284,24 @@ client/js/components/
 
 ---
 
-## 🔲 Phase 6: Mobile UI Mode - NOT STARTED
+## 🔄 Phase 6: Border System + Theming — IN PROGRESS
 
-### Requirements
-- Bottom icon bar navigation
-- Swipe gestures between views
-- 2-column crew grid
-- Pull-to-refresh
-- Touch-optimized tracking maps
+### Completed
+- [x] ao-frames.css — 4-tier frame hierarchy (page, panel, sub, popup)
+- [x] Corner border fix — double clip-path technique
+- [x] Z-index stack — documented and enforced
+- [x] Utility components — .ao-dot, .ao-readout, .ao-divider
+- [x] Responsive breakpoints + reduced-motion support
+
+### Remaining
+- [ ] Apply frame classes to mission.html, tracking.html, crew.html panels
+- [ ] Maximize countdown clock sizing on Mission page
+- [ ] Restore video feeds on ISS tracking page
+- [ ] Switchable theming system (palettes, fonts, border styles)
 
 ---
 
-## 🔲 Phase 7: Offline Support / PWA - NOT STARTED
+## 🔲 Phase 7: Offline Support / PWA — NOT STARTED
 
 ### Requirements
 - Service Worker for offline caching
@@ -293,6 +309,17 @@ client/js/components/
 - Offline detection with UI feedback
 - Cache age display
 - Background sync when online
+
+---
+
+## 🔲 Phase 8: Mobile UI Mode — NOT STARTED (Low Priority)
+
+### Requirements
+- Bottom icon bar navigation
+- Swipe gestures between views
+- 2-column crew grid
+- Pull-to-refresh
+- Touch-optimized tracking maps
 
 ---
 
@@ -425,4 +452,4 @@ Each page follows a "maximize the hero element" philosophy:
 - Mission Control mode is next priority
 - Consider Raspberry Pi deployment for kiosk displays
 
-**Last Updated:** February 11, 2026
+**Last Updated:** March 6, 2026
