@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spacecraft</title>
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons.min.css">
+  <link rel="stylesheet" href="../assets/tabler-icons/tabler-icons-filled.min.css">
+  <link rel="stylesheet" href="../css/ao-frames.css">
+  <link rel="stylesheet" href="../css/ao-themes.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary:    var(--theme-bg-primary,  #0a1628);
+      --bg-card:       var(--theme-bg-card,      rgba(12,20,35,0.95));
+      --text-primary:  var(--theme-text-primary,  #ffffff);
+      --text-muted:    var(--theme-text-secondary,#94a3b8);
+      --accent-cyan:   var(--theme-accent,        #22d3ee);
+      --accent-orange: var(--theme-warning,       #fb923c);
+      --accent-red:    var(--theme-danger,        #ef4444);
+      --accent-green:  var(--theme-success,       #4ade80);
+      --border-subtle: var(--theme-border,        rgba(255,255,255,0.1));
+    }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      background: transparent;
+      font-family: 'Space Mono', 'Courier New', monospace;
+      color: var(--text-primary);
+    }
+
+    /* ── Layout ── */
+    .craft-layout {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 16px;
+      gap: 10px;
+    }
+
+    /* ── Header bar ── */
+    .craft-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .craft-header h1 {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent-cyan);
+    }
+    .craft-header .subtitle {
+      font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em;
+    }
+    .craft-selector { display: flex; gap: 6px; }
+    .craft-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 5px 12px; font-size: 10px; font-family: inherit;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .craft-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .craft-btn.active {
+      background: rgba(34,211,238,0.12);
+      border-color: var(--accent-cyan); color: var(--accent-cyan);
+    }
+
+    /* ── Main content ── */
+    .craft-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    /* ── 3D Viewer panel ── */
+    .viewer-panel {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    #viewer-canvas { display: block; width: 100%; height: 100%; }
+    .viewer-loading {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; background: var(--bg-card);
+      transition: opacity 0.4s;
+    }
+    .viewer-loading.hidden { opacity: 0; pointer-events: none; }
+    .viewer-loading .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border-subtle);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .viewer-loading .load-label {
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .viewer-loading .load-pct {
+      font-size: 18px; font-weight: 700; color: var(--accent-cyan);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .viewer-controls {
+      position: absolute; bottom: 10px; left: 10px;
+      display: flex; gap: 6px;
+    }
+    .viewer-ctrl-btn {
+      background: rgba(10,22,40,0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 4px 8px; font-size: 9px;
+      font-family: inherit; letter-spacing: 0.08em;
+      text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+    }
+    .viewer-ctrl-btn:hover, .viewer-ctrl-btn.active {
+      border-color: var(--accent-cyan); color: var(--accent-cyan);
+    }
+    .viewer-label {
+      position: absolute; top: 10px; left: 10px;
+      font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .viewer-hint {
+      position: absolute; bottom: 10px; right: 10px;
+      font-size: 9px; color: var(--text-muted); opacity: 0.5;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Info sidebar ── */
+    .info-sidebar {
+      display: flex; flex-direction: column; gap: 8px;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .info-sidebar::-webkit-scrollbar { width: 4px; }
+    .info-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .info-sidebar::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+
+    .craft-name-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 12px 14px;
+    }
+    .craft-name-card .craft-title {
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-primary); line-height: 1.2;
+    }
+    .craft-name-card .craft-variant {
+      font-size: 9px; color: var(--text-muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .craft-name-card .craft-operator {
+      font-size: 10px; color: var(--accent-cyan);
+      letter-spacing: 0.08em; margin-top: 8px;
+    }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 8px;
+      padding: 3px 8px; font-size: 9px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .status-badge.operational { border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .status-badge.active      { border: 1px solid var(--accent-cyan);  color: var(--accent-cyan);  }
+    .status-badge.development { border: 1px solid var(--accent-orange); color: var(--accent-orange); }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+    .operational .status-dot { background: var(--accent-green); }
+    .active      .status-dot { background: var(--accent-cyan);  }
+    .development .status-dot { background: var(--accent-orange); }
+    @keyframes dot-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Spec table ── */
+    .spec-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 10px 14px;
+    }
+    .spec-panel-title {
+      font-size: 9px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 8px;
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-label {
+      font-size: 9px; color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .spec-value {
+      font-size: 10px; color: var(--text-primary);
+      letter-spacing: 0.06em; text-align: right;
+    }
+
+    /* ── Mission note ── */
+    .mission-note {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 2px solid var(--accent-cyan);
+      padding: 10px 14px;
+      font-size: 9px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+<div class="craft-layout">
+
+  <!-- Header -->
+  <div class="craft-header">
+    <div>
+      <h1>SPACECRAFT REFERENCE</h1>
+      <div class="subtitle">3D MODEL VIEWER + SPECIFICATIONS</div>
+    </div>
+    <div class="craft-selector">
+      <button class="craft-btn active" data-craft="iss">ISS</button>
+      <button class="craft-btn" data-craft="crew">CREW DRAGON</button>
+      <button class="craft-btn" data-craft="cargo">CARGO DRAGON</button>
+      <button class="craft-btn" data-craft="orion">ORION</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="craft-body">
+
+    <!-- 3D Viewer -->
+    <div class="viewer-panel">
+      <canvas id="viewer-canvas"></canvas>
+      <div class="viewer-loading" id="viewer-loading">
+        <div class="spinner"></div>
+        <div class="load-pct" id="load-pct">0%</div>
+        <div class="load-label">LOADING MODEL</div>
+      </div>
+      <div class="viewer-label" id="viewer-label">ISS — INTERNATIONAL SPACE STATION</div>
+      <div class="viewer-controls">
+        <button class="viewer-ctrl-btn active" id="btn-rotate">⟳ AUTO-ROTATE</button>
+        <button class="viewer-ctrl-btn" id="btn-reset">RESET VIEW</button>
+      </div>
+      <div class="viewer-hint">DRAG TO ORBIT · SCROLL TO ZOOM</div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="info-sidebar" id="info-sidebar">
+      <!-- populated by JS -->
+    </div>
+
+  </div><!-- /craft-body -->
+</div><!-- /craft-layout -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+// ── Craft data ────────────────────────────────────────────────────────────────
+const CRAFT = {
+  iss: {
+    name: "INT'L SPACE STATION", variant: 'Research & Habitation Module',
+    operator: 'NASA / ESA / JAXA / Roscosmos / CSA',
+    status: 'operational', statusLabel: 'OPERATIONAL',
+    model: '../assets/iss-model-hd.glb', fallback: '../assets/iss-model.glb',
+    label: 'ISS — INTERNATIONAL SPACE STATION',
+    specs: [['ORBIT ALT','408 KM'],['INCLINATION','51.6°'],['MASS','420,000 KG'],
+            ['CREW CAP','7 PERSONS'],['LAUNCHED','1998'],['MODULES','16']],
+    note: 'Continuously inhabited since Nov 2000. Scheduled for deorbit ~2030. Largest human-made structure in orbit.',
+    camZ: 2.8, scale: null,
+  },
+  crew: {
+    name: 'CREW DRAGON', variant: 'Crewed Orbital Vehicle',
+    operator: 'SpaceX / NASA',
+    status: 'active', statusLabel: 'ACTIVE',
+    model: '../assets/models/crew-dragon.glb', fallback: null,
+    label: 'CREW DRAGON — COMMERCIAL CREW',
+    specs: [['CREW CAP','4 PERSONS'],['MASS','8,050 KG'],['DIAMETER','3.7 M'],
+            ['HEIGHT','8.1 M'],['LAUNCHED','2020'],['MISSIONS','10+']],
+    note: 'Supports ISS crew rotation under NASA Commercial Crew Program. Propulsive abort capability from pad to orbit.',
+    camZ: 5, scale: null,
+  },
+  cargo: {
+    name: 'DRAGON XL', variant: 'Uncrewed Cargo Vehicle',
+    operator: 'SpaceX / NASA',
+    status: 'active', statusLabel: 'ACTIVE',
+    model: '../assets/models/cargo-dragon.glb', fallback: null,
+    label: 'DRAGON XL — CRS RESUPPLY',
+    specs: [['PAYLOAD PRESS.','3,310 KG'],['PAYLOAD UNPRESS.','3,310 KG'],
+            ['GROSS MASS','~12,000 KG'],['DIAMETER','3.7 M'],
+            ['FIRST FLIGHT','2012'],['VERSION','DRAGON 2']],
+    note: 'Supports ISS resupply missions under NASA CRS-2 contract. Designed for reuse up to 5 flights.',
+    camZ: 5, scale: null,
+  },
+  orion: {
+    name: 'ORION MPCV', variant: 'Crew Exploration Vehicle',
+    operator: 'NASA / ESA',
+    status: 'development', statusLabel: 'ARTEMIS',
+    model: '../assets/models/orion-capsule.glb', fallback: null,
+    label: 'ORION MPCV — ARTEMIS PROGRAM',
+    specs: [['CREW CAP','4 PERSONS'],['MASS','26,520 KG'],['DIAMETER','5.0 M'],
+            ['RANGE','DEEP SPACE'],['EFT-1 FLIGHT','2014'],
+            ['NEXT FLIGHT','ARTEMIS II']],
+    note: 'Designed for missions beyond LEO including lunar orbit. ESA provides the European Service Module.',
+    camZ: 4, scale: null,
+  },
+};
+
+// ── Three.js setup ────────────────────────────────────────────────────────────
+const canvas  = document.getElementById('viewer-canvas');
+const panel   = canvas.parentElement;
+const loading = document.getElementById('viewer-loading');
+const loadPct = document.getElementById('load-pct');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x070f1e);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 10000);
+camera.position.set(0, 0, 5);
+
+// Lights
+const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+sun.position.set(5, 8, 5);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0x4466aa, 0.4);
+fill.position.set(-5, -3, -5);
+scene.add(fill);
+
+// ── Orbit controls (manual) ───────────────────────────────────────────────────
+let isDragging = false, lastX = 0, lastY = 0;
+let rotX = 0, rotY = 0, camDist = 5;
+let autoRotate = true;
+
+canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+window.addEventListener('mouseup',   () => { isDragging = false; });
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  rotY += (e.clientX - lastX) * 0.4;
+  rotX += (e.clientY - lastY) * 0.3;
+  rotX = Math.max(-85, Math.min(85, rotX));
+  lastX = e.clientX; lastY = e.clientY;
+  autoRotate = false;
+  document.getElementById('btn-rotate').classList.remove('active');
+});
+canvas.addEventListener('wheel', e => {
+  camDist = Math.max(0.5, Math.min(50, camDist + e.deltaY * 0.01));
+  e.preventDefault();
+}, { passive: false });
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+function resize() {
+  const w = panel.clientWidth, h = panel.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(panel);
+resize();
+
+// ── Model management ──────────────────────────────────────────────────────────
+let currentModel = null;
+const loader = new THREE.GLTFLoader();
+
+function clearModel() {
+  if (currentModel) { scene.remove(currentModel); currentModel = null; }
+}
+
+function loadModel(craftKey) {
+  const data = CRAFT[craftKey];
+  clearModel();
+  loading.classList.remove('hidden');
+  loadPct.textContent = '0%';
+
+  function tryLoad(url, onFail) {
+    loader.load(url,
+      gltf => {
+        const model = gltf.scene;
+        // Auto-scale to fit ~1 unit bounding sphere
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const s = (maxDim > 0) ? 1.6 / maxDim : 1;
+        model.scale.setScalar(s);
+        // Center
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center.multiplyScalar(s));
+        scene.add(model);
+        currentModel = model;
+        camDist = data.camZ;
+        camera.position.set(0, 0, camDist);
+        loading.classList.add('hidden');
+      },
+      xhr => {
+        if (xhr.total > 0) loadPct.textContent = Math.round(xhr.loaded/xhr.total*100) + '%';
+      },
+      err => {
+        if (onFail) { onFail(); }
+        else {
+          loading.classList.add('hidden');
+          console.warn('Model load failed:', url, err);
+        }
+      }
+    );
+  }
+
+  if (data.fallback) {
+    tryLoad(data.model, () => tryLoad(data.fallback, null));
+  } else {
+    tryLoad(data.model, null);
+  }
+
+  // Update sidebar and label
+  document.getElementById('viewer-label').textContent = data.label;
+  renderSidebar(data);
+}
+
+// ── Sidebar render ────────────────────────────────────────────────────────────
+function renderSidebar(data) {
+  const sidebar = document.getElementById('info-sidebar');
+  const specs = data.specs.map(([l,v]) =>
+    `<div class="spec-row"><span class="spec-label">${l}</span><span class="spec-value">${v}</span></div>`
+  ).join('');
+  sidebar.innerHTML = `
+    <div class="craft-name-card">
+      <div class="craft-title">${data.name}</div>
+      <div class="craft-variant">${data.variant}</div>
+      <div class="craft-operator">${data.operator}</div>
+      <div class="status-badge ${data.status}">
+        <div class="status-dot"></div>${data.statusLabel}
+      </div>
+    </div>
+    <div class="spec-panel">
+      <div class="spec-panel-title">SPECIFICATIONS</div>
+      ${specs}
+    </div>
+    <div class="mission-note">${data.note}</div>
+  `;
+}
+
+// ── Render loop ───────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate) rotY += clock.getDelta() * 18;
+  const phi   = THREE.MathUtils.degToRad(rotX);
+  const theta = THREE.MathUtils.degToRad(rotY);
+  camera.position.x = camDist * Math.cos(phi) * Math.sin(theta);
+  camera.position.y = camDist * Math.sin(phi);
+  camera.position.z = camDist * Math.cos(phi) * Math.cos(theta);
+  camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+}
+animate();
+
+// ── Craft selector buttons ────────────────────────────────────────────────────
+document.querySelectorAll('.craft-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.craft-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadModel(btn.dataset.craft);
+  });
+});
+
+// ── Viewer control buttons ────────────────────────────────────────────────────
+document.getElementById('btn-rotate').addEventListener('click', function() {
+  autoRotate = !autoRotate;
+  this.classList.toggle('active', autoRotate);
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  rotX = 0; rotY = 0;
+  const active = document.querySelector('.craft-btn.active');
+  if (active) camDist = CRAFT[active.dataset.craft].camZ;
+  autoRotate = true;
+  document.getElementById('btn-rotate').classList.add('active');
+});
+
+// ── postMessage theme support ─────────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (e.data?.type === 'setTheme' && e.data.theme) {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+  }
+  if (e.data?.type === 'keydown') {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: e.data.key }));
+  }
+});
+
+// ── Key forwarding to parent shell ────────────────────────────────────────────
+window.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','1','2','3','4','f','F11'].includes(e.key)) {
+    if (window.parent !== window) window.parent.postMessage({ type: 'keydown', key: e.key }, '*');
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadModel('iss');
+</script>
+</body>
+</html>

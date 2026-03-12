@@ -3,7 +3,7 @@
 ## Overview
 This document tracks development progress and the integration plan for the ArtemisOps application.
 
-**Last Updated:** March 7, 2026
+**Last Updated:** March 12, 2026
 
 ---
 
@@ -38,7 +38,19 @@ This document tracks development progress and the integration plan for the Artem
 - [x] Responsive breakpoints — 900px and 600px countdown digit scaling
 - [x] prefers-reduced-motion — kills sep-pulse and dot-pulse animations
 
+### Completed (Mar 12)
+- [x] Fixed tracking map regression — duplicate `const mapEl` SyntaxError in mode3-iss-live.html (commit e33d6c4)
+- [x] Converted orion_capsule.stl → orion-capsule.glb via trimesh (932KB, committed f95e8fd)
+- [x] Created craft.html — Spacecraft Reference tab with Three.js GLB viewer + spec sidebar
+  - Selector buttons: ISS / Crew Dragon / Cargo Dragon / Orion
+  - Auto-scaled GLB loader with HD/fallback chain for ISS
+  - Manual orbit controls (drag + scroll zoom), auto-rotate toggle, reset view
+  - Spec sidebar: name card, status badge (pulsing dot), spec table, mission note
+  - ao-themes.css wired, postMessage key forwarding + theme switching
+
 ### Up Next (Current Sprint)
+- [ ] Wire `'craft'` into `tabOrder` in `index-shell.html` (pending Dragon model downloads)
+- [ ] Download Dragon GLB models from Sketchfab and commit: crew-dragon.glb, cargo-dragon.glb
 - [ ] Apply ao-frames.css to panels — mission.html, tracking.html, crew.html panels need frame classes
 - [ ] Continue fixing Mission page sizing — maximize countdown clock per design intent
 - [ ] Add back video feeds for ISS tracking page
@@ -386,7 +398,9 @@ client/
 ├── tabs/                         # All UI pages (served via iframe shell)
 │   ├── mission.html              # Mission countdown + status + crew strip
 │   ├── tracking.html             # Map tracking modes
-│   └── ...                       # crew, info, trajectory3d, weather, recovery
+│   ├── crew.html                 # Astronaut photo grid + bios
+│   ├── craft.html                # Spacecraft 3D viewer + specs (ISS/Dragon/Orion)
+│   └── ...                       # info, trajectory3d, weather, recovery
 └── mockups/                      # Design references
     ├── mode1-prelaunch.html
     ├── mode2-ascent.html
