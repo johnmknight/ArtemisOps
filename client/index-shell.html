@@ -489,32 +489,40 @@
       },
       
       // === Keyboard Navigation ===
-      tabOrder: ['mission', 'tracking', 'crew', 'weather'], // 'info' paused — dev on hold
-      
+      // Only list tabs that are complete and wired up.
+      // Arrow keys and number keys (0-N) cycle through this list only.
+      // Parked tabs (weather, trajectory3d, recovery, info) are excluded until ready.
+      tabOrder: ['mission', 'tracking', 'crew'],
+
       handleKeydown(e) {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-        
+
         switch (e.key) {
           case 'ArrowRight':
             this.nextTab();
+            e.preventDefault();
             break;
           case 'ArrowLeft':
             this.prevTab();
+            e.preventDefault();
             break;
-          case '0': case '1': case '2': case '3': case '4':
+          case '0': case '1': case '2': case '3': case '4': {
             const tab = this.tabOrder[parseInt(e.key)];
-            if (tab) this.switchTab(tab);
+            if (tab) { this.switchTab(tab); e.preventDefault(); }
             break;
+          }
           case 'f': case 'F':
             if (!e.ctrlKey && !e.metaKey) {
               this.toggleFullscreen();
+              e.preventDefault();
             }
             break;
           case 'F11':
             this.toggleFullscreen();
+            e.preventDefault();
             break;
+          // All other keys: fall through with no preventDefault so browser shortcuts work normally
         }
-        if (e.preventDefault) e.preventDefault();
       },
       
       nextTab() {
