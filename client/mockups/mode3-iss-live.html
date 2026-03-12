@@ -2296,6 +2296,26 @@
       // Update button states
       document.getElementById('btnFootprint').classList.add('active');
       document.getElementById('btnTrack').classList.add('active');
+
+      // Fix: map may have initialized while the tab was hidden (clientWidth/Height = 0).
+      // Watch for the container getting real dimensions and re-fit immediately.
+      // NOTE: mapEl is already declared above for the initial zoom calculation — reuse it here.
+      let fitted = false;
+      const ro = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          if (width > 0 && height > 0 && !fitted) {
+            fitted = true;
+            map.invalidateSize(true);
+            // Recalculate zoom now that we have real pixel dimensions
+            const zw = Math.log2(width / 512);
+            const zh = Math.log2(height / 256);
+            map.setView([0, 0], Math.max(Math.min(zw, zh), 0.5));
+            ro.disconnect(); // one-shot: only needed for the initial reveal
+          }
+        }
+      });
+      ro.observe(mapEl);
     }
     
     // Add lat/lon grid lines (NASA Mission Control style)
