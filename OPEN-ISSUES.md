@@ -67,31 +67,6 @@ ascending" — CRS-33 was launched before Crew-12 and both have status "Go"/"In 
 
 ---
 
-### ISSUE-006 — Tracking Page Map Not Filling Available Screen Space
-
-**Date:** 2026-03-07
-**Severity:** Visual / Medium
-**Status:** OPEN
-
-**Problem:** On the tracking tab, the ISS world map panel does not expand to fill the full
-available viewport. There is wasted space above/below or around the map container, leaving
-the primary content element undersized relative to the screen real estate available.
-
-**Observed:** Map renders in a constrained box; significant dead space visible at current
-1612×762 viewport, consistent with the "maximize the hero element" design intent not being met
-for this tab.
-
-**Affected file:** `client/mockups/mode3-iss-live.html` — map container CSS (height/flex/grid)
-and possibly `client/tabs/tracking.html` — outer wrapper constraints
-
-**Fix approach:**
-- Audit `.tracking-content`, `.tracking-view`, and the Leaflet map container for any
-  fixed heights, max-height clamps, or padding that prevents 100% fill
-- Ensure the Leaflet map div has `height: 100%` and that all ancestor elements in the
-  flex/grid chain are also `height: 100%` or `flex: 1`
-- Check for any header/footer bars in the mockup consuming height that could be
-  collapsed or overlaid instead
-
 ---
 
 
@@ -126,6 +101,13 @@ inside mode3-iss-live.html that swaps CSS custom properties on `document.documen
 ---
 
 ## ✅ Closed Issues
+
+### CLOSED-006 — Tracking Page Map Not Filling Available Screen Space
+
+**Date:** 2026-03-07  **Closed:** 2026-03-12
+**Resolution:** Map verified filling available space at 1573×781 viewport with NASA GIBS Blue Marble
+tiles, ISS position overlay, orbit track, and footprint circle all rendering correctly.
+No layout constraints found. Issue closed as not reproducible at current viewport.
 
 ### CLOSED-001 — Page Frame Border Not Visible at Corners (Mission Page)
 

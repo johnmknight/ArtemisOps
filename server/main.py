@@ -1240,7 +1240,7 @@ if CLIENT_DIR.exists():
     
     @app.get("/")
     async def serve_client():
-        return FileResponse(CLIENT_DIR / "index.html")
+        return FileResponse(CLIENT_DIR / "index-shell.html")
     
     @app.get("/shell")
     async def serve_shell():

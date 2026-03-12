@@ -884,8 +884,15 @@
     .countdown-left .ao-digit-frame.wide .ao-digit-cell {
       width: clamp(180px, min(28vw, 38vh), 440px);
     }
+    /* 3-digit DAYS (≥100): widen cell further, scale font down ~22% so "199" fits */
+    .countdown-left .ao-digit-frame.wide.three-digit .ao-digit-cell {
+      width: clamp(220px, min(34vw, 46vh), 520px);
+    }
     .countdown-left .ao-digit-value {
       font-size: clamp(60px, min(12vw, 19vh), 180px);
+    }
+    .countdown-left .ao-digit-frame.wide.three-digit .ao-digit-value {
+      font-size: clamp(46px, min(9.2vw, 14.5vh), 138px);
     }
     .countdown-left .ao-digit-label {
       font-size: clamp(10px, min(1.2vw, 1.4vh), 15px);
@@ -1545,6 +1552,9 @@
         const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
         
         document.getElementById('days').textContent = String(days).padStart(3, '0');
+        // Toggle wide-cell variant when DAYS hits 3 digits (≥100)
+        const daysFrame = document.querySelector('.countdown-left .ao-digit-frame.wide');
+        if (daysFrame) daysFrame.classList.toggle('three-digit', days >= 100);
         document.getElementById('hours').textContent = String(hours).padStart(2, '0');
         document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
         document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');

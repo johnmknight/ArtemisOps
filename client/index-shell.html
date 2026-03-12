@@ -345,11 +345,18 @@
         // Load missions list and determine default
         await this.loadMissions();
         
-        // Determine default mission: first "Go"/"In Flight" by soonest launch, else first in list
+        // Determine default mission: crewed > cargo, then soonest launch within each group
         if (!this.currentMissionId && this.missions.length > 0) {
           const active = this.missions
             .filter(m => ['go', 'in flight', 'tbd', 'tbc'].includes((m.status || '').toLowerCase()))
-            .sort((a, b) => (a.launch_date || '9999').localeCompare(b.launch_date || '9999'));
+            .sort((a, b) => {
+              const crewedPat = /crew|artemis|starliner|soyuz|expedition/i;
+              const aCrewed = crewedPat.test(a.name || '') || crewedPat.test(a.id || '');
+              const bCrewed = crewedPat.test(b.name || '') || crewedPat.test(b.id || '');
+              if (aCrewed && !bCrewed) return -1;
+              if (!aCrewed && bCrewed) return 1;
+              return (a.launch_date || '9999').localeCompare(b.launch_date || '9999');
+            });
           this.currentMissionId = active.length > 0 ? active[0].id : this.missions[0].id;
         }
         if (!this.currentMissionId) this.currentMissionId = 'artemis-ii'; // ultimate fallback
