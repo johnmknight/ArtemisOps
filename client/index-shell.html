@@ -307,6 +307,7 @@
     <button class="theme-btn"        data-t="stealth"  title="Stealth (dark)"></button>
   </div>
 
+  <script src="js/ao-base.js"></script>
   <script>
     // ===== APP SHELL =====
     // Manages tab switching and data distribution to child iframes
@@ -327,9 +328,9 @@
         weather: false
       },
       
-      // API config
-      API_BASE: window.location.origin,
-      WS_URL: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`,
+      // API config — AO_BASE from ao-base.js handles proxy prefix
+      API_BASE: window.location.origin + (typeof AO_BASE !== 'undefined' ? AO_BASE : ''),
+      WS_URL: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}${typeof AO_BASE !== 'undefined' ? AO_BASE : ''}/ws`,
       ws: null,
       
       async init() {
