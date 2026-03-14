@@ -110,6 +110,7 @@
     <div class="notification-container" id="notifications"></div>
   </div>
 
+  <script src="js/ao-base.js"></script>
   <script>
     // Tab/Page configuration (page 0 = control panel)
     const TABS = ['control', 'mission', 'tracking', 'crew', 'info', 'trajectory3d', 'weather', 'recovery'];
@@ -215,7 +216,7 @@
        */
       connectWebSocket() {
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${window.location.host}/ws/screen/${this.screenId}`;
+        const wsUrl = `${wsProtocol}//${window.location.host}${AO_BASE}/ws/screen/${this.screenId}`;
         
         console.log(`Connecting to WebSocket: ${wsUrl}`);
         this.updateConnectionStatus('connecting');
